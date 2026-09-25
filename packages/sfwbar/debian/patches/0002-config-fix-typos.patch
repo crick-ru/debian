@@ -1,0 +1,84 @@
+From 2f261189038714a6c1c378223af1d0ebbf1b6490 Mon Sep 17 00:00:00 2001
+From: Birger Schacht <birger@debian.org>
+Date: Fri, 17 Nov 2023 13:48:43 +0100
+Subject: [PATCH 2/2] config: fix typos
+
+---
+ src/config/layout.c   |  4 ++--
+ src/config/toplevel.c | 16 ++++++++--------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/src/config/layout.c b/src/config/layout.c
+index fcd32b9..ee9f793 100644
+--- a/src/config/layout.c
++++ b/src/config/layout.c
+@@ -28,9 +28,9 @@ GdkRectangle config_get_loc ( GScanner *scanner )
+   rect.height = 1;
+ 
+   config_parse_sequence(scanner,
+-      SEQ_REQ,'(',NULL,NULL,"missing '(' afer loc",
++      SEQ_REQ,'(',NULL,NULL,"missing '(' after loc",
+       SEQ_REQ,G_TOKEN_INT,NULL,&rect.x,"missing x value in loc",
+-      SEQ_REQ,',',NULL,NULL,"missing comma afer x value in loc",
++      SEQ_REQ,',',NULL,NULL,"missing comma after x value in loc",
+       SEQ_REQ,G_TOKEN_INT,NULL,&rect.y,"missing y value in loc",
+       SEQ_OPT,',',NULL,NULL,NULL,
+       SEQ_CON,G_TOKEN_INT,NULL,&rect.width,"missing w value in loc",
+diff --git a/src/config/toplevel.c b/src/config/toplevel.c
+index defdc49..af84735 100644
+--- a/src/config/toplevel.c
++++ b/src/config/toplevel.c
+@@ -314,8 +314,8 @@ void config_menu_items ( GScanner *scanner, GtkWidget *menu )
+             SEQ_REQ,G_TOKEN_STRING,NULL,&itemname,"missing submenu title",
+             SEQ_OPT,',',NULL,NULL,NULL,
+             SEQ_CON,G_TOKEN_STRING,NULL,&subname,"missing submenu name",
+-            SEQ_REQ,')',NULL,NULL,"missing ')' afer 'submenu'",
+-            SEQ_OPT,'{',NULL,&items,"missing '{' afer 'submenu'",
++            SEQ_REQ,')',NULL,NULL,"missing ')' after 'submenu'",
++            SEQ_OPT,'{',NULL,&items,"missing '{' after 'submenu'",
+             SEQ_END);
+         if(!scanner->max_parse_errors && itemname)
+         {
+@@ -350,8 +350,8 @@ void config_menu ( GScanner *scanner )
+   config_parse_sequence(scanner,
+       SEQ_REQ,'(',NULL,NULL,"missing '(' after 'menu'",
+       SEQ_REQ,G_TOKEN_STRING,NULL,&name,"missing menu name",
+-      SEQ_REQ,')',NULL,NULL,"missing ')' afer 'menu'",
+-      SEQ_REQ,'{',NULL,&items,"missing '{' afer 'menu'",
++      SEQ_REQ,')',NULL,NULL,"missing ')' after 'menu'",
++      SEQ_REQ,'{',NULL,&items,"missing '{' after 'menu'",
+       SEQ_END);
+   if(!scanner->max_parse_errors && name)
+   {
+@@ -370,7 +370,7 @@ void config_menu_clear ( GScanner *scanner )
+   config_parse_sequence(scanner,
+       SEQ_REQ,'(',NULL,NULL,"missing '(' after 'menu'",
+       SEQ_REQ,G_TOKEN_STRING,NULL,&name,"missing menu name",
+-      SEQ_REQ,')',NULL,NULL,"missing ')' afer 'menu'",
++      SEQ_REQ,')',NULL,NULL,"missing ')' after 'menu'",
+       SEQ_OPT,';',NULL,NULL,NULL,
+       SEQ_END);
+   if(!scanner->max_parse_errors && name)
+@@ -387,8 +387,8 @@ void config_function ( GScanner *scanner )
+   config_parse_sequence(scanner,
+       SEQ_REQ,'(',NULL,NULL,"missing '(' after 'function'",
+       SEQ_REQ,G_TOKEN_STRING,NULL,&name,"missing function name",
+-      SEQ_REQ,')',NULL,NULL,"missing ')' afer 'function'",
+-      SEQ_OPT,'{',NULL,NULL,"missing '{' afer 'function'",
++      SEQ_REQ,')',NULL,NULL,"missing ')' after 'function'",
++      SEQ_OPT,'{',NULL,NULL,"missing '{' after 'function'",
+       SEQ_END);
+   if(scanner->max_parse_errors)
+     return g_free(name);
+@@ -501,7 +501,7 @@ void config_module ( GScanner *scanner )
+   config_parse_sequence(scanner,
+       SEQ_REQ,'(',NULL,NULL,"missing '(' after 'module'",
+       SEQ_REQ,G_TOKEN_STRING,NULL,&name,"missing module name",
+-      SEQ_REQ,')',NULL,NULL,"missing ')' afer 'module'",
++      SEQ_REQ,')',NULL,NULL,"missing ')' after 'module'",
+       SEQ_OPT,';',NULL,NULL,NULL,
+       SEQ_END);
+   if(scanner->max_parse_errors || !name)
+-- 
+2.42.0
+

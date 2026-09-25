@@ -1,0 +1,44 @@
+#!/bin/sh
+set -e
+
+AUTOVT=/etc/systemd/system/autovt@.service
+
+# Copied from /usr/share/debhelper/autoscripts/postrm-systemd
+# from debhelper 14.3.
+# This can go once #889635 is fixed.
+if [ "$1" = "purge" ]; then
+	# See debian/kmscon.prerm for the reasoning: deb-systemd-helper also lists
+	# the autovt@.service alias in the state file of kmsconvt@.service when the
+	# link belongs to getty@.service, and "purge" unlinks every recorded entry
+	# a second time. Protect the alias the same way here.
+	autovt_old=
+	if [ -L "$DPKG_ROOT$AUTOVT" ]; then
+		autovt_old=$(readlink "$DPKG_ROOT$AUTOVT")
+	fi
+
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge kmsconvt@.service >/dev/null || true
+	fi
+
+	if [ -n "$autovt_old" ] && [ ! -e "$DPKG_ROOT$AUTOVT" ] && [ ! -L "$DPKG_ROOT$AUTOVT" ]; then
+		case "$autovt_old" in
+		*/kmsconvt@.service)
+			if [ -e "$DPKG_ROOT/usr/lib/systemd/system/getty@.service" ]; then
+				ln -s /usr/lib/systemd/system/getty@.service "$DPKG_ROOT$AUTOVT"
+			fi
+			;;
+		*)
+			ln -s "$autovt_old" "$DPKG_ROOT$AUTOVT"
+			;;
+		esac
+	fi
+fi
+
+# Copied from /usr/share/debhelper/autoscripts/postrm-systemd-reload-only
+# from debhelper 14.3.
+# This can go once #889635 is fixed.
+if [ "$1" = remove ] && [ -d /run/systemd/system ] ; then
+	systemctl --system daemon-reload >/dev/null || true
+fi
+
+#DEBHELPER#

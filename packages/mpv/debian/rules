@@ -1,0 +1,37 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/architecture.mk
+
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all # #741439, #799738
+
+ifeq ($(DEB_HOST_ARCH_OS),linux)
+  ARCH_CONFIGURE = -Ddvbin=enabled
+endif
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Dx11=disabled \
+		-Dwayland=enabled \
+		-Degl-wayland=enabled \
+		-Ddmabuf-wayland=enabled \
+		-Dvaapi-wayland=enabled \
+		-Degl-x11=disabled \
+		-Dgl-x11=disabled \
+		-Dvaapi-x11=disabled \
+		-Dvdpau-gl-x11=disabled \
+		-Dxv=disabled \
+		-Dx11-clipboard=disabled \
+		-Dlibmpv=true \
+		-Dbuild-date=false \
+		-Dcdda=enabled \
+		-Ddvdnav=enabled \
+		$(ARCH_CONFIGURE)
+
+execute_after_dh_auto_install:
+	mv debian/tmp/usr/share/zsh/site-functions debian/tmp/usr/share/zsh/vendor-completions
+
+override_dh_installchangelogs:
+	dh_installchangelogs RELEASE_NOTES

@@ -1,0 +1,27 @@
+From f66b49bd424c963aed33c52b0badb2a5464a0dc3 Mon Sep 17 00:00:00 2001
+From: Nobuhiro Iwamatsu <iwamatsu@debian.org>
+Date: Sat, 3 Jan 2026 06:19:42 +0900
+Subject: [PATCH] tsm/meson.build: Change library build to both_libraries
+
+Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@debian.org>
+Last-Update: 2026-01-31
+---
+ src/tsm/meson.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/tsm/meson.build b/src/tsm/meson.build
+index 752442b..4f1a257 100644
+--- a/src/tsm/meson.build
++++ b/src/tsm/meson.build
+@@ -26,7 +26,7 @@ endif
+ 
+ deps = [wcwidth_dep, shl_dep, xkbcommon_dep]
+ 
+-libtsm = shared_library(
++libtsm = both_libraries(
+     'tsm',
+     libtsm_srcs,
+     dependencies: deps,
+-- 
+2.51.0
+

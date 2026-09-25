@@ -1,0 +1,80 @@
+name: Build Packages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/**'
+      - 'scripts/**'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Specific package to build (or "all")'
+        required: true
+        default: 'all'
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-packages:
+    name: Build ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - fdk-aac
+          - libtsm
+          - kmscon
+          - wlroots
+          - labwc
+          - sfwbar
+          - mpv
+          - celluloid
+          - pipewire
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Debian build toolchain
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git
+
+      - name: Install Package Build-Dependencies
+        run: |
+          # Enable non-free and non-free-firmware for dependencies if needed
+          sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          cd "packages/${{ matrix.package }}"
+          mk-build-deps --install --remove --tool="apt-get -y --no-install-recommends" debian/control
+
+      - name: Fetch Upstream and Build Package
+        run: |
+          scripts/fetch-upstream.sh "${{ matrix.package }}"
+          scripts/build-package.sh "${{ matrix.package }}"
+
+      - name: Upload Package Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages-${{ matrix.package }}
+          path: repo-pool/*.deb
+          retention-days: 7
+          if-no-files-found: error

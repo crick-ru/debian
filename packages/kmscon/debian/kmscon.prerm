@@ -1,0 +1,71 @@
+#!/bin/sh
+set -e
+
+# Ensure /etc/systemd/system/autovt@.service gets removed on package removal,
+# but only if it actually points at kmsconvt@.service.
+#
+# /etc/systemd/system/autovt@.service is the *only* autovt alias that exists on
+# a Debian system: systemd (>= 260) no longer ships a static
+# /usr/lib/systemd/system/autovt@.service and only runs
+# "systemctl enable getty@.service" on new installs. deb-systemd-helper records
+# that alias in the state file of kmsconvt@.service even when the link was
+# created by systemd and still points at getty@.service (it appends to the
+# state file before checking whether the symlink already exists), and its
+# remove_links() then unlinks every recorded entry unconditionally.
+#
+# Without the dance below, removing kmscon therefore leaves the system with no
+# autovt@.service at all, and systemd-logind can no longer activate any virtual
+# console -- not even after a reboot. So remember where the alias pointed and
+# put it back once deb-systemd-helper is done.
+AUTOVT=/etc/systemd/system/autovt@.service
+GETTY_TTY1=/etc/systemd/system/getty.target.wants/getty@tty1.service
+KMSCONVT_TTY1=/etc/systemd/system/getty.target.wants/kmsconvt@tty1.service
+
+if [ "$1" = "remove" ]; then
+	autovt_old=
+	if [ -L "$DPKG_ROOT$AUTOVT" ]; then
+		autovt_old=$(readlink "$DPKG_ROOT$AUTOVT")
+	fi
+
+	# README.Debian tells the administrator to run "systemctl disable
+	# autovt@.service" before enabling kmsconvt@.service, which also drops
+	# getty@tty1.service from getty.target.wants. Remember whether we are the
+	# unit that getty.target currently pulls in for tty1, so that the agetty
+	# one can be put back below; restoring only the alias would leave tty1
+	# without a login prompt at boot.
+	kmscon_on_tty1=
+	if [ -L "$DPKG_ROOT$KMSCONVT_TTY1" ] &&
+	   [ ! -e "$DPKG_ROOT$GETTY_TTY1" ] && [ ! -L "$DPKG_ROOT$GETTY_TTY1" ]; then
+		kmscon_on_tty1=yes
+	fi
+
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper disable kmsconvt@.service >/dev/null || echo "Warning: kmsconvt@.service was not successfully disabled. You may wish to manually remove the dangling $AUTOVT file."
+	fi
+
+	if [ -n "$autovt_old" ] && [ ! -e "$DPKG_ROOT$AUTOVT" ] && [ ! -L "$DPKG_ROOT$AUTOVT" ]; then
+		case "$autovt_old" in
+		*/kmsconvt@.service)
+			# The alias pointed at us, so hand the virtual consoles back to
+			# agetty in order to keep them working after the removal.
+			if [ -e "$DPKG_ROOT/usr/lib/systemd/system/getty@.service" ]; then
+				ln -s /usr/lib/systemd/system/getty@.service "$DPKG_ROOT$AUTOVT"
+			fi
+			;;
+		*)
+			# The alias belonged to another unit (normally getty@.service),
+			# restore it exactly as it was.
+			ln -s "$autovt_old" "$DPKG_ROOT$AUTOVT"
+			;;
+		esac
+	fi
+
+	if [ -n "$kmscon_on_tty1" ] &&
+	   [ ! -e "$DPKG_ROOT$GETTY_TTY1" ] && [ ! -L "$DPKG_ROOT$GETTY_TTY1" ] &&
+	   [ -e "$DPKG_ROOT/usr/lib/systemd/system/getty@.service" ]; then
+		mkdir -p "$DPKG_ROOT${GETTY_TTY1%/*}"
+		ln -s /usr/lib/systemd/system/getty@.service "$DPKG_ROOT$GETTY_TTY1"
+	fi
+fi
+
+#DEBHELPER#

@@ -1,0 +1,229 @@
+kmscon (10.0.3-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Boyuan Yang <byang@debian.org>  Fri, 04 Sep 2026 21:43:12 -0400
+
+kmscon (10.0.2-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/control: Bump required libtsm version to v4.7.0+ to force
+    a binary rebuild.
+  * debian/copyright: Updated.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 20 Aug 2026 14:36:29 -0400
+
+kmscon (10.0.1-3) unstable; urgency=medium
+
+  * debian/README.Debian: Recommend "systemctl disable autovt@.service"
+    followed by "systemctl enable kmsconvt@.service" instead of
+    "systemctl enable --force kmsconvt@.service". The latter replaces the
+    autovt@.service alias but leaves getty@tty1.service in getty.target.wants,
+    so getty and kmscon both get pulled in for tty1. Same fix for the
+    opposite direction. Thanks to Michael Biebl for the report.
+  * debian/kmscon.prerm: Restore
+    /etc/systemd/system/getty.target.wants/getty@tty1.service on package
+    removal when kmscon was the unit serving tty1 at boot, since the enable
+    procedure above removes it.
+
+ -- Boyuan Yang <byang@debian.org>  Tue, 11 Aug 2026 19:14:59 -0400
+
+kmscon (10.0.1-2) unstable; urgency=medium
+
+  * debian/kmscon.prerm, debian/kmscon.postrm: Do not destroy the
+    /etc/systemd/system/autovt@.service alias on package removal or purge
+    even with systemd >= 260.
+  * debian/kmscon.postinst: Do not enable kmsconvt@.service on fresh
+    installations anymore, matching what README.Debian has been documenting.
+    Existing installations that have kmscon enabled are left untouched.
+  * debian/README.Debian: Document the enable command correctly, how to
+    keep tty1 free for the display manager, how to temporarily switch
+    between kmscon and agetty without removing the package, and that
+    disabling kmsconvt@.service by hand must be followed by re-enabling
+    getty@.service.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 06 Aug 2026 12:37:11 -0400
+
+kmscon (10.0.1-1) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 02 Jul 2026 14:29:10 -0400
+
+kmscon (10.0.1-1~exp1) experimental; urgency=medium
+
+  * New upstream release.
+  * debian/patches/: Refresh patches.
+  * debian/control: Add new build-dep libdbus-1-dev.
+  * debian/control: Use debhelper compat v14.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 02 Jul 2026 13:20:55 -0400
+
+kmscon (10.0.0-1~exp1) experimental; urgency=medium
+
+  * New upstream release.
+  * debian/control: Bump build-dep version requirements.
+  * debian/copyright: Fix license information.
+  * debian/not-installed: Do not install kmscon terminfo since it will
+    be provided by the new version of ncurses.
+  * debian/control: Depends on ncurses-term (>= 6.6+20260608~) for kmscon
+    terminfo.
+  * debian/patches: Refresh patches.
+    + 0001: Do not attempt to alter the TERM variable, use the upstream
+      default choice ("linux") now.
+    - 0003-Use-system-version-of-unifont.hex.patch: Dropped, the bundled
+      (stripped-down) version is now new enough.
+
+ -- Boyuan Yang <byang@debian.org>  Tue, 09 Jun 2026 17:35:43 -0400
+
+kmscon (9.3.3-2) unstable; urgency=medium
+
+  * New upstream release.
+  * Rebuild against libtsm 4.5.0.
+  * debian/control: Bump debhelper compat to v14.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 25 Jun 2026 10:36:11 -0400
+
+kmscon (9.3.3-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/control: Add new build-dep libfreetype-dev, libfontconfig-dev,
+    zlib1g-dev.
+  * debian/control: Bump Standards-Version to 4.7.4.
+  * debian/patches/*: Refreshed.
+  * debian/copyright: Refreshed.
+
+ -- Boyuan Yang <byang@debian.org>  Tue, 14 Apr 2026 13:02:08 -0400
+
+kmscon (9.3.2-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/patches/backport/*: Dropped, useless.
+
+ -- Boyuan Yang <byang@debian.org>  Mon, 16 Feb 2026 23:56:52 -0500
+
+kmscon (9.3.1-3) unstable; urgency=medium
+
+  * debian/patches/backport/*.patch: Add patch from upstream trunk
+    to properly install the man page for kmscon.conf into section 5.
+
+ -- Boyuan Yang <byang@debian.org>  Wed, 11 Feb 2026 19:33:42 -0500
+
+kmscon (9.3.1-2) unstable; urgency=medium
+
+  * debian/copyright: Use SPDX canonical license names.
+  * Manually trigger rebuild for ppc64el issue in Ubuntu.
+  * debian/man/kmscon-launch-gui.1: Add extra man page for the
+    kmscon-launch-gui tool.
+
+ -- Boyuan Yang <byang@debian.org>  Tue, 10 Feb 2026 00:04:12 -0500
+
+kmscon (9.3.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/patches: Refresh patches.
+  * debian/control: Bump libtsm version dependency.
+
+ -- Boyuan Yang <byang@debian.org>  Sat, 07 Feb 2026 18:26:03 -0500
+
+kmscon (9.3.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/patches/proposed/*: Dropped, merged upstream.
+  * debian/patches/0004-Revert-libtsm-4.4.0-required-code-changes.patch:
+    Do not require new libtsm before we have that available in Debian.
+  * debian/patches/: Refresh patches.
+  * debian/kmscon.install: Use dh-exec to install the example config file
+    as /etc/kmscon.conf.
+
+ -- Boyuan Yang <byang@debian.org>  Mon, 26 Jan 2026 15:03:56 -0500
+
+kmscon (9.2.1-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #1061691, #1121924, #1123930)
+  * debian/control: Explicitly depends on binary package login due
+    to it no longer being Essential: yes. (Closes: #1074093)
+  * debian/control: Bump requirement of libtsm to v4.3+.
+  * debian/control: Drop build-dep on libpixman-1-dev.
+  * debian/patches: Refresh patches.
+
+ -- Boyuan Yang <byang@debian.org>  Fri, 02 Jan 2026 20:27:25 -0500
+
+kmscon (9.1.0-1) unstable; urgency=medium
+
+  * New upstream release.
+    + Fixes virtual console reset on logout. (Closes: #1091429)
+  * debian/README.Debian: Write a README file on kmscon usage.
+  * debian/patches/0004-Use-correct-systemd-system-unit-directory.patch:
+    Dropped, merged upstream.
+  * debian/patches/0005-Run-agetty-instead-of-login.patch: Dropped,
+    merged upstream and in patch 0001.
+  * debian/patches/proposed/dbf7d1e1e589c2cb8cec6f35f275ee972b43d869.patch:
+    Add proposed patch to fix a typo in the man page. (Closes: #1098993)
+  * debian/patches: Refresh patches.
+  * debian/control: Add new build-dep check.
+  * debian/kmscon.prerm: Disable the kmsconvt@.service in prerm to ensure
+    that /etc/systemd/system/autovt@.service gets removed on package
+    removal and getty is restored properly. (Closes: #1061686)
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 01 Jan 2026 21:54:06 -0500
+
+kmscon (9.0.0-6) unstable; urgency=medium
+
+  * Update package maintainership. (Closes: #1124470)
+  * debian/: Apply wrap-and-sort -abst.
+  * Bump Standards-Version to 4.7.3.
+  * Switch upstream to github kmscon/kmscon. (Closes: #1116621)
+  * debian/control: Use updated Vcs-* fields.
+  * debian/control: Replace pkg-config with pkgconf.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 01 Jan 2026 15:27:06 -0500
+
+kmscon (9.0.0-5.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * debian/watch: Fix upstream monitoring. (Closes: #1110927)
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 18 Dec 2025 19:03:10 -0500
+
+kmscon (9.0.0-5) unstable; urgency=medium
+
+  * Stop using undocumented autoscripts in d/rules.
+  * Use dh_builtusing to generate Built-Using dependency on unifont.
+  * Fix FTBFS when systemd.pc changes systemdsystemunitdir.
+    Thanks to Helmut Grohne. (Closes: 1052644)
+
+ -- Victor Westerhuis <victor@westerhu.is>  Mon, 04 Dec 2023 14:55:05 +0100
+
+kmscon (9.0.0-4) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster (oldstable).
+
+  [ Victor Westerhuis ]
+  * Update standards version to 4.6.2, no changes needed.
+  * Disable -Werror=array-bounds.
+
+ -- Victor Westerhuis <victor@westerhu.is>  Sun, 29 Jan 2023 20:19:17 +0100
+
+kmscon (9.0.0-3) unstable; urgency=medium
+
+  * Depend on init-system-helpers >= 1.65
+  * Fix Built-Using calculation in d/rules
+  * Register exception with needrestart (Closes: 1024345)
+  * Update d/watch
+
+ -- Victor Westerhuis <victor@westerhu.is>  Sun, 20 Nov 2022 18:39:48 +0100
+
+kmscon (9.0.0-2) unstable; urgency=medium
+
+  * Run agetty instead of login (Closes: #1014316)
+  * Bump Standards-Version to 4.6.1
+
+ -- Victor Westerhuis <victor@westerhu.is>  Tue, 05 Jul 2022 16:14:32 +0200
+
+kmscon (9.0.0-1) unstable; urgency=medium
+
+  * Initial release (Closes: #1004919)
+
+ -- Victor Westerhuis <victor@westerhu.is>  Sun, 19 Jun 2022 22:43:25 +0200

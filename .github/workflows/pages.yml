@@ -1,0 +1,87 @@
+name: Publish APT Repository to Pages
+
+on:
+  workflow_run:
+    workflows: ["Build Packages"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: pages-publish
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  publish-repo:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    name: Generate APT Repository & Deploy Pages
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install APT Repository Tools
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            dpkg-dev \
+            gnupg \
+            gzip \
+            xz-utils \
+            curl \
+            ca-certificates
+
+      - name: Download Built Package Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded-artifacts
+          pattern: deb-packages-*
+          merge-multiple: true
+
+      - name: Stage Packages
+        run: |
+          mkdir -p repo-pool
+          if [[ -d downloaded-artifacts ]]; then
+            cp -v downloaded-artifacts/*.deb repo-pool/ 2>/dev/null || true
+          fi
+
+      - name: Import GPG Key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          if [[ -n "$GPG_PRIVATE_KEY" ]]; then
+            echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+            echo "GPG private key imported."
+          else
+            echo "Warning: No GPG_PRIVATE_KEY found; repository will be unsigned."
+          fi
+
+      - name: Generate APT Repository Metadata
+        run: |
+          scripts/generate-repo.sh
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy-pages:
+    needs: publish-repo
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

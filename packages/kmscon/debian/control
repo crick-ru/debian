@@ -1,0 +1,59 @@
+Source: kmscon
+Maintainer: Boyuan Yang <byang@debian.org>
+Uploaders:
+ Victor Westerhuis <victor@westerhu.is>,
+Section: utils
+Build-Depends:
+ check,
+ debhelper-compat (= 14),
+ dh-exec,
+ dh-sequence-builtusing,
+ docbook-xml <!nodoc>,
+ docbook-xsl <!nodoc>,
+ libfontconfig-dev,
+ libfreetype-dev,
+ libdbus-1-dev,
+ libdrm-dev,
+ libegl-dev,
+ libgbm-dev,
+ libgles-dev,
+ libpango1.0-dev,
+ libseat-dev,
+ libsystemd-dev,
+ libtsm-dev (>= 4.7.0),
+ libudev-dev,
+ libxkbcommon-dev,
+ meson (>= 1.1),
+ pkgconf,
+ python3:any,
+ systemd-dev,
+ unifont,
+ xsltproc <!nodoc>,
+ zlib1g-dev,
+Standards-Version: 4.7.4
+Vcs-Browser: https://salsa.debian.org/debian/kmscon
+Vcs-Git: https://salsa.debian.org/debian/kmscon.git
+Homepage: https://github.com/kmscon/kmscon
+Description: Simple terminal emulator based on Kernel Mode Setting
+ kmscon is a system console for Linux. It does not depend on any
+ graphics-server on your system (like X.org), but instead provides
+ a raw console layer that can  be used independently.
+ It can replace the Linux kernel console entirely but was designed to
+ work well side-by-side, too.
+ Even though initially targeted at providing internationalization to
+ the system-console, it has grown into a fully modularized console
+ layer including features like multi-head support, internationalized
+ font rendering, XKB-compatible keyboard handling,
+ hardware-accelerated graphics access and more.
+
+Package: kmscon
+Architecture: any
+Multi-Arch: foreign
+Depends:
+ ncurses-term (>= 6.6+20260608~),
+ init-system-helpers (>> 1.65~),
+ login,
+Built-Using:
+ ${dh-builtusing:unifont},
+Description: ${source:Synopsis}
+ ${source:Extended-Description}

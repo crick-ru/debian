@@ -1,0 +1,31 @@
+#!/bin/sh
+set -e
+
+# kmscon is deliberately NOT enabled on fresh installations. Enabling
+# kmsconvt@.service makes it take over /etc/systemd/system/autovt@.service and
+# pulls kmsconvt@tty1.service into getty.target, i.e. exactly the virtual
+# console that display managers such as sddm and gdm3 want to use. Since those
+# only declare a conflict against getty@tty1.service, the two would end up
+# fighting over the same DRM device. See README.Debian for how to enable
+# kmscon, and https://github.com/kmscon/kmscon/issues/294 for the background.
+#
+# Copied from /usr/share/debhelper/autoscripts/postinst-systemd-dont-enable
+# from debhelper 14.3.
+# This can go once #889635 is fixed.
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if deb-systemd-helper debian-installed kmsconvt@.service; then
+		# The following line should be removed in trixie or trixie+1
+		deb-systemd-helper unmask kmsconvt@.service >/dev/null || true
+
+		if deb-systemd-helper --quiet was-enabled kmsconvt@.service; then
+			# Create new symlinks, if any.
+			deb-systemd-helper enable kmsconvt@.service >/dev/null || true
+		fi
+	fi
+
+	# Update the statefile to add new symlinks (if any), which need to be
+	# cleaned up on purge. Also remove old symlinks.
+	deb-systemd-helper update-state kmsconvt@.service >/dev/null || true
+fi
+
+#DEBHELPER#

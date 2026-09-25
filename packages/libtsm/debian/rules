@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
+
+include /usr/share/dpkg/default.mk
+
+export DEB_BUILD_MAINT_OPTIONS := qa=+bug hardening=+all reproducible=+all
+export DPKG_GENSYMBOLS_CHECK_LEVEL := 4
+
+ifneq ($(filter nocheck,$(DEB_BUILD_PROFILES)),)
+	CONFIGURE_FLAGS += -Dtests=false
+else
+	CONFIGURE_FLAGS += -Dtests=true
+endif
+
+%:
+	dh $@ --builddirectory=build/ \
+		--buildsystem=meson	
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(CONFIGURE_FLAGS)
+
+override_dh_installdocs:
+	dh_installdocs -plibtsm-dev --link-doc=libtsm4
+	dh_installdocs --remaining-packages

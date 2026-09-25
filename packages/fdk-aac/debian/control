@@ -1,0 +1,57 @@
+Source: fdk-aac
+Section: non-free/libs
+Priority: optional
+Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
+Uploaders: Romain Beauxis <toots@rastageeks.org>,
+ Fabian Greffrath <fabian@debian.org>
+Homepage: https://github.com/mstorsjo/fdk-aac
+Standards-Version: 4.7.1
+Build-Depends: debhelper-compat (= 13)
+Vcs-Git: https://salsa.debian.org/multimedia-team/fdk-aac.git
+Vcs-Browser: https://salsa.debian.org/multimedia-team/fdk-aac
+XS-Autobuild: yes
+Rules-Requires-Root: no
+
+Package: libfdk-aac2t64
+Provides: ${t64:Provides}
+Replaces: libfdk-aac2
+Breaks: libfdk-aac2 (<< ${source:Version})
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends}
+Description: Fraunhofer FDK AAC Codec Library - runtime files
+ The FDK AAC Codec Library For Android contains an encoder implementation
+ of the Advanced Audio Coding (AAC) audio codec.
+ .
+ This package contains the files needed to run a program compiled using
+ The Fraunhofer FDK AAC Codec Library.
+
+Package: libfdk-aac-dev
+Architecture: any
+Multi-Arch: same
+Section: non-free/libdevel
+Depends:
+ libfdk-aac2t64 (= ${binary:Version}),
+ pkg-config,
+ ${misc:Depends}
+Description: Fraunhofer FDK AAC Codec Library - development files
+ The FDK AAC Codec Library For Android contains an encoder implementation
+ of the Advanced Audio Coding (AAC) audio codec.
+ .
+ This package contains the files needed to compile and statically link
+ against the Fraunhofer FDK AAC Codec Library.
+
+Package: aac-enc
+Architecture: any
+Depends:
+  ${shlibs:Depends},
+  ${misc:Depends}
+Section: non-free/sound
+Description: Fraunhofer FDK AAC Codec Library - frontend binary
+ The FDK AAC Codec Library For Android contains an encoder implementation
+ of the Advanced Audio Coding (AAC) audio codec.
+ .
+ This package contains a frontend binary capable of encoding WAVE files
+ using the Fraunhofer FDK AAC Codec Library.

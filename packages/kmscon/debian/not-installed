@@ -1,0 +1,4 @@
+${env:SYSTEMD_SYSTEM_UNIT_DIR}/kmscon.service
+etc/kmscon/kmscon.conf.example
+# https://lists.gnu.org/archive/html/bug-ncurses/2026-06/msg00016.html
+usr/share/terminfo

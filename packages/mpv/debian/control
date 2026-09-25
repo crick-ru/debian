@@ -1,0 +1,139 @@
+Source: mpv
+Section: video
+Priority: optional
+Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
+Uploaders: Alessandro Ghedini <ghedo@debian.org>,
+ Reinhard Tartler <siretart@tauware.de>,
+ James Cowgill <jcowgill@debian.org>,
+ Sebastian Ramacher <sramacher@debian.org>
+Build-Depends:
+ debhelper-compat (= 13),
+ libarchive-dev (>= 3.4),
+ libasound2-dev [linux-any],
+ libass-dev,
+ libavcodec-dev (>= 7:7.0),
+ libavdevice-dev (>= 7:7.0),
+ libavfilter-dev (>= 7:7.0),
+ libavformat-dev (>= 7:7.0),
+ libavutil-dev (>= 7:7.0),
+ libbluray-dev,
+ libcdio-dev,
+ libcdio-paranoia-dev,
+ libdisplay-info-dev,
+ libdrm-dev (>= 2.4.75),
+ libdvdnav-dev,
+ libegl-dev [linux-any],
+ libffmpeg-nvenc-dev [amd64 arm64 i386],
+ libgbm-dev,
+ libjack-dev,
+ libjpeg-dev,
+ liblcms2-dev (>= 2.6~),
+ liblua5.2-dev,
+ libmujs-dev,
+ libpipewire-0.3-dev [linux-any],
+ libplacebo-dev (>= 6.338),
+ libpulse-dev,
+ librubberband-dev,
+ libsixel-dev,
+ libsndio-dev,
+ libswscale-dev (>= 7:7.0),
+ libuchardet-dev,
+ libva-dev,
+ libvulkan-dev,
+ libwayland-dev (>= 1.15.0) [linux-any],
+ libxkbcommon-dev [linux-any],
+ libzimg-dev,
+ meson,
+ ninja-build,
+ pkgconf,
+ python3-docutils,
+ wayland-protocols,
+Standards-Version: 4.7.3
+Homepage: https://mpv.io/
+Vcs-Git: https://salsa.debian.org/multimedia-team/mpv.git
+Vcs-Browser: https://salsa.debian.org/multimedia-team/mpv
+
+Package: mpv
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: xdg-utils, yt-dlp
+Suggests: libcuda1 [amd64 arm64 i386]
+Multi-Arch: foreign
+Description: video player based on MPlayer/mplayer2
+ mpv is a movie player based on MPlayer and mplayer2. It supports a wide
+ variety of video file formats, audio and video codecs, and subtitle types.
+ .
+ Changes from mplayer2 to mpv include:
+  * Removal of lots of unneeded code to encourage developer activity
+  * Better OSD rendering
+  * Cleaned up terminal output
+  * Improved OpenGL output
+  * Encoding functionality (replacement for mencoder)
+  * Wayland support
+  * Support for playing URLs of popular streaming sites
+  * Screenshot improvements
+  * ...
+ See mpv(1) for more info regarding changes between MPlayer, mplayer2 and mpv.
+
+Package: libmpv2
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: yt-dlp
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: video player based on MPlayer/mplayer2 (client library)
+ mpv is a movie player based on MPlayer and mplayer2. It supports a wide
+ variety of video file formats, audio and video codecs, and subtitle types.
+ .
+ This package provides a client library that can be used to embed mpv in other
+ applications.
+
+Package: libmpv-dev
+Section: libdevel
+Architecture: any
+Depends:
+ libmpv2 (= ${binary:Version}),
+ libarchive-dev (>= 3.4),
+ libasound2-dev [linux-any],
+ libass-dev,
+ libavcodec-dev (>= 7:7.0),
+ libavdevice-dev (>= 7:7.0),
+ libavfilter-dev (>= 7:7.0),
+ libavformat-dev (>= 7:7.0),
+ libavutil-dev (>= 7:7.0),
+ libbluray-dev,
+ libcdio-dev,
+ libcdio-paranoia-dev,
+ libdisplay-info-dev,
+ libdrm-dev (>= 2.4.75),
+ libdvdnav-dev,
+ libegl-dev [linux-any],
+ libffmpeg-nvenc-dev [amd64 arm64 i386],
+ libgbm-dev,
+ libjack-dev,
+ libjpeg-dev,
+ liblcms2-dev (>= 2.6~),
+ liblua5.2-dev,
+ libmujs-dev,
+ libpipewire-0.3-dev [linux-any],
+ libplacebo-dev (>= 6.338),
+ libpulse-dev,
+ librubberband-dev,
+ libsixel-dev,
+ libsndio-dev,
+ libswscale-dev (>= 7:7.0),
+ libuchardet-dev,
+ libva-dev,
+ libvulkan-dev,
+ libwayland-dev (>= 1.15.0) [linux-any],
+ libxkbcommon-dev [linux-any],
+ libzimg-dev,
+ wayland-protocols,
+ ${misc:Depends}
+Multi-Arch: same
+Description: video player based on MPlayer/mplayer2 (client library dev files)
+ mpv is a movie player based on MPlayer and mplayer2. It supports a wide
+ variety of video file formats, audio and video codecs, and subtitle types.
+ .
+ This package provides development files for libmpv.

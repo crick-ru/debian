@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+include /usr/share/dpkg/pkg-info.mk
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	dh_auto_build
+	for file in doc/*.rst ; do \
+		rst2man $$file $${file%.rst}.1 ; \
+	done
+
+override_dh_install:
+	rm -f debian/sfwbar/usr/share/sfwbar/icons/weather/LICENSE
+	dh_install

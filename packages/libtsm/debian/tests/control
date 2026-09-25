@@ -1,0 +1,3 @@
+Tests: public-api
+Depends: @, @builddeps@
+Restrictions: allow-stderr

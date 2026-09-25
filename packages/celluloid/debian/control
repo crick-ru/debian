@@ -1,0 +1,38 @@
+Source: celluloid
+Section: video
+Priority: optional
+Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
+Uploaders:
+ Ximin Luo <infinity0@debian.org>,
+ Danial Behzadi <dani.behzi@ubuntu.com>,
+Build-Depends:
+ appstream,
+ autoconf-archive,
+ debhelper-compat (= 13),
+ desktop-file-utils,
+ libadwaita-1-dev (>= 1.6.0),
+ libepoxy-dev,
+ libgtk-4-dev,
+ libmpv-dev (>= 0.32),
+ meson,
+ pkgconf,
+Standards-Version: 4.7.2
+Homepage: https://github.com/celluloid-player/celluloid
+Vcs-Git: https://salsa.debian.org/multimedia-team/celluloid.git
+Vcs-Browser: https://salsa.debian.org/multimedia-team/celluloid
+
+Package: celluloid
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Recommends:
+ yt-dlp,
+Replaces:
+ gnome-mpv (<< 0.17-1~),
+Breaks:
+ gnome-mpv (<< 0.17-1~),
+Description: simple GTK+ frontend for mpv
+ GNOME MPV is a simple GTK+ frontend for mpv. GNOME MPV interacts with mpv via
+ the client API exported by libmpv, allowing access to mpv's powerful playback
+ capabilities.

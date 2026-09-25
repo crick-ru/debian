@@ -1,0 +1,5 @@
+sfwbar (1.0~beta13-1) unstable; urgency=medium
+
+  * Initial upload (Closes: #1056133)
+
+ -- Birger Schacht <birger@debian.org>  Wed, 30 Aug 2023 21:43:33 +0200

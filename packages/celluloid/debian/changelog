@@ -1,0 +1,239 @@
+celluloid (0.29-3) unstable; urgency=medium
+
+  * Team upload.
+  * Switch to building with appstreamcli, drop deprecated appstream-util
+
+ -- Matthias Klumpp <mak@debian.org>  Sun, 26 Oct 2025 06:28:34 +0100
+
+celluloid (0.29-2) unstable; urgency=medium
+
+  * d/control: Remove Rules-Requires-Root field.
+  * d/watch: Upgrade to watch version 5.
+  * Move to unstable.
+
+ -- Danial Behzadi <dani.behzi@ubuntu.com>  Sat, 20 Sep 2025 12:59:11 +0000
+
+celluloid (0.29-1) experimental; urgency=medium
+
+  * New upstream version 0.29
+
+ -- Danial Behzadi <dani.behzi@ubuntu.com>  Wed, 04 Jun 2025 16:13:03 +0330
+
+celluloid (0.28-2) unstable; urgency=high
+
+  * Team upload.
+  * d/control:
+    - Remove build-dependency libdisplay-info-dev (Closes: #1101845)
+    NOTE: Previously missing in libmpv-dev causes FTBFS in this package
+    - Add build-dependency desktop-file-utils optionally required
+    NOTE: The desktop-file-validate shows as missing in build logs, but not
+    causes FTBFS
+    The desktop-file-validate program is a tool to validate desktop entry
+    files according to the Desktop Entry specification
+
+ -- Leandro Cunha <leandrocunha016@gmail.com>  Fri, 04 Apr 2025 20:11:37 -0300
+
+celluloid (0.28-1) unstable; urgency=high
+
+  * Team upload.
+  * New upstream version 0.28 (Closes: #1101075, #1098391)
+  * d/control:
+    - Add build-dep libdisplay-info-dev (Closes: #1101845)
+    - Bump Standards-Version to 4.7.2, no changes needed
+    - Set libadwaita-1-dev to >=1.6.0
+  * d/copyright: Update year for upstream and myself
+
+ -- Leandro Cunha <leandrocunha016@gmail.com>  Fri, 04 Apr 2025 11:54:08 -0300
+
+celluloid (0.27-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream version.
+    + Sync translations.
+    + Important improvements.
+  * d/control:
+    - Bump Standards-Version to 4.7.0.
+    - Obsolete build depends package pkg-config to pkgconf (Lintian report).
+  * d/copyright: Update year for upstream and add myself.
+
+ -- Leandro Cunha <leandrocunha016@gmail.com>  Sun, 30 Jun 2024 13:58:31 -0300
+
+celluloid (0.26-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream version.
+  * d/patches: Drop 00-fix-crash.patch this version included the change.
+  * Drop transitional package gnome-mpv from src:celluloid. (Closes: #1038314)
+  * Drop debian/celluloid.install and fixed build.
+  * d/control: Set libadwaita version requirement to 1.2.0.
+
+ -- Leandro Cunha <leandrocunha016@gmail.com>  Mon, 18 Sep 2023 16:16:14 -0300
+
+celluloid (0.25-2) unstable; urgency=medium
+
+  * Team upload.
+  * d/patches/00-fix-crash.patch: Fix fails to start due to failed assertion
+    in stream.c. (Closes: #1049458)
+    - NOTE: Fix crash when mpv-config-file isn't set to a URI.
+  * d/rules: Export DEB_BUILD_MAINT_OPTIONS for Hardening.
+
+ -- Leandro Cunha <leandrocunha016@gmail.com>  Mon, 21 Aug 2023 03:28:07 -0300
+
+celluloid (0.25-1) unstable; urgency=medium
+
+  * Team upload.
+
+  [ Danial Behzadi ]
+  * New upstream version. (Closes: #994531, #1024098)
+    + Important change: Application version with port to GTK4 (0.22 tag).
+    + Bug fixes.
+  * d/control:
+    - Add Danial Behzadi <dani.behzi@ubuntu.com> to uploaders.
+    - Bump Standards-Version to 4.6.2, no changes needed.
+  * d/copyright:
+    - Add Danial Behzadi <dani.behzi@ubuntu.com>.
+    - Update GPL-3+ license text.
+  * Add d/upstream/metadata.
+  * d/watch: Bump version 3 to 4.
+  * d/rules: Add override dh clean for po/*.gmo po/stamp-po files.
+  * d/patches: Drop patches.
+
+  [ Debian Janitor ]
+  * d/control:
+    - Remove constraints unnecessary since buster.
+    - Move transitional package gnome-mpv to oldlibs/optional per policy 4.0.1.
+  * d/rules: Drop unnecessary dependency on dh-autoreconf.
+
+  [ Jeremy Bicha ]
+  * d/rules: Build using buildsystem meson.
+  * d/control: Add build dep meson and remove Python.
+
+  [ Leandro Cunha ]
+  * d/copyright: Update years for upstream.
+  * d/control:
+    - Change youtube-dl to yt-dlp in recommends field. (Closes: #1024222)
+  * Add d/salsa-ci.yml.
+
+  [ Boyuan Yang ]
+  * debian/: Apply "wrap-and-sort -abst".
+  * Review and prepare the upload.
+
+ -- Boyuan Yang <byang@debian.org>  Wed, 02 Aug 2023 13:51:35 -0400
+
+celluloid (0.24-2) unstable; urgency=medium
+
+  * Fix some linting warnings.
+  * Remove unnecessary patches.
+
+ -- Danial Behzadi <dani.behzi@ubuntu.com>  Wed, 08 Mar 2023 03:04:27 +0330
+
+celluloid (0.24-1) unstable; urgency=medium
+
+  * New upstream version 0.24
+
+ -- Danial Behzadi <dani.behzi@ubuntu.com>  Tue, 07 Mar 2023 15:33:41 +0330
+
+celluloid (0.20-2) unstable; urgency=medium
+
+  * Fix FTBFS on ppc64el due to confusion over Makefile :/&: syntax.
+
+ -- Ximin Luo <infinity0@debian.org>  Wed, 25 Nov 2020 00:59:44 +0000
+
+celluloid (0.20-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Mon, 16 Nov 2020 21:41:09 +0000
+
+celluloid (0.18-2) unstable; urgency=medium
+
+  * Declare B-D on python3 not python2. (Closes: #941646, #943044)
+
+ -- Ximin Luo <infinity0@debian.org>  Fri, 03 Jan 2020 22:39:50 +0000
+
+celluloid (0.18-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Fri, 03 Jan 2020 22:33:55 +0000
+
+celluloid (0.17-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Sun, 24 Nov 2019 23:07:24 +0000
+
+gnome-mpv (0.16-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Sun, 24 Mar 2019 20:20:19 -0700
+
+gnome-mpv (0.14-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Fri, 18 May 2018 00:32:39 -0700
+
+gnome-mpv (0.13-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Update to latest Standards-Version; no changes required.
+
+ -- Ximin Luo <infinity0@debian.org>  Thu, 19 Oct 2017 15:17:11 +0200
+
+gnome-mpv (0.12-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Sun, 18 Jun 2017 13:46:17 +0200
+
+gnome-mpv (0.11-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #842900, #850667)
+
+ -- Ximin Luo <infinity0@debian.org>  Sun, 15 Jan 2017 14:20:53 +0100
+
+gnome-mpv (0.10-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Wed, 07 Sep 2016 14:02:44 +0200
+
+gnome-mpv (0.9-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Fri, 20 May 2016 13:31:25 +0200
+
+gnome-mpv (0.8-2) unstable; urgency=medium
+
+  * Update build dependency to match upstream.
+
+ -- Ximin Luo <infinity0@debian.org>  Wed, 18 May 2016 20:20:30 +0200
+
+gnome-mpv (0.8-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Update to latest Standards-Version. No changes required.
+
+ -- Ximin Luo <infinity0@debian.org>  Thu, 12 May 2016 17:47:09 +0200
+
+gnome-mpv (0.7-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Temporarily disable unimportant failing tests.
+
+ -- Ximin Luo <infinity0@debian.org>  Sun, 07 Feb 2016 20:43:07 +0100
+
+gnome-mpv (0.6-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ximin Luo <infinity0@debian.org>  Fri, 13 Nov 2015 01:12:36 +0100
+
+gnome-mpv (0.5-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #799536)
+
+ -- Ximin Luo <infinity0@debian.org>  Mon, 21 Sep 2015 17:33:00 +0200

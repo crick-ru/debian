@@ -1,0 +1,52 @@
+From cdcbd7d861cc84f805ce00c27f1c7225c6512ff6 Mon Sep 17 00:00:00 2001
+From: Matthias Klumpp <matthias@tenstral.net>
+Date: Sun, 26 Oct 2025 06:19:03 +0100
+Subject: [PATCH] Switch to building with appstreamcli instead of
+ appstream-util
+
+The appstream-util tool is deprecated for years now and will not work
+for modern metadata.
+---
+ README.md        | 2 +-
+ data/meson.build | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/README.md b/README.md
+index 173e2ee4..01fccec1 100644
+--- a/README.md
++++ b/README.md
+@@ -10,7 +10,7 @@ Repository Mirror: https://codeberg.org/celluloid-player/celluloid
+ 
+ ## Dependencies
+ 
+-- appstream-glib (build)
++- appstream (build)
+ - pkg-config (build)
+ - gcc (build)
+ - glib >= 2.68
+diff --git a/data/meson.build b/data/meson.build
+index e3d7f1d7..03df9718 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -4,7 +4,7 @@ install_data([
+   'io.github.celluloid_player.Celluloid.gschema.xml',
+ ], install_dir: schemadir)
+ 
+-appdata = i18n.merge_file(
++metainfo = i18n.merge_file(
+   input: 'io.github.celluloid_player.Celluloid.appdata.xml.in',
+   output: 'io.github.celluloid_player.Celluloid.appdata.xml',
+   po_dir: '../po',
+@@ -40,9 +40,9 @@ configure_file(
+   install_dir: join_paths(get_option('datadir'), 'dbus-1', 'services')
+ )
+ 
+-appstream_util = find_program('appstream-util', required: false)
+-if appstream_util.found()
+-  test('Validate appstream file', appstream_util, args: ['validate', '--nonet', appdata])
++appstreamcli = find_program('appstreamcli', required: false)
++if appstreamcli.found()
++  test('Validate appstream file', appstreamcli, args: ['validate', '--no-net', metainfo])
+ endif
+ 
+ desktop_file_validate = find_program('desktop-file-validate', required: false)

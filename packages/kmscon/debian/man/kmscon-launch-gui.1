@@ -1,0 +1,34 @@
+.\" SPDX-FileCopyrightText: 2026 Boyuan Yang <byang@debian.org>
+.\" SPDX-License-Identifier: MIT OR HPND
+.\"
+.TH "kmscon-launch-gui" "1" "2026-02-09" "KMSCON"
+.SH "NAME"
+kmscon-launch-gui \- Launch graphical sessions from kmscon TTY session
+.SH "SYNOPSIS"
+.SY kmscon-launch-gui
+.RI [ argument \~.\|.\|.\&]
+.YS
+.SH "DESCRIPTION"
+.B kmscon-launch-gui
+can be used to launch graphical sessions from within kmscon TTY sessions.
+.P
+For example, instead of calling:
+.P
+.in +4n
+.EX
+.RB $ " startx"
+.EE
+.in
+.P
+The user should use the following command instead within kmscon-enabled TTY:
+.P
+.in +4n
+.EX
+.RB $ " kmscon-launch-gui startx"
+.EE
+.in
+.SH "BUGS"
+.B kmscon-launch-gui
+may have bugs. Please report any bugs you encountered back to kmscon upstream.
+.SH "SEE ALSO"
+.BR kmscon (1)

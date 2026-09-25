@@ -1,0 +1,25 @@
+# Build output and temp artifacts
+build/
+*.deb
+*.ddeb
+*.buildinfo
+*.changes
+*.tar.*
+*.dsc
+*.upload
+*.log
+
+# Debian packaging temporary files
+debian/.debhelper/
+debian/*-build/
+debian/tmp/
+debian/files
+debian/substvars
+*.substvars
+
+# System and editor files
+.DS_Store
+*~
+*.swp
+*.orig
+*.rej

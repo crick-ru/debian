@@ -1,0 +1,51 @@
+From 81dba9f64ce1294286a3c85fbb642559a3ec3a2b Mon Sep 17 00:00:00 2001
+From: Birger Schacht <birger@debian.org>
+Date: Sat, 25 Nov 2023 10:40:03 +0100
+Subject: [PATCH] fix: replace python with python3 in embedded scripts
+
+---
+ config/battery-svg.widget | 2 +-
+ config/battery.widget     | 2 +-
+ config/startmenu.widget   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/config/battery-svg.widget b/config/battery-svg.widget
+index 4a49e7a..dff33d1 100644
+--- a/config/battery-svg.widget
++++ b/config/battery-svg.widget
+@@ -18,7 +18,7 @@ set XBatterySvg = '<?xml version="1.0" encoding="UTF-8"?>
+   '+$XBatterySvgSign+'
+ </svg>'
+ 
+-define XBatteryInit = "python << END
++define XBatteryInit = "python3 << END
+ import os
+ sysdir = '/sys/class/power_supply'
+ list = os.scandir(sysdir)
+diff --git a/config/battery.widget b/config/battery.widget
+index 05d1640..41ad840 100644
+--- a/config/battery.widget
++++ b/config/battery.widget
+@@ -4,7 +4,7 @@ define BatIcon = "battery-level-" + BatChargeStr + "0" +
+           If(BatChargeStr = "10","","-charging")) + "-symbolic"
+ 
+ Function("BatteryInitScanner"){
+-  PipeRead "python << END
++  PipeRead "python3 << END
+ import os
+ sysdir = '/sys/class/power_supply'
+ list = os.scandir(sysdir)
+diff --git a/config/startmenu.widget b/config/startmenu.widget
+index 8a079cf..9843396 100644
+--- a/config/startmenu.widget
++++ b/config/startmenu.widget
+@@ -1,5 +1,5 @@
+ Function("StartMenu") {
+-  PipeRead "python << END
++  PipeRead "python3 << END
+ import string, sys, fileinput, getopt, os, glob
+ 
+ def main():
+-- 
+2.42.0
+

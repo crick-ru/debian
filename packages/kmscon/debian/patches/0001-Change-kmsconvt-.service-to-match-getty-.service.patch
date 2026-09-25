@@ -1,0 +1,37 @@
+From: Boyuan Yang <byang@debian.org>
+Date: Sat, 7 Feb 2026 18:20:37 -0500
+Subject: Change kmsconvt@.service to match getty.service
+
+Edit kmsconvt@.service.in based on the getty@.service provided by
+systemd.
+
+Forwarded: no
+Last-Update: 2026-08-20
+---
+ scripts/systemd/kmsconvt@.service.in | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/scripts/systemd/kmsconvt@.service.in b/scripts/systemd/kmsconvt@.service.in
+index 9762fc1..37835f1 100644
+--- a/scripts/systemd/kmsconvt@.service.in
++++ b/scripts/systemd/kmsconvt@.service.in
+@@ -30,8 +30,11 @@ Description=KMS System Console on %I
+ Documentation=man:kmscon(1)
+ After=systemd-user-sessions.service
+ After=plymouth-quit-wait.service
++After=getty-pre.target
+ After=rc-local.service
+ Before=getty.target
++Conflicts=rescue.service
++Before=rescue.service
+ Conflicts=getty@%i.service
+ OnFailure=getty@%i.service
+ IgnoreOnIsolate=yes
+@@ -40,6 +43,7 @@ ConditionPathExists=/dev/tty0
+ [Service]
+ @PAM_CFG@
+ ExecStart=kmscon --vt=%I --no-switchvt
++Type=idle
+ UtmpIdentifier=%I
+ TTYPath=/dev/%I
+ TTYReset=yes

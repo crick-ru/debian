@@ -1,0 +1,8 @@
+#! /usr/bin/dh-exec
+${env:SYSTEMD_SYSTEM_UNIT_DIR}/kmsconvt@.service
+debian/kmscon.conf etc/needrestart/conf.d
+scripts/etc/kmscon.conf.example => /etc/kmscon/kmscon.conf
+usr/bin/kmscon
+usr/bin/kmscon-launch-gui
+usr/lib/${DEB_HOST_MULTIARCH}/kmscon/mod-*.so
+usr/share/man/man5/kmscon.conf.5

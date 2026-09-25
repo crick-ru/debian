@@ -1,0 +1,31 @@
+Source: sfwbar
+Section: x11
+Priority: optional
+Maintainer: Birger Schacht <birger@debian.org>
+Build-Depends: debhelper-compat (= 13),
+               meson,
+               ninja-build,
+               libgtk-3-dev,
+               libjson-c-dev,
+               libgtk-layer-shell-dev,
+               libpulse-dev,
+               libmpdclient-dev,
+               libxkbregistry-dev,
+               libasound-dev,
+               python3-docutils
+Standards-Version: 4.6.2
+Homepage: https://github.com/LBCrion/sfwbar
+Rules-Requires-Root: no
+Vcs-Git: https://salsa.debian.org/labwc-team/sfwbar.git
+Vcs-Browser: https://salsa.debian.org/labwc-team/sfwbar
+
+Package: sfwbar
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: flexible taskbar application for wayland compositors
+ SFWBar (S* Floating Window Bar) is a flexible taskbar application for wayland
+ compositors, designed with a stacking layout in mind. Originally developed for
+ Sway, SFWBar will work with any wayland compositor supporting layer shell
+ protocol, the taskbar and window switcher functionality shall work with any
+ compositor supportinig foreign toplevel protocol, but the pager, and window
+ placement functionality require sway (or at least i3 IPC support).

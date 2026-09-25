@@ -1,0 +1,29 @@
+#!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
+
+include /usr/share/dpkg/buildtools.mk
+
+export DEB_BUILD_MAINT_OPTIONS := qa=+bug hardening=+all reproducible=+all
+export DEB_CFLAGS_MAINT_APPEND := -Wno-error=array-bounds
+export SYSTEMD_SYSTEM_UNIT_DIR = $(shell $(PKG_CONFIG) --variable=systemdsystemunitdir systemd | sed s,^/,,)
+
+%:
+	dh $@ --without single-binary
+
+
+override_dh_auto_configure:
+	dh_auto_configure -- --auto-features=enabled \
+	                     -Ddocs=$(if $(filter nodoc,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)),disabled,enabled) \
+	                     -Dwerror=false \
+	                     $(empty)
+
+# The tests are all interactive and/or require root privileges
+override_dh_auto_test:
+
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/tmp
+
+override_dh_installchangelogs:
+	dh_installchangelogs NEWS.md

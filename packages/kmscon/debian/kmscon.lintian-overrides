@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+
+printf 'systemd-service-file-refers-to-unusual-wantedby-target getty.target [%s/kmsconvt@.service]' "$SYSTEMD_SYSTEM_UNIT_DIR"

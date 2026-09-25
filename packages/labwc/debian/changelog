@@ -1,0 +1,230 @@
+labwc (0.20.2-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Tue, 25 Aug 2026 13:15:20 +0200
+
+labwc (0.20.1-1) unstable; urgency=medium
+
+  * New upstream release
+
+  [ Nikolas Nyby ]
+  * debian/copyright: Fix typo in Upstream-Name
+  * debian/copyright: Correct spelling of copyright-holder's name.
+  * debian/control: Move xwayland from Recommends to Suggests
+
+ -- Birger Schacht <birger@debian.org>  Tue, 16 Jun 2026 17:17:27 +0200
+
+labwc (0.20.0-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #1132208)
+  * debian/control: bump minimal version of wlroots and libinput
+
+ -- Birger Schacht <birger@debian.org>  Sun, 14 Jun 2026 08:23:25 +0200
+
+labwc (0.9.7-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control:
+   + bump Standards-Version to 4.7.4 (no changes required)
+   + move xwayland from Depends to Recommends (Closes: #1135571)
+
+ -- Birger Schacht <birger@debian.org>  Sun, 03 May 2026 18:32:49 +0200
+
+labwc (0.9.6-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Sun, 15 Mar 2026 17:10:33 +0100
+
+labwc (0.9.5-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Sun, 08 Mar 2026 15:33:24 +0100
+
+labwc (0.9.4-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control:
+   + Bump Standards-Version to 4.7.3 (no changes required)
+   + Drop unused Priority field
+   + Add version constraint to wayland-protocols dependency
+  * debian/changelog
+   + Bump copyright years
+   + Drop patterns for removed files
+
+ -- Birger Schacht <birger@debian.org>  Tue, 03 Mar 2026 18:07:42 +0100
+
+labwc (0.9.3-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control:
+    + drop unused Rules-Requires-Root
+    + bump Standards-version to 4.7.2 (no changes required)
+  * debian/changelog:
+    + bump copyright year
+
+ -- Birger Schacht <birger@debian.org>  Fri, 19 Dec 2025 18:13:12 +0100
+
+labwc (0.9.2-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update debian/watch to version 5 format
+
+ -- Birger Schacht <birger@debian.org>  Sun, 12 Oct 2025 20:20:02 +0200
+
+labwc (0.9.1-3) unstable; urgency=medium
+
+  * Add xwayland to build-depends (Closes: #1112200)
+
+ -- Birger Schacht <birger@debian.org>  Wed, 27 Aug 2025 14:26:09 +0200
+
+labwc (0.9.1-2) unstable; urgency=medium
+
+  * Reupload to unstable
+
+ -- Birger Schacht <birger@debian.org>  Tue, 26 Aug 2025 16:37:18 +0200
+
+labwc (0.9.1-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Sun, 24 Aug 2025 12:28:56 +0200
+
+labwc (0.9.0-1) experimental; urgency=medium
+
+  * New upstream release
+  * Bump build dependency wlroots to version 0.19.0
+
+ -- Birger Schacht <birger@debian.org>  Wed, 16 Jul 2025 12:57:15 +0200
+
+labwc (0.8.3-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Sat, 22 Feb 2025 09:25:03 +0100
+
+labwc (0.8.2-3) unstable; urgency=medium
+
+  * Add libsfdo-dev to build-depends and enable title bar support
+  * Run wrap-and-sort -ast on debian/
+
+ -- Birger Schacht <birger@debian.org>  Mon, 10 Feb 2025 15:54:37 +0100
+
+labwc (0.8.2-2) unstable; urgency=medium
+
+  * Add debian/labwc.docs to also ship upstreams NEWS.md file
+    (Closes: #1090896)
+
+ -- Birger Schacht <birger@debian.org>  Wed, 01 Jan 2025 19:36:13 +0100
+
+labwc (0.8.2-1) unstable; urgency=medium
+
+  * New upstream release
+  * d/control: bump wlroots dependency to >= 0.18.1
+
+ -- Birger Schacht <birger@debian.org>  Tue, 31 Dec 2024 12:33:58 +0100
+
+labwc (0.8.1-2) unstable; urgency=medium
+
+  * Reupload to unstable
+
+ -- Birger Schacht <birger@debian.org>  Thu, 26 Dec 2024 15:16:29 +0100
+
+labwc (0.8.1-1) experimental; urgency=medium
+
+  * New upstream release
+  * d/rules: disable icon support
+
+ -- Birger Schacht <birger@debian.org>  Mon, 28 Oct 2024 10:33:44 +0100
+
+labwc (0.8.0-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Fri, 16 Aug 2024 18:20:46 +0200
+
+labwc (0.7.4-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Sat, 20 Jul 2024 08:08:14 +0200
+
+labwc (0.7.3-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Sat, 13 Jul 2024 14:00:43 +0200
+
+labwc (0.7.2-2) unstable; urgency=medium
+
+  * Move terminal from Recommends to Suggests and make it less strict
+  * Drop `labwc.install` and not install example configs as defaults
+
+ -- Birger Schacht <birger@debian.org>  Sat, 22 Jun 2024 08:56:37 +0200
+
+labwc (0.7.2-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Birger Schacht <birger@debian.org>  Sat, 11 May 2024 08:39:48 +0200
+
+labwc (0.7.1-2) unstable; urgency=medium
+
+  * Set Maintainer to team address
+
+ -- Birger Schacht <birger@debian.org>  Fri, 26 Apr 2024 09:49:11 +0200
+
+labwc (0.7.1-1) unstable; urgency=medium
+
+  * Drop patch to set default terminal to `foot`. Upstream sets the default
+    to alacritty, which is also in Debian, lets not diverge
+  * Add alacritty to Recommends: so users have a way of doing the initial
+    setup
+  * Replace pkg-config build dep with pkgconf
+  * Update years in d/copyright
+
+ -- Birger Schacht <birger@debian.org>  Sat, 02 Mar 2024 08:29:21 +0100
+
+labwc (0.7.0-3) unstable; urgency=medium
+
+  * Add librsvg to build depends and xwayland to depends
+
+ -- Birger Schacht <birger@debian.org>  Mon, 05 Feb 2024 13:59:54 +0100
+
+labwc (0.7.0-2) unstable; urgency=medium
+
+  * Reupload to unstable
+
+ -- Birger Schacht <birger@debian.org>  Sat, 13 Jan 2024 11:03:20 +0100
+
+labwc (0.7.0-1) experimental; urgency=medium
+
+  * New upstream release (Closes: #1058499)
+  * Bump wlroots build depends to >= 0.17
+  * Add new build-dep liblzma-dev
+  * Cleanup indenting in d/control
+
+ -- Birger Schacht <birger@debian.org>  Sat, 16 Dec 2023 14:18:36 +0100
+
+labwc (0.6.6-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update patch: default environment is commented, so no patching needed
+    anymore
+
+ -- Birger Schacht <birger@debian.org>  Sun, 26 Nov 2023 09:56:27 +0100
+
+labwc (0.6.5-1) unstable; urgency=medium
+
+  * New upstream release
+  * Remove stale file entries from d/copyright
+
+ -- Birger Schacht <birger@debian.org>  Wed, 01 Nov 2023 17:32:27 +0100
+
+labwc (0.6.4-1) unstable; urgency=medium
+
+  * Initial upload (Closes: #1032864)
+
+ -- Birger Schacht <birger@debian.org>  Wed, 30 Aug 2023 21:43:33 +0200

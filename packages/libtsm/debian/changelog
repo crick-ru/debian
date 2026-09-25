@@ -1,0 +1,129 @@
+libtsm (4.7.1-0.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * New upstream release.
+  * debian/libtsm4.symbols: Updated.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 20 Aug 2026 14:08:35 -0400
+
+libtsm (4.6.0-0.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * New upstream release.
+  * debian/control: Bump debhelper compat to v14.
+  * debian/control: Move package description to the source package
+    section.
+  * debian/libtsm4.symbols: Record new symbols.
+  * debian/tests: Add autopkgtest exercising the installed shared library
+    through its public API.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 02 Jul 2026 11:52:00 -0400
+
+libtsm (4.5.0-0.2) unstable; urgency=medium
+
+  [ Sven Joachim ]
+  * Convert /usr/shared/doc/libtsm-dev back to a symlink.
+    (Closes: #1138902)
+
+ -- Boyuan Yang <byang@debian.org>  Mon, 08 Jun 2026 17:27:33 -0400
+
+libtsm (4.5.0-0.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * New upstream release. (Closes: #1138246)
+  * debian/control: Bump Standards-Version to 4.7.4.
+  * debian/libtsm4.symbols: Record new symbols.
+
+ -- Boyuan Yang <byang@debian.org>  Wed, 03 Jun 2026 13:54:39 -0400
+
+libtsm (4.4.3-0.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * New upstream release. (Closes: #1132241)
+
+ -- Boyuan Yang <byang@debian.org>  Fri, 03 Apr 2026 19:06:22 -0400
+
+libtsm (4.4.2-0.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * New upstream release. (Closes: #1126432, #1125286)
+  * debian/rules: Explicitly define -Dtests=false configure flag when
+    nocheck profile is detected. (Closes: #1126497)
+  * debian/patches/:
+    + 0001-tsm-meson.build-Change-library-build-to-both_librari.patch:
+      Refresh the patch.
+  * debian/libtsm4.symbols: Record new symbols.
+
+ -- Boyuan Yang <byang@debian.org>  Sat, 31 Jan 2026 23:48:57 -0500
+
+libtsm (4.3.0-2) unstable; urgency=medium
+
+  * d/watch: Fix file format (Closes: #1124637)
+
+ -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Mon, 05 Jan 2026 14:51:23 +0900
+
+libtsm (4.3.0-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #1124469)
+  * d/*: Update upstream url to https://github.com/kmscon/libtsm
+  * d/*: Switch build system to meson
+  * d/control: Add Vcs-Browser and Vcs-Git
+  * d/control: Remove redundant Rules-Requires-Root field
+  * d/copyright: Update copyright year
+  * d/patches:
+    - Add 0001-tsm-meson.build-Change-library-build-to-both_librari.patch
+  * d/libtsm4.symbols: Update
+  * d/watch: Update version to 5
+
+ -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Sat, 03 Jan 2026 06:48:26 +0900
+
+libtsm (4.1.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * d/libtsm4.symbols: Update
+  * d/control:
+    - Update pkg-config to pkgconf in B-D.
+    - Update Standards-Version: 4.7.2 (no changes required).
+  * d/copyright: Update copyright year.
+
+ -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Sun, 28 Sep 2025 08:14:32 +0900
+
+libtsm (4.0.2-0.4) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Unbreak d/watch broken by Github changes.
+  * Switch /usr/share/doc/libtsm-dev from dir to symlink on upgrade.
+    Thanks to Andreas Beckmann for reporting this packaging error.
+    (Closes: #1035764)
+
+ -- Victor Westerhuis <victor@westerhu.is>  Tue, 09 May 2023 17:47:55 +0200
+
+libtsm (4.0.2-0.3) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Ensure that the CMake config files always point to the shared library.
+    (Closes: #1010350)
+
+ -- Victor Westerhuis <victor@westerhu.is>  Fri, 29 Apr 2022 21:18:06 +0200
+
+libtsm (4.0.2-0.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Revert Maintainer (replaced by mistake)
+  * Drop Vcs fields
+
+ -- Bastian Germann <bage@debian.org>  Thu, 28 Apr 2022 10:16:55 +0200
+
+libtsm (4.0.2-0.1) unstable; urgency=medium
+
+  * Non-maintainer upload
+  * Switch upstream to maintained fork.
+  * New upstream release. (Closes: #1004921)
+
+ -- Victor Westerhuis <victor@westerhu.is>  Sat, 19 Feb 2022 18:41:17 +0100
+
+libtsm (3-1) unstable; urgency=low
+
+  * Initial release (Closes: #731893)
+
+ -- Nobuhiro Iwamatsu <iwamatsu@debian.org>  Thu, 19 Dec 2013 06:49:58 +0900

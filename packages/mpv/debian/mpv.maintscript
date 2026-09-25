@@ -1,0 +1,1 @@
+rm_conffile /etc/mpv/encoding-profiles.conf 0.41.0-1~ mpv

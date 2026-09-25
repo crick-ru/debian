@@ -1,0 +1,100 @@
+kmscon for Debian
+-----------------
+
+The kmscon virtual terminal is not enabled on any ttyX by default upon package
+installation. You will need to enable it manually.
+
+
+Enabling kmscon
+---------------
+
+  # systemctl disable autovt@.service
+  # systemctl enable kmsconvt@.service
+
+The first command releases the virtual consoles from agetty. It removes both
+
+  /etc/systemd/system/autovt@.service -> /usr/lib/systemd/system/getty@.service
+  /etc/systemd/system/getty.target.wants/getty@tty1.service
+
+The second command hands them to kmscon by creating
+
+  /etc/systemd/system/autovt@.service -> /usr/lib/systemd/system/kmsconvt@.service
+  /etc/systemd/system/getty.target.wants/kmsconvt@tty1.service
+
+so that all newly-activated TTYs are handled by kmscon instead of agetty, and
+kmscon is started on tty1 during boot.
+
+Note that "systemctl disable autovt@.service" disables the whole getty@.service
+template, so any getty instance you enabled by hand (getty@tty3.service and the
+like) is disabled as well. Re-enable the ones you want to keep afterwards.
+
+
+Display managers and tty1
+-------------------------
+
+Display managers such as sddm and gdm3 start on tty1 by default. Older versions
+only declare
+
+  Conflicts=getty@tty1.service
+
+in their service file, so systemd does not know that kmsconvt@tty1.service has
+to be stopped as well. The display manager and kmscon then end up fighting over
+the same DRM device, which shows up as
+
+  ERROR: drm_shared: Cannot set drm master for /dev/dri/card0
+
+in the journal and can leave the graphical session or the VT switching broken.
+See https://github.com/kmscon/kmscon/issues/294 .
+
+The display manager also has to list kmsconvt@tty1.service in its Conflicts=,
+which is the case since:
+
+  sddm  0.21.0+git20260801.f62b7ba-1
+  gdm3  51
+
+If your display manager is older than that, or is one that does not carry the
+corresponding fix yet, keep tty1 free for it:
+
+  # systemctl mask kmsconvt@tty1.service
+
+kmscon then serves tty2 and above, and the display manager keeps tty1.
+
+
+Disabling kmscon while keeping the package installed
+----------------------------------------------------
+
+To hand the virtual consoles back to agetty:
+
+  # systemctl disable kmsconvt@.service
+  # systemctl enable getty@.service
+
+To hand them back to kmscon, run the two commands from "Enabling kmscon" again.
+
+The second command above is important, and for the same reason the first one is
+important when enabling kmscon: "systemctl disable kmsconvt@.service" only
+removes the autovt@.service alias and kmsconvt@tty1.service, it does not
+restore the agetty ones, and systemd (>= 260) no longer recreates them on
+upgrades. Without it the system would be left with no autovt@.service at all,
+and no virtual console could be activated any more.
+
+For future-proof cases, if there are other getty alternatives installed on
+the system and you would like to use that one instead of getty/kmscon, please
+replace "getty@.service" with the preferred alternative systemd service.
+
+Switching in either direction takes effect for TTYs activated afterwards;
+already-running terminals are left alone. Use
+"systemctl stop kmsconvt@ttyN.service" to also terminate a kmscon instance that
+is currently running on ttyN.
+
+A single tty can be excluded at any time with
+
+  # systemctl mask kmsconvt@ttyN.service
+
+and re-enabled with "systemctl unmask kmsconvt@ttyN.service".
+
+Removing or purging the kmscon package restores the agetty alias and, if kmscon
+was the unit serving tty1 at boot, getty@tty1.service as well. The above is
+therefore only needed when keeping the package installed.
+
+
+ -- Boyuan Yang <byang@debian.org>  Tue, 11 Aug 2026 19:14:59 -0400

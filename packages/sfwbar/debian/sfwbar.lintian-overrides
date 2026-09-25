@@ -1,0 +1,4 @@
+sfwbar: library-not-linked-against-libc [usr/lib/x86_64-linux-gnu/sfwbar/idleinhibit.so]
+sfwbar: library-not-linked-against-libc [usr/lib/x86_64-linux-gnu/sfwbar/mpd.so]
+sfwbar: library-not-linked-against-libc [usr/lib/x86_64-linux-gnu/sfwbar/pulsectl.so]
+sfwbar: library-not-linked-against-libc [usr/lib/x86_64-linux-gnu/sfwbar/xkbmap.so]
