@@ -52,6 +52,7 @@ jobs:
             build-essential \
             debhelper \
             devscripts \
+            equivs \
             dpkg-dev \
             curl \
             ca-certificates \
