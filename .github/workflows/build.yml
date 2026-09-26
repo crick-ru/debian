@@ -142,7 +142,9 @@ jobs:
             #   debs=(./stage1-pool/libwlroots-0.20_*.deb ./stage1-pool/libwlroots-0.20-dev_*.deb)
             #   ;;
             pipewire)
-              debs=(./stage1-pool/libfdk-aac-dev_*.deb)
+              # libfdk-aac-dev depends on the exact version of libfdk-aac2t64,
+              # so both packages of Stage 1 have to be installed together
+              debs=(./stage1-pool/libfdk-aac2t64_*.deb ./stage1-pool/libfdk-aac-dev_*.deb)
               ;;
             *)
               debs=()
