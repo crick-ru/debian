@@ -5,7 +5,7 @@ Uploaders:
 Section: utils
 Build-Depends:
  check,
- debhelper-compat (= 14),
+ debhelper-compat (= 13),
  dh-exec,
  dh-sequence-builtusing,
  docbook-xml <!nodoc>,
@@ -20,7 +20,7 @@ Build-Depends:
  libpango1.0-dev,
  libseat-dev,
  libsystemd-dev,
- libtsm-dev (>= 4.7.0),
+ libtsm-dev (>= 4.6.0),
  libudev-dev,
  libxkbcommon-dev,
  meson (>= 1.1),
@@ -50,9 +50,10 @@ Package: kmscon
 Architecture: any
 Multi-Arch: foreign
 Depends:
- ncurses-term (>= 6.6+20260608~),
  init-system-helpers (>> 1.65~),
  login,
+ ${misc:Depends},
+ ${shlibs:Depends}
 Built-Using:
  ${dh-builtusing:unifont},
 Description: ${source:Synopsis}

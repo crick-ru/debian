@@ -62,7 +62,9 @@ endif
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		-Daudiotestsrc=enabled \
-		-Dauto_features=enabled \n		-Dx11=disabled \n		-Dx11-xfixes=disabled \
+		-Dauto_features=enabled \
+		-Dx11=disabled \
+		-Dx11-xfixes=disabled \
 		-Davahi=enabled \
 		-Dbluez5-backend-native-mm=enabled \
 		-Dbluez5-codec-aac=enabled \

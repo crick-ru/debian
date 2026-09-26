@@ -12,7 +12,7 @@ Build-Depends:
  libcairo2-dev,
  libcap-dev,
  libdisplay-info-dev (>= 0.2.0),
- libdrm-dev (>= 2.4.129),
+ libdrm-dev (>= 2.4.124),
  libegl-dev,
  libegl1-mesa-dev,
  libgbm-dev (>= 21.1),
@@ -20,15 +20,15 @@ Build-Depends:
  libinput-dev (>= 1.19.0),
  liblcms2-dev,
  libliftoff-dev (>= 0.4.0),
- libpixman-1-dev (>= 0.46.0),
+ libpixman-1-dev (>= 0.43.0),
  libpng-dev,
  libseat-dev,
  libvulkan-dev,
- libwayland-dev (>= 1.24),
- libxkbcommon-dev (>= 1.8.0),
+ libwayland-dev (>= 1.23),
+ libxkbcommon-dev (>= 1.7.0),
  meson (>= 1.4.0),
  pkgconf,
- wayland-protocols (>= 1.47),
+ wayland-protocols (>= 1.44),
 Standards-Version: 4.7.2
 Section: libs
 Homepage: https://gitlab.freedesktop.org/wlroots/wlroots/

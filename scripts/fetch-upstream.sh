@@ -63,7 +63,7 @@ case "$PACKAGE" in
     ORIG_TAR="mpv_${VERSION}.orig.tar.gz"
     ;;
   celluloid)
-    VERSION="${VERSION:-0.30}"
+    VERSION="${VERSION:-0.29}"
     TARBALL="celluloid-${VERSION}.tar.gz"
     URL="https://github.com/celluloid-player/celluloid/archive/refs/tags/v${VERSION}.tar.gz"
     ORIG_TAR="celluloid_${VERSION}.orig.tar.gz"

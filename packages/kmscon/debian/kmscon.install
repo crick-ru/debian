@@ -6,3 +6,7 @@ usr/bin/kmscon
 usr/bin/kmscon-launch-gui
 usr/lib/${DEB_HOST_MULTIARCH}/kmscon/mod-*.so
 usr/share/man/man5/kmscon.conf.5
+# Terminfo entry is built and installed to /usr/share by upstream; Debian
+# installs it into /usr/lib/terminfo instead, so that it does not conflict
+# with ncurses-term (see https://bugs.debian.org/1142216).
+usr/share/terminfo/k/kmscon usr/lib/terminfo/k

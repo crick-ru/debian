@@ -10,6 +10,7 @@ libtsm.so.4 libtsm4 #MINVER#
  LIBTSM_4_5@LIBTSM_4_5 4.5.0
  LIBTSM_4_6@LIBTSM_4_6 4.6.0
  LIBTSM_4_7@LIBTSM_4_7 4.7.1
+ LIBTSM_4_8@LIBTSM_4_8 4.8.0
  tsm_screen_clear_sb@LIBTSM_3 4.3.0
  tsm_screen_delete_chars@LIBTSM_3 4.3.0
  tsm_screen_delete_lines@LIBTSM_3 4.3.0
@@ -23,6 +24,7 @@ libtsm.so.4 libtsm4 #MINVER#
  tsm_screen_erase_home_to_cursor@LIBTSM_3 4.3.0
  tsm_screen_erase_screen@LIBTSM_3 4.3.0
  tsm_screen_erase_screen_to_cursor@LIBTSM_3 4.3.0
+ tsm_screen_get_cursor_blinking_rate_ms@LIBTSM_4_8 4.8.0
  tsm_screen_get_cursor_style@LIBTSM_4_7 4.7.1
  tsm_screen_get_cursor_x@LIBTSM_3 4.3.0
  tsm_screen_get_cursor_y@LIBTSM_3 4.3.0
@@ -60,6 +62,7 @@ libtsm.so.4 libtsm4 #MINVER#
  tsm_screen_selection_start@LIBTSM_3 4.3.0
  tsm_screen_selection_target@LIBTSM_3 4.3.0
  tsm_screen_selection_word@LIBTSM_4_3 4.3.0
+ tsm_screen_set_cursor_blinking_rate_ms@LIBTSM_4_8 4.8.0
  tsm_screen_set_cursor_style@LIBTSM_4_7 4.7.1
  tsm_screen_set_def_attr@LIBTSM_3 4.3.0
  tsm_screen_set_flags@LIBTSM_3 4.3.0
