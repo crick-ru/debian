@@ -19,7 +19,7 @@
 | `mpv` | 0.41.0 | `main` | Чистый Wayland (`-Dx11=disabled -Dwayland=enabled`), вырезаны X11/Xv/VDPAU-X11 |
 | `celluloid`| 0.30 | `main` | Графический GTK4-фронтенд для mpv с нативным Wayland |
 | `fdk-aac` | 2.0.3 | `non-free` | Библиотека Fraunhofer FDK AAC |
-| `pipewire` | 1.6.9 | `non-free` | Поддержка Bluetooth AAC-кодека через `libfdk-aac` (`-Dbluez5-codec-aac=enabled`), модуль X11 отключён |
+| `pipewire` | 1.6.9 | `non-free` | Поддержка Bluetooth AAC-кодека через `libfdk-aac` (`-Dbluez5-codec-aac=enabled`), модуль X11 отключён, плагин libcamera не собирается (в trixie libcamera 0.4.0, pipewire требует 0.6.0) — камера доступна через `pipewire-v4l2` |
 
 ---
 

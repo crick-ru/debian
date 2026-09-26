@@ -13,7 +13,6 @@ Build-Depends: debhelper-compat (= 13),
                libasound2-dev (>= 1.2.6),
                libavahi-client-dev,
                libbluetooth-dev [linux-any],
-               libcamera-dev (>= 0.4.0) [!m68k !hurd-any],
                libcanberra-dev,
                libdbus-1-dev,
                libebur128-dev,
@@ -414,28 +413,6 @@ Description: libraries for the PipeWire multimedia server - JACK client
  This package contains a plugin to make PipeWire able to connect to a
  JACK server, which will be used for audio playback and recording.
 
-Package: libspa-0.2-libcamera
-Section: video
-Architecture: alpha amd64 arm64 armel armhf hppa i386 ia64 mips64el mipsel powerpc ppc64 ppc64el riscv64 s390x sh4 sparc64 x32
-Multi-Arch: same
-Replaces: pipewire-libcamera (<< 0.3.72-1~)
-Breaks: pipewire-libcamera (<< 0.3.72-1~)
-Provides: pipewire-libcamera
-Depends: libspa-0.2-modules (= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
-Description: libraries for the PipeWire multimedia server - libcamera plugin
- PipeWire is a server and user space API to deal with multimedia
- pipelines. This includes:
- .
-  - Making available sources of audio and video (such as from a capture devices
-    or application provided streams) and multiplexing this with clients.
-  - Accessing sources of audio and video for consumption.
-  - Generating graphs for audio and video processing.
- .
- This package contains a plugin to make camera devices available to the
- PipeWire server.
-
 Package: pipewire-audio-client-libraries
 Section: oldlibs
 Architecture: all
@@ -472,15 +449,3 @@ Description: recommended set of PipeWire packages for a standard audio desktop u
  .
  This metapackage depends on a recommended set of pipewire packages
  for a standard audio desktop use.
-
-Package: pipewire-libcamera
-Section: oldlibs
-Architecture: all
-Depends: libspa-0.2-libcamera,
-         ${misc:Depends}
-Description: transitional package for libspa-0.2-libcamera
- PipeWire is a server and user space API to deal with multimedia
- pipelines.
- .
- This is a transitional package for libspa-0.2-libcamera.
- It can safely be removed.
