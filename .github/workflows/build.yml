@@ -17,6 +17,13 @@ concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 
+# Inside a container job GitHub Actions defaults to "sh -e {0}", where bashisms
+# (shopt, arrays, [[ ... ]]) are unavailable. All scripts and inline steps of this
+# pipeline are written for bash, so bash is requested explicitly.
+defaults:
+  run:
+    shell: bash
+
 permissions:
   contents: read
 
