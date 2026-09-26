@@ -166,6 +166,8 @@ jobs:
       image: debian:trixie
     permissions:
       contents: read
+      # deleting old artifacts needs actions: write
+      actions: write
       pages: write
       id-token: write
     steps:
@@ -223,8 +225,10 @@ jobs:
         # A free account shares 0.5 GB between the artifacts of all its
         # repositories. The packages are already uploaded to Pages and the
         # rebuilt .deb files live in the Actions cache, so old artifacts of
-        # previous runs are useless weight.
+        # previous runs are useless weight. Housekeeping must never break the
+        # publication, hence continue-on-error.
         if: always() && github.event_name != 'pull_request'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: scripts/cleanup-artifacts.sh 12
