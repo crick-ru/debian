@@ -32,8 +32,8 @@ endif
 
 # Debian trixie ships libcamera 0.4.0, but pipewire 1.6.x requires >= 0.6.0 and
 # the plugin uses the controls API introduced in libcamera 0.5+, so the libcamera
-# source plugin cannot be built here. Cameras stay available through the v4l2
-# plugin (libspa-0.2-modules) and the pipewire-v4l2 package.
+# source plugin cannot be built here. V4L2 support is disabled as well, so this
+# build has no camera source at all.
 LIBCAMERA=disabled
 
 ifneq (,$(filter alpha hurd-amd64 hurd-i386 m68k powerpc ppc64 sh4 x32,$(DEB_HOST_ARCH)))
@@ -75,6 +75,8 @@ override_dh_auto_configure:
 		-Dbluez5-codec-ldac-dec=disabled \
 		-Dbluez5-codec-opus=enabled \
 		-Dbluez5-plc-spandsp=enabled \
+		-Djack=disabled \
+		-Dv4l2=disabled \
 		-Dlibcamera=$(LIBCAMERA) \
 		-Dlibffado=enabled \
 		-Dlibmysofa=enabled \
@@ -95,8 +97,6 @@ override_dh_auto_configure:
 		-Dvideotestsrc=enabled \
 		-Dvulkan=disabled \
 		$(NULL)
-	install -d debian/ld.so.conf.d
-	echo "/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3/jack/" > "debian/ld.so.conf.d/pipewire-jack-$(DEB_HOST_MULTIARCH).conf"
 
 test_timeout_multiplier = 1
 
@@ -122,12 +122,6 @@ override_dh_makeshlibs:
 		-- -c4
 
 override_dh_shlibdeps-arch:
-	dh_shlibdeps \
-		-ppipewire-jack \
-		-l/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3 \
-		-- \
-		-Ldebian/pipewire-jack.shlibs.local \
-		$(NULL)
 	dh_shlibdeps \
 		--remaining-packages \
 		-l/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3 \

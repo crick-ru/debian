@@ -1,11 +1,22 @@
-# celluloid (Debian Trixie - Wayland Build)
+# celluloid (crick Debian backports)
 
-Debian packaging recipe for `celluloid`, optimized for pure Wayland environments without legacy X11 / Xwayland dependencies.
+Packaging for `celluloid` 0.29 on Debian 13 (trixie): the GTK4 front end for
+`mpv`.
 
-- **Target OS**: Debian GNU/Linux 13 (trixie)
-- **Architecture**: `amd64`
-- **Component**: `backports`
+## Enabled
 
-## Configuration Highlights
+- Upstream defaults, nothing is reconfigured: the build is a plain
+  `dh $@ --buildsystem=meson`.
+- The front end talks to the Wayland-only `libmpv2` of this repository (see
+  `packages/mpv/README.md`), which is the main reason to build it here.
 
-- GTK frontend for mpv running directly on Wayland.
+## Disabled
+
+- Nothing is disabled by this packaging.
+
+## Changed
+
+- Patch `01_use-appstreamcli.patch` builds the AppStream metadata with
+  `appstreamcli`; the tool that upstream used (`appstream-util`) is no longer
+  available in trixie.
+- Debug symbol packages (`-dbgsym`) are not built and not published.

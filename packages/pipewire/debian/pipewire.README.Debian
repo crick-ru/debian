@@ -66,18 +66,13 @@ To check where streams are redirected, run the following command:
 $ aplay -L | grep -A 1 default
 
 
-Using pipewire as a substitute for JACK
----------------------------------------
+JACK support is not built in this repository
+--------------------------------------------
 
-Install the pipewire-jack package.
-
-JACK clients can be configured to output via pipewire instead of JACK.
-
-To enable this:
-
-* either run JACK clients using the pw-jack(1) wrapper, or copy
-  /usr/share/doc/pipewire/examples/ld.so.conf.d/pipewire-jack-*.conf
-  into /etc/ld.so.conf.d/ and run ldconfig as root.
+JACK support is disabled at build time (-Djack=disabled), so the
+pipewire-jack and libspa-0.2-jack packages are not shipped. JACK clients
+have to use a real JACK server (for example jackd2 from the distribution)
+instead of routing through pipewire.
 
 
 Setting pipewire real-time priority limits

@@ -20,7 +20,6 @@ Build-Depends: debhelper-compat (= 13),
                libglib2.0-dev,
                libgstreamer-plugins-base1.0-dev,
                libgstreamer1.0-dev,
-               libjack-jackd2-dev,
                liblc3-dev,
                libldacbt-abr-dev [!s390x !hppa !m68k !powerpc !ppc64 !sparc64],
                libldacbt-enc-dev [!s390x !hppa !m68k !powerpc !ppc64 !sparc64],
@@ -41,7 +40,6 @@ Build-Depends: debhelper-compat (= 13),
                libsystemd-dev [linux-any],
                libudev-dev [linux-any],
                libusb-1.0-0-dev,
-               libv4l-dev,
                libwebrtc-audio-processing-dev,
                meson (>= 0.61.1),
                modemmanager-dev,
@@ -297,48 +295,6 @@ Description: PipeWire ALSA plugin, for ALSA applications to output via PipeWire
  .
  This package contains a plugin for ALSA applications to output via PipeWire.
 
-Package: pipewire-jack
-Section: sound
-Architecture: any
-Multi-Arch: same
-Replaces: pipewire-audio-client-libraries (<< 0.3.54-1~)
-Breaks: pipewire-audio-client-libraries (<< 0.3.54-1~)
-Depends: pipewire (= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
-Description: PipeWire JACK plugin, for JACK applications to output via PipeWire
- PipeWire is a server and user space API to deal with multimedia
- pipelines. This includes:
- .
-  - Making available sources of audio and video (such as from a capture devices
-    or application provided streams) and multiplexing this with clients.
-  - Accessing sources of audio and video for consumption.
-  - Generating graphs for audio and video processing.
- .
- This package contains a plugin for JACK applications to output via PipeWire.
-
-Package: pipewire-v4l2
-Section: video
-Architecture: any
-Multi-Arch: same
-Replaces: libpipewire-0.3-modules (<< 0.3.54-1),
-          pipewire-bin (<< 0.3.54-1)
-Breaks: libpipewire-0.3-modules (<< 0.3.54-1),
-        pipewire-bin (<< 0.3.54-1)
-Depends: pipewire (= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
-Description: PipeWire V4L2 plugin
- PipeWire is a server and user space API to deal with multimedia
- pipelines. This includes:
- .
-  - Making available sources of audio and video (such as from a capture devices
-    or application provided streams) and multiplexing this with clients.
-  - Accessing sources of audio and video for consumption.
-  - Generating graphs for audio and video processing.
- .
- This package contains the V4L2 plugin.
-
 Package: pipewire-tests
 Build-Profiles: <!noinsttest>
 Architecture: any
@@ -393,35 +349,16 @@ Description: libraries for the PipeWire multimedia server - bluetooth plugins
  This package contains a plugin to make Bluetooth audio devices such as
  speakers and headsets available to the PipeWire server.
 
-Package: libspa-0.2-jack
-Architecture: any
-Multi-Arch: same
-Depends: libspa-0.2-modules (= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
-Description: libraries for the PipeWire multimedia server - JACK client
- PipeWire is a server and user space API to deal with multimedia
- pipelines. This includes:
- .
-  - Making available sources of audio and video (such as from a capture devices
-    or application provided streams) and multiplexing this with clients.
-  - Accessing sources of audio and video for consumption.
-  - Generating graphs for audio and video processing.
- .
- This package contains a plugin to make PipeWire able to connect to a
- JACK server, which will be used for audio playback and recording.
-
 Package: pipewire-audio-client-libraries
 Section: oldlibs
 Architecture: all
 Depends: pipewire-alsa,
-         pipewire-jack,
          ${misc:Depends}
-Description: transitional package for pipewire-alsa and pipewire-jack
+Description: transitional package for pipewire-alsa
  PipeWire is a server and user space API to deal with multimedia
  pipelines.
  .
- This is a transitional package for pipewire-alsa and pipewire-jack.
+ This is a transitional package for pipewire-alsa.
  It can safely be removed.
 
 Package: pipewire-audio

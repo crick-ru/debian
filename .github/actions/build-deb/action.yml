@@ -46,14 +46,14 @@ runs:
         } >> "$GITHUB_OUTPUT"
 
     - name: Restore upstream sources
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: build/sources
         key: ${{ steps.keys.outputs.src-key }}
 
     - name: Restore previously built packages
       id: debcache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v6
       with:
         path: build/result
         key: ${{ steps.keys.outputs.deb-key }}
@@ -82,7 +82,7 @@ runs:
     - name: Store built packages in cache
       if: steps.debcache.outputs.cache-hit != 'true'
       continue-on-error: true
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v6
       with:
         path: build/result
         key: ${{ steps.keys.outputs.deb-key }}
