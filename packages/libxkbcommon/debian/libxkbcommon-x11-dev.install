@@ -1,0 +1,4 @@
+# Use no wildcards to ensure we spot any update:
+usr/include/xkbcommon/xkbcommon-x11.h
+usr/lib/*/libxkbcommon-x11.so
+usr/lib/*/pkgconfig/xkbcommon-x11.pc

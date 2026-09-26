@@ -95,6 +95,41 @@ case "$PACKAGE" in
     URL="https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/${VERSION}/pipewire-${VERSION}.tar.gz"
     ORIG_TAR="pipewire_${VERSION}.orig.tar.gz"
     ;;
+  libdrm)
+    # Tarball byte-for-byte identical to Debian's libdrm_2.4.134.orig.tar.xz.
+    VERSION="${VERSION:-2.4.134}"
+    TARBALL="libdrm-${VERSION}.tar.xz"
+    URL="https://dri.freedesktop.org/libdrm/libdrm-${VERSION}.tar.xz"
+    ORIG_TAR="libdrm_${VERSION}.orig.tar.xz"
+    ;;
+  pixman)
+    # Tarball byte-for-byte identical to Debian's pixman_0.46.4.orig.tar.gz.
+    VERSION="${VERSION:-0.46.4}"
+    TARBALL="pixman-${VERSION}.tar.gz"
+    URL="https://cairographics.org/releases/pixman-${VERSION}.tar.gz"
+    ORIG_TAR="pixman_${VERSION}.orig.tar.gz"
+    ;;
+  wayland)
+    # Official release tarball; identical to Debian's wayland_1.26.0.orig.tar.xz.
+    VERSION="${VERSION:-1.26.0}"
+    TARBALL="wayland-${VERSION}.tar.xz"
+    URL="https://gitlab.freedesktop.org/wayland/wayland/-/releases/${VERSION}/downloads/wayland-${VERSION}.tar.xz"
+    ORIG_TAR="wayland_${VERSION}.orig.tar.xz"
+    ;;
+  libxkbcommon)
+    VERSION="${VERSION:-1.13.1}"
+    TARBALL="libxkbcommon-${VERSION}.tar.gz"
+    URL="https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-${VERSION}.tar.gz"
+    ORIG_TAR="libxkbcommon_${VERSION}.orig.tar.gz"
+    ;;
+  wayland-protocols)
+    # Version 1.47 is what wlroots 0.20.2 needs; the same version is available in
+    # Debian's own trixie-backports (1.47-1~bpo13+1).
+    VERSION="${VERSION:-1.47}"
+    TARBALL="wayland-protocols-${VERSION}.tar.gz"
+    URL="https://gitlab.freedesktop.org/wayland/wayland-protocols/-/archive/${VERSION}/wayland-protocols-${VERSION}.tar.gz"
+    ORIG_TAR="wayland-protocols_${VERSION}.orig.tar.gz"
+    ;;
   *)
     echo "Unknown package: $PACKAGE" >&2
     exit 1

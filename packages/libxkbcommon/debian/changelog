@@ -1,0 +1,352 @@
+libxkbcommon (1.13.1-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Mon, 02 Feb 2026 08:41:10 +0200
+
+libxkbcommon (1.12.3-1) unstable; urgency=medium
+
+  * New upstream release.
+  * watch: Updated to version 5.
+  * install: Updated.
+  * install, symbols: Updated.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 30 Oct 2025 13:12:19 +0200
+
+libxkbcommon (1.7.0-2) unstable; urgency=medium
+
+  * Rebuild for migration.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Mon, 16 Dec 2024 12:05:36 +0200
+
+libxkbcommon (1.7.0-1) unstable; urgency=medium
+
+  [ Samuel Thibault ]
+  * Add libxkbcommon0-udeb, used on hurd-any.
+
+  [ Timo Aaltonen ]
+  * New upstream release.
+  * rules: Make sure docs are still built.
+  * tools.install: Updated.
+  * control: Migrate to pkgconf.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Wed, 13 Nov 2024 16:24:43 +0200
+
+libxkbcommon (1.6.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * install: Updated.
+  * symbols: Updated.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Mon, 16 Oct 2023 13:48:00 +0300
+
+libxkbcommon (1.5.0-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Fri, 13 Jan 2023 21:34:19 +0200
+
+libxkbcommon (1.4.1-2) UNRELEASED; urgency=medium
+
+  * Remove constraints unnecessary since buster:
+    + Build-Depends: Drop versioned constraint on libxcb-xkb-dev.
+  * Use secure URI in Homepage field.
+  * Don't specify --with=quilt, since package uses '3.0 (quilt)' source format.
+  * Update standards version to 4.6.1, no changes needed.
+
+ -- Debian Janitor <janitor@jelmer.uk>  Mon, 25 Jul 2022 10:11:12 -0000
+
+libxkbcommon (1.4.1-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Mon, 25 Jul 2022 12:12:31 +0300
+
+libxkbcommon (1.4.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * control: Bump debhelper-compat to 13, policy to 4.6.0.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Fri, 11 Feb 2022 14:53:42 +0200
+
+libxkbcommon (1.3.1-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Wed, 20 Oct 2021 12:27:11 +0300
+
+libxkbcommon (1.3.0-1) experimental; urgency=medium
+
+  [ Helmut Grohne ]
+  * Reduce Build-Depends: (Closes: #981133)
+    + Drop cmake as we now use meson.
+    + Drop libx11-dev as we now use libxcb.
+    + Drop xutils-dev as no tool of it is being used.
+    + Annotate x11-xkb-utils and xkb-data <!nocheck>.
+
+  [ Timo Aaltonen ]
+  * New upstream release.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Mon, 03 May 2021 17:43:07 +0300
+
+libxkbcommon (1.0.3-2) unstable; urgency=medium
+
+  [ Simon McVittie ]
+  * libxkbregistry-dev: Depend on libxml2-dev (Closes: #975895)
+  * Add a superficial compile/link/run test for each -dev package
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 26 Nov 2020 14:55:39 +0200
+
+libxkbcommon (1.0.3-1) unstable; urgency=medium
+
+  [ Pino Toscano ]
+  * Install evdev/wayland libxkbcommon-tools bits on Linux-only.
+
+  [ Timo Aaltonen ]
+  * New upstream release.
+  * source: Migrate to 3.0 (quilt).
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Wed, 25 Nov 2020 14:33:30 +0200
+
+libxkbcommon (1.0.1-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Wed, 23 Sep 2020 10:19:35 +0300
+
+libxkbcommon (1.0.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * control: Migrate to x11proto-dev.
+  * Enable wayland build only on linux. (Closes: #951754)
+  * control: Add libxml2-dev to build-depends.
+  * symbols: Updated.
+  * Add libxkbregistry{0,-dev} and libxkbcommon-tools.
+  * control: Bump policy to 4.5.0.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 10 Sep 2020 14:14:57 +0300
+
+libxkbcommon (0.10.0-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #950001)
+  * control: Support nocheck profile for xvfb build-dep.
+  * Migrate to debhelper-compat 12, use dh_missing.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 06 Feb 2020 13:49:36 +0200
+
+libxkbcommon (0.9.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Build with meson, drop static libs, add cmake, wayland dev and
+    protocols to build-deps.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Wed, 30 Oct 2019 11:19:36 +0200
+
+libxkbcommon (0.8.4-1) unstable; urgency=medium
+
+  * New upstream release.
+  * source: Bump to format 3.0, upstream provides only .xz tarballs.
+  * control: Bump compat to 4.4.0.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Sun, 08 Sep 2019 00:55:05 +0300
+
+libxkbcommon (0.8.2-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #907302).
+    - Fixes CVE-2018-15853 CVE-2018-15854 CVE-2018-15855 CVE-2018-15856
+      CVE-2018-15857 CVE-2018-15858 CVE-2018-15859 CVE-2018-15861
+      CVE-2018-15862 CVE-2018-15863 CVE-2018-15864.
+  * control: Update vcs urls.
+  * control: Priority optional for all packages.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 30 Aug 2018 14:06:12 +0300
+
+libxkbcommon (0.8.0-2) unstable; urgency=medium
+
+  * control: Mark -dev packages M-A: same. (LP: #1772512)
+  * Split documentation from -dev to -doc. (Closes: #893855)
+  * rules: Purge doxygen .md5 files.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Thu, 24 May 2018 16:59:28 +0300
+
+libxkbcommon (0.8.0-1) unstable; urgency=medium
+
+  * New upstream release. (LP: #1740894)
+  * watch: Update upstream git url.
+  * symbols: Updated.
+
+ -- Timo Aaltonen <tjaalton@debian.org>  Tue, 02 Jan 2018 19:47:23 +0200
+
+libxkbcommon (0.7.1-2) unstable; urgency=medium
+
+  * Remove Cyril from Uploaders.
+  * Add missing dependency libxkbcommon-x11-dev → libxkbcommon-dev
+    (closes: #872874).
+
+ -- Julien Cristau <jcristau@debian.org>  Sat, 16 Sep 2017 13:40:36 +0200
+
+libxkbcommon (0.7.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * No need to explicitly enable --parallel, it's the default in compat 10.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 18 Jan 2017 20:05:33 +0100
+
+libxkbcommon (0.7.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/libxkbcommon0.symbols: add new symbols.
+  * Build-depend on graphviz, needed for the doxygen docs. Closes: #844711.
+  * Bump Standards-Version to 3.9.8, no changes.
+  * Bump debhelper compat to 10.
+    + debhelper now enables dh-autoreconf by default.
+  * Stop passing --disable-silent-rules to configure, debhelper does that
+    for a while.
+  * debian/control: Update upstream git repo URL.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 07 Dec 2016 18:48:48 +0100
+
+libxkbcommon (0.6.1-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #815867)
+  * Use secure URIs in Vcs-* tags
+
+ -- Michael Stapelberg <stapelberg@debian.org>  Mon, 22 Aug 2016 09:14:43 +0200
+
+libxkbcommon (0.5.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop debian/patches, applied upstream.
+  * libxkbcommon-dev: install documentation (Thanks Fernando Seiti Furusato)
+    (Closes: #723086)
+  * Enable --parallel (Thanks Pino Toscano) (Closes: #760621)
+
+ -- Michael Stapelberg <stapelberg@debian.org>  Mon, 18 May 2015 19:53:18 +0200
+
+libxkbcommon (0.4.3-2) unstable; urgency=high
+
+  * d/p/0001-Remove-linux-input.h-include-from-test-x11comp.c.patch:
+    + Patch from Pino Toscano to fix the build on !linux. Closes: #760624.
+  * debian/control,
+    debian/rules:
+    + Enable quilt as the patch system.
+  * High urgency for RC bug fix.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 16 Sep 2014 23:07:00 +0200
+
+libxkbcommon (0.4.3-1) unstable; urgency=medium
+
+  [ Andreas Henriksson ]
+  * New upstream release (Closes: #750129).
+  * Add build-dependencies used by new "x11comp" test:
+    + x11-xkb-utils
+    + xvfb
+    (The test is supposed to skipped when these are not available,
+    but actually it freezes.)
+
+  [ Emilio Pozuelo Monfort ]
+  * Upload to unstable.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Fri, 05 Sep 2014 02:40:43 +0200
+
+libxkbcommon (0.4.1-2) unstable; urgency=medium
+
+  * Make libxkbcommon-x11 depend on the same version of libxkbcommon0
+    (Closes: #755724)
+
+ -- Michael Stapelberg <stapelberg@debian.org>  Wed, 23 Jul 2014 08:35:57 +0200
+
+libxkbcommon (0.4.1-1) unstable; urgency=medium
+
+  [ Timo Aaltonen ]
+  * New upstream release.
+  * libxkbcommon0.symbols: Added three new symbols.
+
+  [ Michael Stapelberg ]
+  * Make libxkbcommon-x11-dev depend on libxcb1-dev and libxcb-xkb-dev which
+    it specifies in Requires.private. This is necessary for static builds.
+
+ -- Michael Stapelberg <stapelberg@debian.org>  Fri, 18 Jul 2014 21:16:31 +0200
+
+libxkbcommon (0.4.0-1) unstable; urgency=low
+
+  * New upstream release. This introduces the new binary packages
+    libxkbcommon-x11-{0,dev} (Closes: #737391)
+  * Canonicalize Vcs-*
+  * Bump standards-version to 3.9.5 (no changes necessary)
+
+ -- Michael Stapelberg <stapelberg@debian.org>  Sun, 09 Feb 2014 18:34:46 +0100
+
+libxkbcommon (0.3.1-2) unstable; urgency=low
+
+  * Cherry-pick ec9a02 from upstream, fixes FTBFS on hurd. Closes: #717723.
+  * Re-enable the test suite on !linux. Thanks Pino Toscano. Closes: #715560.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 10 Sep 2013 01:45:53 +0200
+
+libxkbcommon (0.3.1-1) unstable; urgency=low
+
+  * Team upload.
+
+  [ Timo Aaltonen ]
+  * New upstream release 0.2.0. (Closes: #691699)
+  * libxkbcommon-dev.install: Add new headers, rename existing.
+  * control: Update Standards-Version, no changes.
+  * watch: Updated.
+  * control: Remove the comments about the experimental status, this is
+    an actual release.
+  * control: Use debhelper 9 and convert to multiarch.
+  * control: Update the descriptions.
+  * rules: Don't hardcode shlibs to the package version, this is an actual
+    release now.
+  * Use source format 1.0.
+  * Add libxkbcommon0.symbols.
+  * copyright: Remove the note about no tarballs, add upstream url.
+  * control: Added homepage.
+  * rules: Replace old tarball target with generic gentarball target.
+  * rules: Don't run tests on !linux.
+
+  [ Emilio Pozuelo Monfort ]
+  * debian/watch:
+    + Look for .xz tarballs.
+  * New upstream release 0.3.1.
+  * debian/libxkbcommon0.symbols:
+    + Add Build-Depends-Package field.
+    + Add new symbols.
+  * debian/rules:
+    + Pass -c4 to dpkg-gensymbols to abort the build if there are any
+      new or missing symbols.
+    + Make the build verbose.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 09 Jun 2013 01:50:50 +0200
+
+libxkbcommon (0.1.0~1-1) experimental; urgency=low
+
+  [ Cyril Brulebois ]
+  * Fix short description for libxkbcommon-dev.
+
+  [ Timo Aaltonen ]
+  * Merge master up to c19661b965.
+
+ -- Cyril Brulebois <kibi@debian.org>  Fri, 10 Feb 2012 22:12:02 +0100
+
+libxkbcommon (0.1.0~0-1) experimental; urgency=low
+
+  * Initial release (Closes: #611401):
+    - Merge master up to b9b0011994.
+  * Since there's no upstream release yet, use 0.1.0~X-Y as version
+    numbers, with:
+    - 0.1.0: the version currently in configure.ac;
+    - X: an integer bumped everytime we create a snapshot;
+    - Y: Debian revision.
+  * Keep shlibs very strict: packages linking against libxkbcommon will
+    pick a dependency on the particular revision they were linked
+    against. Since users are likely to be only XServer and Wayland, that
+    shouldn't be too much of a hassle. (All of them will probably stay in
+    experimental for a while anyway, libxkbcommon support isn't merged in
+    XServer's master yet.)
+  * Write a “tarball” target to generate upstream tarballs for next
+    snapshots.
+  * Use xkb-data build-dep since it's needed for the test suite.
+
+ -- Cyril Brulebois <kibi@debian.org>  Mon, 31 Jan 2011 05:07:13 +0100

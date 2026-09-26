@@ -1,0 +1,25 @@
+#!/usr/bin/dh-exec
+usr/bin/xkbcli
+usr/libexec/xkbcommon/xkbcli-compile-compose
+usr/libexec/xkbcommon/xkbcli-compile-keymap
+usr/libexec/xkbcommon/xkbcli-dump-keymap
+[linux-any] usr/libexec/xkbcommon/xkbcli-dump-keymap-wayland
+usr/libexec/xkbcommon/xkbcli-dump-keymap-x11
+usr/libexec/xkbcommon/xkbcli-how-to-type
+usr/libexec/xkbcommon/xkbcli-interactive
+[linux-any] usr/libexec/xkbcommon/xkbcli-interactive-evdev
+[linux-any] usr/libexec/xkbcommon/xkbcli-interactive-wayland
+usr/libexec/xkbcommon/xkbcli-interactive-x11
+usr/libexec/xkbcommon/xkbcli-list
+usr/share/bash-completion/completions/xkbcli
+usr/share/man/man1/xkbcli.1
+usr/share/man/man1/xkbcli-compile-compose.1
+usr/share/man/man1/xkbcli-compile-keymap.1
+[linux-any] usr/share/man/man1/xkbcli-dump-keymap-wayland.1
+usr/share/man/man1/xkbcli-dump-keymap-x11.1
+usr/share/man/man1/xkbcli-how-to-type.1
+[linux-any] usr/share/man/man1/xkbcli-interactive-evdev.1
+[linux-any] usr/share/man/man1/xkbcli-interactive-wayland.1
+usr/share/man/man1/xkbcli-interactive-x11.1
+usr/share/man/man1/xkbcli-list.1
+

@@ -31,6 +31,10 @@ permissions:
 jobs:
   # ---------------------------------------------------------------------------
   # Stage 1: packages with no internal dependencies (build toolchain only).
+  # The five packages below (wayland, libdrm, libxkbcommon, pixman,
+  # wayland-protocols) are here because wlroots 0.20.2 needs the API and the
+  # protocols introduced after the versions shipped in trixie (see
+  # packages/wlroots/README.md).
   # ---------------------------------------------------------------------------
   stage1:
     name: Stage 1 · ${{ matrix.package }}
@@ -43,8 +47,11 @@ jobs:
         package:
           - fdk-aac
           - libtsm
-          # - wlroots  # ВРЕМЕННО ОТКЛЮЧЕНО: сборка wlroots завершается ошибкой.
-          #               Вернуть в матрицу после разбора ошибки сборки.
+          - libdrm
+          - pixman
+          - wayland
+          - libxkbcommon
+          - wayland-protocols
           - mpv
     steps:
       - name: Checkout repository
@@ -74,9 +81,10 @@ jobs:
           stage: 1
 
   # ---------------------------------------------------------------------------
-  # Stage 2: packages that need Stage-1 libraries as build dependencies
-  # (kmscon -> libtsm, pipewire -> libfdk-aac-dev).
-  # labwc ВРЕМЕННО ОТКЛЮЧЁН вместе с wlroots (от которого он зависит).
+  # Stage 2: packages that need Stage-1 packages as build dependencies
+  # (kmscon -> libtsm, pipewire -> libfdk-aac-dev,
+  #  wlroots -> wayland/libdrm/libxkbcommon/pixman/wayland-protocols of this
+  #  repository).
   # ---------------------------------------------------------------------------
   stage2:
     name: Stage 2 · ${{ matrix.package }}
@@ -89,7 +97,7 @@ jobs:
       matrix:
         package:
           - kmscon
-          # - labwc  # ВРЕМЕННО ОТКЛЮЧЕНО: зависит от wlroots, который отключён в Stage 1.
+          - wlroots
           - pipewire
           - celluloid
           - sfwbar
@@ -129,9 +137,36 @@ jobs:
             kmscon)
               debs=(./stage1-pool/libtsm*.deb)
               ;;
-            # labwc)
-            #   debs=(./stage1-pool/libwlroots-0.20_*.deb ./stage1-pool/libwlroots-0.20-dev_*.deb)
-            #   ;;
+            wlroots)
+              # wlroots 0.20.2 needs the libraries of this repository: all of
+              # them have to be passed here, because the -dev packages pin the
+              # exact versions of their siblings and the versions of trixie do
+              # not satisfy the requirements of wlroots.
+              debs=(./stage1-pool/libwayland-bin_*.deb
+                    ./stage1-pool/libwayland-client0_*.deb
+                    ./stage1-pool/libwayland-server0_*.deb
+                    ./stage1-pool/libwayland-cursor0_*.deb
+                    ./stage1-pool/libwayland-egl1_*.deb
+                    ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                    ./stage1-pool/libwayland-dev_*.deb
+                    ./stage1-pool/libxkbcommon0_*.deb
+                    ./stage1-pool/libxkbcommon-dev_*.deb
+                    ./stage1-pool/libxkbcommon-x11-0_*.deb
+                    ./stage1-pool/libxkbcommon-x11-dev_*.deb
+                    ./stage1-pool/libxkbregistry0_*.deb
+                    ./stage1-pool/libxkbregistry-dev_*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb)
+              ;;
             pipewire)
               # libfdk-aac-dev depends on the exact version of libfdk-aac2t64,
               # so both packages of Stage 1 have to be installed together
@@ -155,11 +190,98 @@ jobs:
           stage: 2
 
   # ---------------------------------------------------------------------------
-  # Stage 3: merge the full pool, generate APT metadata, publish to Pages.
+  # Stage 3: packages that need the wlroots libraries of Stage 2
+  # (labwc -> libwlroots-0.20-dev).
+  # The libraries of Stage 1 are installed as well: the -dev package of wlroots
+  # requires their exact versions, and dpkg-shlibdeps has to see the matching
+  # symbol files to resolve the dependencies of libwlroots.
+  # ---------------------------------------------------------------------------
+  stage3:
+    name: Stage 3 · ${{ matrix.package }}
+    needs: stage2
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - labwc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3
+
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier stages
+        run: |
+          shopt -s nullglob
+          debs=(./stage2-pool/libwlroots-0.20_*.deb ./stage2-pool/libwlroots-0.20-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libxkbcommon0_*.deb
+                ./stage1-pool/libxkbcommon-dev_*.deb
+                ./stage1-pool/libxkbregistry0_*.deb
+                ./stage1-pool/libxkbregistry-dev_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/wayland-protocols_*.deb)
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: ${{ matrix.package }}
+          stage: 3
+
+  # ---------------------------------------------------------------------------
+  # Stage 4: merge the full pool, generate APT metadata, publish to Pages.
   # ---------------------------------------------------------------------------
   publish:
-    name: Stage 3 · generate APT repository
-    needs: stage2
+    name: Stage 4 · generate APT repository
+    needs: stage3
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     container:

@@ -1,0 +1,11 @@
+Tests: libxkbcommon-dev
+Restrictions: allow-stderr, superficial
+Depends: build-essential, pkg-config, libxkbcommon-dev
+
+Tests: libxkbcommon-x11-dev
+Restrictions: allow-stderr, superficial
+Depends: build-essential, pkg-config, libxkbcommon-x11-dev
+
+Tests: libxkbregistry-dev
+Restrictions: allow-stderr, superficial
+Depends: build-essential, pkg-config, libxkbregistry-dev

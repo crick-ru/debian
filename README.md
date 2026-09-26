@@ -4,17 +4,29 @@
 
 ## Состав
 
-| Пакет |   | Версия | Особенности |
-|-------|---|--------|-------------|
-| `fdk-aac` | [🔗](packages/fdk-aac/README.md) | 2.0.3 | Fraunhofer FDK AAC |
-| `libtsm`  | [🔗](packages/libtsm/README.md) | 4.8.0 | конечный автомат терминала для KMSCON |
-| `kmscon`  | [🔗](packages/kmscon/README.md) | 10.0.3 | терминальный эмулятор на DRM/KMS, без X11 |
-| `sfwbar`  | [🔗](packages/sfwbar/README.md) | 1.0~beta17 | панель задач для Wayland-композиторов |
-| `mpv`     | [🔗](packages/mpv/README.md) | 0.41.0 | чистый Wayland, X11 вырезан |
-| `celluloid` | [🔗](packages/celluloid/README.md) | 0.29 | GTK4-фронтенд для mpv |
-| `pipewire`| [🔗](packages/pipewire/README.md) | 1.6.9 | Bluetooth AAC; X11, JACK, V4L2 и libcamera отключены |
-| `wlroots` | [🔗](packages/wlroots/README.md) | 0.20.2 | временно не собирается |
-| `labwc`   | [🔗](packages/labwc/README.md) | 0.20.2 | временно не собирается (зависит от wlroots) |
+| Пакет       |                                    | Версия     | Особенности |
+|-------------|------------------------------------|------------|------------------------------------------------------|
+| `fdk-aac`   | [🔗](packages/fdk-aac/README.md)   | 2.0.3      | Fraunhofer FDK AAC |
+| `libtsm`    | [🔗](packages/libtsm/README.md)    | 4.8.0      | конечный автомат терминала для KMSCON |
+| `kmscon`    | [🔗](packages/kmscon/README.md)    | 10.0.3     | терминальный эмулятор на DRM/KMS, без X11 |
+| `sfwbar`    | [🔗](packages/sfwbar/README.md)    | 1.0~beta17 | панель задач для Wayland-композиторов |
+| `mpv`       | [🔗](packages/mpv/README.md)       | 0.41.0     | чистый Wayland, X11 вырезан |
+| `celluloid` | [🔗](packages/celluloid/README.md) | 0.29       | GTK4-фронтенд для mpv |
+| `pipewire`  | [🔗](packages/pipewire/README.md)  | 1.6.9      | Bluetooth AAC; X11, JACK, V4L2 и libcamera отключены |
+| `wlroots`   | [🔗](packages/wlroots/README.md)   | 0.20.2     | библиотека композитора; DRM/libinput, без Xwayland |
+| `labwc`     | [🔗](packages/labwc/README.md)     | 0.20.2     | Wayland-композитор на wlroots |
+
+Библиотеки, которые публикуются в связи с `wlroots` (у 0.20.2 нет в trixie
+версий с нужным API, поэтому версии вытесняют штатные при `apt upgrade` —
+в каждом README есть разбор влияния и порядок отката):
+
+| Пакет               |                                            | Версия  | Зачем |
+|---------------------|--------------------------------------------|---------|----------------------------------------------------|
+| `wayland`           | [🔗](packages/wayland/README.md)           | 1.26.0  | API wayland 1.24+ использует `wlroots` |
+| `libdrm`            | [🔗](packages/libdrm/README.md)            | 2.4.134 | 17 констант `DRM_FORMAT_*` из libdrm 2.4.129+ |
+| `libxkbcommon`      | [🔗](packages/libxkbcommon/README.md)      | 1.13.1  | `XKB_LED_NAME_COMPOSE`/`KANA` из libxkbcommon 1.8+ |
+| `pixman`            | [🔗](packages/pixman/README.md)            | 0.46.4  | 64-битный формат `PIXMAN_a16b16g16r16` |
+| `wayland-protocols` | [🔗](packages/wayland-protocols/README.md) | 1.47    | color-management-v1 второй версии |
 
 ## Подключение
 

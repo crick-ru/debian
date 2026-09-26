@@ -1,0 +1,4 @@
+usr/include/xkbcommon/xkbregistry.h
+usr/lib/*/libxkbregistry.so
+usr/lib/*/pkgconfig/xkbregistry.pc
+

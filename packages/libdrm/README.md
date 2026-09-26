@@ -1,0 +1,58 @@
+# libdrm (crick Debian backports)
+
+Сборка `libdrm` 2.4.134 для Debian 13 (trixie, amd64). Упаковка взята из
+Debian (`libdrm_2.4.134-3`).
+
+## Зачем нужна более свежая версия
+
+`wlroots` 0.20.2 использует форматы DRM, которых нет в libdrm 2.4.124 из
+trixie: `DRM_FORMAT_R16F`, `DRM_FORMAT_R32F`, `DRM_FORMAT_GR1616F`,
+`DRM_FORMAT_GR3232F`, `DRM_FORMAT_BGR161616`, `DRM_FORMAT_BGR161616F`,
+`DRM_FORMAT_BGR323232F`, `DRM_FORMAT_ABGR32323232F` и форматы `S010`–`S416`
+(всего 17 констант, файлы `render/pixel_format.c`,
+`render/gles2/pixel_format.c`, `render/vulkan/pixel_format.c`). Без них
+`wlroots` не собирается, а патчить его макросами было бы подменой значений.
+
+## Включено
+
+- Все библиотеки драйверов для amd64 из упаковки Debian:
+  `libdrm2`, `libdrm-common`, `libdrm-dev`, `libdrm-amdgpu1`,
+  `libdrm-freedreno1`, `libdrm-intel1`, `libdrm-nouveau2`, `libdrm-radeon1`,
+  `libdrm-tests`. Набор закрытый: `libdrm-dev` требует ровно эти версии
+  (`= ${binary:Version}`), поэтому пакет нельзя поставить частично.
+
+## Отключено
+
+- Пакеты других архитектур (`libdrm-omap1`, `libdrm-exynos1`,
+  `libdrm-tegra0`, `libdrm-etnaviv1`) — в `debian/control` они ограничены
+  arm-архитектурами, на amd64 не собираются.
+- `libdrm2-udeb` — минимальный пакет для установщика Debian;
+  `scripts/build-package.sh` собирает в пул только `*.deb`, поэтому udeb в
+  репозиторий не попадает.
+- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+
+## Изменено
+
+- Версия: `2.4.134-1+crick` (версия `-1+crick` новее штатной 2.4.124-2,
+  поэтому `apt upgrade` подхватывает её).
+- `Maintainer`: нейтральная идентичность проекта.
+- Формат исходников принудительно `3.0 (quilt)` (`scripts/build-package.sh`),
+  поэтому патч `debian/patches/01_default_perms.diff` накладывает `dpkg-source`.
+
+## Влияние на другие пакеты
+
+Совместимость сохранена: SONAME всех библиотек прежние (`libdrm.so.2`,
+`libdrm_amdgpu.so.1`, `libdrm_intel.so.1`, `libdrm_nouveau.so.2`,
+`libdrm_radeon.so.1`), версия на сборке `libdrm.so.2.124.0` → `libdrm.so.2.134.0`.
+Новых символов добавлено, удалённых нет, поэтому Mesa, X-сервер и
+Wayland-стек продолжают работать без пересборки (в trixie от libdrm2 зависят
+110 пакетов).
+
+## Откат
+
+```
+sudo apt install libdrm2=2.4.124-2 libdrm-dev=2.4.124-2
+```
+
+При `Pin-Priority: 1001` на репозиторий следующий `apt upgrade` вернёт версии
+из этого репозитория — тогда просто отключите репозиторий.

@@ -1,0 +1,36 @@
+#!/bin/sh
+# Copyright 2020 Collabora Ltd.
+# Copyright 2020 Simon McVittie
+# SPDX-License-Identifier: MIT
+
+set -eux
+
+if [ -n "${DEB_HOST_GNU_TYPE:-}" ]; then
+    CROSS_COMPILE="$DEB_HOST_GNU_TYPE-"
+    CC="${CROSS_COMPILE}gcc"
+    PKG_CONFIG="${CROSS_COMPILE}pkg-config"
+else
+    CROSS_COMPILE=
+    CC=cc
+    PKG_CONFIG=pkg-config
+fi
+
+cd "$AUTOPKGTEST_TMP"
+
+cat > trivial.c <<EOF
+#undef NDEBUG
+#include <assert.h>
+
+#include <xkbcommon/xkbcommon.h>
+
+int main (void)
+{
+    assert(xkb_keysym_from_name("A", XKB_KEYSYM_NO_FLAGS) == XKB_KEY_A);
+    return 0;
+}
+EOF
+
+# Deliberately word-splitting pkg-config's output:
+# shellcheck disable=SC2046
+"${CC}" -otrivial trivial.c $("${PKG_CONFIG}" --cflags --libs xkbcommon)
+./trivial

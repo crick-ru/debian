@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/pkg-info.mk
+
+# Don't build the documentation when not building arch:all packages
+ifeq (,$(filter libwayland-doc,$(shell dh_listpackages)))
+configure_flags += -Ddocumentation=false
+endif
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(configure_flags)
+
+override_dh_auto_test:
+# sanity-test fails on hppa
+ifeq ($(DEB_HOST_ARCH),hppa)
+	dh_auto_test || true
+else
+	dh_auto_test
+endif
+
+%:
+	dh $@ --builddirectory=build/ --buildsystem=meson
