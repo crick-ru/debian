@@ -51,11 +51,12 @@ endif
 # build has no camera source at all.
 LIBCAMERA=disabled
 
-ifneq (,$(filter alpha hurd-amd64 hurd-i386 m68k powerpc ppc64 sh4 x32,$(DEB_HOST_ARCH)))
+# No ML-based audio processing: -Donnxruntime pulls in libonnxruntime and, with
+# it, libdnnl, libxnnpack, libcpuinfo, libpthreadpool, libonnx, libprotobuf and
+# libre2 - about 70 MB of runtime dependencies for the optional
+# spa-filter-graph-plugin-onnx. The ML denoiser/VAD is of no use on a plain
+# desktop or server, so the plugin is not built here.
 ONNXRUNTIME=disabled
-else
-ONNXRUNTIME=enabled
-endif
 
 # enable snap support in Ubuntu, Debian's kernel doesn't enable the option
 # for fine grained unix mediation at the moment
@@ -89,7 +90,7 @@ override_dh_auto_configure:
 		-Dbluez5-codec-ldac=$(BLUEZ5_CODEC_LDAC) \
 		-Dbluez5-codec-ldac-dec=disabled \
 		-Dbluez5-codec-opus=enabled \
-		-Dbluez5-plc-spandsp=enabled \
+		-Dbluez5-plc-spandsp=disabled \
 		-Djack=disabled \
 		-Dv4l2=disabled \
 		-Dlibcamera=$(LIBCAMERA) \

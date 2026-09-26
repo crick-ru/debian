@@ -6,9 +6,9 @@ Wayland-окружение без компонентов, не нужных на
 ## Включено
 
 - Bluetooth-кодеки: **AAC** (через `libfdk-aac` из этого репозитория), aptX,
-  LC3, LDAC, Opus, SBC, плюс `bluez5-plc-spandsp`.
+  LC3, LDAC, Opus, SBC.
 - ALSA-мост и сетевое обнаружение: `pipewire-alsa`, `-Davahi=enabled`.
-- Поддержка `libffado`, `libmysofa`, ROC, LV2, ONNX Runtime (шумоподавление на ML).
+- Поддержка `libffado`, `libmysofa`, ROC, LV2.
 - Пользовательские **и** системные службы WirePlumber (`pipewire-system-services`).
 - Документация и справочные страницы man.
 
@@ -30,6 +30,19 @@ Wayland-окружение без компонентов, не нужных на
   только для видео-примеров из этого набора, поэтому `-Dsdl2=disabled`, а
   `libsdl2-dev` убран из сборочных зависимостей.
 - Vulkan, FFmpeg, snap, LC3plus, декодер LDAC.
+- **ONNX Runtime** (`-Donnxruntime=disabled`): ML-фильтры в
+  `filter-graph` (шумоподавление, VAD по нейросетевым моделям) не собираются,
+  плагина `spa-filter-graph-plugin-onnx` в `libspa-0.2-modules` нет. Отказ от
+  него убирает из системы 8 пакетов (около 74 МБ): `libonnxruntime1.21`,
+  `libonnx1t64`, `libdnnl3.6`, `libxnnpack0.20241108`, `libcpuinfo0`,
+  `libpthreadpool0`, `libprotobuf32t64`, `libre2-11`.
+- **Bluetooth-PLC на spandsp** (`-Dbluez5-plc-spandsp=disabled`): сокрытие
+  потерь пакетов в голосовом профиле HFP (mSBC) апстрим реализует через
+  `spandsp`; без неё остаются встроенные заглушки, которые просто не
+  маскируют потери, но не ломают кодек. Поле `libspandsp-dev` убрано из
+  сборочных зависимостей, а `libspandsp2t64` (он же тянет `libtiff6`) больше
+  не является зависимостью `libspa-0.2-bluetooth`. Для A2DP (музыка) этот
+  алгоритм не применяется.
 
 **Следствие:** в этой сборке pipewire нет источников видео с камеры вообще
 (ни через libcamera, ни через V4L2).
