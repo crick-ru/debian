@@ -1,20 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# cleanup-artifacts.sh [max-age-hours]
+# cleanup-artifacts.sh [keep-previous-runs] [max-age-hours]
 #
-# Deletes CI artifacts older than max-age-hours (default 12) to keep the storage
-# quota of a free GitHub account small: public accounts share 0.5 GB between
-# artifacts of all repositories. The current workflow run is never touched, so a
-# deploy can still read the artifacts it uploaded.
+# A free GitHub account shares 0.5 GB between the artifacts of all its
+# repositories, while the Actions cache (10 GB per repository) is used for the
+# reusable build results. Therefore only the artifacts that are still needed
+# are kept:
 #
-# Requires: GITHUB_REPOSITORY, GH_TOKEN (or GITHUB_TOKEN) with actions:read,
-#           curl-free (python3 does the HTTP), no extra packages.
-# DRY_RUN=1 prints what would be deleted without deleting anything.
+#   * the current workflow run (the publish job reads them),
+#   * the N most recent previous runs (default 1) for debugging,
+#   * any run that has not finished yet.
+#
+# Everything else is deleted. DRY_RUN=1 lists what would be deleted.
 
-MAX_AGE_HOURS="${1:-12}"
+KEEP_PREVIOUS="${1:-1}"
+MAX_AGE_HOURS="${2:-24}"
 
-python3 - "$MAX_AGE_HOURS" <<'PYEOF'
+python3 - "$KEEP_PREVIOUS" "$MAX_AGE_HOURS" <<'PYEOF'
 import json
 import os
 import sys
@@ -23,14 +26,15 @@ from datetime import datetime, timezone
 
 repo = os.environ.get("GITHUB_REPOSITORY", "")
 token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN", "")
-max_age_hours = float(sys.argv[1])
+keep_previous = int(sys.argv[1])
+max_age_hours = float(sys.argv[2])
 dry_run = os.environ.get("DRY_RUN", "0") == "1"
 current_run = os.environ.get("GITHUB_RUN_ID", "")
 
 if not repo or not token:
     sys.exit("GITHUB_REPOSITORY and GH_TOKEN/GITHUB_TOKEN are required")
 
-api = f"https://api.github.com/repos/{repo}/actions/artifacts"
+api = f"https://api.github.com/repos/{repo}/actions"
 headers = {
     "Authorization": f"Bearer {token}",
     "Accept": "application/vnd.github+json",
@@ -45,35 +49,72 @@ def request(url, method="GET"):
         return json.loads(body) if body else {}
 
 
-cutoff = datetime.now(timezone.utc).timestamp() - max_age_hours * 3600
-stale = []
-kept = 0
+artifacts = []
 page = 1
 while True:
-    data = request(f"{api}?per_page=100&page={page}")
-    artifacts = data.get("artifacts", [])
-    if not artifacts:
+    data = request(f"{api}/artifacts?per_page=100&page={page}")
+    batch = data.get("artifacts", [])
+    if not batch:
         break
-    for artifact in artifacts:
-        if str(artifact.get("workflow_run", {}).get("id", "")) == current_run:
-            kept += 1
-            continue
-        created = datetime.fromisoformat(
-            artifact["created_at"].replace("Z", "+00:00")
-        ).timestamp()
-        if created < cutoff:
-            stale.append((artifact["id"], artifact["name"], artifact["created_at"]))
-        else:
-            kept += 1
-    if len(artifacts) < 100:
+    artifacts.extend(batch)
+    if len(batch) < 100:
         break
     page += 1
 
-print(f"==> Artifacts: {kept} kept, {len(stale)} older than {max_age_hours} h")
+# Runs that still have to finish keep their artifacts.
+run_status = {}
+
+
+def is_running(run_id):
+    if run_id not in run_status:
+        try:
+            run_status[run_id] = request(f"{api}/runs/{run_id}").get("status", "")
+        except Exception:
+            run_status[run_id] = "unknown"
+    return run_status[run_id] != "completed"
+
+
+cutoff = datetime.now(timezone.utc).timestamp() - max_age_hours * 3600
+
+# Most recent previous runs (by the newest artifact they produced).
+run_newest = {}
+for artifact in artifacts:
+    run_id = str(artifact.get("workflow_run", {}).get("id", ""))
+    created = datetime.fromisoformat(
+        artifact["created_at"].replace("Z", "+00:00")
+    ).timestamp()
+    if run_id and (run_id not in run_newest or created > run_newest[run_id]):
+        run_newest[run_id] = created
+other_runs = [r for r in run_newest if r != current_run]
+other_runs.sort(key=lambda r: run_newest[r], reverse=True)
+keep_runs = set(other_runs[:keep_previous])
+if current_run:
+    keep_runs.add(current_run)
+
+stale, kept = [], 0
+for artifact in artifacts:
+    run_id = str(artifact.get("workflow_run", {}).get("id", ""))
+    created = datetime.fromisoformat(
+        artifact["created_at"].replace("Z", "+00:00")
+    ).timestamp()
+    if run_id in keep_runs and created >= cutoff:
+        kept += 1
+        continue
+    if run_id != current_run and is_running(run_id):
+        kept += 1
+        continue
+    stale.append((artifact["id"], artifact["name"], artifact["created_at"]))
+
+print(f"==> Artifacts: {kept} kept, {len(stale)} to delete "
+      f"(runs kept: current + {keep_previous} previous)")
 for artifact_id, name, created in stale:
     if dry_run:
         print(f"    would delete #{artifact_id} {name} ({created})")
         continue
-    request(f"{api}/{artifact_id}", method="DELETE")
-    print(f"    deleted #{artifact_id} {name} ({created})")
+    try:
+        request(f"{api}/artifacts/{artifact_id}", method="DELETE")
+        print(f"    deleted #{artifact_id} {name}")
+    except Exception as error:  # keep going, this is housekeeping
+        print(f"    failed to delete #{artifact_id} {name}: {error}")
 PYEOF
+

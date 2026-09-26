@@ -1,11 +1,6 @@
 # crick Debian backports
 
-Новые версии пакетов для **Debian 13 (trixie, amd64)**: всё есть в официальном архиве, но
-версии там старше. Сборка идёт в GitHub Actions, публикация — на GitHub Pages:
-<https://crick-ru.github.io/debian/>
-
-Версии пакетов имеют суффикс `+crick`, поэтому они всегда новее одноимённых пакетов из
-официального архива.
+Новые версии пакетов для **Debian 13 (trixie, amd64)**.
 
 ## Состав
 
@@ -18,8 +13,6 @@
 | `mpv` | 0.41.0 | чистый Wayland, X11 вырезан |
 | `celluloid` | 0.29 | GTK4-фронтенд для mpv |
 | `pipewire` | 1.6.9 | Bluetooth AAC; X11 вырезан; libcamera отключена |
-
-Отладочные символы (`-dbgsym`) не публикуются.
 
 ## Подключение
 
@@ -40,11 +33,3 @@ Suites: trixie
 Components: backports
 Signed-By: /etc/apt/keyrings/crick-backports.gpg
 ```
-
-Установка:
-
-```bash
-sudo apt update
-sudo apt install sfwbar mpv celluloid pipewire
-```
-
