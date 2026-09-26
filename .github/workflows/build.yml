@@ -35,7 +35,8 @@ jobs:
         package:
           - fdk-aac
           - libtsm
-          - wlroots
+          # - wlroots  # ВРЕМЕННО ОТКЛЮЧЕНО: сборка wlroots завершается ошибкой.
+          #               Вернуть в матрицу после разбора ошибки сборки.
           - mpv
     steps:
       - name: Checkout repository
@@ -76,7 +77,8 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Stage 2: packages that need Stage-1 libraries as build dependencies
-  # (kmscon -> libtsm, labwc -> wlroots, pipewire -> libfdk-aac-dev).
+  # (kmscon -> libtsm, pipewire -> libfdk-aac-dev).
+  # labwc ВРЕМЕННО ОТКЛЮЧЁН вместе с wlroots (от которого он зависит).
   # ---------------------------------------------------------------------------
   stage2:
     name: Stage 2 · ${{ matrix.package }}
@@ -89,7 +91,7 @@ jobs:
       matrix:
         package:
           - kmscon
-          - labwc
+          # - labwc  # ВРЕМЕННО ОТКЛЮЧЕНО: зависит от wlroots, который отключён в Stage 1.
           - pipewire
           - celluloid
           - sfwbar
@@ -127,9 +129,9 @@ jobs:
             kmscon)
               debs=(stage1-pool/libtsm*.deb)
               ;;
-            labwc)
-              debs=(stage1-pool/libwlroots-0.20_*.deb stage1-pool/libwlroots-0.20-dev_*.deb)
-              ;;
+            # labwc)
+            #   debs=(stage1-pool/libwlroots-0.20_*.deb stage1-pool/libwlroots-0.20-dev_*.deb)
+            #   ;;
             pipewire)
               debs=(stage1-pool/libfdk-aac-dev_*.deb)
               ;;

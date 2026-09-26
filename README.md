@@ -13,8 +13,8 @@
 |-------|--------|--------|---------------------|
 | `libtsm` | 4.8.0 | `main` | Библиотека конечного автомата терминала для KMSCON |
 | `kmscon` | 10.0.3 | `main` | DRM/KMS терминальный эмулятор, работает напрямую на Linux console без X11 |
-| `wlroots` | 0.20.2 | `main` | `-Dbackends=drm,libinput -Dxwayland=disabled`, удалены все зависимости X11/xcb |
-| `labwc` | 0.20.2 | `main` | `-Dxwayland=disabled`, легковесный Wayland-композитор с открытым API |
+| `wlroots` | 0.20.2 | `main` | **временно отключён** (сборка падает), сборка возобновляется после разбора ошибки |
+| `labwc` | 0.20.2 | `main` | **временно отключён** вместе с `wlroots`, от которого зависит |
 | `sfwbar` | 1.0~beta17 | `main` | Панель задач для Wayland compositors (wlr foreign toplevel + layer shell) |
 | `mpv` | 0.41.0 | `main` | Чистый Wayland (`-Dx11=disabled -Dwayland=enabled`), вырезаны X11/Xv/VDPAU-X11 |
 | `celluloid`| 0.30 | `main` | Графический GTK4-фронтенд для mpv с нативным Wayland |
@@ -56,7 +56,7 @@ deb [signed-by=/etc/apt/keyrings/crick-wayland.gpg] https://crick-ru.github.io/d
 
 ```bash
 sudo apt update
-sudo apt install labwc sfwbar mpv celluloid pipewire
+sudo apt install sfwbar mpv celluloid pipewire
 ```
 
 ---
@@ -69,8 +69,8 @@ sudo apt install labwc sfwbar mpv celluloid pipewire
   - `build-package.sh` — распаковка, наложение конфигураций, обновление changelog и вызов `dpkg-buildpackage`.
   - `generate-repo.sh` — сканирование собранных deb-пакетов, создание метаданных APT (`Packages`, `Packages.gz`, `Packages.xz`, `Release`, `InRelease`) и их подпись GPG.
 - `.github/workflows/` — CI/CD пайплайн (`build.yml`), три стадии в контейнере `debian:trixie`:
-  - **Stage 1** — пакеты без внутренних зависимостей (`fdk-aac`, `libtsm`, `wlroots`, `mpv`), сборка по матрице, `.deb` сохраняются как артефакты;
-  - **Stage 2** — пакеты, зависящие от библиотек Stage 1 (`kmscon`, `labwc`, `pipewire`, `celluloid`, `sfwbar`): скачивание `.deb` Stage 1, установка и сборка;
+  - **Stage 1** — пакеты без внутренних зависимостей (`fdk-aac`, `libtsm`, `mpv`; `wlroots` временно отключён), сборка по матрице, `.deb` сохраняются как артефакты;
+  - **Stage 2** — пакеты, зависящие от библиотек Stage 1 (`kmscon`, `pipewire`, `celluloid`, `sfwbar`; `labwc` временно отключён вместе с `wlroots`): скачивание `.deb` Stage 1, установка и сборка;
   - **Stage 3** — слияние пула всех пакетов, генерация метаданных APT (`generate-repo.sh`) и публикация на GitHub Pages (без Stage 3 для pull request).
 
 ---
