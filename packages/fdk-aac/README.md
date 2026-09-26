@@ -1,28 +1,29 @@
 # fdk-aac (crick Debian backports)
 
-Packaging for `fdk-aac` 2.0.3 on Debian 13 (trixie): the Fraunhofer FDK AAC
-library. It is the reason this repository is needed for Bluetooth audio — it
-provides the AAC encoder/decoder that the pipewire Bluetooth module needs.
+Сборка `fdk-aac` 2.0.3 для Debian 13 (trixie): библиотека Fraunhofer FDK AAC.
+Главная причина сборки — предоставление AAC-кодека, необходимого модулю
+Bluetooth в pipewire.
 
-> The library is under a non-free licence (Fraunhofer). It is served from the
-> single `backports` component of this repository.
+> Библиотека распространяется под несвободной лицензией (Fraunhofer). В нашем
+> репозитории поставляется в единой секции `backports`.
 
-## Enabled
+## Включено
 
-- The command line encoder is built as well: `dh_auto_configure -- --enable-example`
-  is what produces the `aac-enc` package.
+- Консольная утилита кодирования: `dh_auto_configure -- --enable-example`
+  собирает пакет `aac-enc`.
 
-## Disabled
+## Отключено
 
-- Nothing is disabled by this packaging.
+- Ничего не отключалось.
 
-## Changed
+## Изменено
 
-- Patch `add_more_arch` extends the list of target architectures in
-  `libFDK/include/FDK_archdef.h`, which upstream keeps minimal.
-- `DEB_LDFLAGS_MAINT_APPEND = -Wl,--no-undefined`: the shared library must not
-  contain unresolved symbols.
-- The library version carries the `+crick` suffix, so `pipewire` built here can
-  depend on exactly this build: `libfdk-aac-dev` requires
+- Патч `add_more_arch` расширяет список поддерживаемых архитектур в
+  `libFDK/include/FDK_archdef.h` (в апстриме список минимален).
+- `DEB_LDFLAGS_MAINT_APPEND = -Wl,--no-undefined`: разделяемая библиотека не
+  должна содержать неразрешённых символов.
+- Пакеты имеют суффикс `+crick`, поэтому `pipewire` из этого репозитория
+  может жёстко зависеть именно от этой сборки: `libfdk-aac-dev` требует
   `libfdk-aac2t64 (= 2.0.3-1+crick)`.
-- Debug symbol packages (`-dbgsym`) are not built and not published.
+- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+

@@ -1,29 +1,29 @@
 # sfwbar (crick Debian backports)
 
-Packaging for `sfwbar` 1.0~beta17 on Debian 13 (trixie): a floating taskbar for
-Wayland compositors.
+Сборка `sfwbar` 1.0~beta17 для Debian 13 (trixie): плавающая панель задач для
+Wayland-композиторов.
 
-## Enabled
+## Включено
 
-- Layer-shell and foreign-toplevel protocols, so the bar works with any
-  compositor that supports them (Sway, Hyprland, …).
-- Manual pages are generated at build time: `override_dh_auto_build` runs
-  `rst2man` over `doc/*.rst`, so no pre-generated man pages are shipped from
-  upstream.
+- Протоколы layer-shell и foreign-toplevel — панель работает со всеми
+  композиторами, которые их поддерживают (Sway, Hyprland, labwc и др.).
+- Страницы man генерируются на этапе сборки: `override_dh_auto_build` вызывает
+  `rst2man` для `doc/*.rst`, предварительно сгенерированные страницы из
+  апстрима не используются.
 
-## Disabled
+## Отключено
 
-- Nothing is disabled by this packaging; the X11 code paths of upstream are
-  simply not reachable in a Wayland session and no X11 dependency ends up in
-  the package.
+- Ничего явно не отключалось: ветки X11 из исходников просто не активируются
+  в Wayland-сессии, зависимостей от X11 в пакете не остаётся.
 
-## Changed
+## Изменено
 
-- Patch `0001-docs-fix-typos.patch` and `0002-config-fix-typos.patch`: typo
-  fixes in the documentation and the example configuration.
-- Patch `0003-fix-replace-python-with-python3-in-embedded-scripts.patch`: the
-  embedded python helpers call `python3`, because `python` no longer exists in
-  trixie.
-- `override_dh_install` additionally drops `usr/share/sfwbar/icons/weather/LICENSE`,
-  which is not redistributed in the package.
-- Debug symbol packages (`-dbgsym`) are not built and not published.
+- Патчи `0001-docs-fix-typos.patch` и `0002-config-fix-typos.patch`: исправление
+  опечаток в документации и примере конфигурации.
+- Патч `0003-fix-replace-python-with-python3-in-embedded-scripts.patch`:
+  встроенные python-скрипты вызывают `python3`, так как бинарник `python`
+  в trixie больше не поставляется.
+- `override_dh_install` дополнительно удаляет `usr/share/sfwbar/icons/weather/LICENSE`,
+  которая не должна поставляться в пакете.
+- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+

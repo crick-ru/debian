@@ -1,26 +1,26 @@
 # labwc (crick Debian backports)
 
-Packaging for `labwc` 0.20.2 on Debian 13 (trixie): a small, scriptable Wayland
-compositor.
+Сборка `labwc` 0.20.2 для Debian 13 (trixie): компактный скриптуемый
+Wayland-композитор.
 
-> **Not built at the moment.** `labwc` needs `libwlroots-0.20` from this
-> repository, and the `wlroots` job is currently disabled in CI, so `labwc` is
-> excluded from the build matrix together with it. The packaging below is kept
-> ready for the moment the wlroots build is re-enabled.
+> **Временно не собирается.** `labwc` зависит от `libwlroots-0.20` из этого
+> репозитория, а сборка `wlroots` отключена в CI, поэтому `labwc` исключён
+> из матрицы вместе с ним. Упаковка подготовлена к возврату.
 
-## Enabled
+## Включено
 
-- The wlroots compositor library of this repository, i.e. DRM/libinput without
-  Xwayland (see `packages/wlroots/README.md`).
+- Библиотека композитора `wlroots` из этого репозитория: бэкенды DRM/libinput
+  без Xwayland (см. `packages/wlroots/README.md`).
 
-## Disabled
+## Отключено
 
-- **Xwayland**: `-Dxwayland=disabled`. X11 clients need XWayland from elsewhere
-  or a nested Wayland compositor.
-- CI matrix entry (temporarily, see the note above).
+- **Xwayland**: `-Dxwayland=disabled`. X11-клиентам потребуется XWayland из
+  другого источника либо вложенный Wayland-композитор.
+- Участие в матрице CI (временно, см. примечание выше).
 
-## Changed
+## Изменено
 
-- No further changes against the upstream Debian packaging; the sources are
-  overlaid on top of it by `scripts/build-package.sh`.
-- Debug symbol packages (`-dbgsym`) are not built and not published.
+- Дополнительных правок поверх апстрим-упаковки Debian нет; исходники
+  накладываются скриптом `scripts/build-package.sh`.
+- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+

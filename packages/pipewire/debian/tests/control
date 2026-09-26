@@ -1,7 +1,3 @@
-Tests: gnome-desktop-testing
-Depends: gnome-desktop-testing,
-         pipewire-tests
-
 Tests: gstreamer1.0-pipewire
 Restrictions: allow-stderr, superficial
 Depends: gstreamer1.0-pipewire,

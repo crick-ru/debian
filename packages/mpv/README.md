@@ -1,27 +1,27 @@
 # mpv (crick Debian backports)
 
-Packaging for `mpv` 0.41.0 on Debian 13 (trixie), built as a pure Wayland
-player. The resulting packages contain no X11 libraries at all, which is what
-makes the build differ from the distribution package.
+Сборка `mpv` 0.41.0 для Debian 13 (trixie), собранная как чисто Wayland-проигрыватель.
+Пакеты не содержат библиотек X11 — этим сборка отличается от пакетного дистрибутива.
 
-## Enabled
+## Включено
 
-- Wayland output and input: `-Dwayland=enabled`, `-Degl-wayland=enabled`.
-- Zero-copy GPU rendering: `-Ddmabuf-wayland=enabled`.
-- Hardware video decoding through VA-API on Wayland: `-Dvaapi-wayland=enabled`.
-- libmpv client library: `-Dlibmpv=true` (used by `celluloid`).
-- Optical disc and extras: `-Dcdda=enabled`, `-Ddvdnav=enabled`, and
-  `-Ddvbin=enabled` on Linux hosts.
+- Вывод и ввод через Wayland: `-Dwayland=enabled`, `-Degl-wayland=enabled`.
+- Рендеринг через GPU без копирования: `-Ddmabuf-wayland=enabled`.
+- Аппаратное декодирование через VA-API под Wayland: `-Dvaapi-wayland=enabled`.
+- Клиентская библиотека libmpv: `-Dlibmpv=true` (нужна `celluloid`).
+- Оптические диски и дополнительно: `-Dcdda=enabled`, `-Ddvdnav=enabled`,
+  `-Ddvbin=enabled` на Linux.
 
-## Disabled
+## Отключено
 
-- **X11 and every X11 backend**: `-Dx11=disabled`, `-Degl-x11=disabled`,
+- **X11 и все бэкенды X11**: `-Dx11=disabled`, `-Degl-x11=disabled`,
   `-Dgl-x11=disabled`, `-Dvaapi-x11=disabled`, `-Dvdpau-gl-x11=disabled`,
-  `-Dxv=disabled`, `-Dx11-clipboard=disabled`. The published `mpv` and
-  `libmpv2` packages declare no `libx11*` dependency, so packages like
-  `libxpresent1` are not pulled in.
+  `-Dxv=disabled`, `-Dx11-clipboard=disabled`. Пакеты `mpv` и `libmpv2` не
+  объявляют зависимостей `libx11*`, поэтому библиотеки вроде `libxpresent1`
+  не ставятся.
 
-## Changed
+## Изменено
 
-- `-Dbuild-date=false` keeps the build reproducible (no build timestamp).
-- Debug symbol packages (`-dbgsym`) are not built and not published.
+- `-Dbuild-date=false` для воспроизводимости сборки (без временных меток).
+- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+

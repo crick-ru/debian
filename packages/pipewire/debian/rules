@@ -20,9 +20,6 @@ override_dh_auto_install:
 	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3/libpipewire-module-netjack2-*.so
 	rm -rf debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3/jack \
 	       debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3/v4l2
-	# the two jack example programs of pipewire-tests link against libjack.so.0,
-	# which is not shipped any more
-	rm -rf debian/tmp/usr/libexec/installed-tests/pipewire-0.3/examples/jack
 
 ifneq ($(filter nodoc,$(DEB_BUILD_PROFILES)),)
 DOCS=disabled

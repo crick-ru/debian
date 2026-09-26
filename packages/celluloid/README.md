@@ -1,22 +1,24 @@
 # celluloid (crick Debian backports)
 
-Packaging for `celluloid` 0.29 on Debian 13 (trixie): the GTK4 front end for
+Сборка `celluloid` 0.29 для Debian 13 (trixie): графический GTK4-фронтенд для
 `mpv`.
 
-## Enabled
+## Включено
 
-- Upstream defaults, nothing is reconfigured: the build is a plain
-  `dh $@ --buildsystem=meson`.
-- The front end talks to the Wayland-only `libmpv2` of this repository (see
-  `packages/mpv/README.md`), which is the main reason to build it here.
+- Все стандартные настройки апстрима: сборка через `dh $@ --buildsystem=meson`
+  без дополнительных отключений.
+- Фронтенд работает напрямую с чисто Wayland-библиотекой `libmpv2` из этого
+  репозитория (см. `packages/mpv/README.md`) — в этом основной смысл сборки
+  пакета здесь.
 
-## Disabled
+## Отключено
 
-- Nothing is disabled by this packaging.
+- Ничего дополнительно не отключалось.
 
-## Changed
+## Изменено
 
-- Patch `01_use-appstreamcli.patch` builds the AppStream metadata with
-  `appstreamcli`; the tool that upstream used (`appstream-util`) is no longer
-  available in trixie.
-- Debug symbol packages (`-dbgsym`) are not built and not published.
+- Патч `01_use-appstreamcli.patch`: метаданные AppStream собираются через
+  `appstreamcli`, так как утилита `appstream-util`, использовавшаяся апстримом,
+  в trixie больше не поставляется.
+- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+

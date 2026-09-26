@@ -1,36 +1,37 @@
 # kmscon (crick Debian backports)
 
-Packaging for `kmscon` 10.0.3 on Debian 13 (trixie): a terminal emulator that
-runs directly on the DRM/KMS console, without any X11 involvement.
+Сборка `kmscon` 10.0.3 для Debian 13 (trixie): эмулятор терминала, работающий
+напрямую на DRM/KMS-консоли Linux без X11-сервера.
 
-## Enabled
+## Включено
 
-- All upstream autotools features: `--auto-features=enabled`.
-- Documentation and man pages (docbook). They are switched off automatically for
-  the `nodoc` build profile (`-Ddocs=disabled`).
-- Console switching service `kmsconvt@`, shipped alongside the emulator.
+- Все штатные возможности autotools: `--auto-features=enabled`.
+- Документация и страницы man (docbook). Отключаются автоматически при профиле
+  сборки `nodoc` (`-Ddocs=disabled`).
+- Служба переключения виртуальных терминалов `kmsconvt@`, поставляемая вместе
+  с эмулятором.
 
-## Disabled
+## Отключено
 
-- `-Dwerror=false`: warnings of newer GCC compilers must not break the build.
-- Test suite (`override_dh_auto_test` is empty): the tests are interactive and
-  require root, so they are not run during packaging.
-- X11 is neither used nor declared as a dependency.
+- `-Dwerror=false`: предупреждения новых версий GCC не должны валить сборку.
+- Набор тестов (`override_dh_auto_test` пуст): тесты интерактивные и требуют
+  root, поэтому при сборке пакета не запускаются.
+- X11 не используется и не заявлен в зависимостях.
 
-## Changed
+## Изменено
 
-- The install step stages everything into `debian/tmp`
-  (`dh_auto_install --destdir=debian/tmp`), which is how the upstream packaging
-  separates the files of the single binary package.
-- `DEB_CFLAGS_MAINT_APPEND := -Wno-error=array-bounds` silences a known false
-  positive coming from the bundled `libtsm` headers.
-- `SYSTEMD_SYSTEM_UNIT_DIR` is taken from `pkg-config systemd` instead of being
-  hardcoded, so the units land in the right directory on trixie.
-- Patch `0001-Change-kmsconvt-.service-to-match-getty-.service.patch` renames
-  `kmsconvt@.service` so that it is a drop-in match for `getty.service`.
-- Patch `0002-Do-not-use-git-describe-to-generate-version.patch` stops meson from
-  calling `git describe` (the release tarball carries no git metadata).
-- `debian/kmscon.install` uses `dh-exec`, so the file must keep its executable
-  bit — otherwise `dh_install` parses the `=>` line itself and fails with
-  `Cannot find (any matches for) "=>"`.
-- Debug symbol packages (`-dbgsym`) are not built and not published.
+- Установка этапа сборки идёт в `debian/tmp` (`dh_auto_install --destdir=debian/tmp`),
+  как в upstream-пакете для разделения файлов.
+- `DEB_CFLAGS_MAINT_APPEND := -Wno-error=array-bounds` глушит ложное срабатывание
+  компилятора в заголовках `libtsm`.
+- `SYSTEMD_SYSTEM_UNIT_DIR` запрашивается через `pkg-config systemd` вместо
+  жёстко прописанного пути, поэтому юниты попадают в верный каталог на trixie.
+- Патч `0001-Change-kmsconvt-.service-to-match-getty-.service.patch` переименовывает
+  `kmsconvt@.service` в точное соответствие системному `getty.service`.
+- Патч `0002-Do-not-use-git-describe-to-generate-version.patch` убирает вызов
+  `git describe` из meson (в релизном архиве нет каталога `.git`).
+- `debian/kmscon.install` использует `dh-exec`, поэтому файл обязан быть
+  исполняемым (бит `+x`) — иначе `dh_install` сам разбирает строку `=>` и
+  падает с `Cannot find (any matches for) "=>"`.
+- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+

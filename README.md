@@ -4,17 +4,17 @@
 
 ## Состав
 
-| Пакет | Версия | Особенности | Упаковка |
-|-------|--------|-------------|----------|
-| `fdk-aac` | 2.0.3 | Fraunhofer FDK AAC | [README](packages/fdk-aac/README.md) |
-| `libtsm` | 4.8.0 | конечный автомат терминала для KMSCON | [README](packages/libtsm/README.md) |
-| `kmscon` | 10.0.3 | терминальный эмулятор на DRM/KMS, без X11 | [README](packages/kmscon/README.md) |
-| `sfwbar` | 1.0~beta17 | панель задач для Wayland-композиторов | [README](packages/sfwbar/README.md) |
-| `mpv` | 0.41.0 | чистый Wayland, X11 вырезан | [README](packages/mpv/README.md) |
-| `celluloid` | 0.29 | GTK4-фронтенд для mpv | [README](packages/celluloid/README.md) |
-| `pipewire` | 1.6.9 | Bluetooth AAC; X11, JACK, V4L2 и libcamera отключены | [README](packages/pipewire/README.md) |
-| `wlroots` | 0.20.2 | временно не собирается | [README](packages/wlroots/README.md) |
-| `labwc` | 0.20.2 | временно не собирается (зависит от wlroots) | [README](packages/labwc/README.md) |
+| Пакет | Версия | Особенности |
+|-------|--------|-------------|
+| `fdk-aac` [📖](packages/fdk-aac/README.md) | 2.0.3 | Fraunhofer FDK AAC |
+| `libtsm` [📖](packages/libtsm/README.md) | 4.8.0 | конечный автомат терминала для KMSCON |
+| `kmscon` [📖](packages/kmscon/README.md) | 10.0.3 | терминальный эмулятор на DRM/KMS, без X11 |
+| `sfwbar` [📖](packages/sfwbar/README.md) | 1.0~beta17 | панель задач для Wayland-композиторов |
+| `mpv` [📖](packages/mpv/README.md) | 0.41.0 | чистый Wayland, X11 вырезан |
+| `celluloid` [📖](packages/celluloid/README.md) | 0.29 | GTK4-фронтенд для mpv |
+| `pipewire` [📖](packages/pipewire/README.md) | 1.6.9 | Bluetooth AAC; X11, JACK, V4L2 и libcamera отключены |
+| `wlroots` [📖](packages/wlroots/README.md) | 0.20.2 | временно не собирается |
+| `labwc` [📖](packages/labwc/README.md) | 0.20.2 | временно не собирается (зависит от wlroots) |
 
 ## Подключение
 
