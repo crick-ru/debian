@@ -6,6 +6,21 @@ export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
 %:
 	dh $@
 
+# JACK and V4L2 are switched off at configure time, but upstream still builds a
+# few unconditional targets: the jack module, the netjack2 modules, pw-jack,
+# pw-v4l2, their man pages and jack.conf. They have no package any more, so drop
+# them from the staging directory; otherwise dh_missing --fail-missing (the
+# compat 13 default) aborts the build.
+override_dh_auto_install:
+	dh_auto_install
+	rm -f debian/tmp/usr/bin/pw-jack debian/tmp/usr/bin/pw-v4l2 \
+	      debian/tmp/usr/share/man/man1/pw-jack.1 \
+	      debian/tmp/usr/share/man/man1/pw-v4l2.1 \
+	      debian/tmp/usr/share/pipewire/jack.conf
+	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3/libpipewire-module-netjack2-*.so
+	rm -rf debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3/jack \
+	       debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pipewire-0.3/v4l2
+
 ifneq ($(filter nodoc,$(DEB_BUILD_PROFILES)),)
 DOCS=disabled
 MAN=disabled
