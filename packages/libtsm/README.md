@@ -4,8 +4,7 @@ Debian packaging recipe for `libtsm`, optimized for pure Wayland environments wi
 
 - **Target OS**: Debian GNU/Linux 13 (trixie)
 - **Architecture**: `amd64`
-- **Component**: `main`
-- **Maintainer**: crick <mail@crick.ru>
+- **Component**: `backports`
 
 ## Configuration Highlights
 

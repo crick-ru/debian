@@ -1,5 +1,7 @@
 # Build output and temp artifacts
 build/
+dist/
+repo-pool/
 *.deb
 *.ddeb
 *.buildinfo

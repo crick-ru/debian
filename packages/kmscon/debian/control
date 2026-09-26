@@ -1,7 +1,5 @@
 Source: kmscon
-Maintainer: Boyuan Yang <byang@debian.org>
-Uploaders:
- Victor Westerhuis <victor@westerhu.is>,
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Section: utils
 Build-Depends:
  check,

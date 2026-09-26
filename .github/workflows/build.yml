@@ -8,6 +8,7 @@ on:
       - 'packages/**'
       - 'scripts/**'
       - '.github/workflows/build.yml'
+      - '.github/actions/**'
   pull_request:
     branches:
       - main
@@ -66,21 +67,11 @@ jobs:
             git \
             python3
 
-      - name: Install build dependencies
-        run: bash scripts/install-build-deps.sh "${{ matrix.package }}"
-
-      - name: Fetch upstream and build package
-        run: |
-          scripts/fetch-upstream.sh "${{ matrix.package }}"
-          scripts/build-package.sh "${{ matrix.package }}"
-
-      - name: Upload stage 1 packages
-        uses: actions/upload-artifact@v7
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
         with:
-          name: deb-stage1-${{ matrix.package }}
-          path: repo-pool/*.deb
-          retention-days: 7
-          if-no-files-found: error
+          package: ${{ matrix.package }}
+          stage: 1
 
   # ---------------------------------------------------------------------------
   # Stage 2: packages that need Stage-1 libraries as build dependencies
@@ -157,21 +148,11 @@ jobs:
             echo "No stage 1 packages required for ${{ matrix.package }}"
           fi
 
-      - name: Install build dependencies
-        run: bash scripts/install-build-deps.sh "${{ matrix.package }}"
-
-      - name: Fetch upstream and build package
-        run: |
-          scripts/fetch-upstream.sh "${{ matrix.package }}"
-          scripts/build-package.sh "${{ matrix.package }}"
-
-      - name: Upload stage 2 packages
-        uses: actions/upload-artifact@v7
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
         with:
-          name: deb-stage2-${{ matrix.package }}
-          path: repo-pool/*.deb
-          retention-days: 7
-          if-no-files-found: error
+          package: ${{ matrix.package }}
+          stage: 2
 
   # ---------------------------------------------------------------------------
   # Stage 3: merge the full pool, generate APT metadata, publish to Pages.
@@ -222,18 +203,30 @@ jobs:
         run: |
           if [[ -n "$GPG_PRIVATE_KEY" ]]; then
             echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-            echo "GPG private key imported."
+            gpg --batch --list-secret-keys --with-colons | awk -F: '/^fpr/ {print "Signing key fingerprint: " $10; exit}'
           else
             echo "Warning: No GPG_PRIVATE_KEY found; repository will be unsigned."
           fi
 
       - name: Generate APT repository metadata
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: scripts/generate-repo.sh
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+
+      - name: Delete old CI artifacts
+        # A free account shares 0.5 GB between the artifacts of all its
+        # repositories. The packages are already uploaded to Pages and the
+        # rebuilt .deb files live in the Actions cache, so old artifacts of
+        # previous runs are useless weight.
+        if: always() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/cleanup-artifacts.sh 12
 
   deploy:
     name: Deploy to GitHub Pages

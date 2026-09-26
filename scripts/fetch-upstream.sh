@@ -3,14 +3,25 @@ set -euo pipefail
 
 # fetch-upstream.sh: Download upstream source tarball for a specified package
 # Usage: ./fetch-upstream.sh <package-name> [version]
+#        ./fetch-upstream.sh --print-version <package-name>
+#          Prints the upstream version of a package without downloading anything.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-PACKAGE="${1:-}"
-VERSION="${2:-}"
+
+PRINT_VERSION_ONLY=false
+if [[ "${1:-}" == "--print-version" ]]; then
+  PRINT_VERSION_ONLY=true
+  PACKAGE="${2:-}"
+  VERSION=""
+else
+  PACKAGE="${1:-}"
+  VERSION="${2:-}"
+fi
 
 if [[ -z "$PACKAGE" ]]; then
-  echo "Usage: $0 <package-name> [version]"
+  echo "Usage: $0 <package-name> [version]" >&2
+  echo "       $0 --print-version <package-name>" >&2
   exit 1
 fi
 
@@ -85,13 +96,19 @@ case "$PACKAGE" in
     ORIG_TAR="pipewire_${VERSION}.orig.tar.gz"
     ;;
   *)
-    echo "Unknown package: $PACKAGE"
+    echo "Unknown package: $PACKAGE" >&2
     exit 1
     ;;
 esac
 
-echo "==> Fetching $PACKAGE $VERSION from $URL..."
+if [[ "$PRINT_VERSION_ONLY" == true ]]; then
+  echo "$VERSION"
+  exit 0
+fi
+
 TARGET_ORIG="$BUILD_SRC/$ORIG_TAR"
+
+echo "==> Fetching $PACKAGE $VERSION from $URL..."
 
 if [[ ! -f "$TARGET_ORIG" ]]; then
   curl -fsSL -o "$TARGET_ORIG" "$URL"

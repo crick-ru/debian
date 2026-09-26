@@ -1,0 +1,98 @@
+name: Build package with cache
+description: >
+  Builds one Debian package and reuses previous results when nothing that
+  affects the result changed. Two caches are used (they are stored in the
+  10 GB per-repository Actions cache, not in the much smaller 0.5 GB artifact
+  quota of a free account):
+
+    src-<pkg>-<hash of fetch-upstream.sh>  -> build/sources (upstream tarballs)
+    deb-<pkg>-<version>-<packaging hash>-<release> -> build/result (*.deb)
+
+  The deb key contains the package version, a hash of packages/<pkg>/debian plus
+  the build scripts, and the Debian release, so any change to the packaging, the
+  upstream version or the toolchain forces a rebuild. A cache hit skips the
+  build completely and reuses the previously built .deb files verbatim.
+
+inputs:
+  package:
+    description: Package name (directory under packages/)
+    required: true
+  stage:
+    description: CI stage number, used in the artifact name (1 or 2)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Compute cache keys
+      id: keys
+      shell: bash
+      run: |
+        set -euo pipefail
+        pkg="${{ inputs.package }}"
+        version="$(scripts/pkg-version.sh "$pkg")"
+        packaging="$(
+          {
+            find "packages/$pkg/debian" -type f -exec sha256sum {} +
+            sha256sum scripts/fetch-upstream.sh scripts/build-package.sh \
+                       scripts/pkg-version.sh scripts/install-build-deps.sh
+          } | LC_ALL=C sort | sha256sum | cut -c1-16
+        )"
+        release="$(. /etc/os-release && echo "${VERSION_ID}")"
+        {
+          echo "deb-key=deb-$pkg-$version-$packaging-$release"
+          echo "src-key=src-$pkg-$(sha256sum scripts/fetch-upstream.sh | cut -c1-16)"
+          echo "version=$version"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Restore upstream sources
+      uses: actions/cache@v4
+      with:
+        path: build/sources
+        key: ${{ steps.keys.outputs.src-key }}
+
+    - name: Restore previously built packages
+      id: debcache
+      uses: actions/cache/restore@v4
+      with:
+        path: build/result
+        key: ${{ steps.keys.outputs.deb-key }}
+
+    - name: Install build dependencies
+      shell: bash
+      run: bash scripts/install-build-deps.sh "${{ inputs.package }}"
+
+    - name: Build package or reuse the cached result
+      shell: bash
+      run: |
+        set -euo pipefail
+        pkg="${{ inputs.package }}"
+        mkdir -p repo-pool
+        if [[ "${{ steps.debcache.outputs.cache-hit }}" == "true" ]]; then
+          echo "==> Cache hit: reusing $pkg ${{ steps.keys.outputs.version }}"
+          cp -v build/result/*.deb repo-pool/
+        else
+          echo "==> Cache miss: building $pkg from source"
+          scripts/fetch-upstream.sh "$pkg"
+          scripts/build-package.sh "$pkg"
+          mkdir -p build/result
+          cp -v repo-pool/*.deb build/result/
+        fi
+
+    - name: Store built packages in cache
+      if: steps.debcache.outputs.cache-hit != 'true'
+      continue-on-error: true
+      uses: actions/cache/save@v4
+      with:
+        path: build/result
+        key: ${{ steps.keys.outputs.deb-key }}
+
+    - name: Upload packages
+      uses: actions/upload-artifact@v7
+      with:
+        name: deb-stage${{ inputs.stage }}-${{ inputs.package }}
+        path: repo-pool/*.deb
+        # Artifacts only have to survive until the publish job of the same run;
+        # they are not a long-term copy, so keep them for a day to save quota.
+        retention-days: 1
+        if-no-files-found: error

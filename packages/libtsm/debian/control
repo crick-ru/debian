@@ -1,5 +1,5 @@
 Source: libtsm
-Maintainer: Nobuhiro Iwamatsu <iwamatsu@debian.org>
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Section: libs
 Priority: optional
 Build-Depends: check <!nocheck>,

@@ -1,8 +1,6 @@
 Source: pipewire
 Section: non-free/libs
-Maintainer: Utopia Maintenance Team <pkg-utopia-maintainers@alioth-lists.debian.net>
-Uploaders: Jeremy Bicha <jbicha@debian.org>,
-           Dylan Aïssi <daissi@debian.org>
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Build-Depends: debhelper-compat (= 13),
  libfdk-aac-dev,
                dh-sequence-installsysusers,

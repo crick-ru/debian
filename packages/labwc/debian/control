@@ -1,8 +1,6 @@
 Source: labwc
 Section: x11
-Maintainer: Lab Wayland Compositor Team <team+labwc@tracker.debian.org>
-Uploaders:
- Birger Schacht <birger@debian.org>,
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Build-Depends:
  debhelper-compat (= 13),
  cmake,

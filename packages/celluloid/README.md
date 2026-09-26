@@ -4,8 +4,7 @@ Debian packaging recipe for `celluloid`, optimized for pure Wayland environments
 
 - **Target OS**: Debian GNU/Linux 13 (trixie)
 - **Architecture**: `amd64`
-- **Component**: `main`
-- **Maintainer**: crick <mail@crick.ru>
+- **Component**: `backports`
 
 ## Configuration Highlights
 

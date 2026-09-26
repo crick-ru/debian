@@ -50,18 +50,18 @@ cp -r "$REPO_ROOT/packages/$PACKAGE/debian" ./
 mkdir -p debian/source
 echo "3.0 (quilt)" > debian/source/format
 
-# Update changelog to reflect our modern Wayland build version
+# Update the changelog with the version used for this backports build.
+# The version string itself comes from pkg-version.sh (single source of truth).
 TARGET_RELEASE="trixie"
-DEB_VERSION="${VERSION}-1+wayland"
+DEB_VERSION="$("$SCRIPT_DIR/pkg-version.sh" "$PACKAGE")"
 CHANGELOG_DATE="$(LC_ALL=C date -R)"
 
 cat << CHLOG > debian/changelog.new
 $PACKAGE ($DEB_VERSION) $TARGET_RELEASE; urgency=medium
 
-  * Automated clean Wayland-only build for Debian trixie repository.
-  * Stripped legacy X11, Xorg and Xwayland dependencies.
+  * Build for the crick Debian backports repository (Debian trixie, amd64).
 
- -- crick <mail@crick.ru>  $CHANGELOG_DATE
+ -- crick Debian Backports <backports@users.noreply.github.com>  $CHANGELOG_DATE
 
 CHLOG
 

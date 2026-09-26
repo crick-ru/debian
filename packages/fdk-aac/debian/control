@@ -1,9 +1,7 @@
 Source: fdk-aac
 Section: non-free/libs
 Priority: optional
-Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
-Uploaders: Romain Beauxis <toots@rastageeks.org>,
- Fabian Greffrath <fabian@debian.org>
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Homepage: https://github.com/mstorsjo/fdk-aac
 Standards-Version: 4.7.1
 Build-Depends: debhelper-compat (= 13)

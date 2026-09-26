@@ -1,10 +1,7 @@
 Source: celluloid
 Section: video
 Priority: optional
-Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
-Uploaders:
- Ximin Luo <infinity0@debian.org>,
- Danial Behzadi <dani.behzi@ubuntu.com>,
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Build-Depends:
  appstream,
  autoconf-archive,

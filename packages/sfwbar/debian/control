@@ -1,7 +1,7 @@
 Source: sfwbar
 Section: x11
 Priority: optional
-Maintainer: Birger Schacht <birger@debian.org>
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Build-Depends: debhelper-compat (= 13),
                meson,
                ninja-build,

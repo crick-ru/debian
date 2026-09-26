@@ -4,8 +4,7 @@ Debian packaging recipe for `pipewire`, optimized for pure Wayland environments 
 
 - **Target OS**: Debian GNU/Linux 13 (trixie)
 - **Architecture**: `amd64`
-- **Component**: `non-free`
-- **Maintainer**: crick <mail@crick.ru>
+- **Component**: `backports`
 
 ## Configuration Highlights
 

@@ -4,8 +4,7 @@ Debian packaging recipe for `wlroots`, optimized for pure Wayland environments w
 
 - **Target OS**: Debian GNU/Linux 13 (trixie)
 - **Architecture**: `amd64`
-- **Component**: `main`
-- **Maintainer**: crick <mail@crick.ru>
+- **Component**: `backports`
 
 ## Configuration Highlights
 
