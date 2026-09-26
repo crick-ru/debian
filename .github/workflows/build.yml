@@ -132,15 +132,17 @@ jobs:
       - name: Install required stage 1 packages
         run: |
           shopt -s nullglob
+          # apt-get treats arguments without a path separator as package names,
+          # so the downloaded .deb files are passed as ./stage1-pool/<file>.deb
           case "${{ matrix.package }}" in
             kmscon)
-              debs=(stage1-pool/libtsm*.deb)
+              debs=(./stage1-pool/libtsm*.deb)
               ;;
             # labwc)
-            #   debs=(stage1-pool/libwlroots-0.20_*.deb stage1-pool/libwlroots-0.20-dev_*.deb)
+            #   debs=(./stage1-pool/libwlroots-0.20_*.deb ./stage1-pool/libwlroots-0.20-dev_*.deb)
             #   ;;
             pipewire)
-              debs=(stage1-pool/libfdk-aac-dev_*.deb)
+              debs=(./stage1-pool/libfdk-aac-dev_*.deb)
               ;;
             *)
               debs=()

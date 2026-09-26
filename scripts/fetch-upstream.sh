@@ -49,9 +49,13 @@ case "$PACKAGE" in
     ORIG_TAR="labwc_${VERSION}.orig.tar.gz"
     ;;
   sfwbar)
-    # sfwbar tags are like v1.0_beta17 -> Debian version 1.0~beta17
+    # Upstream tags look like v1.0_beta17 (underscore), the Debian version is
+    # written as 1.0~beta17 (tilde), so the tilde is turned back into "_".
+    # The tilde has to be escaped as "\~": bash expands a bare "~" in the
+    # pattern of ${VAR/pat/rep} into the home directory, and the substitution
+    # silently does nothing.
     VERSION="${VERSION:-1.0~beta17}"
-    TAG_VER="${VERSION/~/}"
+    TAG_VER="${VERSION/\~/_}"
     TARBALL="sfwbar-${VERSION}.tar.gz"
     URL="https://github.com/LBCrion/sfwbar/archive/refs/tags/v${TAG_VER}.tar.gz"
     ORIG_TAR="sfwbar_${VERSION}.orig.tar.gz"
