@@ -12,19 +12,20 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      package:
-        description: 'Specific package to build (or "all")'
-        required: true
-        default: 'all'
 
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  build-packages:
-    name: Build ${{ matrix.package }}
+  # ---------------------------------------------------------------------------
+  # Stage 1: packages with no internal dependencies (build toolchain only).
+  # ---------------------------------------------------------------------------
+  stage1:
+    name: Stage 1 · ${{ matrix.package }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -34,48 +35,205 @@ jobs:
         package:
           - fdk-aac
           - libtsm
-          - kmscon
           - wlroots
-          - labwc
-          - sfwbar
           - mpv
-          - celluloid
-          - pipewire
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Install Debian build toolchain
+      - name: Configure APT sources and install build toolchain
         run: |
+          # Enable contrib/non-free/non-free-firmware components of the archive
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
             debhelper \
             devscripts \
-            equivs \
             dpkg-dev \
             curl \
             ca-certificates \
             rsync \
-            git
+            git \
+            python3
 
-      - name: Install Package Build-Dependencies
-        run: |
-          # Enable non-free and non-free-firmware for dependencies if needed
-          sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          apt-get update
-          cd "packages/${{ matrix.package }}"
-          mk-build-deps --install --remove --tool="apt-get -y --no-install-recommends" debian/control
+      - name: Install build dependencies
+        run: bash scripts/install-build-deps.sh "${{ matrix.package }}"
 
-      - name: Fetch Upstream and Build Package
+      - name: Fetch upstream and build package
         run: |
           scripts/fetch-upstream.sh "${{ matrix.package }}"
           scripts/build-package.sh "${{ matrix.package }}"
 
-      - name: Upload Package Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload stage 1 packages
+        uses: actions/upload-artifact@v7
         with:
-          name: deb-packages-${{ matrix.package }}
+          name: deb-stage1-${{ matrix.package }}
           path: repo-pool/*.deb
           retention-days: 7
           if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Stage 2: packages that need Stage-1 libraries as build dependencies
+  # (kmscon -> libtsm, labwc -> wlroots, pipewire -> libfdk-aac-dev).
+  # ---------------------------------------------------------------------------
+  stage2:
+    name: Stage 2 · ${{ matrix.package }}
+    needs: stage1
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - kmscon
+          - labwc
+          - pipewire
+          - celluloid
+          - sfwbar
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3
+
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Install required stage 1 packages
+        run: |
+          shopt -s nullglob
+          case "${{ matrix.package }}" in
+            kmscon)
+              debs=(stage1-pool/libtsm*.deb)
+              ;;
+            labwc)
+              debs=(stage1-pool/libwlroots-0.20_*.deb stage1-pool/libwlroots-0.20-dev_*.deb)
+              ;;
+            pipewire)
+              debs=(stage1-pool/libfdk-aac-dev_*.deb)
+              ;;
+            *)
+              debs=()
+              ;;
+          esac
+          if (( ${#debs[@]} > 0 )); then
+            echo "Installing: ${debs[*]}"
+            apt-get install -y --no-install-recommends "${debs[@]}"
+          else
+            echo "No stage 1 packages required for ${{ matrix.package }}"
+          fi
+
+      - name: Install build dependencies
+        run: bash scripts/install-build-deps.sh "${{ matrix.package }}"
+
+      - name: Fetch upstream and build package
+        run: |
+          scripts/fetch-upstream.sh "${{ matrix.package }}"
+          scripts/build-package.sh "${{ matrix.package }}"
+
+      - name: Upload stage 2 packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: deb-stage2-${{ matrix.package }}
+          path: repo-pool/*.deb
+          retention-days: 7
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Stage 3: merge the full pool, generate APT metadata, publish to Pages.
+  # ---------------------------------------------------------------------------
+  publish:
+    name: Stage 3 · generate APT repository
+    needs: stage2
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install APT repository tools
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            dpkg-dev \
+            gnupg \
+            gzip \
+            xz-utils \
+            curl \
+            ca-certificates
+
+      - name: Download built packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-*
+          path: downloaded-artifacts
+          merge-multiple: true
+
+      - name: Stage packages into repo-pool
+        run: |
+          mkdir -p repo-pool
+          cp -v downloaded-artifacts/*.deb repo-pool/
+          echo "==> Staged packages:"
+          ls -l repo-pool/
+
+      - name: Import GPG key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          if [[ -n "$GPG_PRIVATE_KEY" ]]; then
+            echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+            echo "GPG private key imported."
+          else
+            echo "Warning: No GPG_PRIVATE_KEY found; repository will be unsigned."
+          fi
+
+      - name: Generate APT repository metadata
+        run: scripts/generate-repo.sh
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: publish
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+

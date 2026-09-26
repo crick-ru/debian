@@ -68,9 +68,10 @@ sudo apt install labwc sfwbar mpv celluloid pipewire
   - `fetch-upstream.sh` — скачивание upstream-исходников и tarball.
   - `build-package.sh` — распаковка, наложение конфигураций, обновление changelog и вызов `dpkg-buildpackage`.
   - `generate-repo.sh` — сканирование собранных deb-пакетов, создание метаданных APT (`Packages`, `Packages.gz`, `Packages.xz`, `Release`, `InRelease`) и их подпись GPG.
-- `.github/workflows/` — CI/CD пайплайны:
-  - `build.yml` — матричная сборка пакетов в контейнере `debian:trixie`.
-  - `pages.yml` — скачивание собранных `.deb`, подпись и публикация APT-репозитория на GitHub Pages.
+- `.github/workflows/` — CI/CD пайплайн (`build.yml`), три стадии в контейнере `debian:trixie`:
+  - **Stage 1** — пакеты без внутренних зависимостей (`fdk-aac`, `libtsm`, `wlroots`, `mpv`), сборка по матрице, `.deb` сохраняются как артефакты;
+  - **Stage 2** — пакеты, зависящие от библиотек Stage 1 (`kmscon`, `labwc`, `pipewire`, `celluloid`, `sfwbar`): скачивание `.deb` Stage 1, установка и сборка;
+  - **Stage 3** — слияние пула всех пакетов, генерация метаданных APT (`generate-repo.sh`) и публикация на GitHub Pages (без Stage 3 для pull request).
 
 ---
 
