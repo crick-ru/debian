@@ -181,7 +181,8 @@ jobs:
             gzip \
             xz-utils \
             curl \
-            ca-certificates
+            ca-certificates \
+            python3
 
       - name: Download built packages
         uses: actions/download-artifact@v8
