@@ -142,3 +142,6 @@ override_dh_makeshlibs:
 
 override_dh_gencontrol:
 	dh_gencontrol -- -Vgtk:BinVer=$(GTK_BINVER_DEP)
+
+# We only use dh_gnome to automatically run dh_translations in Ubuntu
+override_dh_gnome:
