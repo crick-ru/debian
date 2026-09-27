@@ -1,0 +1,194 @@
+Source: gtk4
+Section: libs
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Standards-Version: 4.7.4
+# Упаковка взята из Debian (gtk4 4.22.4+ds-1) и переработана под GTK 4.22.5:
+#   * удалены udeb, документация, примеры и тесты (см. packages/gtk4/README.md);
+#   * X11-бэкенд GDK отключён (-Dx11-backend=false), поэтому убраны все
+#     libx*-dev, libxkbfile-dev и gir1.2-xlib-2.0-dev;
+#   * убраны зависимости для тестов (xvfb, weston, mesa-vulkan-drivers,
+#     python3-gi, adwaita-icon-theme, ...) и для документации (gi-docgen);
+#   * перегенерирование данных emoji из CLDR не выполняется: используются
+#     готовые gtk/emoji/*.data из tar-бола GNOME;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+Build-Depends: debhelper-compat (= 13),
+               dh-exec,
+               dh-sequence-gir,
+               dh-sequence-gnome,
+               gir1.2-cairo-1.0-dev,
+               gir1.2-gdkpixbuf-2.0-dev,
+               gir1.2-gio-2.0-dev,
+               gir1.2-graphene-1.0-dev,
+               gir1.2-pango-1.0-dev,
+               gir1.2-pangocairo-1.0-dev,
+               glslc,
+               gobject-introspection (>= 1.80.0),
+               libcairo2-dev (>= 1.18.2),
+               libcloudproviders-dev,
+               libcolord-dev,
+               libcups2-dev,
+               libegl1-mesa-dev [linux-any],
+               libepoxy-dev,
+               libfontconfig-dev,
+               libfribidi-dev,
+               libgdk-pixbuf-2.0-dev,
+               libglib2.0-dev (>= 2.80.0),
+               libgraphene-1.0-dev,
+               libgstreamer1.0-dev,
+               libgstreamer-plugins-bad1.0-dev,
+               libgstreamer-plugins-base1.0-dev,
+               libharfbuzz-dev (>= 8.4.0),
+               libjpeg-dev,
+               libpango1.0-dev (>= 1.56.0),
+               libpng-dev,
+               libpolkit-gobject-1-dev [linux-any],
+               librsvg2-dev (>= 2.48),
+               libsysprof-capture-4-dev [linux-any],
+               libtiff-dev,
+               libvulkan-dev [linux-any],
+               libwayland-dev (>= 1.24.0) [linux-any],
+               libxkbcommon-dev,
+               libxml2-utils,
+               meson (>= 1.2.0),
+               pkgconf,
+               pkgconf:native,
+               sassc,
+               wayland-protocols (>= 1.44) [linux-any]
+Vcs-Git: https://salsa.debian.org/gnome-team/gtk4.git
+Vcs-Browser: https://salsa.debian.org/gnome-team/gtk4
+Homepage: https://www.gtk.org/
+
+Package: libgtk-4-1
+Architecture: any
+Multi-Arch: same
+Depends: adwaita-icon-theme,
+         hicolor-icon-theme,
+         libgles2,
+         libgtk-4-common (>= ${source:Version}),
+         shared-mime-info,
+         ${misc:Depends},
+         ${shlibs:Depends}
+Recommends: ibus-gtk4,
+            iso-codes,
+            libgtk-4-bin,
+            librsvg2-common (>= 2.48)
+Suggests: gvfs
+Breaks: gnome-control-center (<< 1:50~),
+        libgtk-4-media-gstreamer (<< 4.19.2),
+        xdg-desktop-portal-gnome (<< 50~)
+Provides: libgtk-4-media-gstreamer (= ${binary:Version}),
+          ${gtk:Provides}
+Replaces: libgtk-4-media-gstreamer (<< 4.19.2)
+Description: GTK graphical user interface library
+ GTK is a multi-platform toolkit for creating graphical user
+ interfaces. Offering a complete set of widgets, GTK is suitable
+ for projects ranging from small one-off tools to complete application
+ suites.
+ .
+ This package contains the shared libraries, including the GStreamer
+ media backend module (since 4.19.2 it lives here, and this package
+ Provides libgtk-4-media-gstreamer).
+ .
+ This build has no X11 support: only the Wayland backend of GDK is
+ compiled in. See README.md in the crick Debian backports repository
+ for the consequences.
+
+Package: libgtk-4-common
+Architecture: all
+Multi-Arch: foreign
+Section: misc
+Depends: ${misc:Depends}
+Recommends: libgtk-4-1
+Description: common files for the GTK graphical user interface library
+ GTK is a multi-platform toolkit for creating graphical user
+ interfaces. Offering a complete set of widgets, GTK is suitable
+ for projects ranging from small one-off tools to complete application
+ suites.
+ .
+ This package contains the common files which the libraries need.
+
+Package: libgtk-4-bin
+Architecture: any
+Multi-Arch: foreign
+Section: misc
+Depends: gtk-update-icon-cache (>= ${binary:Version}),
+         libgtk-4-1 (>= ${source:Version}),
+         libgtk-4-common (>= ${source:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: programs for the GTK graphical user interface library
+ GTK is a multi-platform toolkit for creating graphical user
+ interfaces. Offering a complete set of widgets, GTK is suitable
+ for projects ranging from small one-off tools to complete application
+ suites.
+ .
+ This package contains the utilities which are used by the libraries
+ and other packages.
+
+Package: libgtk-4-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: libcairo2-dev (>= 1.18.2),
+         libegl1-mesa-dev [linux-any],
+         libepoxy-dev,
+         libfontconfig-dev,
+         libgdk-pixbuf-2.0-dev,
+         libglib2.0-dev (>= 2.80.0),
+         libgraphene-1.0-dev,
+         libgtk-4-1 (= ${binary:Version}),
+         libgtk-4-common,
+         libpango1.0-dev (>= 1.56.0),
+         libvulkan-dev [linux-any],
+         libwayland-dev (>= 1.24.0) [linux-any],
+         libxkbcommon-dev,
+         pkgconf,
+         wayland-protocols (>= 1.44) [linux-any],
+         ${gir:Depends},
+         ${misc:Depends}
+Provides: ${gir:Provides}
+Description: development files for the GTK library
+ GTK is a multi-platform toolkit for creating graphical user
+ interfaces. Offering a complete set of widgets, GTK is suitable
+ for projects ranging from small one-off tools to complete application
+ suites.
+ .
+ This package contains the header and development files which are
+ needed for building GTK applications.
+ .
+ This build has no X11 support: gdk/gdkx.h and the pkg-config file
+ gtk4-x11-4.0.pc are not installed, so GTK applications are built for
+ Wayland only.
+
+Package: gir1.2-gtk-4.0
+Architecture: any
+Multi-Arch: same
+Section: introspection
+Depends: libgtk-4-common,
+         ${gir:Depends},
+         ${misc:Depends}
+Provides: ${gir:Provides}
+Description: GTK graphical user interface library -- gir bindings
+ GTK is a multi-platform toolkit for creating graphical user
+ interfaces. Offering a complete set of widgets, GTK is suitable
+ for projects ranging from small one-off tools to complete application
+ suites.
+ .
+ This package can be used by other packages using the GIRepository format to
+ generate dynamic bindings.
+
+Package: gtk-update-icon-cache
+Architecture: any
+Multi-Arch: foreign
+Section: misc
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Breaks: libgtk-4-bin (<< 4.15)
+Replaces: libgtk-4-bin (<< 4.15)
+Description: icon theme caching utility
+ gtk-update-icon-cache creates mmap()able cache files for icon themes.
+ .
+ GTK can use the cache files created by gtk-update-icon-cache to avoid a lot
+ of system call and disk seek overhead when the application starts. Since the
+ format of the cache files allows them to be mmap()ed shared between multiple
+ applications, the overall memory consumption is reduced as well.

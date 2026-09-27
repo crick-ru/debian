@@ -1,0 +1,140 @@
+#!/usr/bin/make -f
+# Сборка GTK 4 для crick Debian backports. Взято из упаковки Debian
+# (gtk4 4.22.4+ds-1), упрощено и переведено на GTK 4.22.5: нет udeb,
+# документации, примеров и тестов, X11-бэкенд отключен.
+# Подробности — в packages/gtk4/README.md.
+
+include /usr/share/dpkg/pkg-info.mk
+include /usr/share/dpkg/default.mk
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+bindnow
+
+# Ensure the build aborts when there are still references to undefined symbols
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
+
+# Make the linker work a bit harder so dynamic loading can be done faster
+DEB_LDFLAGS_MAINT_APPEND += -Wl,-O1
+
+dh_options =
+all_binaries := $(shell sed -ne 's/^Package: *//p' < debian/control)
+
+export APIVER := 4
+export SONAME := 1
+
+export LIBDIR := usr/lib/$(DEB_HOST_MULTIARCH)
+
+# earliest version that this release has backwards binary compatibility for
+export GTK_BINARY_VERSION := 4.0.0
+
+# relative base directory for configuration
+export CONFDIR := etc/gtk-4.0
+
+# relative base directory for all types of modules
+export MODULES_BASE_PATH := $(LIBDIR)/gtk-4.0/$(GTK_BINARY_VERSION)
+
+# package names
+export SHARED_PKG := libgtk-$(APIVER)-$(SONAME)
+export COMMON_PKG := libgtk-$(APIVER)-common
+export DEV_PKG := libgtk-$(APIVER)-dev
+export BIN_PKG := libgtk-$(APIVER)-bin
+export GTK_BINVER_DEP := gtk$(APIVER)-binver-$(GTK_BINARY_VERSION)
+
+# files larger than 4k in size will be compressed by dh_compress
+# so append a .gz suffix to avoid dangling symlinks
+export README_MD_MAYBE_GZ := README.md$(shell find -maxdepth 1 -size +4k -name README.md -exec echo ".gz" \;)
+
+# macro computing the list of 'debian/<pkg>.*" files which have a
+# corresponding ".in" file; pass the list of packages in $(1)
+dh_subst_files = $(patsubst %.in,%,$(wildcard $(addprefix debian/, $(addsuffix *.in, $(1)))))
+
+debian/%: debian/%.in
+	dh_testdir
+	sed \
+		-e "s#@SONAME@#$(SONAME)#g" \
+		-e "s#@APIVER@#$(APIVER)#g" \
+		-e "s#@SHARED_PKG@#$(SHARED_PKG)#g" \
+		-e "s#@COMMON_PKG@#$(COMMON_PKG)#g" \
+		-e "s#@DEV_PKG@#$(DEV_PKG)#g" \
+		-e "s#@BIN_PKG@#$(BIN_PKG)#g" \
+		-e "s#@LIBDIR@#$(LIBDIR)#g" \
+		-e "s#@MODULES_BASE_PATH@#$(MODULES_BASE_PATH)#g" \
+		-e "s#@DEB_VERSION_UPSTREAM@#$(DEB_VERSION_UPSTREAM)#g" \
+		$@.in > $@
+
+# X11 (x11-backend) выключен намеренно: единственный бэкенд — Wayland.
+# broadway (HTML5) выключен, как и тесты, примеры, демо, man-страницы и
+# документация. Печать (cups), Wayland, colord, cloudproviders, sysprof,
+# Vulkan и GStreamer-медиа оставлены как в Debian.
+configure_flags = \
+	-Dauto_features=enabled \
+	-Dx11-backend=false \
+	-Dwayland-backend=true \
+	-Dbroadway-backend=false \
+	-Dbuild-testsuite=false \
+	-Dbuild-tests=false \
+	-Dbuild-examples=false \
+	-Dbuild-demos=false \
+	-Ddocumentation=false \
+	-Dscreenshots=false \
+	-Dman-pages=false \
+	-Dmedia-gstreamer=enabled \
+	-Dprint-cpdb=disabled \
+	-Dprint-cups=enabled \
+	-Dcolord=enabled \
+	-Dcloudproviders=enabled \
+	-Dsysprof=enabled \
+	-Dvulkan=enabled \
+	-Dintrospection=auto \
+	$(NULL)
+
+%:
+	dh $@ --buildsystem=meson $(dh_options)
+
+override_dh_clean: debian/control
+	rm -f $(call dh_subst_files,$(all_binaries))
+	rm -rf debian/build debian/install
+	# Rebuild the CSS from source. Note that gtk.css is hand-written,
+	# not generated, so don't delete that one.
+	rm -f gtk/theme/Default/Default-*.css
+	dh_clean
+
+# Add dependencies to generate files from the debian/*.in ones
+override_dh_auto_build: $(call dh_subst_files,$(all_binaries))
+
+override_dh_auto_build:
+	dh_auto_build --builddirectory=debian/build/deb
+
+override_dh_auto_configure: debian/control
+	dh_auto_configure --builddirectory=debian/build/deb -- $(configure_flags)
+
+# The test suite is not built (-Dbuild-testsuite=false), nothing to run.
+override_dh_auto_test:
+	:
+
+override_dh_auto_install:
+	dh_auto_install --builddirectory=debian/build/deb --destdir=debian/install/deb
+
+override_dh_install:
+	dh_install --remaining-packages --sourcedir=debian/install/deb
+
+# debhelper >= 13.4 makes all of /usr/libexec executable, which is not
+# quite right for installed-tests
+override_dh_fixperms:
+	dh_fixperms -Xusr/libexec/installed-tests
+
+override_dh_installdocs:
+	dh_installdocs -p$(COMMON_PKG) AUTHORS README.md NEWS
+	dh_installdocs --remaining-packages
+
+override_dh_installman:
+	# man-страницы апстрима не собираются (-Dman-pages=false), поэтому
+	# ставим только собственную страницу Debian для update-icon-caches
+	dh_installman -p gtk-update-icon-cache debian/update-icon-caches.8
+
+override_dh_makeshlibs:
+	dh_makeshlibs -p$(SHARED_PKG) -X$(MODULES_BASE_PATH) -- -c4
+	dh_makeshlibs --remaining-packages -X$(MODULES_BASE_PATH)
+
+override_dh_gencontrol:
+	dh_gencontrol -p$(SHARED_PKG) -- -Vgtk:Provides=$(GTK_BINVER_DEP)
+	dh_gencontrol --remaining-packages

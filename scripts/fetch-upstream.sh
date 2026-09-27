@@ -130,6 +130,23 @@ case "$PACKAGE" in
     URL="https://gitlab.freedesktop.org/wayland/wayland-protocols/-/archive/${VERSION}/wayland-protocols-${VERSION}.tar.gz"
     ORIG_TAR="wayland-protocols_${VERSION}.orig.tar.gz"
     ;;
+  gtk+3.0)
+    # Official release tarball; byte-for-byte identical to Debian's
+    # gtk+3.0_3.24.52.orig.tar.xz (sha256 80931fa4…).
+    VERSION="${VERSION:-3.24.52}"
+    TARBALL="gtk-${VERSION}.tar.xz"
+    URL="https://download.gnome.org/sources/gtk/3.24/gtk-${VERSION}.tar.xz"
+    ORIG_TAR="gtk+3.0_${VERSION}.orig.tar.xz"
+    ;;
+  gtk4)
+    # Official release tarball from GNOME. Debian repacks it as +ds, but that
+    # repack only exists for the versions Debian has uploaded; for the newest
+    # 4.22.x the plain tarball is used and the version stays 4.22.5.
+    VERSION="${VERSION:-4.22.5}"
+    TARBALL="gtk-${VERSION}.tar.xz"
+    URL="https://download.gnome.org/sources/gtk/4.22/gtk-${VERSION}.tar.xz"
+    ORIG_TAR="gtk4_${VERSION}.orig.tar.xz"
+    ;;
   *)
     echo "Unknown package: $PACKAGE" >&2
     exit 1

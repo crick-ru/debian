@@ -83,8 +83,12 @@ jobs:
   # ---------------------------------------------------------------------------
   # Stage 2: packages that need Stage-1 packages as build dependencies
   # (kmscon -> libtsm, pipewire -> libfdk-aac-dev,
-  #  wlroots -> wayland/libdrm/libxkbcommon/pixman/wayland-protocols of this
-  #  repository).
+  #  wlroots/gtk+3.0/gtk4 -> wayland/libdrm/libxkbcommon/pixman/wayland-protocols
+  #  of this repository).
+  #
+  # gtk+3.0 and gtk4 need libwayland-dev >= 1.24 (GTK 4.22.5 refuses to configure
+  # against the wayland 1.23.1 of trixie), so they install the same set of
+  # Stage-1 packages as wlroots.
   # ---------------------------------------------------------------------------
   stage2:
     name: Stage 2 · ${{ matrix.package }}
@@ -101,6 +105,8 @@ jobs:
           - pipewire
           - celluloid
           - sfwbar
+          - gtk+3.0
+          - gtk4
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -137,11 +143,14 @@ jobs:
             kmscon)
               debs=(./stage1-pool/libtsm*.deb)
               ;;
-            wlroots)
+            wlroots|gtk+3.0|gtk4)
               # wlroots 0.20.2 needs the libraries of this repository: all of
               # them have to be passed here, because the -dev packages pin the
               # exact versions of their siblings and the versions of trixie do
-              # not satisfy the requirements of wlroots.
+              # not satisfy the requirements of wlroots. The same list is used
+              # for gtk+3.0 and gtk4: GTK 4.22.5 requires libwayland-dev >= 1.24,
+              # which trixie does not have, and the -dev packages of the GTK
+              # packages must see the matching symbol files.
               debs=(./stage1-pool/libwayland-bin_*.deb
                     ./stage1-pool/libwayland-client0_*.deb
                     ./stage1-pool/libwayland-server0_*.deb

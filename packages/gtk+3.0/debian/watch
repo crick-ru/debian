@@ -1,0 +1,4 @@
+Version: 5
+
+Source: https://download.gnome.org/sources/gtk/(3\.2[02468])/
+Matching-Pattern: gtk@ANY_VERSION@@ARCHIVE_EXT@

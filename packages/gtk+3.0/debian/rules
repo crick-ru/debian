@@ -1,0 +1,144 @@
+#!/usr/bin/make -f
+# Сборка GTK 3 для crick Debian backports. Взято из упаковки Debian
+# (gtk+3.0 3.24.52-2) и упрощено: нет udeb, документации, примеров и
+# тестов, X11-бэкенд отключен. Подробности — в packages/gtk+3.0/README.md.
+
+include /usr/share/dpkg/default.mk
+include /usr/share/dpkg/pkg-info.mk
+
+all_binaries := $(shell sed -ne 's/^Package: *//p' < debian/control)
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1
+
+APIVER := 3
+SONAME := 0
+
+LIBDIR := usr/lib/$(DEB_HOST_MULTIARCH)
+# the earliest version this release has backwards binary compatibility for
+GTK_BINARY_VERSION := 3.0.0
+GTK_BINVER_DEP := gtk$(APIVER)-binver-$(GTK_BINARY_VERSION)
+CONFDIR := etc/gtk-3.0
+MODULES_BASE_PATH := $(LIBDIR)/gtk-3.0/$(GTK_BINARY_VERSION)
+
+SHARED_PKG := libgtk-$(APIVER)-$(SONAME)t64
+COMMON_PKG := libgtk-$(APIVER)-common
+DEV_PKG := libgtk-$(APIVER)-dev
+BIN_PKG := libgtk-$(APIVER)-bin
+
+# files larger than 4k in size will be compressed by dh_compress
+# so append a .gz suffix to avoid dangling symlinks
+NEWS := NEWS$(shell find -maxdepth 1 -size +4k -name NEWS -exec echo ".gz" \;)
+README := README.md$(shell find -maxdepth 1 -size +4k -name README.md -exec echo ".gz" \;)
+
+# Avoid test failures on buildd environments
+export HOME=$(CURDIR)/debian/build
+export XDG_RUNTIME_DIR=$(HOME)
+# So that gsettings can find the (uninstalled) gtk schemas
+export XDG_DATA_DIRS=/usr/share:$(CURDIR)/debian/build
+unexport XDG_CACHE_HOME
+unexport XDG_CONFIG_DIRS
+unexport XDG_CONFIG_HOME
+unexport XDG_DATA_HOME
+
+# macro computing the list of 'debian/<pkg>.*' files which have a
+# corresponding ".in" file; pass the list of packages in $(1)
+dh_subst_files = $(patsubst %.in,%,$(wildcard $(addprefix debian/, $(addsuffix *.in, $(1)))))
+
+debian/%: debian/%.in
+	dh_testdir
+	sed \
+		-e "s#@SONAME@#$(SONAME)#g" \
+		-e "s#@APIVER@#$(APIVER)#g" \
+		-e "s#@SHARED_PKG@#$(SHARED_PKG)#g" \
+		-e "s#@COMMON_PKG@#$(COMMON_PKG)#g" \
+		-e "s#@DEV_PKG@#$(DEV_PKG)#g" \
+		-e "s#@BIN_PKG@#$(BIN_PKG)#g" \
+		-e "s#@LIBDIR@#$(LIBDIR)#g" \
+		-e 's#@CONFDIR@#$(CONFDIR)#g' \
+		-e "s#@MODULES_BASE_PATH@#$(MODULES_BASE_PATH)#g" \
+		-e "s#@NEWS@#$(NEWS)#g" \
+		-e "s#@README@#$(README)#g" \
+		$@.in > $@
+
+dh_options =
+
+# X11 (x11_backend) выключен намеренно: единственный бэкенд — Wayland.
+# broadway (HTML5) тоже выключен, как и тесты, примеры, демо, man-страницы
+# и документация. Печать, Wayland-бэкенд, colord, cloudproviders и sysprof
+# оставлены как в Debian.
+configure_flags = \
+	--default-library=shared \
+	-Dx11_backend=false \
+	-Dwayland_backend=true \
+	-Dbroadway_backend=false \
+	-Dintrospection=true \
+	-Dinstalled_tests=false \
+	-Dtests=false \
+	-Ddemos=false \
+	-Dexamples=false \
+	-Dgtk_doc=false \
+	-Dman=false \
+	-Dprofiler=true \
+	-Dcolord=yes \
+	-Dcloudproviders=true \
+	-Dprint_backends=cups,file \
+	$(NULL)
+
+%:
+	dh $@ $(dh_options) --buildsystem=meson
+
+override_dh_clean:
+	rm -f $(call dh_subst_files,$(all_binaries))
+	rm -rf debian/build debian/install
+	# The build system does not automatically update the GResource files
+	# when resources change. Force an update in case we ship a patch which
+	# modifies the theme CSS files.
+	rm -f gtk/theme/Adwaita/gtk-contained.css
+	rm -f gtk/theme/Adwaita/gtk-contained-dark.css
+	rm -f gtk/theme/HighContrast/gtk-contained.css
+	rm -f gtk/theme/HighContrast/gtk-contained-inverse.css
+	dh_clean
+
+# Add dependencies to generate files from the debian/*.in ones
+override_dh_auto_build: $(call dh_subst_files,$(all_binaries))
+
+override_dh_auto_build:
+	# the Adwaita/HighContrast themes are generated from SCSS with sassc
+	( cd gtk/theme/Adwaita; ./parse-sass.sh )
+	( cd gtk/theme/HighContrast; ./parse-sass.sh )
+	dh_auto_build --builddirectory=debian/build/deb
+
+override_dh_auto_configure: debian/control
+	dh_auto_configure --builddirectory=debian/build/deb -- $(configure_flags)
+
+# The test suite is not built (-Dtests=false), so there is nothing to run.
+override_dh_auto_test:
+	:
+
+override_dh_auto_install:
+	dh_auto_install --builddirectory=debian/build/deb --destdir=debian/install/deb
+
+override_dh_install:
+	dh_install --remaining-packages --sourcedir=debian/install/deb
+
+override_dh_fixperms:
+	dh_fixperms -Xusr/libexec/installed-tests
+
+override_dh_installchangelogs:
+	dh_installchangelogs -XChangeLog
+
+override_dh_installdocs:
+	dh_installdocs -p$(COMMON_PKG) README.md NEWS
+	dh_installdocs --remaining-packages -A
+
+override_dh_installman:
+	dh_installman --sourcedir=debian/install/deb
+
+override_dh_makeshlibs:
+	dh_makeshlibs -p$(SHARED_PKG) -X$(MODULES_BASE_PATH) -- -c4
+	dh_makeshlibs -plibgail-3-0t64 -- -c4
+	dh_makeshlibs --remaining-packages -X$(MODULES_BASE_PATH)
+
+override_dh_gencontrol:
+	dh_gencontrol -- -Vgtk:BinVer=$(GTK_BINVER_DEP)
