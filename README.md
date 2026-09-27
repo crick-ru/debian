@@ -2,6 +2,21 @@
 
 Новые версии пакетов для **Debian 13 (trixie, amd64)**.
 
+Репозиторий собран по двум правилам, которые действуют для **всех** пакетов
+(подробности — в `.clinerules/project.md`, в `repo/`):
+
+1. **Ничего лишнего не собирается:** ни документации (включая man-страницы,
+   генерируемые из docbook/rst/scdoc), ни примеров, ни тестов. Пакеты
+   `*-doc`, `*-examples`, `*-tests` и `installed-tests` не публикуются,
+   тестовые сьюты не собираются и не запускаются.
+2. **X11 нет нигде:** ни одной зависимости от `libX11`, `libXext`,
+   `libXrender`, `libxcb*`, `x11proto-dev`, Xwayland — ни в `Build-Depends`,
+   ни в собранных библиотеках. Даже `libxkbcommon-x11` не публикуется.
+
+Цена второго правила — **два намеренных нарушения ABI** (SONAME сохранён,
+символы удалены): у GTK 3/4 и теперь у `cairo`. Разбор — в README каждого
+пакета.
+
 ## Состав
 
 | Пакет       |                                    | Версия     | Особенности |
@@ -27,6 +42,24 @@
 | `libxkbcommon`      | [🔗](packages/libxkbcommon/README.md)      | 1.13.1  | `XKB_LED_NAME_COMPOSE`/`KANA` из libxkbcommon 1.8+ |
 | `pixman`            | [🔗](packages/pixman/README.md)            | 0.46.4  | 64-битный формат `PIXMAN_a16b16g16r16` |
 | `wayland-protocols` | [🔗](packages/wayland-protocols/README.md) | 1.47    | color-management-v1 второй версии |
+
+`libxkbcommon` собирается **без X11-части** (`-Denable-x11=false`): пакетов
+`libxkbcommon-x11-0`/`-dev` в репозитории нет, поэтому при `apt upgrade`
+штатный `libxkbcommon-x11-0` будет снят вместе со всем, что от него зависит
+(в том числе `libgstreamer-plugins-bad1.0-0` и Qt-приложения). Разбор —
+в `packages/libxkbcommon/README.md`.
+
+`cairo` собирается **без X11-бэкендов** (`-Dxlib=disabled -Dxcb=disabled`).
+Это вторая (после GTK) намеренная ломка ABI: при неизменном SONAME
+`libcairo.so.2` из библиотеки удалены 26 публичных функций `cairo_xlib_*` и
+`cairo_xcb_*`. Почему, что перестаёт работать и как проверить конкретную
+программу — в `packages/cairo/README.md`.
+
+| Пакет               |                                            | Версия  | Особенности |
+|---------------------|--------------------------------------------|---------|----------------------------------------------------|
+| `cairo`             | [🔗](packages/cairo/README.md)             | 1.18.6  | 2D-библиотека; Xlib/XCB-бэкенды вырезаны, ломается ABI |
+| `gtk+3.0`           | [🔗](packages/gtk+3.0/README.md)           | 3.24.52 | GTK 3 без X11; без doc/examples/tests |
+| `gtk4`              | [🔗](packages/gtk4/README.md)              | 4.22.5  | GTK 4 без X11; без doc/examples/tests |
 
 GTK собирается без X11 (только Wayland-бэкенд) — это урезает и набор
 зависимостей, и состав репозитория, но **ломает ABI**: из

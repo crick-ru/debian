@@ -2,6 +2,12 @@ Source: celluloid
 Section: video
 Priority: optional
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (celluloid_0.29-1) и переработана:
+#   * тестовые программы не собираются: патч 02_no-tests.patch убирает
+#     subdir('test') из meson.build (опции у celluloid нет);
+#   * X11-API GTK не используется (код за #ifdef GDK_WINDOWING_X11), поэтому
+#     сборка против собственной libgtk-4-1 без X11-бэкенда работоспособна;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends:
  appstream,
  autoconf-archive,

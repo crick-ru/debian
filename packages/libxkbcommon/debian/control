@@ -2,24 +2,26 @@ Source: libxkbcommon
 Section: x11
 Priority: optional
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (libxkbcommon_1.13.1-1) и переработана:
+#   * X11-часть не собирается (-Denable-x11=false), поэтому убраны
+#     libxcb-xkb-dev, x11-xkb-utils, x11proto-dev и пакеты
+#     libxkbcommon-x11-0 / libxkbcommon-x11-dev;
+#   * документация не собирается (-Denable-docs=false): пакет
+#     libxkbcommon-doc и doxygen/graphviz убраны;
+#   * тесты не собираются и не запускаются: убраны xvfb, xkb-data <!nocheck>
+#     и каталог debian/tests;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends:
  debhelper-compat (= 13),
  bison,
  dh-exec,
- doxygen,
  flex,
- graphviz,
  meson,
  pkgconf,
  quilt,
  libwayland-dev [linux-any],
- libxcb-xkb-dev,
  libxml2-dev,
  wayland-protocols [linux-any],
- x11-xkb-utils <!nocheck>,
- x11proto-dev,
- xkb-data <!nocheck>,
- xvfb <!nocheck>,
 Standards-Version: 4.6.1
 Homepage: https://www.xkbcommon.org/
 Vcs-Git: https://salsa.debian.org/xorg-team/lib/libxkbcommon.git
@@ -80,26 +82,6 @@ Description: library interface to the XKB compiler - development files
  This module can be found at
  https://github.com/xkbcommon/libxkbcommon.git
 
-Package: libxkbcommon-doc
-Section: doc
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends},
-Description: library interface to the XKB compiler - documentation
- xkbcommon is a library to handle keyboard descriptions, including loading them
- from disk, parsing them and handling their state. It's mainly meant for client
- toolkits, window systems, and other system applications; currently that
- includes Wayland, kmscon, GTK+, Clutter, and more.
- .
- This package contains the documentation files for the library found in
- libxkbcommon0. Non-developers likely have little use for this package.
- .
- More information about X.Org can be found at:
- <URL:http://www.X.org>
- .
- This module can be found at
- https://github.com/xkbcommon/libxkbcommon.git
-
 Package: libxkbcommon-tools
 Section: graphics
 Architecture: any
@@ -111,51 +93,9 @@ Description: library interface to the XKB compiler - tools
  toolkits, window systems, and other system applications; currently that
  includes Wayland, kmscon, GTK+, Clutter, and more.
  .
- This package contains the xkbcli tool to interact with XKB keymaps.
- .
- More information about X.Org can be found at:
- <URL:http://www.X.org>
- .
- This module can be found at
- https://github.com/xkbcommon/libxkbcommon.git
-
-Package: libxkbcommon-x11-0
-Section: libs
-Architecture: any
-Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
-Depends:
- libxkbcommon0 (= ${binary:Version}),
- ${shlibs:Depends},
- ${misc:Depends}
-Description: library to create keymaps with the XKB X11 protocol
- This package provides an add-on library called xkbcommon-x11, to support
- creating keymaps with the XKB X11 protocol, by querying the X server directly.
- .
- More information about X.Org can be found at:
- <URL:http://www.X.org>
- .
- This module can be found at
- https://github.com/xkbcommon/libxkbcommon.git
-
-Package: libxkbcommon-x11-dev
-Section: libdevel
-Architecture: any
-Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
-Depends:
- libxkbcommon-x11-0 (= ${binary:Version}),
- libxkbcommon-dev (= ${binary:Version}),
- libxcb1-dev,
- libxcb-xkb-dev,
- ${shlibs:Depends},
- ${misc:Depends}
-Description: library to create keymaps with the XKB X11 protocol - development files
- This package provides an add-on library called xkbcommon-x11, to support
- creating keymaps with the XKB X11 protocol, by querying the X server directly.
- .
- This package contains the development headers for the library found in
- libxkbcommon-x11-0. Non-developers likely have little use for this package.
+ This package contains the xkbcli tool to interact with XKB keymaps. The
+ subcommands that talk to an X server (xkbcli-dump-keymap-x11,
+ xkbcli-interactive-x11) are not built: this repository is Wayland-only.
  .
  More information about X.Org can be found at:
  <URL:http://www.X.org>

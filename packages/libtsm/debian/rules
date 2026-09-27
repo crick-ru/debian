@@ -8,11 +8,9 @@ include /usr/share/dpkg/default.mk
 export DEB_BUILD_MAINT_OPTIONS := qa=+bug hardening=+all reproducible=+all
 export DPKG_GENSYMBOLS_CHECK_LEVEL := 4
 
-ifneq ($(filter nocheck,$(DEB_BUILD_PROFILES)),)
-	CONFIGURE_FLAGS += -Dtests=false
-else
-	CONFIGURE_FLAGS += -Dtests=true
-endif
+# No test suite: this repository does not build or run tests, see
+# .clinerules/project.md (the upstream check-based tests are not compiled).
+CONFIGURE_FLAGS += -Dtests=false
 
 %:
 	dh $@ --builddirectory=build/ \

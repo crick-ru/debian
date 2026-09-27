@@ -3,8 +3,10 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,--no-undefined
 
+# dh_auto_configure is left to debhelper: the only flag Debian passed was
+# --enable-example, and the example encoder (package aac-enc, together with the
+# PDF documentation it carried) is no longer built. See .clinerules/project.md.
+
 %:
 	dh $@
 
-override_dh_auto_configure:
-	dh_auto_configure -- --enable-example

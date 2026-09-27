@@ -12,10 +12,10 @@ DEB_HOST_ARCH_CPU ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 confflags = \
 	--auto-features=disabled \
 	-Ddefault_library=both \
-	-Dman-pages=enabled \
+	-Dman-pages=disabled \
 	-Dradeon=enabled \
 	-Damdgpu=enabled \
-	-Dinstall-test-programs=true \
+	-Dinstall-test-programs=false \
 	-Dvalgrind=disabled \
 	$()
 
@@ -93,28 +93,13 @@ endif
 override_dh_auto_configure:
 	dh_auto_configure -- $(confflags)
 
+# No test suite: this repository does not build or run tests, see
+# .clinerules/project.md.
 override_dh_auto_test:
-	dh_auto_test || echo "Test suite failure, but keeping on anyway"
 
 override_dh_install:
 	find debian/tmp -name '*.la' -delete
 	dh_install
-
-  ifneq (,$(filter $(DEB_HOST_ARCH_CPU),arm))
-	for file in debian/tmp/usr/bin/exynos_*; do \
-		mv $$file debian/libdrm-tests/usr/bin; \
-	done
-  endif
-  ifneq (,$(filter $(DEB_HOST_ARCH_CPU),arm arm64))
-	for file in debian/tmp/usr/bin/tegra-*; do \
-		mv $$file debian/libdrm-tests/usr/bin; \
-	done
-  endif
-  ifneq (,$(filter $(DEB_HOST_ARCH),armhf arm64))
-	for file in debian/tmp/usr/bin/etnaviv*; do \
-		mv $$file debian/libdrm-tests/usr/bin; \
-	done
-  endif
 
 override_dh_makeshlibs:
 	dh_makeshlibs -plibdrm2 -V'libdrm2 (>= 2.4.89)' --add-udeb=libdrm2-udeb -- -c4

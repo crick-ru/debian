@@ -1,0 +1,20 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: cairo
+Source: https://cairographics.org/
+
+Files: *
+Copyright: 2000-2024 The cairo authors
+           2003-2004 David Reveman
+           2004-2005 Carl Worth
+           2008 Chris Wilson
+           2010-2024 Chris Wilson
+           2010-2024 Adrian Johnson
+License: LGPL-2.1+ and MPL-1.1
+
+Files: test/*
+Copyright: 2004 Carl Worth
+License: LGPL-2.1+ and MPL-1.1
+
+Files: doc/*
+Copyright: 2004-2024 The cairo authors
+License: LGPL-2.1+ and MPL-1.1

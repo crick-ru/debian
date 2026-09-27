@@ -2,21 +2,20 @@
 
 include /usr/share/dpkg/pkg-info.mk
 
-# Don't build the documentation when not building arch:all packages
-ifeq (,$(filter libwayland-doc,$(shell dh_listpackages)))
+# No documentation and no man pages (-Ddocumentation=false covers both: the
+# man3 pages are generated together with the API docs) and no tests
+# (-Dtests=false). The flags are unconditional: libwayland-doc is not built at
+# all, so there is no arch:all package whose presence could enable them.
+# See .clinerules/project.md.
 configure_flags += -Ddocumentation=false
-endif
+configure_flags += -Dtests=false
 
 override_dh_auto_configure:
 	dh_auto_configure -- $(configure_flags)
 
+# No test suite: this repository does not build or run tests, see
+# .clinerules/project.md.
 override_dh_auto_test:
-# sanity-test fails on hppa
-ifeq ($(DEB_HOST_ARCH),hppa)
-	dh_auto_test || true
-else
-	dh_auto_test
-endif
 
 %:
 	dh $@ --builddirectory=build/ --buildsystem=meson

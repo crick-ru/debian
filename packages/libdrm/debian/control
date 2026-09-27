@@ -1,14 +1,22 @@
 Source: libdrm
 Priority: optional
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (libdrm_2.4.134-3) и переработана:
+#   * пакет libdrm-tests не собирается (-Dinstall-test-programs=false), его
+#     .install удалён, тестовый сьют не запускается;
+#   * man-страницы не генерируются (-Dman-pages=disabled), поэтому убран
+#     python3-docutils (rst2man) и строки usr/share/man из
+#     libdrm-dev.install;
+#   * X11 не нужен: libx11-dev убран из Build-Depends (в libdrm он был
+#     только ради тестов);
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+
 Build-Depends:
  debhelper-compat (= 13),
  meson,
  libpciaccess-dev,
  libudev-dev [linux-any],
- libx11-dev,
  pkgconf,
- python3-docutils,
  python3-setuptools,
 # valgrind [amd64 armhf i386 mips mipsel powerpc s390x],
 Standards-Version: 4.6.2
@@ -76,21 +84,6 @@ Description: Userspace interface to kernel DRM services -- common files
  OpenGL drivers.
  .
  This package provides common files for libdrm.
-
-Package: libdrm-tests
-Depends:
- libdrm2 (= ${binary:Version}),
- ${shlibs:Depends},
- ${misc:Depends}
-Architecture: any
-Description: Testing tools from the libdrm project
- This library implements the userspace interface to the kernel DRM
- services.  DRM stands for "Direct Rendering Manager", which is the
- kernelspace portion of the "Direct Rendering Infrastructure" (DRI).
- The DRI is currently used on Linux to provide hardware-accelerated
- OpenGL drivers.
- .
- This package contains a variety of tools for testing from the libdrm project.
 
 Package: libdrm2-udeb
 Package-Type: udeb

@@ -1,0 +1,9 @@
+usr/include/cairo/*
+# Upstream installs the pkg-config files into <libdir>/pkgconfig/cairo/
+# (meson pkgconfig.generate(subdirs: [project_name()])), and pkgconf searches
+# that subdirectory, so the layout is left exactly as upstream installs it.
+# There is no .pc for the X11 parts: they are not built.
+usr/lib/*/pkgconfig/cairo/*
+# The development symlink. No static library: cairo is built shared-only
+# (the default of meson's default_library).
+usr/lib/*/libcairo.so

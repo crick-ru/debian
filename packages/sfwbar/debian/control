@@ -2,6 +2,10 @@ Source: sfwbar
 Section: x11
 Priority: optional
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (sfwbar_1.0~beta17-1) и переработана:
+#   * man-страница не генерируется из doc/*.rst (шаг с rst2man удалён), поэтому
+#     убран python3-docutils; готовые файлы справки в поставку не входят;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: debhelper-compat (= 13),
                meson,
                ninja-build,
@@ -11,8 +15,7 @@ Build-Depends: debhelper-compat (= 13),
                libpulse-dev,
                libmpdclient-dev,
                libxkbregistry-dev,
-               libasound2-dev,
-               python3-docutils
+               libasound2-dev
 Standards-Version: 4.6.2
 Homepage: https://github.com/LBCrion/sfwbar
 Rules-Requires-Root: no

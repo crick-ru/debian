@@ -1,6 +1,11 @@
 Source: labwc
 Section: x11
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (labwc_0.20.2-1) и переработана:
+#   * man-страницы не генерируются (-Dman-pages=disabled), поэтому убран scdoc;
+#   * тесты не собираются (-Dtest=disabled);
+#   * Xwayland выключен, X11-зависимостей нет;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends:
  debhelper-compat (= 13),
  cmake,
@@ -19,7 +24,6 @@ Build-Depends:
  libxml2-dev,
  meson (>= 0.59),
  pkgconf,
- scdoc,
  wayland-protocols (>= 1.22.90),
 Standards-Version: 4.7.4
 Homepage: https://labwc.github.io/

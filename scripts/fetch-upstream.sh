@@ -5,23 +5,24 @@ set -euo pipefail
 # Usage: ./fetch-upstream.sh <package-name> [version]
 #        ./fetch-upstream.sh --print-version <package-name>
 #          Prints the upstream version of a package without downloading anything.
+#        ./fetch-upstream.sh --print-revision <package-name>
+#          Prints the Debian revision of our build (1 for an untouched
+#          packaging, 2 after the packaging was reworked) without downloading.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-PRINT_VERSION_ONLY=false
-if [[ "${1:-}" == "--print-version" ]]; then
-  PRINT_VERSION_ONLY=true
-  PACKAGE="${2:-}"
-  VERSION=""
-else
-  PACKAGE="${1:-}"
-  VERSION="${2:-}"
-fi
+PRINT_MODE=""
+case "${1:-}" in
+  --print-version)  PRINT_MODE="version";  PACKAGE="${2:-}"; VERSION="" ;;
+  --print-revision) PRINT_MODE="revision"; PACKAGE="${2:-}"; VERSION="" ;;
+  *)                PACKAGE="${1:-}"; VERSION="${2:-}" ;;
+esac
 
 if [[ -z "$PACKAGE" ]]; then
   echo "Usage: $0 <package-name> [version]" >&2
   echo "       $0 --print-version <package-name>" >&2
+  echo "       $0 --print-revision <package-name>" >&2
   exit 1
 fi
 
@@ -147,14 +148,38 @@ case "$PACKAGE" in
     URL="https://download.gnome.org/sources/gtk/4.22/gtk-${VERSION}.tar.xz"
     ORIG_TAR="gtk4_${VERSION}.orig.tar.xz"
     ;;
+  cairo)
+    # Official release tarball from cairographics.org. Debian repacks the very
+    # same archive (cairo_1.18.4.orig.tar.*), so the upstream version here is
+    # the same; the tarball is taken as published, without the repack.
+    VERSION="${VERSION:-1.18.6}"
+    TARBALL="cairo-${VERSION}.tar.xz"
+    URL="https://cairographics.org/releases/cairo-${VERSION}.tar.xz"
+    ORIG_TAR="cairo_${VERSION}.orig.tar.xz"
+    ;;
   *)
     echo "Unknown package: $PACKAGE" >&2
     exit 1
     ;;
 esac
 
-if [[ "$PRINT_VERSION_ONLY" == true ]]; then
-  echo "$VERSION"
+# Debian revision of our build. apt only picks up a *newer* version, and the
+# revision of the first published build of a package is 1, so every package
+# whose debian/ was reworked afterwards needs revision 2 - otherwise a system
+# that already has the first build would never receive the new one. Keep this
+# list in sync with .clinerules/project.md.
+REVISION=1
+case "$PACKAGE" in
+  celluloid|fdk-aac|kmscon|labwc|libdrm|libtsm|libxkbcommon|mpv|pipewire|pixman|sfwbar|wayland|wayland-protocols|wlroots)
+    REVISION=2
+    ;;
+esac
+
+if [[ -n "$PRINT_MODE" ]]; then
+  case "$PRINT_MODE" in
+    version)  echo "$VERSION" ;;
+    revision) echo "$REVISION" ;;
+  esac
   exit 0
 fi
 
@@ -171,5 +196,6 @@ fi
 
 echo "PACKAGE=$PACKAGE" > "$BUILD_SRC/$PACKAGE.env"
 echo "VERSION=$VERSION" >> "$BUILD_SRC/$PACKAGE.env"
+echo "REVISION=$REVISION" >> "$BUILD_SRC/$PACKAGE.env"
 echo "ORIG_TAR=$ORIG_TAR" >> "$BUILD_SRC/$PACKAGE.env"
-echo "SUCCESS: Fetched $PACKAGE $VERSION"
+echo "SUCCESS: Fetched $PACKAGE $VERSION-$REVISION+crick"

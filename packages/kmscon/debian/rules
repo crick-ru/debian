@@ -14,8 +14,10 @@ export SYSTEMD_SYSTEM_UNIT_DIR = $(shell $(PKG_CONFIG) --variable=systemdsystemu
 
 
 override_dh_auto_configure:
+	# -Ddocs=disabled unconditionally: no man pages, no docbook tooling, no
+	# kmscon.docs. See .clinerules/project.md.
 	dh_auto_configure -- --auto-features=enabled \
-	                     -Ddocs=$(if $(filter nodoc,$(DEB_BUILD_OPTIONS) $(DEB_BUILD_PROFILES)),disabled,enabled) \
+	                     -Ddocs=disabled \
 	                     -Dwerror=false \
 	                     $(empty)
 

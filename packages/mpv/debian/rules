@@ -12,6 +12,10 @@ endif
 	dh $@
 
 override_dh_auto_configure:
+	# No man page, HTML or PDF is generated out of DOCS/man/mpv.rst
+	# (-Dmanpage-build=false), so python3-docutils is not needed and the man
+	# page is not shipped. -Dtests=false is the upstream default, spelled out
+	# here to make the rule visible. See .clinerules/project.md.
 	dh_auto_configure -- \
 		-Dx11=disabled \
 		-Dwayland=enabled \
@@ -26,6 +30,8 @@ override_dh_auto_configure:
 		-Dx11-clipboard=disabled \
 		-Dlibmpv=true \
 		-Dbuild-date=false \
+		-Dmanpage-build=false \
+		-Dtests=false \
 		-Dcdda=enabled \
 		-Ddvdnav=enabled \
 		$(ARCH_CONFIGURE)

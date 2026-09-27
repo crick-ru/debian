@@ -29,6 +29,17 @@ Wayland-окружение без компонентов, не нужных на
   сборки, опция `-Dinstalled_tests=disabled`. Библиотека SDL2 требовалась
   только для видео-примеров из этого набора, поэтому `-Dsdl2=disabled`, а
   `libsdl2-dev` убран из сборочных зависимостей.
+- **Тесты не собираются и не запускаются**: `-Dtest=disabled` (дерево `test/`
+  с утилитами `pw-test-*` и `spa-test` не компилируется), каталог
+  `debian/tests` удалён, `override_dh_auto_test` больше не вызывает
+  `dh_auto_test`.
+- **Документация и man-страницы не собираются** (`DOCS=disabled`,
+  `MAN=disabled` выставлены безусловно, раньше их включал профиль `nodoc`):
+  пакет `pipewire-doc` не публикуется, удалены `pipewire-doc.install`,
+  `pipewire-doc.doc-base` и файлы `libpipewire-0.3-modules.manpages`,
+  `pipewire-bin.manpages`, `pipewire-pulse.manpages`, а из `Build-Depends`
+  убраны `doxygen`, `graphviz` и `python3-docutils`. В пакетах не остаётся
+  страниц `pipewire.1`, `pw-*`, `spa-*` и man7 для модулей.
 - Vulkan, FFmpeg, snap, LC3plus, декодер LDAC.
 - **ONNX Runtime** (`-Donnxruntime=disabled`): ML-фильтры в
   `filter-graph` (шумоподавление, VAD по нейросетевым моделям) не собираются,
@@ -49,6 +60,7 @@ Wayland-окружение без компонентов, не нужных на
 
 ## Изменено
 
+- Версия: `1.6.9-2+crick` (ревизия 2 — из-за переработки упаковки).
 - Патч `0001-CVE-2026-14330.patch` переносит апстрим-исправление уязвимости
   CVE-2026-14330 (`spa_alloca` с проверками переполнения и лимитов).
 - `pipewire-audio-client-libraries` оставлен только как переходный метапакет

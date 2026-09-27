@@ -2,6 +2,12 @@ Source: mpv
 Section: video
 Priority: optional
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (mpv_0.41.0-1) и переработана:
+#   * man/HTML/PDF не генерируются (-Dmanpage-build=false), поэтому убран
+#     python3-docutils (rst2man);
+#   * тесты не собираются (-Dtests=false);
+#   * X11 выключен (-Dx11=disabled и все -D*-x11=disabled);
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends:
  debhelper-compat (= 13),
  libarchive-dev (>= 3.4),
@@ -42,7 +48,6 @@ Build-Depends:
  meson,
  ninja-build,
  pkgconf,
- python3-docutils,
  wayland-protocols,
 Standards-Version: 4.7.3
 Homepage: https://mpv.io/

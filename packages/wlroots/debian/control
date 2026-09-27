@@ -1,12 +1,19 @@
 Source: wlroots
 Priority: optional
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (wlroots_0.20.2-1) и переработана:
+#   * примеры не собираются (-Dexamples=false), пакет
+#     libwlroots-0.20-examples не публикуется, его .install удалён;
+#   * из-за этого из Build-Depends убран libcairo2-dev: cairo в wlroots
+#     нужен только примеру examples/cairo-buffer, сама библиотека его не
+#     использует (проверено по исходникам 0.20.2);
+#   * тесты не собираются: каталог debian/tests удалён;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends:
  debhelper-compat (= 13),
  dpkg-dev (>= 1.22.5),
  glslang-tools,
  hwdata,
- libcairo2-dev,
  libcap-dev,
  libdisplay-info-dev (>= 0.2.0),
  libdrm-dev (>= 2.4.129),
@@ -74,14 +81,3 @@ Description: Modular wayland compositor library - shared library
  compositor.
  .
  This package contains the shared library.
-
-Package: libwlroots-0.20-examples
-Architecture: any
-Depends:
- ${misc:Depends},
- ${shlibs:Depends},
-Description: Modular wayland compositor library - binaries
- wlroots is a set of pluggable, composable modules to build a Wayland
- compositor.
- .
- This package contains various examples on how to use wlroots.

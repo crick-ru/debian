@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+# Сборка cairo для crick Debian backports, упаковка написана с нуля.
+# Подробности (что отключено и почему, что ломается в ABI) - в
+# packages/cairo/README.md.
+
+include /usr/share/dpkg/pkg-info.mk
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# Shared library only, so no libcairo.a ends up in libcairo2-dev.
+confflags += -Ddefault_library=shared
+
+# The X11 backends are switched off: -Dxlib and -Dxcb remove the
+# cairo-xlib/cairo-xcb sources, the cairo-xlib.h, cairo-xlib-xrender.h and
+# cairo-xcb.h headers and the cairo_xlib_*/cairo_xcb_* symbols from
+# libcairo.so.2. -Dxlib-xcb is disabled upstream already and is spelled out
+# for completeness.
+#
+# -Dtests=disabled stops building the cairo test suite (which would otherwise
+# pull ghostscript, libspectre, poppler-glib and librsvg in).
+# -Dgtk_doc=false is already the upstream default and keeps gtk-doc out.
+# -Dsymbol-lookup=disabled keeps binutils' bfd out, so the debugging helpers
+# cairo-trace and csi-trace are not built.
+#
+# See .clinerules/project.md: this repository builds no documentation and no
+# tests.
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		$(confflags) \
+		-Dxlib=disabled \
+		-Dxcb=disabled \
+		-Dxlib-xcb=disabled \
+		-Dtests=disabled \
+		-Dgtk_doc=false \
+		-Dsymbol-lookup=disabled \
+		$(NULL)
+
+# No test suite: this repository does not build or run tests, see
+# .clinerules/project.md.
+override_dh_auto_test:
+
+# Meson installs into / directly; stage the tree so that dh_install can split
+# it between the four binary packages.
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/tmp
+
+override_dh_missing:
+	dh_missing --fail-missing
+
+%:
+	dh $@ --builddirectory=build/ --buildsystem=meson

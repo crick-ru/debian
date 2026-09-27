@@ -5,5 +5,9 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@
 
+# Documentation (man pages, generated with scdoc) and examples are not built
+# and not published: this repository builds no documentation, see
+# .clinerules/project.md. -Dtest=disabled is already the upstream default, it
+# is only spelled out here so that the rule is visible in the packaging.
 override_dh_auto_configure:
-	dh_auto_configure -- -Dxwayland=disabled
+	dh_auto_configure -- -Dxwayland=disabled -Dman-pages=disabled -Dtest=disabled

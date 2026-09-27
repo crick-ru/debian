@@ -1,0 +1,98 @@
+Source: cairo
+Section: libs
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Standards-Version: 4.7.0
+# Упаковка написана с нуля для этого репозитория:
+#   * X11 не собирается (-Dxlib=disabled -Dxcb=disabled -Dxlib-xcb=disabled):
+#     нет ни libx11-dev, ни libxext-dev, ни libxrender-dev, ни libxcb* в
+#     Build-Depends, а из libcairo.so.2 удалены символы cairo_xlib_* и
+#     cairo_xcb_* (см. packages/cairo/README.md - это ломает ABI);
+#   * тесты не собираются (-Dtests=disabled) и не запускаются;
+#   * документация не собирается (-Dgtk_doc=false, дефолт апстрима), пакет
+#     libcairo2-doc не публикуется;
+#   * отладочные утилиты cairo-trace/csi-* не собираются
+#     (-Dsymbol-lookup=disabled), постфиксов .pc в отдельный пакет не вынесено;
+#   * udeb не публикуется (libcairo2-udeb в trixie отсутствует);
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+Build-Depends:
+ debhelper-compat (= 13),
+ meson,
+ pkgconf,
+ libfontconfig-dev,
+ libfreetype-dev,
+ libglib2.0-dev,
+ liblzo2-dev,
+ libpixman-1-dev (>= 0.40.0),
+ libpng-dev,
+ zlib1g-dev,
+Homepage: https://cairographics.org/
+Vcs-Browser: https://gitlab.freedesktop.org/cairo/cairo
+Vcs-Git: https://gitlab.freedesktop.org/cairo/cairo.git
+
+Package: libcairo2
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Cairo 2D vector graphics library
+ Cairo is a 2D vector graphics library with support for multiple backends
+ including image buffers, PNG, PostScript, PDF, and SVG file output.
+ .
+ This build has no X11 support: only the image, PNG, PostScript, PDF, SVG,
+ script and tee backends are compiled, and the Xlib/XCB backends
+ (cairo_xlib_*, cairo_xcb_*) are absent from libcairo.so.2.
+
+Package: libcairo-gobject2
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends:
+ libcairo2 (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: Cairo 2D vector graphics library (GObject library)
+ Cairo is a 2D vector graphics library with support for multiple backends
+ including image buffers, PNG, PostScript, PDF, and SVG file output.
+ .
+ This package provides the GObject (GLib) bindings used by GTK and other
+ GObject-based toolkits to integrate Cairo.
+
+Package: libcairo-script-interpreter2
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends:
+ libcairo2 (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: Cairo 2D vector graphics library (script interpreter)
+ Cairo is a 2D vector graphics library with support for multiple backends
+ including image buffers, PNG, PostScript, PDF, and SVG file output.
+ .
+ This package provides the script interpreter, a small Lua runtime that
+ executes cairo script files. GTK depends on it, so it has to travel together
+ with libcairo2 of this repository.
+
+Package: libcairo2-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Provides: libcairo-dev
+Depends:
+ libcairo-gobject2 (= ${binary:Version}),
+ libcairo-script-interpreter2 (= ${binary:Version}),
+ libcairo2 (= ${binary:Version}),
+ ${misc:Depends}
+Description: Development files for the Cairo 2D vector graphics library
+ Cairo is a 2D vector graphics library with support for multiple backends
+ including image buffers, PNG, PostScript, PDF, and SVG file output.
+ .
+ This package provides the development headers, the pkg-config files and the
+ linker symlink needed to build against Cairo.
+ .
+ This build has no X11 support: cairo-xlib.h, cairo-xlib-xrender.h and
+ cairo-xcb.h are not installed and the corresponding pkg-config files are
+ absent, so Cairo applications are built for the Wayland stack only.

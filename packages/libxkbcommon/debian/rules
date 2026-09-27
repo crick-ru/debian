@@ -9,10 +9,23 @@ endif
 
 # We need to point to xkb-data's files. The default should be OK but
 # let's be cautious:
+#
+# -Denable-x11=false: the X11 part of xkbcommon is not built at all. It
+# provides libxkbcommon-x11.so.0 (xkb_x11_* symbols) and the xkbcli
+# subcommands that query an X server, and it is the only thing in this
+# package that needs libxcb/libxcb-xkb/X11. This repository is Wayland-only,
+# so the packages libxkbcommon-x11-0 and libxkbcommon-x11-dev are gone;
+# see .clinerules/project.md and packages/libxkbcommon/README.md.
+# -Denable-docs=false: no documentation, no libxkbcommon-doc (doxygen).
+# The test suite is neither built nor run (no debian/tests, no <!nocheck>
+# build deps), so meson's -Dtests has nothing left to enable.
 override_dh_auto_configure:
 	dh_auto_configure -- -Dxkb-config-root=/usr/share/X11/xkb \
-		-Denable-docs=true \
+		-Denable-x11=false \
+		-Denable-docs=false \
 		$(extra_meson_args)
+
+override_dh_auto_test:
 
 # Kill *.la files, and forget no-one:
 override_dh_install:

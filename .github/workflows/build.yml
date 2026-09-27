@@ -82,8 +82,8 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Stage 2: packages that need Stage-1 packages as build dependencies
-  # (kmscon -> libtsm, pipewire -> libfdk-aac-dev,
-  #  wlroots/gtk+3.0/gtk4 -> wayland/libdrm/libxkbcommon/pixman/wayland-protocols
+  # (kmscon -> libtsm, pipewire -> libfdk-aac-dev, cairo -> libpixman-1-dev,
+  #  wlroots/gtk+3.0/gtk4 -> wayland/libdrm/pixman/wayland-protocols
   #  of this repository).
   #
   # gtk+3.0 and gtk4 need libwayland-dev >= 1.24 (GTK 4.22.5 refuses to configure
@@ -103,6 +103,7 @@ jobs:
           - kmscon
           - wlroots
           - pipewire
+          - cairo
           - gtk+3.0
           - gtk4
     steps:
@@ -156,12 +157,6 @@ jobs:
                     ./stage1-pool/libwayland-egl1_*.deb
                     ./stage1-pool/libwayland-egl-backend-dev_*.deb
                     ./stage1-pool/libwayland-dev_*.deb
-                    ./stage1-pool/libxkbcommon0_*.deb
-                    ./stage1-pool/libxkbcommon-dev_*.deb
-                    ./stage1-pool/libxkbcommon-x11-0_*.deb
-                    ./stage1-pool/libxkbcommon-x11-dev_*.deb
-                    ./stage1-pool/libxkbregistry0_*.deb
-                    ./stage1-pool/libxkbregistry-dev_*.deb
                     ./stage1-pool/libdrm-common_*.deb
                     ./stage1-pool/libdrm2_*.deb
                     ./stage1-pool/libdrm-amdgpu1_*.deb
@@ -173,6 +168,37 @@ jobs:
                     ./stage1-pool/libpixman-1-0_*.deb
                     ./stage1-pool/libpixman-1-dev_*.deb
                     ./stage1-pool/wayland-protocols_*.deb)
+              case "${{ matrix.package }}" in
+                wlroots)
+                  # libxkbcommon of this repository is installed for wlroots
+                  # only: it requires >= 1.8, and trixie has 1.7.0.
+                  #
+                  # It must NOT be installed for gtk+3.0/gtk4. Their GStreamer
+                  # media backend needs libgstreamer-plugins-bad1.0-dev, and the
+                  # trixie libgstreamer-plugins-bad1.0-0 Depends on the trixie
+                  # libxkbcommon-x11-0, which hard-pins libxkbcommon0
+                  # (= 1.7.0-2). Since this repository no longer publishes
+                  # libxkbcommon-x11-0 at all, that mix is unsatisfiable and
+                  # install-build-deps.sh could not install anything. GTK 3 and
+                  # GTK 4 do not need any libxkbcommon API newer than the trixie
+                  # 1.7.0, so they build against it as is.
+                  debs+=(./stage1-pool/libxkbcommon0_*.deb
+                         ./stage1-pool/libxkbcommon-dev_*.deb
+                         ./stage1-pool/libxkbregistry0_*.deb
+                         ./stage1-pool/libxkbregistry-dev_*.deb)
+                  ;;
+                gtk+3.0|gtk4)
+                  # libxkbcommon stays the trixie one here: the GTK -dev
+                  # packages are built with the same libxkbcommon-dev that
+                  # apt would install anyway, which is a consistent set.
+                  ;;
+              esac
+              ;;
+            cairo)
+              # cairo needs libpixman-1-dev >= 0.40.0; the -dev package of this
+              # repository pins libpixman-1-0 to its own version, so both go in.
+              debs=(./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb)
               ;;
             pipewire)
               # libfdk-aac-dev depends on the exact version of libfdk-aac2t64,
@@ -198,9 +224,9 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Stage 3: packages that need packages of Stage 2
-  #   labwc     -> libwlroots-0.20-dev (and the Stage-1 wayland libraries)
+  #   labwc     -> libwlroots-0.20-dev, libcairo2-dev (both of this repository)
   #   celluloid -> libgtk-4-dev of this repository
-  #   sfwbar    -> libgtk-3-dev of this repository
+  #   sfwbar    -> libgtk-3-dev, libxkbregistry-dev of this repository
   # The libraries of Stage 1 are installed as well: the -dev packages of the
   # GTK and wlroots packages require their exact versions, and dpkg-shlibdeps
   # has to see the matching symbol files to resolve the dependencies.
@@ -211,7 +237,9 @@ jobs:
   # with -Wl,-z,now, so a binary built with X11 support would not even start
   # against the published libraries. celluloid builds unchanged because its X11
   # code sits behind #ifdef GDK_WINDOWING_X11, which is undefined in these
-  # builds.
+  # builds. The same argument applies to cairo: labwc only uses
+  # cairo_image_surface_* and cairo_create, never cairo_xlib_*/cairo_xcb_*, so
+  # it links happily against the X11-free libcairo2.
   # ---------------------------------------------------------------------------
   stage3:
     name: Stage 3 · ${{ matrix.package }}
@@ -268,13 +296,15 @@ jobs:
           # GTK and wlroots pin the exact versions of their siblings, so the
           # whole matching set has to be installed together.
           #
-          # The Stage-1 list is identical to the one used for
-          # wlroots|gtk+3.0|gtk4 in Stage 2 and must stay so. It includes
-          # libxkbcommon-x11-0 on purpose: libgtk-4-1 pulls
-          # libgstreamer-plugins-bad1.0-0, which depends on the trixie
-          # libxkbcommon-x11-0, and that one hard-pins
-          # libxkbcommon0 (= 1.7.0-2) — without our own copy the install is
-          # unsatisfiable once libxkbcommon0 is upgraded.
+          # libcairo2 of this repository (Stage 2) is here as well, because
+          # labwc has a hard cairo dependency (dependency('cairo')) and the GTK
+          # -dev packages require libcairo2-dev. All four cairo packages go in
+          # together: the three of them pin libcairo2 to its exact version.
+          #
+          # libxkbcommon is taken from this repository for sfwbar
+          # (libxkbregistry-dev). Note that libxkbcommon-x11-0 is no longer
+          # built at all, so nothing here pulls the trixie one, which would
+          # hard-pin the trixie libxkbcommon0.
           debs=(./stage2-pool/libwlroots-0.20_*.deb ./stage2-pool/libwlroots-0.20-dev_*.deb
                 ./stage2-pool/libgtk-3-0t64_*.deb
                 ./stage2-pool/libgail-3-0t64_*.deb
@@ -289,6 +319,10 @@ jobs:
                 ./stage2-pool/libgtk-4-dev_*.deb
                 ./stage2-pool/gir1.2-gtk-4.0_*.deb
                 ./stage2-pool/gtk-update-icon-cache_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
@@ -298,8 +332,6 @@ jobs:
                 ./stage1-pool/libwayland-dev_*.deb
                 ./stage1-pool/libxkbcommon0_*.deb
                 ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbcommon-x11-0_*.deb
-                ./stage1-pool/libxkbcommon-x11-dev_*.deb
                 ./stage1-pool/libxkbregistry0_*.deb
                 ./stage1-pool/libxkbregistry-dev_*.deb
                 ./stage1-pool/libdrm-common_*.deb

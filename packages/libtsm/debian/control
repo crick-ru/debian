@@ -2,8 +2,11 @@ Source: libtsm
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Section: libs
 Priority: optional
-Build-Depends: check <!nocheck>,
-               meson,
+# Упаковка взята из Debian и переработана:
+#   * тесты не собираются и не запускаются (-Dtests=false), поэтому убран
+#     check из Build-Depends и удалён каталог debian/tests;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+Build-Depends: meson,
                debhelper-compat (= 13),
                libxkbcommon-dev,
                pkgconf,

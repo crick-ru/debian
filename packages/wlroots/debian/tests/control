@@ -1,9 +1,0 @@
-Tests:
- build-test,
-Depends:
- build-essential,
- libwlroots-0.20-dev,
- pkgconf,
-Restrictions:
- allow-stderr,
- superficial,
