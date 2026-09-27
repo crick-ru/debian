@@ -207,7 +207,7 @@ jobs:
   #
   # celluloid and sfwbar must be built against the GTK of this repository, not
   # against trixie: the published libgtk-3.so.0/libgtk-4.so.1 have no
-  # gdk_x11_* symbols (see packages/gtk3/README.md), and Debian hardening links
+  # gdk_x11_* symbols (see packages/gtk+3.0/README.md), and Debian hardening links
   # with -Wl,-z,now, so a binary built with X11 support would not even start
   # against the published libraries. celluloid builds unchanged because its X11
   # code sits behind #ifdef GDK_WINDOWING_X11, which is undefined in these

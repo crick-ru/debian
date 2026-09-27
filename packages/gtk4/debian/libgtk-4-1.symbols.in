@@ -3,7 +3,6 @@ libgtk-@APIVER@.so.@SONAME@ @SHARED_PKG@ #MINVER#
 # В сборке crick Debian backports X11- и broadway-бэкенд GDK отключены,
 # поэтому символы gdk_x11_* и gdk_broadway_* здесь отсутствуют (см. README.md).
 # SONAME не изменён, удалённые символы ломают ABI — откат описан в README.md.
- (optional)_gtk_resource_data@Base @DEB_VERSION_UPSTREAM@
  gdk_anchor_hints_get_type@Base 4.0.0
  gdk_app_launch_context_get_display@Base 4.0.0
  gdk_app_launch_context_get_type@Base 4.0.0
@@ -704,7 +703,6 @@ libgtk-@APIVER@.so.@SONAME@ @SHARED_PKG@ #MINVER#
  (arch=linux-any)gdk_wayland_toplevel_set_transient_for_exported@Base 4.0.0
  (arch=linux-any)gdk_wayland_toplevel_unexport_handle@Base 4.0.0
  (arch=linux-any)gdk_wayland_vulkan_context_get_type@Base 4.13.5
- (arch=linux-any)gdk_x11_vulkan_context_get_type@Base 4.13.5
  gsk_blend_mode_get_type@Base 4.0.0
  gsk_blend_node_get_blend_mode@Base 4.0.0
  gsk_blend_node_get_bottom_child@Base 4.0.0
@@ -720,8 +718,6 @@ libgtk-@APIVER@.so.@SONAME@ @SHARED_PKG@ #MINVER#
  gsk_border_node_get_type@Base 4.0.0
  gsk_border_node_get_widths@Base 4.0.0
  gsk_border_node_new@Base 4.0.0
- gsk_broadway_renderer_get_type@Base 4.8.0
- gsk_broadway_renderer_new@Base 4.8.0
  gsk_cairo_node_get_draw_context@Base 4.0.0
  gsk_cairo_node_get_surface@Base 4.0.0
  gsk_cairo_node_get_type@Base 4.0.0

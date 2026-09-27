@@ -55,10 +55,15 @@ meson ≥ 1.8. В trixie glib 2.84.4, pango 1.56.3, meson 1.7.0. Поэтому 
 
 - **X11-бэкенд GDK** (`-Dx11-backend=false`) — намеренно, под цель
   «чистый Wayland» (см. `.clinerules/project.md`). Единственный бэкенд —
-  Wayland. Из `libgtk-4.so.1` удалены 69 символов `gdk_x11_*` и 9 символов
-  `gdk_broadway_*`; заголовок `gdk/gdkx.h`, GIR `GdkX11-4.0` и файл
-  `gtk4-x11-4.0.pc` не устанавливаются. Из `Build-Depends` убраны
-  `libx11-dev`, `libxcomposite-dev`, `libxcursor-dev`, `libxdamage-dev`,
+  Wayland. Из `libgtk-4.so.1` удалены **81 символ** при неизменном SONAME:
+  69 `gdk_x11_*` (включая `(arch=linux-any)gdk_x11_vulkan_context_get_type`),
+  9 `gdk_broadway_*`, 2 `gsk_broadway_renderer_*` (рендерер broadway — тоже
+  X11/HTML5-ветка, но в GSK) и служебный `(optional)_gtk_resource_data`.
+  Заголовок `gdk/gdkx.h`, GIR `GdkX11-4.0` и файл
+  `gtk4-x11-4.0.pc` не устанавливаются. В отличие от GTK 3, в GTK 4 нет
+  классов, живущих только на X11 (GtkPlug/GtkSocket/GtkTrayIcon в GTK 4
+  отсутствуют), поэтому других символов не теряется. Из `Build-Depends`
+  убраны `libx11-dev`, `libxcomposite-dev`, `libxcursor-dev`, `libxdamage-dev`,
   `libxext-dev`, `libxfixes-dev`, `libxi-dev`, `libxinerama-dev`,
   `libxrandr-dev`, `libxkbfile-dev`, `gir1.2-xlib-2.0-dev`.
 - Broadway (`-Dbroadway-backend=false`), тесты, примеры, демо, man-страницы,

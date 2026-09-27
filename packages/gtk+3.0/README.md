@@ -43,9 +43,14 @@ X11-бэкенд отключён.
 
 - **X11-бэкенд GDK** (`-Dx11_backend=false`) — намеренно, под цель
   «чистый Wayland» (см. `.clinerules/project.md`). Единственный бэкенд —
-  Wayland. Из библиотек удалены 79 символов `gdk_x11_*` и 8 символов
-  `gdk_broadway_*`; заголовок `gdk/gdkx.h`, GIR-пространство имён `GdkX11`
-  и файлы `gdk-x11-3.0.pc` / `gtk+-x11-3.0.pc` не устанавливаются. Из
+  Wayland. Из библиотек удалены **101 символ** при неизменном SONAME:
+  79 `gdk_x11_*`, 8 `gdk_broadway_*`, а также 14 символов классов, чьи
+  исходники в GTK 3 объявлены как X11-only в `gtk/meson.build`
+  (`gtk_use_x11_sources`): `gtk_plug_*` (8) и `gtk_socket_*` (5) —
+  то есть встраивание окон одного GTK-приложения в другое, и
+  `gtk_tray_icon_get_type` (1) — значок в трее. Заголовок `gdk/gdkx.h`,
+  GIR-пространство имён `GdkX11` и файлы `gdk-x11-3.0.pc` /
+  `gtk+-x11-3.0.pc` не устанавливаются. Из
   `Build-Depends` убраны `libx11-dev`, `libxcomposite-dev`, `libxcursor-dev`,
   `libxdamage-dev`, `libxext-dev`, `libxfixes-dev`, `libxi-dev`,
   `libxinerama-dev`, `libxrandr-dev`, `libxkbfile-dev`, `gir1.2-xlib-2.0-dev`.
