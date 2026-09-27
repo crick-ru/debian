@@ -222,9 +222,9 @@ jobs:
   #   sfwbar    -> libgtk-3-dev of this repository
   #   cairo     -> nothing but trixie
   #
-  # The GTK lists above are the same for both packages because sfwbar needs
-  # libgtk-3-dev and celluloid libgtk-4-dev, and both -dev packages pin the
-  # whole GTK set. The per-package additions are: celluloid needs libmpv-dev
+  # The GTK sets are not shared: sfwbar builds against GTK 3 and celluloid
+  # against GTK 4, and only GTK 4 pulls gstreamer-bad (see the note in the
+  # install step). The per-package additions are: celluloid needs libmpv-dev
   # (mpv is in Stage 2), sfwbar needs libxkbregistry-dev (Stage 1).
   #
   # celluloid and sfwbar must be built against the GTK of this repository, not
@@ -294,15 +294,14 @@ jobs:
           # and cairo need nothing but trixie (plus, for kmscon and pipewire,
           # the two libraries listed below).
           #
-          # NOTE on libxkbcommon: it is deliberately NOT installed for the
-          # packages whose build dependencies pull libgstreamer-plugins-bad1.0-dev.
-          # The trixie libgstreamer-plugins-bad1.0-0 Depends on the trixie
-          # libxkbcommon-x11-0, and that one hard-pins libxkbcommon0
-          # (= 1.7.0-2). Since this repository no longer publishes
-          # libxkbcommon-x11-0 at all, mixing our libxkbcommon0 with the trixie
-          # gstreamer-bad would be unsatisfiable. sfwbar (which needs
-          # libxkbregistry-dev and no GStreamer bad) and labwc (no GStreamer
-          # bad) are the only Stage 3 packages that get our libxkbcommon.
+          # NOTE on libxkbcommon: it is deliberately NOT installed for celluloid
+          # and pipewire. Our libgtk-4-1 depends on the trixie
+          # libgstreamer-plugins-bad1.0-0, and that one depends on the trixie
+          # libxkbcommon-x11-0, which hard-pins libxkbcommon0 (= 1.7.0-2). Since
+          # this repository no longer publishes libxkbcommon-x11-0 at all,
+          # mixing our libxkbcommon0 with the trixie gstreamer-bad is
+          # unsatisfiable. labwc and sfwbar do not pull gstreamer-bad, so they
+          # get our libxkbcommon.
           case "${{ matrix.package }}" in
             labwc)
               debs=(./stage2-pool/libwlroots-0.20_*.deb
@@ -312,11 +311,47 @@ jobs:
                     ./stage1-pool/libxkbcommon-dev_*.deb
                     ./stage1-pool/libxkbregistry0_*.deb
                     ./stage1-pool/libxkbregistry-dev_*.deb
-                    ./stage1-pool/libdrm-*.deb
-                    ./stage1-pool/libpixman-1-*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
                     ./stage1-pool/wayland-protocols_*.deb)
               ;;
-            celluloid|sfwbar)
+            celluloid)
+              # libgtk-4-dev of this repository (it pins the whole GTK 4 set)
+              # plus the Stage-1 libraries and libmpv-dev.
+              debs=(./stage2-pool/libgtk-4-1_*.deb
+                    ./stage2-pool/libgtk-4-common_*.deb
+                    ./stage2-pool/libgtk-4-bin_*.deb
+                    ./stage2-pool/libgtk-4-dev_*.deb
+                    ./stage2-pool/gir1.2-gtk-4.0_*.deb
+                    ./stage2-pool/gtk-update-icon-cache_*.deb
+                    ./stage2-pool/libmpv2_*.deb
+                    ./stage2-pool/libmpv-dev_*.deb
+                    ./stage1-pool/libwayland-*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb)
+              # No libxkbcommon of this repository (see the note above).
+              ;;
+            sfwbar)
+              # libgtk-3-dev of this repository (it pins the whole GTK 3 set)
+              # plus the Stage-1 libraries and libxkbregistry-dev. GTK 3 does
+              # not pull gstreamer-bad, so our libxkbcommon is safe here.
               debs=(./stage2-pool/libgtk-3-0t64_*.deb
                     ./stage2-pool/libgail-3-0t64_*.deb
                     ./stage2-pool/libgtk-3-common_*.deb
@@ -324,29 +359,22 @@ jobs:
                     ./stage2-pool/libgtk-3-dev_*.deb
                     ./stage2-pool/libgail-3-dev_*.deb
                     ./stage2-pool/gir1.2-gtk-3.0_*.deb
-                    ./stage2-pool/libgtk-4-1_*.deb
-                    ./stage2-pool/libgtk-4-common_*.deb
-                    ./stage2-pool/libgtk-4-bin_*.deb
-                    ./stage2-pool/libgtk-4-dev_*.deb
-                    ./stage2-pool/gir1.2-gtk-4.0_*.deb
-                    ./stage2-pool/gtk-update-icon-cache_*.deb
                     ./stage1-pool/libwayland-*.deb
-                    ./stage1-pool/libdrm-*.deb
-                    ./stage1-pool/libpixman-1-*.deb
-                    ./stage1-pool/wayland-protocols_*.deb)
-              if [[ "${{ matrix.package }}" == "celluloid" ]]; then
-                # celluloid needs libmpv-dev (>= 0.32) of this repository.
-                debs+=(./stage2-pool/libmpv2_*.deb
-                       ./stage2-pool/libmpv-dev_*.deb)
-              fi
-              if [[ "${{ matrix.package }}" == "sfwbar" ]]; then
-                # sfwbar needs libxkbregistry-dev of this repository and does
-                # not pull gstreamer-bad, so our libxkbcommon is safe here.
-                debs+=(./stage1-pool/libxkbcommon0_*.deb
-                       ./stage1-pool/libxkbcommon-dev_*.deb
-                       ./stage1-pool/libxkbregistry0_*.deb
-                       ./stage1-pool/libxkbregistry-dev_*.deb)
-              fi
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb
+                    ./stage1-pool/libxkbcommon0_*.deb
+                    ./stage1-pool/libxkbcommon-dev_*.deb
+                    ./stage1-pool/libxkbregistry0_*.deb
+                    ./stage1-pool/libxkbregistry-dev_*.deb)
               ;;
             kmscon)
               # libtsm-dev >= 4.6.0 is required and trixie has 4.0.2. The -dev
