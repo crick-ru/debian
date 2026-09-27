@@ -13,7 +13,6 @@ Standards-Version: 4.7.4
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: debhelper-compat (= 13),
                dh-sequence-gir,
-               dh-sequence-gnome,
                dpkg-dev (>= 1.22.5),
                gir1.2-atk-1.0-dev,
                gir1.2-cairo-1.0-dev,
