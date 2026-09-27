@@ -4,6 +4,9 @@ usr/include/cairo/*
 # layout is left exactly as upstream installs it. There is no .pc for the X11
 # parts: they are not built.
 usr/lib/*/pkgconfig/cairo*.pc
-# The development symlink. No static library: cairo is built shared-only
-# (the default of meson's default_library).
+# The development symlinks. The unversioned libcairo-gobject.so and
+# libcairo-script-interpreter.so are links to the SONAME of the two
+# sub-libraries and belong here, next to libcairo.so itself.
 usr/lib/*/libcairo.so
+usr/lib/*/libcairo-gobject.so
+usr/lib/*/libcairo-script-interpreter.so

@@ -13,6 +13,10 @@ export SYSTEMD_SYSTEM_UNIT_DIR = $(shell $(PKG_CONFIG) --variable=systemdsystemu
 	dh $@ --without single-binary
 
 
+# The unit tests need libcheck even though they are never run, because
+# upstream defaults its `tests` option to true and that is exactly what pulls
+# the dependency in. -Dtests=false keeps it out (see .clinerules/project.md);
+# `override_dh_auto_test` is empty as well.
 override_dh_auto_configure:
 	# -Ddocs=disabled unconditionally: no man pages, no docbook tooling, no
 	# kmscon.docs.

@@ -20,7 +20,7 @@ confflags += -Ddefault_library=shared
 # pull ghostscript, libspectre, poppler-glib and librsvg in).
 # -Dgtk_doc=false is already the upstream default and keeps gtk-doc out.
 # -Dsymbol-lookup=disabled keeps binutils' bfd out, so the debugging helpers
-# cairo-trace and csi-trace are not built.
+# do not get the bfd-based symbol lookup.
 #
 # See .clinerules/project.md: this repository builds no documentation and no
 # tests.
@@ -40,9 +40,15 @@ override_dh_auto_configure:
 override_dh_auto_test:
 
 # Meson installs into / directly; stage the tree so that dh_install can split
-# it between the four binary packages.
+# it between the four binary packages. The two debugging helpers libcairo-trace
+# and libcairo-fdr (libdir/cairo/) are built unconditionally by upstream and
+# have no package here - Debian does not ship them either - so they are dropped
+# from the staging directory, otherwise dh_missing --fail-missing aborts.
 override_dh_auto_install:
 	dh_auto_install --destdir=debian/tmp
+	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/cairo/libcairo-trace.so
+	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/cairo/libcairo-fdr.so
+	rmdir debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/cairo 2>/dev/null || true
 
 override_dh_missing:
 	dh_missing --fail-missing
