@@ -10,7 +10,6 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #   * X11 не нужен: libx11-dev убран из Build-Depends (в libdrm он был
 #     только ради тестов);
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
-
 Build-Depends:
  debhelper-compat (= 13),
  meson,

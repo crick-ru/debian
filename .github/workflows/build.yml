@@ -30,11 +30,19 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Stage 1: packages with no internal dependencies (build toolchain only).
-  # The five packages below (wayland, libdrm, libxkbcommon, pixman,
-  # wayland-protocols) are here because wlroots 0.20.2 needs the API and the
-  # protocols introduced after the versions shipped in trixie (see
-  # packages/wlroots/README.md).
+  # The stages follow one rule: an application is built in the last stage and
+  # is moved to an earlier one only if a package of this repository is one of
+  # its build dependencies. Stage 3 (the last one) therefore holds every
+  # application that needs nothing beyond trixie plus the libraries below.
+  #
+  # Stage 1: libraries that are published in their own right and/or are needed
+  #   as a build dependency further down:
+  #   - wayland, libdrm, libxkbcommon, pixman, wayland-protocols: wlroots
+  #     0.20.2 and GTK 4.22.5 need API and protocol versions that trixie does
+  #     not have (see packages/wlroots/README.md);
+  #   - libtsm: kmscon requires libtsm-dev >= 4.6.0, trixie has 4.0.2;
+  #   - fdk-aac: pipewire needs the AAC codec for Bluetooth and pins the exact
+  #     version of libfdk-aac2t64, so it must be the one of this repository.
   # ---------------------------------------------------------------------------
   stage1:
     name: Stage 1 · ${{ matrix.package }}
@@ -45,14 +53,13 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - fdk-aac
-          - libtsm
-          - libdrm
-          - pixman
           - wayland
+          - libdrm
           - libxkbcommon
+          - pixman
           - wayland-protocols
-          - mpv
+          - libtsm
+          - fdk-aac
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -81,14 +88,17 @@ jobs:
           stage: 1
 
   # ---------------------------------------------------------------------------
-  # Stage 2: packages that need Stage-1 packages as build dependencies
-  # (kmscon -> libtsm, pipewire -> libfdk-aac-dev, cairo -> libpixman-1-dev,
-  #  wlroots/gtk+3.0/gtk4 -> wayland/libdrm/pixman/wayland-protocols
-  #  of this repository).
-  #
-  # gtk+3.0 and gtk4 need libwayland-dev >= 1.24 (GTK 4.22.5 refuses to configure
-  # against the wayland 1.23.1 of trixie), so they install the same set of
-  # Stage-1 packages as wlroots.
+  # Stage 2: libraries that the applications of Stage 3 build against. They are
+  # here and not in Stage 3 only because the applications need their -dev
+  # packages, which pin the exact versions of the sibling packages.
+  #   wlroots   -> wayland/libdrm/libxkbcommon/pixman/wayland-protocols
+  #   gtk+3.0,
+  #   gtk4      -> wayland (GTK 4.22.5 refuses the wayland 1.23.1 of trixie)
+  #   mpv       -> an application, but it is a build dependency of celluloid
+  #                (libmpv-dev), so it has to be built before the last stage
+  # cairo is NOT in this stage: it only needs libpixman-1-dev >= 0.40.0, which
+  # trixie's pixman 0.44.0 satisfies, so it is built in the last stage like any
+  # other package that does not need a library of this repository.
   # ---------------------------------------------------------------------------
   stage2:
     name: Stage 2 · ${{ matrix.package }}
@@ -100,12 +110,10 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - kmscon
           - wlroots
-          - pipewire
-          - cairo
           - gtk+3.0
           - gtk4
+          - mpv
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -138,18 +146,18 @@ jobs:
           shopt -s nullglob
           # apt-get treats arguments without a path separator as package names,
           # so the downloaded .deb files are passed as ./stage1-pool/<file>.deb
+          # Only wlroots, gtk+3.0 and gtk4 need anything from Stage 1, so the
+          # common set is built once and libxkbcommon is added per package.
+          debs=()
           case "${{ matrix.package }}" in
-            kmscon)
-              debs=(./stage1-pool/libtsm*.deb)
-              ;;
             wlroots|gtk+3.0|gtk4)
-              # wlroots 0.20.2 needs the libraries of this repository: all of
-              # them have to be passed here, because the -dev packages pin the
-              # exact versions of their siblings and the versions of trixie do
-              # not satisfy the requirements of wlroots. The same list is used
-              # for gtk+3.0 and gtk4: GTK 4.22.5 requires libwayland-dev >= 1.24,
-              # which trixie does not have, and the -dev packages of the GTK
-              # packages must see the matching symbol files.
+              # The -dev packages pin the exact versions of their siblings and
+              # the versions of trixie do not satisfy the requirements: wlroots
+              # needs wayland >= 1.24, libdrm >= 2.4.129, libxkbcommon >= 1.8,
+              # pixman >= 0.46 and wayland-protocols >= 1.47, and GTK 4.22.5
+              # needs libwayland-dev >= 1.24, which trixie (1.23.1) does not
+              # have. The GTK -dev packages additionally need the matching
+              # symbol files for dpkg-shlibdeps.
               debs=(./stage1-pool/libwayland-bin_*.deb
                     ./stage1-pool/libwayland-client0_*.deb
                     ./stage1-pool/libwayland-server0_*.deb
@@ -168,47 +176,25 @@ jobs:
                     ./stage1-pool/libpixman-1-0_*.deb
                     ./stage1-pool/libpixman-1-dev_*.deb
                     ./stage1-pool/wayland-protocols_*.deb)
-              case "${{ matrix.package }}" in
-                wlroots)
-                  # libxkbcommon of this repository is installed for wlroots
-                  # only: it requires >= 1.8, and trixie has 1.7.0.
-                  #
-                  # It must NOT be installed for gtk+3.0/gtk4. Their GStreamer
-                  # media backend needs libgstreamer-plugins-bad1.0-dev, and the
-                  # trixie libgstreamer-plugins-bad1.0-0 Depends on the trixie
-                  # libxkbcommon-x11-0, which hard-pins libxkbcommon0
-                  # (= 1.7.0-2). Since this repository no longer publishes
-                  # libxkbcommon-x11-0 at all, that mix is unsatisfiable and
-                  # install-build-deps.sh could not install anything. GTK 3 and
-                  # GTK 4 do not need any libxkbcommon API newer than the trixie
-                  # 1.7.0, so they build against it as is.
-                  debs+=(./stage1-pool/libxkbcommon0_*.deb
-                         ./stage1-pool/libxkbcommon-dev_*.deb
-                         ./stage1-pool/libxkbregistry0_*.deb
-                         ./stage1-pool/libxkbregistry-dev_*.deb)
-                  ;;
-                gtk+3.0|gtk4)
-                  # libxkbcommon stays the trixie one here: the GTK -dev
-                  # packages are built with the same libxkbcommon-dev that
-                  # apt would install anyway, which is a consistent set.
-                  ;;
-              esac
-              ;;
-            cairo)
-              # cairo needs libpixman-1-dev >= 0.40.0; the -dev package of this
-              # repository pins libpixman-1-0 to its own version, so both go in.
-              debs=(./stage1-pool/libpixman-1-0_*.deb
-                    ./stage1-pool/libpixman-1-dev_*.deb)
-              ;;
-            pipewire)
-              # libfdk-aac-dev depends on the exact version of libfdk-aac2t64,
-              # so both packages of Stage 1 have to be installed together
-              debs=(./stage1-pool/libfdk-aac2t64_*.deb ./stage1-pool/libfdk-aac-dev_*.deb)
-              ;;
-            *)
-              debs=()
               ;;
           esac
+          if [[ "${{ matrix.package }}" == "wlroots" ]]; then
+            # libxkbcommon of this repository goes to wlroots only: it requires
+            # >= 1.8 and trixie has 1.7.0.
+            #
+            # It must NOT be installed for gtk+3.0/gtk4. Their GStreamer media
+            # backend needs libgstreamer-plugins-bad1.0-dev, and the trixie
+            # libgstreamer-plugins-bad1.0-0 Depends on the trixie
+            # libxkbcommon-x11-0, which hard-pins libxkbcommon0 (= 1.7.0-2).
+            # Since this repository no longer publishes libxkbcommon-x11-0 at
+            # all, that mix is unsatisfiable and install-build-deps.sh could not
+            # install anything. GTK 3 and GTK 4 do not need any libxkbcommon API
+            # newer than the trixie 1.7.0, so they build against it as is.
+            debs+=(./stage1-pool/libxkbcommon0_*.deb
+                   ./stage1-pool/libxkbcommon-dev_*.deb
+                   ./stage1-pool/libxkbregistry0_*.deb
+                   ./stage1-pool/libxkbregistry-dev_*.deb)
+          fi
           if (( ${#debs[@]} > 0 )); then
             echo "Installing: ${debs[*]}"
             apt-get install -y --no-install-recommends "${debs[@]}"
@@ -223,13 +209,23 @@ jobs:
           stage: 2
 
   # ---------------------------------------------------------------------------
-  # Stage 3: packages that need packages of Stage 2
-  #   labwc     -> libwlroots-0.20-dev, libcairo2-dev (both of this repository)
+  # Stage 3: the last stage. Everything that does not need a -dev package of
+  # this repository lives here, i.e. every application plus cairo (it builds
+  # against the trixie pixman, which satisfies its >= 0.40.0 requirement).
+  #   kmscon    -> libtsm-dev of this repository (trixie has 4.0.2, kmscon
+  #                needs >= 4.6.0)
+  #   pipewire  -> libfdk-aac-dev of this repository (pins libfdk-aac2t64
+  #                exactly)
+  #   mpv is in Stage 2 (celluloid needs its libmpv-dev), so it is not here.
+  #   labwc     -> libwlroots-0.20-dev of this repository
   #   celluloid -> libgtk-4-dev of this repository
-  #   sfwbar    -> libgtk-3-dev, libxkbregistry-dev of this repository
-  # The libraries of Stage 1 are installed as well: the -dev packages of the
-  # GTK and wlroots packages require their exact versions, and dpkg-shlibdeps
-  # has to see the matching symbol files to resolve the dependencies.
+  #   sfwbar    -> libgtk-3-dev of this repository
+  #   cairo     -> nothing but trixie
+  #
+  # The GTK lists above are the same for both packages because sfwbar needs
+  # libgtk-3-dev and celluloid libgtk-4-dev, and both -dev packages pin the
+  # whole GTK set. The per-package additions are: celluloid needs libmpv-dev
+  # (mpv is in Stage 2), sfwbar needs libxkbregistry-dev (Stage 1).
   #
   # celluloid and sfwbar must be built against the GTK of this repository, not
   # against trixie: the published libgtk-3.so.0/libgtk-4.so.1 have no
@@ -237,9 +233,7 @@ jobs:
   # with -Wl,-z,now, so a binary built with X11 support would not even start
   # against the published libraries. celluloid builds unchanged because its X11
   # code sits behind #ifdef GDK_WINDOWING_X11, which is undefined in these
-  # builds. The same argument applies to cairo: labwc only uses
-  # cairo_image_surface_* and cairo_create, never cairo_xlib_*/cairo_xcb_*, so
-  # it links happily against the X11-free libcairo2.
+  # builds.
   # ---------------------------------------------------------------------------
   stage3:
     name: Stage 3 · ${{ matrix.package }}
@@ -251,9 +245,12 @@ jobs:
       fail-fast: false
       matrix:
         package:
+          - kmscon
+          - pipewire
           - labwc
           - celluloid
           - sfwbar
+          - cairo
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -291,62 +288,88 @@ jobs:
       - name: Install required packages of earlier stages
         run: |
           shopt -s nullglob
-          # labwc needs libwlroots-0.20-dev, celluloid needs libgtk-4-dev and
-          # sfwbar needs libgtk-3-dev of this repository. The -dev packages of
-          # GTK and wlroots pin the exact versions of their siblings, so the
-          # whole matching set has to be installed together.
+          # The -dev packages of Stage 1 and Stage 2 pin the exact versions of
+          # their siblings, so a package that needs one of them needs the whole
+          # matching set. Only labwc, celluloid and sfwbar do; kmscon, pipewire
+          # and cairo need nothing but trixie (plus, for kmscon and pipewire,
+          # the two libraries listed below).
           #
-          # libcairo2 of this repository (Stage 2) is here as well, because
-          # labwc has a hard cairo dependency (dependency('cairo')) and the GTK
-          # -dev packages require libcairo2-dev. All four cairo packages go in
-          # together: the three of them pin libcairo2 to its exact version.
-          #
-          # libxkbcommon is taken from this repository for sfwbar
-          # (libxkbregistry-dev). Note that libxkbcommon-x11-0 is no longer
-          # built at all, so nothing here pulls the trixie one, which would
-          # hard-pin the trixie libxkbcommon0.
-          debs=(./stage2-pool/libwlroots-0.20_*.deb ./stage2-pool/libwlroots-0.20-dev_*.deb
-                ./stage2-pool/libgtk-3-0t64_*.deb
-                ./stage2-pool/libgail-3-0t64_*.deb
-                ./stage2-pool/libgtk-3-common_*.deb
-                ./stage2-pool/libgtk-3-bin_*.deb
-                ./stage2-pool/libgtk-3-dev_*.deb
-                ./stage2-pool/libgail-3-dev_*.deb
-                ./stage2-pool/gir1.2-gtk-3.0_*.deb
-                ./stage2-pool/libgtk-4-1_*.deb
-                ./stage2-pool/libgtk-4-common_*.deb
-                ./stage2-pool/libgtk-4-bin_*.deb
-                ./stage2-pool/libgtk-4-dev_*.deb
-                ./stage2-pool/gir1.2-gtk-4.0_*.deb
-                ./stage2-pool/gtk-update-icon-cache_*.deb
-                ./stage2-pool/libcairo2_*.deb
-                ./stage2-pool/libcairo-gobject2_*.deb
-                ./stage2-pool/libcairo-script-interpreter2_*.deb
-                ./stage2-pool/libcairo2-dev_*.deb
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
-                ./stage1-pool/libdrm-amdgpu1_*.deb
-                ./stage1-pool/libdrm-freedreno1_*.deb
-                ./stage1-pool/libdrm-intel1_*.deb
-                ./stage1-pool/libdrm-nouveau2_*.deb
-                ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
-                ./stage1-pool/libpixman-1-0_*.deb
-                ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb)
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
+          # NOTE on libxkbcommon: it is deliberately NOT installed for the
+          # packages whose build dependencies pull libgstreamer-plugins-bad1.0-dev.
+          # The trixie libgstreamer-plugins-bad1.0-0 Depends on the trixie
+          # libxkbcommon-x11-0, and that one hard-pins libxkbcommon0
+          # (= 1.7.0-2). Since this repository no longer publishes
+          # libxkbcommon-x11-0 at all, mixing our libxkbcommon0 with the trixie
+          # gstreamer-bad would be unsatisfiable. sfwbar (which needs
+          # libxkbregistry-dev and no GStreamer bad) and labwc (no GStreamer
+          # bad) are the only Stage 3 packages that get our libxkbcommon.
+          case "${{ matrix.package }}" in
+            labwc)
+              debs=(./stage2-pool/libwlroots-0.20_*.deb
+                    ./stage2-pool/libwlroots-0.20-dev_*.deb
+                    ./stage1-pool/libwayland-*.deb
+                    ./stage1-pool/libxkbcommon0_*.deb
+                    ./stage1-pool/libxkbcommon-dev_*.deb
+                    ./stage1-pool/libxkbregistry0_*.deb
+                    ./stage1-pool/libxkbregistry-dev_*.deb
+                    ./stage1-pool/libdrm-*.deb
+                    ./stage1-pool/libpixman-1-*.deb
+                    ./stage1-pool/wayland-protocols_*.deb)
+              ;;
+            celluloid|sfwbar)
+              debs=(./stage2-pool/libgtk-3-0t64_*.deb
+                    ./stage2-pool/libgail-3-0t64_*.deb
+                    ./stage2-pool/libgtk-3-common_*.deb
+                    ./stage2-pool/libgtk-3-bin_*.deb
+                    ./stage2-pool/libgtk-3-dev_*.deb
+                    ./stage2-pool/libgail-3-dev_*.deb
+                    ./stage2-pool/gir1.2-gtk-3.0_*.deb
+                    ./stage2-pool/libgtk-4-1_*.deb
+                    ./stage2-pool/libgtk-4-common_*.deb
+                    ./stage2-pool/libgtk-4-bin_*.deb
+                    ./stage2-pool/libgtk-4-dev_*.deb
+                    ./stage2-pool/gir1.2-gtk-4.0_*.deb
+                    ./stage2-pool/gtk-update-icon-cache_*.deb
+                    ./stage1-pool/libwayland-*.deb
+                    ./stage1-pool/libdrm-*.deb
+                    ./stage1-pool/libpixman-1-*.deb
+                    ./stage1-pool/wayland-protocols_*.deb)
+              if [[ "${{ matrix.package }}" == "celluloid" ]]; then
+                # celluloid needs libmpv-dev (>= 0.32) of this repository.
+                debs+=(./stage2-pool/libmpv2_*.deb
+                       ./stage2-pool/libmpv-dev_*.deb)
+              fi
+              if [[ "${{ matrix.package }}" == "sfwbar" ]]; then
+                # sfwbar needs libxkbregistry-dev of this repository and does
+                # not pull gstreamer-bad, so our libxkbcommon is safe here.
+                debs+=(./stage1-pool/libxkbcommon0_*.deb
+                       ./stage1-pool/libxkbcommon-dev_*.deb
+                       ./stage1-pool/libxkbregistry0_*.deb
+                       ./stage1-pool/libxkbregistry-dev_*.deb)
+              fi
+              ;;
+            kmscon)
+              # libtsm-dev >= 4.6.0 is required and trixie has 4.0.2. The -dev
+              # package pins libtsm4, so both go in.
+              debs=(./stage1-pool/libtsm4_*.deb
+                    ./stage1-pool/libtsm-dev_*.deb)
+              ;;
+            pipewire)
+              # libfdk-aac-dev pins libfdk-aac2t64 to its own version.
+              debs=(./stage1-pool/libfdk-aac2t64_*.deb
+                    ./stage1-pool/libfdk-aac-dev_*.deb)
+              ;;
+            *)
+              # cairo: nothing but trixie.
+              debs=()
+              ;;
+          esac
+          if (( ${#debs[@]} > 0 )); then
+            echo "Installing: ${debs[*]}"
+            apt-get install -y --no-install-recommends "${debs[@]}"
+          else
+            echo "No packages of earlier stages required for ${{ matrix.package }}"
+          fi
 
       - name: Build package (cached, reuses unchanged results)
         uses: ./.github/actions/build-deb

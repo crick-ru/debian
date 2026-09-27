@@ -10,7 +10,6 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #   * man-страницы входят в состав -Ddocumentation, поэтому убраны и строки
 #     usr/share/man из libwayland-dev.install;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
-
 Build-Depends:
  debhelper-compat (= 13),
  pkgconf,

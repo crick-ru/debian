@@ -30,7 +30,7 @@ override_dh_auto_configure:
 		-Dx11-clipboard=disabled \
 		-Dlibmpv=true \
 		-Dbuild-date=false \
-		-Dmanpage-build=false \
+		-Dmanpage-build=disabled \
 		-Dtests=false \
 		-Dcdda=enabled \
 		-Ddvdnav=enabled \
