@@ -266,10 +266,15 @@ jobs:
           # labwc needs libwlroots-0.20-dev, celluloid needs libgtk-4-dev and
           # sfwbar needs libgtk-3-dev of this repository. The -dev packages of
           # GTK and wlroots pin the exact versions of their siblings, so the
-          # whole matching set has to be installed together. All three also
-          # need the Stage-1 wayland libraries: dpkg-shlibdeps has to see the
-          # matching symbol files, and libgtk-4-dev requires
-          # libwayland-dev >= 1.24 (trixie has 1.23.1).
+          # whole matching set has to be installed together.
+          #
+          # The Stage-1 list is identical to the one used for
+          # wlroots|gtk+3.0|gtk4 in Stage 2 and must stay so. It includes
+          # libxkbcommon-x11-0 on purpose: libgtk-4-1 pulls
+          # libgstreamer-plugins-bad1.0-0, which depends on the trixie
+          # libxkbcommon-x11-0, and that one hard-pins
+          # libxkbcommon0 (= 1.7.0-2) — without our own copy the install is
+          # unsatisfiable once libxkbcommon0 is upgraded.
           debs=(./stage2-pool/libwlroots-0.20_*.deb ./stage2-pool/libwlroots-0.20-dev_*.deb
                 ./stage2-pool/libgtk-3-0t64_*.deb
                 ./stage2-pool/libgail-3-0t64_*.deb
@@ -293,6 +298,8 @@ jobs:
                 ./stage1-pool/libwayland-dev_*.deb
                 ./stage1-pool/libxkbcommon0_*.deb
                 ./stage1-pool/libxkbcommon-dev_*.deb
+                ./stage1-pool/libxkbcommon-x11-0_*.deb
+                ./stage1-pool/libxkbcommon-x11-dev_*.deb
                 ./stage1-pool/libxkbregistry0_*.deb
                 ./stage1-pool/libxkbregistry-dev_*.deb
                 ./stage1-pool/libdrm-common_*.deb
