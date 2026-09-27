@@ -49,6 +49,9 @@ override_dh_auto_install:
 	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/cairo/libcairo-trace.so
 	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/cairo/libcairo-fdr.so
 	rmdir debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/cairo 2>/dev/null || true
+	# cairo-trace(1) is a debugging wrapper around the trace library. Debian
+	# ships it in no package, so it is not published here either.
+	rm -f debian/tmp/usr/bin/cairo-trace
 
 override_dh_missing:
 	dh_missing --fail-missing

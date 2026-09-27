@@ -54,8 +54,8 @@
   установить, в cairo нет.
 - Отладочные утилиты: `-Dsymbol-lookup=disabled` — иначе при наличии
   `libbfd-dev` собирается поддержка symbol lookup в отладочных утилитах.
-  Кроме того, `libcairo-trace.so` и `libcairo-fdr.so` (апстрим собирает их
-  безусловно в `<libdir>/cairo/`) удаляются из дерева установки в
+  Кроме того, `libcairo-trace.so`, `libcairo-fdr.so` (<libdir>/cairo/) и
+  `cairo-trace(1)` удаляются из дерева установки в
   `override_dh_auto_install` — пакетов под них нет и в Debian.
 - `libcairo2-udeb` — минимального пакета для установщика Debian в trixie нет.
 - Отладочные символы (`-dbgsym`) не собираются и не публикуются.

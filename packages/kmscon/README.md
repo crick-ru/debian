@@ -13,9 +13,11 @@
 
 - Документация и страницы man не собираются (`-Ddocs=disabled` выставлен
   безусловно, раньше его включал профиль `nodoc`), поэтому убраны
-  `docbook-xml`, `docbook-xsl`, `xsltproc`, файл `kmscon.docs` и строка
-  `usr/share/man/man5/kmscon.conf.5` из `kmscon.install`. Man-страницы
-  `kmscon` и `kmscon.conf` в поставку не входят.
+  `docbook-xml`, `docbook-xsl`, `xsltproc`, файл `kmscon.docs`, строки
+  `usr/share/man/man1/kmscon.1` и `usr/share/man/man5/kmscon.conf.5` из
+  `kmscon.manpages` и строка `usr/share/man/man5/kmscon.conf.5` из
+  `kmscon.install`. В поставке остаётся только `kmscon-launch-gui.1` — она
+  написана руками в `debian/man`, а не генерируется.
 - `-Dwerror=false`: предупреждения новых версий GCC не должны валить сборку.
 - Набор тестов не собирается и не запускается: в `debian/rules` выставлено
   `-Dtests=false` (в апстриме опция по умолчанию `true`, и именно она включает
