@@ -94,6 +94,7 @@ Package: libavcodec63
 Architecture: any
 Section: libs
 Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: FFmpeg library with de/encoders for audio/video codecs - runtime files
  FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
  mux, demux, stream, filter and play pretty much anything that humans and
@@ -125,6 +126,7 @@ Package: libavdevice63
 Architecture: any
 Section: libs
 Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: FFmpeg library for handling multimedia devices - runtime files
  FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
  mux, demux, stream, filter and play pretty much anything that humans and
@@ -218,6 +220,7 @@ Package: libavutil61
 Architecture: any
 Section: libs
 Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: FFmpeg library with utility functions - runtime files
  FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
  mux, demux, stream, filter and play pretty much anything that humans and
