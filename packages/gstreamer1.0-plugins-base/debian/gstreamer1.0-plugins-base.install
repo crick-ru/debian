@@ -11,6 +11,7 @@ usr/lib/*/gstreamer-1.0/libgstgio.so
 usr/lib/*/gstreamer-1.0/libgstlibvisual.so
 usr/lib/*/gstreamer-1.0/libgstogg.so
 usr/lib/*/gstreamer-1.0/libgstopus.so
+usr/lib/*/gstreamer-1.0/libgstpango.so
 usr/lib/*/gstreamer-1.0/libgstoverlaycomposition.so
 usr/lib/*/gstreamer-1.0/libgstpbtypes.so
 usr/lib/*/gstreamer-1.0/libgstplayback.so

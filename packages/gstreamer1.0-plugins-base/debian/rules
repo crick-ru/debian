@@ -48,6 +48,20 @@ override_dh_auto_configure:
 
 override_dh_auto_test:
 
+override_dh_auto_install:
+	# Пакет gstreamer1.0-plugins-base-apps (gst-play-1.0,
+	# gst-discoverer-1.0, gst-device-monitor-1.0) не публикуется: mpv в
+	# репозитории уже есть, а discoverer и device-monitor - инструменты
+	# сопровождения, а не то, что нужно пользователю. Утилиты и их готовые
+	# man-страницы убираются из staging-дерева, иначе dh_missing
+	# --fail-missing прерывает сборку.
+	rm -f debian/tmp/usr/bin/gst-play-1.0 \
+		debian/tmp/usr/bin/gst-discoverer-1.0 \
+		debian/tmp/usr/bin/gst-device-monitor-1.0
+	rm -f debian/tmp/usr/share/man/man1/gst-play-1.0.1 \
+		debian/tmp/usr/share/man/man1/gst-discoverer-1.0.1 \
+		debian/tmp/usr/share/man/man1/gst-device-monitor-1.0.1
+
 override_dh_makeshlibs:
 	dh_makeshlibs -plibgstreamer-plugins-base1.0-0 \
 		-X /usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-1.0 -- -c4
