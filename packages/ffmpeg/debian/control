@@ -1,0 +1,309 @@
+Source: ffmpeg
+Section: video
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (ffmpeg_9.0.2-1) и сильно упрощена: один вариант
+# сборки вместо standard/extra, без ffmpeg-doc, без ffplay, без пакетов
+# libav*-extra*, минимальные символьные файлы вместо файлов Debian.
+#   * документация и man-страницы не собираются (--disable-doc
+#     --disable-manpages), поэтому убраны doxygen, node-less, cleancss, tree
+#     и texinfo, а пакет ffmpeg-doc не публикуется;
+#   * тесты не собираются и не запускаются, каталог debian/tests удалён;
+#   * ffplay не собирается (--disable-sdl2): это SDL2, то есть X11;
+#   * X11 выключен (--disable-libxcb и все --disable-libxcb-*), поэтому
+#     убраны libx11-xcb-dev, libxcb-*-dev и libxv-dev;
+#   * оптические диски выключены (--disable-libcdio --disable-libbluray
+#     --disable-libdvdnav --disable-libdvdread);
+#   * DVB-тюнеры и захват с видеоустройств выключены (--disable-v4l2-m2m);
+#   * VDPAU выключен (--disable-vdpau), libvdpau-dev убран;
+#   * Rust-библиотеки (librav1e, librsvg) выключены, чтобы не тянуть rustc;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Правила отключения — в .clinerules/project.md.
+Build-Depends:
+ debhelper-compat (= 13),
+ nasm,
+ pkgconf,
+ python3,
+ libaom-dev,
+ libass-dev,
+ libbs2b-dev,
+ libbz2-dev,
+ libcodec2-dev,
+ libdav1d-dev,
+ libdrm-dev [linux-any],
+ libffmpeg-nvenc-dev [amd64 arm64 i386],
+ libfontconfig-dev,
+ libfreetype-dev,
+ libfribidi-dev,
+ libgme-dev,
+ libgnutls28-dev,
+ libgsm1-dev,
+ libharfbuzz-dev,
+ liblzma-dev,
+ libmp3lame-dev,
+ libmysofa-dev,
+ libopenal-dev,
+ libopenjp2-7-dev,
+ libopenmpt-dev,
+ libopus-dev,
+ librubberband-dev,
+ libshine-dev,
+ libsnappy-dev,
+ libsoxr-dev,
+ libspeex-dev,
+ libtheora-dev,
+ libtwolame-dev,
+ libva-dev,
+ libvidstab-dev,
+ libvorbis-dev,
+ libvpl-dev,
+ libvpx-dev,
+ libwebp-dev,
+ libx265-dev,
+ libxvidcore-dev,
+ libxml2-dev,
+ libzimg-dev,
+ zlib1g-dev,
+Standards-Version: 4.7.4
+Homepage: https://ffmpeg.org/
+Vcs-Git: https://salsa.debian.org/multimedia-team/ffmpeg.git
+Vcs-Browser: https://salsa.debian.org/multimedia-team/ffmpeg
+
+Package: ffmpeg
+Architecture: any
+Multi-Arch: foreign
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tools for transcoding, streaming and playing of multimedia files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This package contains:
+  * ffmpeg: a command line tool to convert multimedia files between formats
+  * ffprobe: a simple multimedia stream analyzer
+  * qt-faststart: a utility to move the moov atom of a QuickTime/MP4 file to
+    the front, so that it plays over HTTP while it is still downloading
+ .
+ This build has no X11 support, no optical disc support, no DVB tuner
+ support and no VDPAU acceleration; ffplay is not built at all. See
+ README.md in the crick Debian backports repository.
+ .
+ No manual pages are shipped: the documentation is not built.
+
+Package: libavcodec63
+Architecture: any
+Section: libs
+Multi-Arch: same
+Description: FFmpeg library with de/encoders for audio/video codecs - runtime files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library provides a generic encoding/decoding framework and contains
+ multiple decoders and encoders for audio, video and subtitle streams, and
+ several bitstream filters.
+ .
+ This package contains the runtime files.
+
+Package: libavcodec-dev
+Architecture: any
+Section: libdevel
+Multi-Arch: same
+Depends: libavcodec63 (= ${binary:Version}),
+         libavutil-dev (= ${binary:Version}),
+         libswresample-dev (= ${binary:Version}),
+         ${misc:Depends}
+Description: FFmpeg library with de/encoders for audio/video codecs - development files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library provides a generic encoding/decoding framework and contains
+ multiple decoders and encoders for audio, video and subtitle streams, and
+
+Package: libavdevice63
+Architecture: any
+Section: libs
+Multi-Arch: same
+Description: FFmpeg library for handling multimedia devices - runtime files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library provides an interface for multimedia input and output devices.
+ .
+ This package contains the runtime files.
+
+Package: libavdevice-dev
+Architecture: any
+Section: libdevel
+Multi-Arch: same
+Depends: libavdevice63 (= ${binary:Version}),
+         libavfilter-dev (= ${binary:Version}),
+         libavformat-dev (= ${binary:Version}),
+         libavutil-dev (= ${binary:Version}),
+         libswresample-dev (= ${binary:Version}),
+         ${misc:Depends}
+Description: FFmpeg library for handling multimedia devices - development files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library provides an interface for multimedia input and output devices.
+ .
+
+Package: libavfilter12
+Architecture: any
+Section: libs
+Multi-Arch: same
+Depends: libavutil61 (= ${binary:Version}),
+         libswresample7 (= ${binary:Version}),
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: FFmpeg library for handling multimedia filters - runtime files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library provides a framework for handling the audio and video filters
+ needed for many decoding and encoding operations.
+ .
+ This package contains the runtime files.
+
+Package: libavfilter-dev
+Architecture: any
+Section: libdevel
+Multi-Arch: same
+Depends: libavfilter12 (= ${binary:Version}),
+         libavutil-dev (= ${binary:Version}),
+         libswresample-dev (= ${binary:Version}),
+         libswscale-dev (= ${binary:Version}),
+         ${misc:Depends}
+Description: FFmpeg library for handling multimedia filters - development files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+
+Package: libavformat63
+Architecture: any
+Section: libs
+Multi-Arch: same
+Depends: libavcodec63 (= ${binary:Version}),
+         libavutil61 (= ${binary:Version}),
+         libswresample7 (= ${binary:Version}),
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: FFmpeg library for working with muxers and demuxers - runtime files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library provides a generic framework for muxing and demuxing audio and
+ video streams.
+ .
+ This package contains the runtime files.
+
+Package: libavformat-dev
+Architecture: any
+Section: libdevel
+Multi-Arch: same
+Depends: libavformat63 (= ${binary:Version}),
+         libavcodec-dev (= ${binary:Version}),
+         libavutil-dev (= ${binary:Version}),
+         libswresample-dev (= ${binary:Version}),
+         ${misc:Depends}
+Description: FFmpeg library for working with muxers and demuxers - development files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+
+Package: libavutil61
+Architecture: any
+Section: libs
+Multi-Arch: same
+Description: FFmpeg library with utility functions - runtime files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library is a utility library to aid portable multimedia programming. It
+ contains safe portable string functions, random number generators, data
+ structures, additional mathematics functions, cryptography and multimedia
+ related functionality (like enumerations for pixel and sample formats).
+ .
+ This package contains the runtime files.
+
+Package: libavutil-dev
+Architecture: any
+Section: libdevel
+Multi-Arch: same
+Depends: libavutil61 (= ${binary:Version}), ${misc:Depends}
+Description: FFmpeg library with utility functions - development files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library is a utility library to aid portable multimedia programming. It
+ contains safe portable string functions, random number generators, data
+ structures, additional mathematics functions, cryptography and multimedia
+ related functionality (like enumerations for pixel and sample formats).
+
+Package: libswresample7
+Architecture: any
+Section: libs
+Multi-Arch: same
+Depends: libavutil61 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: FFmpeg library for audio resampling and rematrixing - runtime files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library performs highly optimized audio resampling, rematrixing and
+ sample format conversion operations.
+ .
+ This package contains the runtime files.
+
+Package: libswresample-dev
+Architecture: any
+Section: libdevel
+Multi-Arch: same
+Depends: libavutil-dev (= ${binary:Version}),
+         libswresample7 (= ${binary:Version}),
+         ${misc:Depends}
+Description: FFmpeg library for audio resampling and rematrixing - development files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library performs highly optimized audio resampling, rematrixing and
+ sample format conversion operations.
+ .
+
+Package: libswscale10
+Architecture: any
+Section: libs
+Multi-Arch: same
+Depends: libavutil61 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: FFmpeg library for scaling video - runtime files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library performs image scaling and pixel format conversion. It is needed
+ for example to scale and convert an image from one pixel format to another.
+ .
+ This package contains the runtime files.
+
+Package: libswscale-dev
+Architecture: any
+Section: libdevel
+Multi-Arch: same
+Depends: libavutil-dev (= ${binary:Version}),
+         libswscale10 (= ${binary:Version}),
+         ${misc:Depends}
+Description: FFmpeg library for scaling video - development files
+ FFmpeg is the leading multimedia framework, able to decode, encode, transcode,
+ mux, demux, stream, filter and play pretty much anything that humans and
+ machines have created.
+ .
+ This library performs image scaling and pixel format conversion. It is needed
+ for example to scale and convert an image from one pixel format to another.
+ .
+ This package contains the development files.

@@ -1,0 +1,155 @@
+Source: gstreamer1.0-plugins-bad
+Section: libs
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (gst-plugins-bad1.0 1.28.7-2) и упрощена:
+#   * X11 выключен (-Dx11=disabled, окно Vulkan только Wayland). В GStreamer
+#     1.28.7 libxkbcommon встречается ровно в двух местах - в плагине wpe и
+#     в окне XCB плагина Vulkan. Оба выключены, поэтому
+#     libgstreamer-plugins-bad1.0-0 больше не зависит ни от
+#     libxkbcommon-x11-0, ни от libxkbcommon0: устаревшая версия из trixie
+#     (1.7.0-2, жёстко запинена libxkbcommon-x11-0) в систему не попадёт;
+#   * DVB-тюнеры выключены (-Ddvb=disabled);
+#   * DVD навигация выключена (-Ddvdnav=disabled) - это оптический диск,
+#     поэтому убран libdvdnav-dev;
+#   * wpe выключен (-Dwpe=disabled -Dwpe2=disabled): libwpewebkit-2.0-1 из
+#     trixie сам Depends на libgstreamer-plugins-bad1.0-0, то есть плагин
+#     создал бы зависимость нашей сборки на штатную;
+#   * OpenCV выключен (-Dopencv=disabled), как и в Debian: это тяжёлая
+#     библиотека компьютерного зрения, и в trixie она тянет X11;
+#   * нейросетевые фильтры выключены (-Donnx=disabled -Dtflite=disabled),
+#     они не нужны ни десктопу, ни серверу;
+#   * прочие тяжёлые и платформенные элементы выключены (см. debian/rules);
+#   * документация не собирается (-Ddoc=disabled), man-страницы не
+#     публикуются, тесты не собираются и не запускаются;
+#   * пакеты gstreamer1.0-wpe, gstreamer1.0-opencv и
+#     gstreamer1.0-plugins-bad-apps не публикуются;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Подробности - в packages/gstreamer1.0-plugins-bad/README.md.
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-sequence-gir,
+ gobject-introspection (>= 1.80),
+ glslc,
+ meson (>= 1.4.0),
+ pkgconf,
+ python3,
+ gir1.2-vulkan-1.0-dev,
+ gstreamer1.0-plugins-base (>= 1.28.0),
+ libasound2-dev (>= 0.9.1) [linux-any],
+ libass-dev (>= 0.10.4),
+ libbz2-dev,
+ libcairo2-dev,
+ libgme-dev,
+ libgnutls28-dev,
+ libgmp-dev,
+ libgstreamer1.0-dev (>= 1.28.0),
+ libgstreamer-plugins-base1.0-dev (>= 1.28.0),
+ libgudev-1.0-dev [linux-any],
+ libjson-glib-dev,
+ libmpcdec-dev,
+ libopenal-dev,
+ libopenexr-dev,
+ libopenh264-dev,
+ libopenjp2-7-dev,
+ libopenmpt-dev,
+ libopus-dev,
+ liborc-0.4-dev (>= 1:0.4.34),
+ libpango1.0-dev,
+ libpng-dev,
+ librtmp-dev,
+ libsrtp2-dev,
+ libva-dev,
+ libvpl-dev,
+ libvulkan-dev,
+ libwayland-dev (>= 1.11) [linux-any],
+ libwebp-dev,
+ libx265-dev,
+ libxvidcore-dev,
+ libxml2-dev,
+ libzvbi-dev,
+ nettle-dev,
+ wayland-protocols (>= 1.15) [linux-any],
+Standards-Version: 4.7.3
+Homepage: https://gstreamer.freedesktop.org/
+Vcs-Git: https://salsa.debian.org/gstreamer-team/gst-plugins-bad1.0.git
+Vcs-Browser: https://salsa.debian.org/gstreamer-team/gst-plugins-bad1.0/
+Rules-Requires-Root: no
+
+Package: libgstreamer-plugins-bad1.0-0
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: GStreamer libraries from the "bad" set
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the shared libraries of the "bad" set: the DXA
+ converter, the RTP/RTCP libraries and the GStreamer GL integration for
+ the Vulkan path.
+ .
+ This build has no X11 support. The package therefore has no dependency on
+ libxkbcommon-x11-0 and none on libxkbcommon0, so the outdated libxkbcommon
+ 1.7.0-2 from trixie cannot be dragged into the system. See README.md in
+ the crick Debian backports repository.
+
+Package: libgstreamer-plugins-bad1.0-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: ${gir:Depends},
+         ${misc:Depends},
+         ${shlibs:Depends},
+         gir1.2-gst-plugins-bad-1.0 (= ${binary:Version}),
+         libgstreamer1.0-dev (>= 1.16.2),
+         libgstreamer-plugins-base1.0-dev (>= 1.16.2)
+Provides: ${gir:Provides}
+Description: GStreamer development files for libraries from the "bad" set
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the headers, the pkg-config files and the
+ introspection data of the "bad" set.
+
+Package: gstreamer1.0-plugins-bad
+Architecture: any
+Section: plugins
+Multi-Arch: same
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         gstreamer1.0-plugins-base (>= 1.28.0),
+         gstreamer1.0-plugins-good (>= 1.28.0),
+         libgstreamer-plugins-bad1.0-0 (= ${binary:Version})
+Description: GStreamer plugins from the "bad" set
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the elements of the "bad" set: the VDPAU-free
+ hardware decoding elements (VA-API, oneVPL, NVENC/NVDEC through the
+ FFmpeg library, Vulkan), the audio decoders that are not in the "good"
+ set, the RTP/RTCP elements, the subtitle renderers and the video
+ converters.
+ .
+ This build has no X11 support, no DVB tuner support and no optical disc
+ support.
+
+Package: gir1.2-gst-plugins-bad-1.0
+Architecture: any
+Section: introspection
+Multi-Arch: same
+Depends: ${gir:Depends},
+         ${misc:Depends},
+         ${shlibs:Depends}
+Provides: ${gir:Provides}
+Description: GObject introspection data for the GStreamer "bad" libraries
+ This package contains GObject introspection data for the shared
+ libraries of the "bad" set of the GStreamer streaming media framework.
+

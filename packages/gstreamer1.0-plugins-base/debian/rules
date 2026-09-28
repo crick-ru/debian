@@ -1,0 +1,58 @@
+#!/usr/bin/make -f
+# Сборка GStreamer Base Plugins 1.28.7 для crick Debian backports. Упаковка
+# взята из Debian (gst-plugins-base1.0 1.28.7-1) и упрощена: нет X11, нет
+# документации, примеров, тестов, аудио-CD и утилит для сопровождения.
+# Подробности — в packages/gstreamer1.0-plugins-base/README.md.
+
+include /usr/share/dpkg/architecture.mk
+
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all
+
+# Ключевые решения:
+#   -Dx11=disabled -Dxshm=disabled
+#   -Dxvideo=disabled -Dxi=disabled
+#                         весь X11 выключен: ximagesink, xvimagesink и X11
+#                         внутри библиотек исчезают, а вместе с ними
+#                         libX11, libXext, libXfixes и libxcb;
+#   -Dcdparanoia=disabled  аудио-CD не поддерживается (оптический диск);
+#   -Dgl_winsys=wayland,egl
+#   -Dgl_platform=egl       GL-библиотека только под Wayland и EGL. Иначе
+#                           libgstreamer-gl1.0-0 получает зависимости
+#                           libx11-6 и libxcb1;
+#   -Ddoc=disabled         документация не собирается;
+#   -Dexamples=disabled    примеры не собираются;
+#   -Dtests=disabled       тестовая система не собирается и не запускается.
+conf_flags = \
+	-Dpackage-name=GStreamer \
+	-Dpackage-origin=https://gstreamer.freedesktop.org \
+	-Dinstall_plugins_helper=/usr/bin/gstreamer-codec-install \
+	-Dauto_features=enabled \
+	-Dtremor=disabled \
+	-Ddoc=disabled \
+	-Dexamples=disabled \
+	-Dtests=disabled \
+	-Dx11=disabled \
+	-Dxshm=disabled \
+	-Dxvideo=disabled \
+	-Dxi=disabled \
+	-Dcdparanoia=disabled \
+	-Dgl=enabled \
+	-Dgl_winsys=wayland,egl \
+	-Dgl_platform=egl
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(conf_flags)
+
+override_dh_auto_test:
+
+override_dh_makeshlibs:
+	dh_makeshlibs -plibgstreamer-plugins-base1.0-0 \
+		-X /usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-1.0 -- -c4
+	dh_makeshlibs --remaining-packages -- -c4
+
+override_dh_installman:
+	# man-страницы не собираются (-Ddoc=disabled)
+	dh_installman --no-package

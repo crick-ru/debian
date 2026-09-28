@@ -1,0 +1,3 @@
+usr/lib/*/libMagickWand*.so
+usr/lib/*/pkgconfig/MagickWand*.pc
+usr/bin/MagickWand-config

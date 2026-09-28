@@ -1,0 +1,137 @@
+#!/usr/bin/make -f
+# Сборка FFmpeg 9.0.2 для crick Debian backports. Упаковка взята из Debian
+# (ffmpeg 9.0.2-1) и упрощена до одного варианта сборки: варианты standard и
+# extra Debian не нужны, а вместе с ними уходят пакеты libav*-extra* и весь
+# GPLv3-набор кодировщиков, который тянет rustc (librav1e, librsvg).
+# Подробности — в packages/ffmpeg/README.md, правила отключения — в
+# .clinerules/project.md.
+
+include /usr/share/dpkg/architecture.mk
+
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all
+
+# Конфигурация. Ключевые решения:
+#   --disable-doc --disable-manpages  документация и man-страницы не собираются
+#                                     (правило репозитория: документация не нужна),
+#                                     поэтому texinfo/doxygen не нужны;
+#   --disable-sdl2                   ffplay не собирается: это SDL2, то есть X11;
+#   --disable-libxcb*                выключены X11-Grab и mouse rendering;
+#   --disable-libcdio/libbluray/
+#   --disable-libdvdnav/
+#   --disable-libdvdread             оптические диски выключены;
+#   --disable-v4l2-m2m               выключены DVB-тюнеры и захват/кодирование
+#                                     через видеоустройство (V4L2 mem2mem);
+#   --disable-vdpau                  VDPAU выключен (правило репозитория);
+#   --disable-librav1e/librsvg       не тянем rustc, AV1 остаётся через libaom
+#                                     и libdav1d.
+# Аппаратное ускорение оставлено там, где оно не устарело: VA-API
+# (--enable-vaapi) и NVDEC/NVENC (--enable-ffnvcodec), оба доступны в trixie.
+CONFIG := \
+	--prefix=/usr \
+	--extra-version="$(DEB_VERSION_REVISION)" \
+	--toolchain=hardened \
+	--libdir=/usr/lib/$(DEB_HOST_MULTIARCH) \
+	--incdir=/usr/include/$(DEB_HOST_MULTIARCH) \
+	--arch=$(DEB_HOST_ARCH_CPU) \
+	--enable-shared \
+	--disable-static \
+	--enable-gpl \
+	--enable-version3 \
+	--disable-stripping \
+	--disable-debug \
+	--disable-doc \
+	--disable-manpages \
+	--disable-sdl2 \
+	--disable-libxcb \
+	--disable-libxcb-shm \
+	--disable-libxcb-xfixes \
+	--disable-libxcb-shape \
+	--disable-libcdio \
+	--disable-libbluray \
+	--disable-libdvdnav \
+	--disable-libdvdread \
+	--disable-v4l2-m2m \
+	--disable-vdpau \
+	--disable-librav1e \
+	--disable-librsvg \
+	--disable-ladspa \
+	--disable-lv2 \
+	--enable-gnutls \
+	--enable-libaom \
+	--enable-libass \
+	--enable-libbs2b \
+	--enable-libcodec2 \
+	--enable-libdav1d \
+	--enable-libfontconfig \
+	--enable-libfreetype \
+	--enable-libfribidi \
+	--enable-libgme \
+	--enable-libgsm \
+	--enable-libharfbuzz \
+	--enable-libmp3lame \
+	--enable-libmysofa \
+	--enable-libopenjpeg \
+	--enable-libopenmpt \
+	--enable-libopus \
+	--enable-librubberband \
+	--enable-libshine \
+	--enable-libsnappy \
+	--enable-libsoxr \
+	--enable-libspeex \
+	--enable-libtheora \
+	--enable-libtwolame \
+	--enable-libvidstab \
+	--enable-libvorbis \
+	--enable-libvpl \
+	--enable-libvpx \
+	--enable-libwebp \
+	--enable-libx265 \
+	--enable-libxml2 \
+	--enable-libxvid \
+	--enable-libzimg \
+	--enable-openal \
+	--enable-vaapi \
+	--enable-ffnvcodec \
+	--disable-sndio
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# Сборка в отдельном каталоге, чтобы не засорять дерево исходников.
+	mkdir -p debian/build
+	cd debian/build && ../../configure $(CONFIG) || (cat ffbuild/config.log && exit 1)
+
+override_dh_auto_build:
+	dh_auto_build --builddirectory=debian/build
+	# qt-faststart входит в цель alltools, а не в all, поэтому общий make его
+	# не собирает. Он не зависит ни от чего, кроме libc, и нужен тем, кто
+	# раздаёт MP4 по HTTP.
+	$(MAKE) -C debian/build tools/qt-faststart
+
+# Тесты не собираются: FATE требует полного набора сэмплов и не проверяет
+# то, ради чего пакет собирается. Каталог debian/tests удалён, override
+# пустой — тестовая система не запускается ни при каком профиле.
+override_dh_auto_test:
+
+override_dh_auto_install:
+	dh_auto_install --builddirectory=debian/build
+	# qt-faststart собирается отдельной целью tools/, а не в общем all, и
+	# ставится в пакет ffmpeg. Утилита не зависит ни от чего, кроме libc, и
+	# нужна тем, кто раздаёт MP4 по HTTP.
+	cp debian/build/tools/qt-faststart debian/tmp/usr/bin/
+	# Готовые man-страницы из tar-бола не ставятся, сгенерированные не
+	# собираются: man-страниц у пакета ffmpeg нет.
+	rm -rf debian/tmp/usr/share/man
+
+override_dh_install:
+	dh_install --remaining-packages
+
+override_dh_installdocs:
+	dh_installdocs -pffmpeg README.md Changelog
+
+override_dh_makeshlibs:
+	# Символьные файлы минимальные: dh_makeshlibs доводит их сам, а в этом
+	# репозитории важно, чтобы -dev-пакет требовал ровно свою версию
+	# runtime-библиотеки (см. Depends в debian/control).
+	dh_makeshlibs -- -c4

@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
+
+%:
+	dh $@ --buildsystem=meson
+
+# The Rust build pulls its crates from crates.io and from a git repository at
+# build time. Patch 01_locked_cargo_build adds --locked so that cargo uses the
+# versions pinned in the Cargo.lock shipped in the tarball instead of
+# resolving them again.
+#
+# RUST_LOG=off silences cargo's progress chatter in the build log; compiler
+# warnings still come through.
+export RUST_LOG = off
+
+# No tests are built and none are run: this repository neither builds nor runs
+# test suites, see .clinerules/project.md. Upstream registers three meson
+# tests (validate-desktop, validate-appdata, validate-gschema); they are
+# validation checks rather than a test system, and none of them is run here.
+override_dh_auto_test:

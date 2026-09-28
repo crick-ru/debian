@@ -1,0 +1,51 @@
+Source: pwvucontrol
+Section: sound
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# В Debian pwvucontrol отсутствует (нет ни в trixie, ни в sid, ни в
+# bookworm), поэтому упаковка написана с нуля по upstream-исходникам:
+#   * документация не собирается (в tar-боле её нет вовсе, а man-страница
+#     не генерируется), поэтому пакеты *-doc не публикуются;
+#   * тесты не собираются и не запускаются (override_dh_auto_test пуст,
+#     каталог debian/tests не создаётся);
+#   * X11 не используется: приложение GTK4, X11-специфичного кода нет,
+#     сборка идёт против GTK 4 этого репозитория, где X11-бэкенда нет;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+#
+# ВНИМАНИЕ: cargo во время сборки ходит в сеть (crates.io и git-репозиторий
+# зависимости wireplumber.rs). Список crate-версий зафиксирован в
+# Cargo.lock из tar-бола, но сами исходники crate-ов не поставляются.
+Build-Depends:
+ debhelper-compat (= 13),
+ gettext,
+ libadwaita-1-dev (>= 1.2),
+ libglib2.0-dev (>= 2.66),
+ libgtk-4-dev (>= 4.0.0),
+ libpipewire-0.3-dev (>= 0.3.83),
+ libwireplumber-0.5-dev (>= 0.5.11),
+ meson (>= 0.59.0),
+ pkgconf,
+ rustc,
+ cargo,
+Standards-Version: 4.7.4
+Homepage: https://github.com/saivert/pwvucontrol
+Vcs-Browser: https://github.com/saivert/pwvucontrol
+Vcs-Git: https://github.com/saivert/pwvucontrol.git
+Rules-Requires-Root: no
+
+Package: pwvucontrol
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Recommends:
+ pipewire-pulse,
+Suggests:
+ wireplumber,
+Description: volume control for PipeWire
+ pwvucontrol is a volume control for PipeWire, the PipeWire volume control
+ daemon and GUI. It uses the GTK4 graphical toolkit and is written in Rust.
+ .
+ The interface shows the volume of every sink, source and stream of the
+ current session, allows changing the volume and the mute state, selecting
+ the default devices and configuring the per-application stream volumes.

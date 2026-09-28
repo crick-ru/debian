@@ -1,0 +1,13 @@
+usr/bin/animate
+usr/bin/composite
+usr/bin/conjure
+usr/bin/convert
+usr/bin/identify
+usr/bin/magick
+usr/bin/magick-script
+usr/bin/mogrify
+usr/bin/montage
+usr/bin/stream
+usr/bin/compare
+usr/share/applications/imagemagick*.desktop
+usr/share/icons/hicolor/*/apps/*.svg

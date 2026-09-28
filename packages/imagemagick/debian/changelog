@@ -1,0 +1,8 @@
+imagemagick (8:7.1.1.43+dfsg1-1+deb13u12) trixie; urgency=medium
+
+  * Fix CVE-2026-56362:
+    A heap-buffer-overflow read vulnerability in GetPixelIndex caused
+    by OpenPixelCache updating image channel metadata before pixel
+    cache memory allocation. Attackers can trigger memory and
+    disk allocation failures to cause a heap-buffer-overflow
+    read affecting any writer calling GetPixelIndex.

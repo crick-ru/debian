@@ -1,0 +1,3 @@
+usr/lib/*/ImageMagick-*/config-Q16
+usr/lib/*/ImageMagick-*/modules-Q16
+usr/lib/*/libMagickCore*.so.*

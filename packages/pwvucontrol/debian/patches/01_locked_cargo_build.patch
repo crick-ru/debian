@@ -1,0 +1,20 @@
+Description: Build with the versions pinned in Cargo.lock
+ cargo is told to use --locked so that it does not resolve the dependency
+ graph again and sticks to the versions recorded in the Cargo.lock that
+ ships in the release tarball. The Rust build fetches its crates over the
+ network, and without this flag a resolution that no longer matches the
+ lockfile would silently pick different versions.
+Author: crick Debian Backports <backports@users.noreply.github.com>
+Forwarded: not-needed
+Last-Update: 2026-09-28
+---
+--- a/src/meson.build	2026-09-28 01:14:20.414081070 +0300
++++ b/src/meson.build	2026-09-28 01:14:20.414081070 +0300
+@@ -11,6 +11,7 @@
+ 
+ cargo_options = ['--manifest-path', meson.project_source_root() / 'Cargo.toml']
+ cargo_options += ['--target-dir', meson.project_build_root() / 'src']
++cargo_options += ['--locked']
+ 
+ if get_option('profile') == 'default'
+   cargo_options += ['--release']

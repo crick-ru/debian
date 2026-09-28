@@ -1,0 +1,61 @@
+Source: gstreamer1.0-libav
+Section: libs
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (gst-libav1.0 1.28.7-1) и упрощена:
+#   * документация не собирается (-Ddoc=disabled), man-страницы не
+#     публикуются;
+#   * тесты не собираются и не запускаются, поэтому убраны xvfb и xauth;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Плагин собирается против ffmpeg этого репозитория (ffmpeg 9.0.2), а не
+# против версии из trixie: -dev-паеты ниже пинятся install-build-deps.sh на
+# сборки стадии 1, поэтому pkg-config находит ровно их.
+# Подробности - в packages/gstreamer1.0-libav/README.md.
+Build-Depends:
+ debhelper-compat (= 13),
+ meson (>= 1.4.0),
+ pkgconf,
+ python3,
+ gstreamer1.0-plugins-base (>= 1.28.0),
+ gstreamer1.0-plugins-good (>= 1.28.0),
+ libavcodec-dev (>= 7:9.0),
+ libavfilter-dev (>= 7:9.0),
+ libavformat-dev (>= 7:9.0),
+ libavutil-dev (>= 7:9.0),
+ libbz2-dev,
+ libglib2.0-dev,
+ libgstreamer1.0-dev (>= 1.28.0),
+ libgstreamer-plugins-base1.0-dev (>= 1.28.0),
+ liblzma-dev,
+ liborc-0.4-dev,
+ libswscale-dev (>= 7:9.0),
+ zlib1g-dev,
+Standards-Version: 4.7.3
+Homepage: https://gstreamer.freedesktop.org/
+Vcs-Git: https://salsa.debian.org/gstreamer-team/gst-libav1.0.git
+Vcs-Browser: https://salsa.debian.org/gstreamer-team/gst-libav1.0/
+Rules-Requires-Root: no
+
+Package: gstreamer1.0-libav
+Architecture: any
+Section: plugins
+Multi-Arch: same
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libgstreamer-plugins-base1.0-0 (>= 1.28.0),
+         libgstreamer1.0-0 (>= 1.28.0)
+Description: GStreamer libav plugins
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the libav plugins, which wrap the FFmpeg
+ libraries: the encoders and decoders (avenc_*, avdec_*), the audio and
+ video converters and scalers built on libavfilter, and the subtitles.
+ Together with the ffmpeg library of this repository they give GStreamer
+ a wide range of format and codec support.
+ .
+ This build has no X11 support: the X11 video sinks of the "good" set are
+ not built, so this plugin does not depend on libxkbcommon-x11-0 and does
+ not pull the outdated libxkbcommon 1.7.0-2 from trixie.

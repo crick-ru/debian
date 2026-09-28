@@ -3,16 +3,6 @@
 Сборка `libdrm` 2.4.134 для Debian 13 (trixie, amd64). Упаковка взята из
 Debian (`libdrm_2.4.134-3`).
 
-## Зачем нужна более свежая версия
-
-`wlroots` 0.20.2 использует форматы DRM, которых нет в libdrm 2.4.124 из
-trixie: `DRM_FORMAT_R16F`, `DRM_FORMAT_R32F`, `DRM_FORMAT_GR1616F`,
-`DRM_FORMAT_GR3232F`, `DRM_FORMAT_BGR161616`, `DRM_FORMAT_BGR161616F`,
-`DRM_FORMAT_BGR323232F`, `DRM_FORMAT_ABGR32323232F` и форматы `S010`–`S416`
-(всего 17 констант, файлы `render/pixel_format.c`,
-`render/gles2/pixel_format.c`, `render/vulkan/pixel_format.c`). Без них
-`wlroots` не собирается, а патчить его макросами было бы подменой значений.
-
 ## Включено
 
 - Все библиотеки драйверов для amd64 из упаковки Debian:

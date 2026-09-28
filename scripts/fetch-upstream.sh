@@ -7,7 +7,10 @@ set -euo pipefail
 #          Prints the upstream version of a package without downloading anything.
 #        ./fetch-upstream.sh --print-revision <package-name>
 #          Prints the Debian revision of our build (1 for an untouched
-#          packaging, 2 after the packaging was reworked) without downloading.
+#          packaging, 2 or 3 after the packaging was reworked) without
+#          downloading.
+#        ./fetch-upstream.sh --print-epoch <package-name>
+#          Prints the Debian epoch of a package, empty for all but ffmpeg.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -16,6 +19,7 @@ PRINT_MODE=""
 case "${1:-}" in
   --print-version)  PRINT_MODE="version";  PACKAGE="${2:-}"; VERSION="" ;;
   --print-revision) PRINT_MODE="revision"; PACKAGE="${2:-}"; VERSION="" ;;
+  --print-epoch)    PRINT_MODE="epoch";    PACKAGE="${2:-}"; VERSION="" ;;
   *)                PACKAGE="${1:-}"; VERSION="${2:-}" ;;
 esac
 
@@ -23,6 +27,7 @@ if [[ -z "$PACKAGE" ]]; then
   echo "Usage: $0 <package-name> [version]" >&2
   echo "       $0 --print-version <package-name>" >&2
   echo "       $0 --print-revision <package-name>" >&2
+  echo "       $0 --print-epoch <package-name>" >&2
   exit 1
 fi
 
@@ -157,6 +162,73 @@ case "$PACKAGE" in
     URL="https://cairographics.org/releases/cairo-${VERSION}.tar.xz"
     ORIG_TAR="cairo_${VERSION}.orig.tar.xz"
     ;;
+  ffmpeg)
+    # Official release tarball; identical to Debian's ffmpeg_9.0.2.orig.tar.xz.
+    # The Debian revision is 2, the version 9.0.2 and the epoch 7 (see below).
+    VERSION="${VERSION:-9.0.2}"
+    TARBALL="ffmpeg-${VERSION}.tar.xz"
+    URL="https://ffmpeg.org/releases/ffmpeg-${VERSION}.tar.xz"
+    ORIG_TAR="ffmpeg_${VERSION}.orig.tar.xz"
+    ;;
+  gstreamer1.0)
+    # GStreamer core. All five source packages of the stack are released under
+    # the same version number, which is what makes the -dev packages line up.
+    VERSION="${VERSION:-1.28.7}"
+    TARBALL="gstreamer-${VERSION}.tar.xz"
+    URL="https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-${VERSION}.tar.xz"
+    ORIG_TAR="gstreamer1.0_${VERSION}.orig.tar.xz"
+    ;;
+  gstreamer1.0-plugins-base)
+    VERSION="${VERSION:-1.28.7}"
+    TARBALL="gst-plugins-base-${VERSION}.tar.xz"
+    URL="https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-${VERSION}.tar.xz"
+    ORIG_TAR="gstreamer1.0-plugins-base_${VERSION}.orig.tar.xz"
+    ;;
+  gstreamer1.0-plugins-good)
+    VERSION="${VERSION:-1.28.7}"
+    TARBALL="gst-plugins-good-${VERSION}.tar.xz"
+    URL="https://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-${VERSION}.tar.xz"
+    ORIG_TAR="gstreamer1.0-plugins-good_${VERSION}.orig.tar.xz"
+    ;;
+  gstreamer1.0-plugins-bad)
+    VERSION="${VERSION:-1.28.7}"
+    TARBALL="gst-plugins-bad-${VERSION}.tar.xz"
+    URL="https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-${VERSION}.tar.xz"
+    ORIG_TAR="gstreamer1.0-plugins-bad_${VERSION}.orig.tar.xz"
+    ;;
+  gstreamer1.0-libav)
+    VERSION="${VERSION:-1.28.7}"
+    TARBALL="gst-libav-${VERSION}.tar.xz"
+    URL="https://gstreamer.freedesktop.org/src/gst-libav/gst-libav-${VERSION}.tar.xz"
+    ORIG_TAR="gstreamer1.0-libav_${VERSION}.orig.tar.xz"
+    ;;
+  wireplumber)
+    # Session/policy manager for PipeWire. Built from the GitLab tag archive.
+    # Needed by pwvucontrol, which requires wireplumber >= 0.5.11 while trixie
+    # only has 0.5.8.
+    VERSION="${VERSION:-0.5.17}"
+    TARBALL="wireplumber-${VERSION}.tar.gz"
+    URL="https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/${VERSION}/wireplumber-${VERSION}.tar.gz"
+    ORIG_TAR="wireplumber_${VERSION}.orig.tar.gz"
+    ;;
+  pwvucontrol)
+    # Volume control for PipeWire. Not packaged in Debian at all, so the
+    # debian/ directory here is written from scratch. Upstream is Rust (cargo)
+    # driven by meson and pulls its crates from crates.io at build time.
+    VERSION="${VERSION:-0.5.3}"
+    TARBALL="pwvucontrol-${VERSION}.tar.gz"
+    URL="https://github.com/saivert/pwvucontrol/archive/refs/tags/${VERSION}.tar.gz"
+    ORIG_TAR="pwvucontrol_${VERSION}.orig.tar.gz"
+    ;;
+  imagemagick)
+    # Official release tarball from GitHub. Debian repacks it as +dfsg1, which
+    # only exists for the versions Debian has uploaded; for the newest 7.1.2.x
+    # the plain upstream tarball is used. Note the epoch 8 (see below).
+    VERSION="${VERSION:-7.1.2-32}"
+    TARBALL="ImageMagick-${VERSION}.tar.xz"
+    URL="https://github.com/ImageMagick/ImageMagick/releases/download/${VERSION}/ImageMagick-${VERSION}.tar.xz"
+    ORIG_TAR="imagemagick_${VERSION%%-*}.orig.tar.xz"
+    ;;
   *)
     echo "Unknown package: $PACKAGE" >&2
     exit 1
@@ -170,15 +242,33 @@ esac
 # list in sync with .clinerules/project.md.
 REVISION=1
 case "$PACKAGE" in
-  celluloid|fdk-aac|kmscon|labwc|libdrm|libtsm|libxkbcommon|mpv|pipewire|pixman|sfwbar|wayland|wayland-protocols|wlroots)
+  # ffmpeg: first published build was made against FFmpeg 8.x options and
+  # published 9.0.2 without the rework, so it already carries revision 2.
+  ffmpeg) REVISION=2 ;;
+  # mpv: 2 was the rework of the packaging, 3 is optical discs + DVB + VDPAU off.
+  mpv)    REVISION=3 ;;
+  celluloid|fdk-aac|kmscon|labwc|libdrm|libtsm|libxkbcommon|pipewire|pixman|sfwbar|wayland|wayland-protocols|wlroots)
     REVISION=2
     ;;
+esac
+
+# Debian epoch of a package, empty for most of them. ffmpeg carries epoch 7 for
+# historical reasons: without it our version 9.0.2-2+crick would be *older*
+# than the trixie 7:7.1.5 and apt would never pick it up, because the epoch is
+# compared first. imagemagick carries epoch 8 for the same reason: trixie ships
+# 8:7.1.1.43+dfsg1, so our 7.1.2-32-1+crick without an epoch would sort as
+# older and apt would ignore the upgrade entirely.
+EPOCH=""
+case "$PACKAGE" in
+  ffmpeg)     EPOCH="7" ;;
+  imagemagick) EPOCH="8" ;;
 esac
 
 if [[ -n "$PRINT_MODE" ]]; then
   case "$PRINT_MODE" in
     version)  echo "$VERSION" ;;
     revision) echo "$REVISION" ;;
+    epoch)    echo "$EPOCH" ;;
   esac
   exit 0
 fi

@@ -1,0 +1,3 @@
+usr/lib/*/libMagickCore*.so
+usr/lib/*/pkgconfig/MagickCore*.pc
+usr/bin/MagickCore-config

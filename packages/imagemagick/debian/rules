@@ -1,0 +1,75 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+include /usr/share/dpkg/architecture.mk
+
+DEB_UPSTREAM_VERSION := $(shell dpkg-parsechangelog -SVersion | sed 's/^[0-9]*://; s/-[0-9]*+crick$$//')
+IMVERSION := $(shell echo $(DEB_UPSTREAM_VERSION) | sed -r 's/(^.+)\..+$$/\1/g')
+export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+# X11 is switched off: this repository has no X11 anywhere, and Debian builds
+# ImageMagick with --x-includes/--x-libraries, which would drag libx11-dev,
+# libxext-dev and libxt-dev in and link libMagickCore against libX11/libXext.
+# Upstream guards every X11 use with MAGICKCORE_X11_DELEGATE, so --without-x
+# needs no patch; the "display" and "import" X11 tools are simply not built.
+#
+# Only the Q16 quantum depth is built. Debian builds Q16 *and* Q16HDRI, which
+# doubles the compile time for a second ABI variant that this repository does
+# not need; the HDRI packages of trixie keep working with their own libraries.
+#
+# PerlMagick and Magick++ are not built: neither is needed by any package of
+# this repository, and PerlMagick would drag in perl plus its own examples and
+# test tree, which the project rules forbid anyway.
+#
+# No documentation is built: the imagemagick-7-doc package is not published
+# and /usr/share/doc is removed from the staging directory below. See
+# .clinerules/project.md.
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--prefix=/usr \
+		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH) \
+		--sysconfdir=/etc \
+		--with-includearch-dir=/usr/include/$(DEB_HOST_MULTIARCH)/ \
+		--with-quantum-depth=16 \
+		--enable-hdri=no \
+		--with-modules \
+		--without-x \
+		--without-magick-plus-plus \
+		--without-perl \
+		--without-gvc \
+		--without-rsvg \
+		--without-dps \
+		--without-fpx \
+		--with-djvu \
+		--with-heic \
+		--with-openjp2 \
+		--with-webp \
+		--with-wmf \
+		--with-fftw \
+		--with-security-policy=debian \
+		--enable-reproducible-build \
+		--without-gcc-arch \
+		MVDelegate=/bin/mv \
+		RMDelegate=/bin/rm
+
+# Upstream installs its HTML documentation, the ChangeLog and the man pages
+# under /usr/share/doc and /usr/share/man. None of that is published here, so
+# it is dropped from the staging directory; otherwise dh_missing
+# --fail-missing (the compat 13 default) would abort the build.
+override_dh_auto_install:
+	dh_auto_install
+	rm -rf debian/tmp/usr/share/doc debian/tmp/usr/share/man
+
+# No test suite: this repository neither builds nor runs tests, see
+# .clinerules/project.md. "make check" of ImageMagick runs a large Perl- and
+# Ghostscript-based suite; override_dh_auto_test keeps it from being invoked.
+override_dh_auto_test:
+
+# The coder and filter modules are dlopened modules built with libtool; they
+# must keep their SONAMEs, and dpkg-shlibdeps must not try to resolve them.
+override_dh_makeshlibs:
+	dh_makeshlibs -- -c4
+
+override_dh_shlibdeps:
+	dh_shlibdeps --no-missing-info

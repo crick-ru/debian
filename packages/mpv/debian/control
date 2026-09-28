@@ -7,10 +7,16 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     python3-docutils (rst2man);
 #   * тесты не собираются (-Dtests=false);
 #   * X11 выключен (-Dx11=disabled и все -D*-x11=disabled);
+#   * оптические диски выключены (-Dcdda=disabled -Ddvdnav=disabled
+#     -Dlibbluray=disabled -Dlibarchive=disabled), поэтому убраны
+#     libcdio-dev, libcdio-paranoia-dev, libdvdnav-dev, libbluray-dev и
+#     libarchive-dev;
+#   * DVB-тюнеры выключены (-Ddvbin=disabled);
+#   * VDPAU выключен (-Dvdpau=disabled);
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Правила отключения — в .clinerules/project.md.
 Build-Depends:
  debhelper-compat (= 13),
- libarchive-dev (>= 3.4),
  libasound2-dev [linux-any],
  libass-dev,
  libavcodec-dev (>= 7:7.0),
@@ -18,12 +24,8 @@ Build-Depends:
  libavfilter-dev (>= 7:7.0),
  libavformat-dev (>= 7:7.0),
  libavutil-dev (>= 7:7.0),
- libbluray-dev,
- libcdio-dev,
- libcdio-paranoia-dev,
  libdisplay-info-dev,
  libdrm-dev (>= 2.4.75),
- libdvdnav-dev,
  libegl-dev [linux-any],
  libffmpeg-nvenc-dev [amd64 arm64 i386],
  libgbm-dev,
@@ -95,7 +97,6 @@ Section: libdevel
 Architecture: any
 Depends:
  libmpv2 (= ${binary:Version}),
- libarchive-dev (>= 3.4),
  libasound2-dev [linux-any],
  libass-dev,
  libavcodec-dev (>= 7:7.0),
@@ -103,12 +104,8 @@ Depends:
  libavfilter-dev (>= 7:7.0),
  libavformat-dev (>= 7:7.0),
  libavutil-dev (>= 7:7.0),
- libbluray-dev,
- libcdio-dev,
- libcdio-paranoia-dev,
  libdisplay-info-dev,
  libdrm-dev (>= 2.4.75),
- libdvdnav-dev,
  libegl-dev [linux-any],
  libffmpeg-nvenc-dev [amd64 arm64 i386],
  libgbm-dev,

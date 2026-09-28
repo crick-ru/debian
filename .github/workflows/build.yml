@@ -30,10 +30,10 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # The stages follow one rule: an application is built in the last stage and
-  # is moved to an earlier one only if a package of this repository is one of
-  # its build dependencies. Stage 3 (the last one) therefore holds every
-  # application that needs nothing beyond trixie plus the libraries below.
+  # The stages follow one rule: a library is built in the earliest stage in
+  # which it is needed as a -dev package by something, an application is built
+  # in the last stage and is moved earlier only if a package of this repository
+  # is one of its build dependencies.
   #
   # Stage 1: libraries that are published in their own right and/or are needed
   #   as a build dependency further down:
@@ -42,7 +42,13 @@ jobs:
   #     not have (see packages/wlroots/README.md);
   #   - libtsm: kmscon requires libtsm-dev >= 4.6.0, trixie has 4.0.2;
   #   - fdk-aac: pipewire needs the AAC codec for Bluetooth and pins the exact
-  #     version of libfdk-aac2t64, so it must be the one of this repository.
+  #     version of libfdk-aac2t64, so it must be the one of this repository;
+  #   - cairo: gtk+3.0, gtk4 and labwc all build-depend on libcairo2-dev. It
+  #     builds against the trixie pixman (which satisfies its >= 0.40.0
+  #     requirement); the SONAME is unchanged, so apt upgrade substitutes ours.
+  #   - ffmpeg: mpv and gstreamer1.0-libav build against our libav*-dev.
+  #   - gstreamer1.0 (core): needed as -dev by every other GStreamer package,
+  #     by GTK and by pipewire.
   # ---------------------------------------------------------------------------
   stage1:
     name: Stage 1 · ${{ matrix.package }}
@@ -60,6 +66,9 @@ jobs:
           - wayland-protocols
           - libtsm
           - fdk-aac
+          - cairo
+          - ffmpeg
+          - gstreamer1.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -88,17 +97,15 @@ jobs:
           stage: 1
 
   # ---------------------------------------------------------------------------
-  # Stage 2: libraries that the applications of Stage 3 build against. They are
-  # here and not in Stage 3 only because the applications need their -dev
-  # packages, which pin the exact versions of the sibling packages.
-  #   wlroots   -> wayland/libdrm/libxkbcommon/pixman/wayland-protocols
-  #   gtk+3.0,
-  #   gtk4      -> wayland (GTK 4.22.5 refuses the wayland 1.23.1 of trixie)
-  #   mpv       -> an application, but it is a build dependency of celluloid
-  #                (libmpv-dev), so it has to be built before the last stage
-  # cairo is NOT in this stage: it only needs libpixman-1-dev >= 0.40.0, which
-  # trixie's pixman 0.44.0 satisfies, so it is built in the last stage like any
-  # other package that does not need a library of this repository.
+  # Stage 2: libraries that the later stages build against. They are here and
+  # not in the last stage only because the consumers need their -dev packages,
+  # which pin the exact versions of the sibling packages.
+  #   gstreamer1.0-plugins-base -> gstreamer1.0 (core); it is itself needed as
+  #                    -dev by good, bad, libav, gtk4 and pipewire
+  #   wlroots       -> wayland/libdrm/libxkbcommon/pixman/wayland-protocols
+  #   mpv           -> an application, but it is a build dependency of
+  #                    celluloid (libmpv-dev), so it has to be built before the
+  #                    last stage; it also builds against our ffmpeg
   # ---------------------------------------------------------------------------
   stage2:
     name: Stage 2 · ${{ matrix.package }}
@@ -110,9 +117,8 @@ jobs:
       fail-fast: false
       matrix:
         package:
+          - gstreamer1.0-plugins-base
           - wlroots
-          - gtk+3.0
-          - gtk4
           - mpv
     steps:
       - name: Checkout repository
@@ -146,11 +152,19 @@ jobs:
           shopt -s nullglob
           # apt-get treats arguments without a path separator as package names,
           # so the downloaded .deb files are passed as ./stage1-pool/<file>.deb
-          # Only wlroots, gtk+3.0 and gtk4 need anything from Stage 1, so the
-          # common set is built once and libxkbcommon is added per package.
+          # The sets are per package: every consumer needs a different subset.
           debs=()
           case "${{ matrix.package }}" in
-            wlroots|gtk+3.0|gtk4)
+            gstreamer1.0-plugins-base)
+              # The GStreamer core of this repository (>= 1.28.3 is required by
+              # plugins-base). Everything else plugins-base needs - wayland,
+              # pango, orc, ogg, vorbis, opus, theora, EGL, GLES, gbm, gudev,
+              # iso-codes - trixie provides at a sufficient version.
+              debs=(./stage1-pool/libgstreamer1.0-0_*.deb
+                    ./stage1-pool/libgstreamer1.0-dev_*.deb
+                    ./stage1-pool/gir1.2-gstreamer-1.0_*.deb)
+              ;;
+            wlroots|gtk+3.0|gtk4|labwc)
               # The -dev packages pin the exact versions of their siblings and
               # the versions of trixie do not satisfy the requirements: wlroots
               # needs wayland >= 1.24, libdrm >= 2.4.129, libxkbcommon >= 1.8,
@@ -175,26 +189,39 @@ jobs:
                     ./stage1-pool/libdrm-dev_*.deb
                     ./stage1-pool/libpixman-1-0_*.deb
                     ./stage1-pool/libpixman-1-dev_*.deb
-                    ./stage1-pool/wayland-protocols_*.deb)
+                    ./stage1-pool/wayland-protocols_*.deb
+                    ./stage1-pool/libxkbcommon0_*.deb
+                    ./stage1-pool/libxkbcommon-dev_*.deb
+                    ./stage1-pool/libxkbregistry0_*.deb
+                    ./stage1-pool/libxkbregistry-dev_*.deb)
+              # cairo travels as a closed set: the -dev package pins the other
+              # three to its own version, and the stock ones pin libcairo2 of
+              # trixie, so mixing the two is unsatisfiable.
+              debs+=(./stage1-pool/libcairo2_*.deb
+                     ./stage1-pool/libcairo-gobject2_*.deb
+                     ./stage1-pool/libcairo-script-interpreter2_*.deb
+                     ./stage1-pool/libcairo2-dev_*.deb)
+              ;;
+            mpv)
+              # mpv links against our FFmpeg 9.0.2. The -dev packages pin
+              # their runtime siblings, and libavcodec-dev (>= 7:7.0) is only
+              # satisfied by the version that carries the epoch 7.
+              debs=(./stage1-pool/libavcodec63_*.deb
+                    ./stage1-pool/libavcodec-dev_*.deb
+                    ./stage1-pool/libavdevice63_*.deb
+                    ./stage1-pool/libavdevice-dev_*.deb
+                    ./stage1-pool/libavfilter12_*.deb
+                    ./stage1-pool/libavfilter-dev_*.deb
+                    ./stage1-pool/libavformat63_*.deb
+                    ./stage1-pool/libavformat-dev_*.deb
+                    ./stage1-pool/libavutil61_*.deb
+                    ./stage1-pool/libavutil-dev_*.deb
+                    ./stage1-pool/libswresample7_*.deb
+                    ./stage1-pool/libswresample-dev_*.deb
+                    ./stage1-pool/libswscale10_*.deb
+                    ./stage1-pool/libswscale-dev_*.deb)
               ;;
           esac
-          if [[ "${{ matrix.package }}" == "wlroots" ]]; then
-            # libxkbcommon of this repository goes to wlroots only: it requires
-            # >= 1.8 and trixie has 1.7.0.
-            #
-            # It must NOT be installed for gtk+3.0/gtk4. Their GStreamer media
-            # backend needs libgstreamer-plugins-bad1.0-dev, and the trixie
-            # libgstreamer-plugins-bad1.0-0 Depends on the trixie
-            # libxkbcommon-x11-0, which hard-pins libxkbcommon0 (= 1.7.0-2).
-            # Since this repository no longer publishes libxkbcommon-x11-0 at
-            # all, that mix is unsatisfiable and install-build-deps.sh could not
-            # install anything. GTK 3 and GTK 4 do not need any libxkbcommon API
-            # newer than the trixie 1.7.0, so they build against it as is.
-            debs+=(./stage1-pool/libxkbcommon0_*.deb
-                   ./stage1-pool/libxkbcommon-dev_*.deb
-                   ./stage1-pool/libxkbregistry0_*.deb
-                   ./stage1-pool/libxkbregistry-dev_*.deb)
-          fi
           if (( ${#debs[@]} > 0 )); then
             echo "Installing: ${debs[*]}"
             apt-get install -y --no-install-recommends "${debs[@]}"
@@ -209,31 +236,14 @@ jobs:
           stage: 2
 
   # ---------------------------------------------------------------------------
-  # Stage 3: the last stage. Everything that does not need a -dev package of
-  # this repository lives here, i.e. every application plus cairo (it builds
-  # against the trixie pixman, which satisfies its >= 0.40.0 requirement).
-  #   kmscon    -> libtsm-dev of this repository (trixie has 4.0.2, kmscon
-  #                needs >= 4.6.0)
-  #   pipewire  -> libfdk-aac-dev of this repository (pins libfdk-aac2t64
-  #                exactly)
-  #   mpv is in Stage 2 (celluloid needs its libmpv-dev), so it is not here.
-  #   labwc     -> libwlroots-0.20-dev of this repository
-  #   celluloid -> libgtk-4-dev of this repository
-  #   sfwbar    -> libgtk-3-dev of this repository
-  #   cairo     -> nothing but trixie
-  #
-  # The GTK sets are not shared: sfwbar builds against GTK 3 and celluloid
-  # against GTK 4, and only GTK 4 pulls gstreamer-bad (see the note in the
-  # install step). The per-package additions are: celluloid needs libmpv-dev
-  # (mpv is in Stage 2), sfwbar needs libxkbregistry-dev (Stage 1).
-  #
-  # celluloid and sfwbar must be built against the GTK of this repository, not
-  # against trixie: the published libgtk-3.so.0/libgtk-4.so.1 have no
-  # gdk_x11_* symbols (see packages/gtk+3.0/README.md), and Debian hardening links
-  # with -Wl,-z,now, so a binary built with X11 support would not even start
-  # against the published libraries. celluloid builds unchanged because its X11
-  # code sits behind #ifdef GDK_WINDOWING_X11, which is undefined in these
-  # builds.
+  # Stage 3: the two remaining GStreamer plugin sets. "good" is a build
+  # dependency of "bad" only for the test suite (Debian marks it <!nocheck>,
+  # and our builds never build the tests), so the two can go in parallel; "bad"
+  # is a build dependency of gtk4, because GstPlay - the library behind
+  # gstreamer-play-1.0.pc, which the GTK 4 media backend requires - lives in
+  # the "bad" set, not in "base".
+  #   gstreamer1.0-plugins-good -> core (Stage 1) + plugins-base (Stage 2)
+  #   gstreamer1.0-plugins-bad  -> core (Stage 1) + plugins-base (Stage 2)
   # ---------------------------------------------------------------------------
   stage3:
     name: Stage 3 · ${{ matrix.package }}
@@ -245,12 +255,8 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - kmscon
-          - pipewire
-          - labwc
-          - celluloid
-          - sfwbar
-          - cairo
+          - gstreamer1.0-plugins-good
+          - gstreamer1.0-plugins-bad
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -288,25 +294,226 @@ jobs:
       - name: Install required packages of earlier stages
         run: |
           shopt -s nullglob
-          # The -dev packages of Stage 1 and Stage 2 pin the exact versions of
-          # their siblings, so a package that needs one of them needs the whole
-          # matching set. Only labwc, celluloid and sfwbar do; kmscon, pipewire
-          # and cairo need nothing but trixie (plus, for kmscon and pipewire,
-          # the two libraries listed below).
+          # The GStreamer core (Stage 1) and the base plugin set (Stage 2).
+          # Every -dev package pins its runtime siblings, so the whole set goes
+          # in together. "good" is deliberately not installed: the Debian
+          # Build-Depends of "bad" lists it only as <!nocheck>, i.e. for the
+          # test suite, which we never build.
+          debs=(./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage2-pool/gstreamer1.0-gl_*.deb)
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: ${{ matrix.package }}
+          stage: 3
+
+  # ---------------------------------------------------------------------------
+  # Stage 4: GTK, the FFmpeg bridge and the applications that need nothing of
+  # this repository beyond Stage 1-3.
+  #   gtk+3.0   -> wayland, cairo (Stage 1)
+  #   gtk4      -> wayland, cairo, gstreamer core (Stage 1), plugins-base
+  #                (Stage 2) and plugins-bad (Stage 3)
+  #   gstreamer1.0-libav -> ffmpeg, gstreamer core, plugins-base, plugins-good
+  #   kmscon    -> libtsm-dev of this repository (trixie has 4.0.2, kmscon
+  #                needs >= 4.6.0)
+  #   pipewire  -> libfdk-aac-dev (pins libfdk-aac2t64 exactly) and the
+  #                gstreamer core plus plugins-base
+  #   labwc     -> libwlroots-0.20-dev (Stage 2), cairo, xkbcommon
+  #
+  # celluloid and sfwbar are in Stage 5: they need libgtk-4-dev and
+  # libgtk-3-dev respectively, and those are built here. The GTK sets are not
+  # shared - sfwbar builds against GTK 3, celluloid against GTK 4.
+  #
+  # celluloid and sfwbar must be built against the GTK of this repository, not
+  # against trixie: the published libgtk-3.so.0/libgtk-4.so.1 have no
+  # gdk_x11_* symbols (see packages/gtk+3.0/README.md), and Debian hardening links
+  # with -Wl,-z,now, so a binary built with X11 support would not even start
+  # against the published libraries. celluloid builds unchanged because its X11
+  # code sits behind #ifdef GDK_WINDOWING_X11, which is undefined in these
+  # builds.
+  # ---------------------------------------------------------------------------
+  stage4:
+    name: Stage 4 · ${{ matrix.package }}
+    needs: stage3
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - gtk+3.0
+          - gtk4
+          - gstreamer1.0-libav
+          - kmscon
+          - pipewire
+          - labwc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3
+
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier stages
+        run: |
+          shopt -s nullglob
+          # Every -dev package of this repository pins its runtime siblings, so
+          # a consumer needs the whole matching set, not just the -dev file.
           #
-          # NOTE on libxkbcommon: it is deliberately NOT installed for celluloid
-          # and pipewire. Our libgtk-4-1 depends on the trixie
-          # libgstreamer-plugins-bad1.0-0, and that one depends on the trixie
-          # libxkbcommon-x11-0, which hard-pins libxkbcommon0 (= 1.7.0-2). Since
-          # this repository no longer publishes libxkbcommon-x11-0 at all,
-          # mixing our libxkbcommon0 with the trixie gstreamer-bad is
-          # unsatisfiable. labwc and sfwbar do not pull gstreamer-bad, so they
-          # get our libxkbcommon.
+          # NOTE on libxkbcommon: it is installed everywhere it is needed. The
+          # old exception is gone - our libgstreamer-plugins-bad1.0-0 is built
+          # with -Dx11=disabled and therefore depends neither on
+          # libxkbcommon-x11-0 nor on libxkbcommon0, so it can no longer drag in
+          # and pin the outdated 1.7.0-2 of trixie.
           case "${{ matrix.package }}" in
+            gtk+3.0|gtk4)
+              debs=(./stage1-pool/libwayland-bin_*.deb
+                    ./stage1-pool/libwayland-client0_*.deb
+                    ./stage1-pool/libwayland-server0_*.deb
+                    ./stage1-pool/libwayland-cursor0_*.deb
+                    ./stage1-pool/libwayland-egl1_*.deb
+                    ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                    ./stage1-pool/libwayland-dev_*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb
+                    ./stage1-pool/libcairo2_*.deb
+                    ./stage1-pool/libcairo-gobject2_*.deb
+                    ./stage1-pool/libcairo-script-interpreter2_*.deb
+                    ./stage1-pool/libcairo2-dev_*.deb
+                    ./stage1-pool/libgstreamer1.0-0_*.deb
+                    ./stage1-pool/libgstreamer1.0-dev_*.deb
+                    ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                    ./stage2-pool/libgstreamer-gl1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                    ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                    ./stage2-pool/gstreamer1.0-plugins-base_*.deb
+                    ./stage2-pool/gstreamer1.0-gl_*.deb)
+              if [[ "${{ matrix.package }}" == "gtk4" ]]; then
+                # The GTK 4 media backend needs GstPlay, and that library lives
+                # in the "bad" set (Stage 3), not in "base".
+                debs+=(./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                       ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                       ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                       ./stage3-pool/gstreamer1.0-plugins-bad_*.deb)
+              fi
+              ;;
+            gstreamer1.0-libav)
+              # The FFmpeg of this repository (Stage 1) plus the GStreamer core
+              # and the base and good plugin sets.
+              debs=(./stage1-pool/libavcodec63_*.deb
+                    ./stage1-pool/libavcodec-dev_*.deb
+                    ./stage1-pool/libavdevice63_*.deb
+                    ./stage1-pool/libavdevice-dev_*.deb
+                    ./stage1-pool/libavfilter12_*.deb
+                    ./stage1-pool/libavfilter-dev_*.deb
+                    ./stage1-pool/libavformat63_*.deb
+                    ./stage1-pool/libavformat-dev_*.deb
+                    ./stage1-pool/libavutil61_*.deb
+                    ./stage1-pool/libavutil-dev_*.deb
+                    ./stage1-pool/libswresample7_*.deb
+                    ./stage1-pool/libswresample-dev_*.deb
+                    ./stage1-pool/libswscale10_*.deb
+                    ./stage1-pool/libswscale-dev_*.deb
+                    ./stage1-pool/libgstreamer1.0-0_*.deb
+                    ./stage1-pool/libgstreamer1.0-dev_*.deb
+                    ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                    ./stage2-pool/libgstreamer-gl1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                    ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                    ./stage2-pool/gstreamer1.0-plugins-base_*.deb
+                    ./stage2-pool/gstreamer1.0-gl_*.deb
+                    ./stage3-pool/libgstreamer-plugins-good1.0-0_*.deb
+                    ./stage3-pool/libgstreamer-plugins-good1.0-dev_*.deb
+                    ./stage3-pool/gir1.2-gst-plugins-good-1.0_*.deb
+                    ./stage3-pool/gstreamer1.0-plugins-good_*.deb)
+              ;;
+            kmscon)
+              # libtsm-dev >= 4.6.0 is required and trixie has 4.0.2. The -dev
+              # package pins libtsm4, so both go in.
+              debs=(./stage1-pool/libtsm4_*.deb
+                    ./stage1-pool/libtsm-dev_*.deb)
+              ;;
+            pipewire)
+              # libfdk-aac-dev pins libfdk-aac2t64 to its own version; the
+              # GStreamer core and base are needed for the video sinks.
+              debs=(./stage1-pool/libfdk-aac2t64_*.deb
+                    ./stage1-pool/libfdk-aac-dev_*.deb
+                    ./stage1-pool/libgstreamer1.0-0_*.deb
+                    ./stage1-pool/libgstreamer1.0-dev_*.deb
+                    ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                    ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                    ./stage2-pool/gstreamer1.0-plugins-base_*.deb
+                    ./stage2-pool/gstreamer1.0-gl_*.deb)
+              ;;
             labwc)
               debs=(./stage2-pool/libwlroots-0.20_*.deb
                     ./stage2-pool/libwlroots-0.20-dev_*.deb
-                    ./stage1-pool/libwayland-*.deb
+                    ./stage1-pool/libwayland-bin_*.deb
+                    ./stage1-pool/libwayland-client0_*.deb
+                    ./stage1-pool/libwayland-server0_*.deb
+                    ./stage1-pool/libwayland-cursor0_*.deb
+                    ./stage1-pool/libwayland-egl1_*.deb
+                    ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                    ./stage1-pool/libwayland-dev_*.deb
                     ./stage1-pool/libxkbcommon0_*.deb
                     ./stage1-pool/libxkbcommon-dev_*.deb
                     ./stage1-pool/libxkbregistry0_*.deb
@@ -321,75 +528,11 @@ jobs:
                     ./stage1-pool/libdrm-dev_*.deb
                     ./stage1-pool/libpixman-1-0_*.deb
                     ./stage1-pool/libpixman-1-dev_*.deb
-                    ./stage1-pool/wayland-protocols_*.deb)
-              ;;
-            celluloid)
-              # libgtk-4-dev of this repository (it pins the whole GTK 4 set)
-              # plus the Stage-1 libraries and libmpv-dev.
-              debs=(./stage2-pool/libgtk-4-1_*.deb
-                    ./stage2-pool/libgtk-4-common_*.deb
-                    ./stage2-pool/libgtk-4-bin_*.deb
-                    ./stage2-pool/libgtk-4-dev_*.deb
-                    ./stage2-pool/gir1.2-gtk-4.0_*.deb
-                    ./stage2-pool/gtk-update-icon-cache_*.deb
-                    ./stage2-pool/libmpv2_*.deb
-                    ./stage2-pool/libmpv-dev_*.deb
-                    ./stage1-pool/libwayland-*.deb
-                    ./stage1-pool/libdrm-common_*.deb
-                    ./stage1-pool/libdrm2_*.deb
-                    ./stage1-pool/libdrm-amdgpu1_*.deb
-                    ./stage1-pool/libdrm-freedreno1_*.deb
-                    ./stage1-pool/libdrm-intel1_*.deb
-                    ./stage1-pool/libdrm-nouveau2_*.deb
-                    ./stage1-pool/libdrm-radeon1_*.deb
-                    ./stage1-pool/libdrm-dev_*.deb
-                    ./stage1-pool/libpixman-1-0_*.deb
-                    ./stage1-pool/libpixman-1-dev_*.deb
-                    ./stage1-pool/wayland-protocols_*.deb)
-              # No libxkbcommon of this repository (see the note above).
-              ;;
-            sfwbar)
-              # libgtk-3-dev of this repository (it pins the whole GTK 3 set)
-              # plus the Stage-1 libraries and libxkbregistry-dev. GTK 3 does
-              # not pull gstreamer-bad, so our libxkbcommon is safe here.
-              debs=(./stage2-pool/libgtk-3-0t64_*.deb
-                    ./stage2-pool/libgail-3-0t64_*.deb
-                    ./stage2-pool/libgtk-3-common_*.deb
-                    ./stage2-pool/libgtk-3-bin_*.deb
-                    ./stage2-pool/libgtk-3-dev_*.deb
-                    ./stage2-pool/libgail-3-dev_*.deb
-                    ./stage2-pool/gir1.2-gtk-3.0_*.deb
-                    ./stage1-pool/libwayland-*.deb
-                    ./stage1-pool/libdrm-common_*.deb
-                    ./stage1-pool/libdrm2_*.deb
-                    ./stage1-pool/libdrm-amdgpu1_*.deb
-                    ./stage1-pool/libdrm-freedreno1_*.deb
-                    ./stage1-pool/libdrm-intel1_*.deb
-                    ./stage1-pool/libdrm-nouveau2_*.deb
-                    ./stage1-pool/libdrm-radeon1_*.deb
-                    ./stage1-pool/libdrm-dev_*.deb
-                    ./stage1-pool/libpixman-1-0_*.deb
-                    ./stage1-pool/libpixman-1-dev_*.deb
                     ./stage1-pool/wayland-protocols_*.deb
-                    ./stage1-pool/libxkbcommon0_*.deb
-                    ./stage1-pool/libxkbcommon-dev_*.deb
-                    ./stage1-pool/libxkbregistry0_*.deb
-                    ./stage1-pool/libxkbregistry-dev_*.deb)
-              ;;
-            kmscon)
-              # libtsm-dev >= 4.6.0 is required and trixie has 4.0.2. The -dev
-              # package pins libtsm4, so both go in.
-              debs=(./stage1-pool/libtsm4_*.deb
-                    ./stage1-pool/libtsm-dev_*.deb)
-              ;;
-            pipewire)
-              # libfdk-aac-dev pins libfdk-aac2t64 to its own version.
-              debs=(./stage1-pool/libfdk-aac2t64_*.deb
-                    ./stage1-pool/libfdk-aac-dev_*.deb)
-              ;;
-            *)
-              # cairo: nothing but trixie.
-              debs=()
+                    ./stage1-pool/libcairo2_*.deb
+                    ./stage1-pool/libcairo-gobject2_*.deb
+                    ./stage1-pool/libcairo-script-interpreter2_*.deb
+                    ./stage1-pool/libcairo2-dev_*.deb)
               ;;
           esac
           if (( ${#debs[@]} > 0 )); then
@@ -403,14 +546,357 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: ${{ matrix.package }}
-          stage: 3
+          stage: 4
 
   # ---------------------------------------------------------------------------
-  # Stage 4: merge the full pool, generate APT metadata, publish to Pages.
+  # Stage 5: wireplumber and the two GUI applications.
+  #   wireplumber -> libpipewire-0.3-dev + libspa-0.2-dev of this repository
+  #                 (Stage 4). WirePlumber is the session manager of PipeWire,
+  #                 and it is also a build dependency of pwvucontrol
+  #                 (libwireplumber-0.5-dev), which therefore moves to Stage 6.
+  #   celluloid   -> libgtk-4-dev (Stage 4) + libmpv-dev (Stage 2)
+  #   sfwbar      -> libgtk-3-dev (Stage 4) + libxkbregistry-dev (Stage 1)
+  #
+  # celluloid and sfwbar must be built against the GTK of this repository, not
+  # against trixie: the published libgtk-3.so.0/libgtk-4.so.1 have no
+  # gdk_x11_* symbols (see packages/gtk+3.0/README.md), and Debian hardening
+  # links with -Wl,-z,now, so a binary built with X11 support would not even
+  # start against the published libraries. celluloid builds unchanged because
+  # its X11 code sits behind #ifdef GDK_WINDOWING_X11, which is undefined in
+  # these builds.
+  # ---------------------------------------------------------------------------
+  stage5:
+    name: Stage 5 · ${{ matrix.package }}
+    needs: stage4
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - celluloid
+          - sfwbar
+          - wireplumber
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3
+
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download stage 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier stages
+        run: |
+          shopt -s nullglob
+          case "${{ matrix.package }}" in
+            celluloid)
+              # libgtk-4-dev of this repository (it pins the whole GTK 4 set)
+              # plus the Stage-1/2/3 libraries GTK 4 pulls in and libmpv-dev.
+              debs=(./stage4-pool/libgtk-4-1_*.deb
+                    ./stage4-pool/libgtk-4-common_*.deb
+                    ./stage4-pool/libgtk-4-bin_*.deb
+                    ./stage4-pool/libgtk-4-dev_*.deb
+                    ./stage4-pool/gir1.2-gtk-4.0_*.deb
+                    ./stage4-pool/gtk-update-icon-cache_*.deb
+                    ./stage2-pool/libmpv2_*.deb
+                    ./stage2-pool/libmpv-dev_*.deb
+                    ./stage1-pool/libwayland-bin_*.deb
+                    ./stage1-pool/libwayland-client0_*.deb
+                    ./stage1-pool/libwayland-server0_*.deb
+                    ./stage1-pool/libwayland-cursor0_*.deb
+                    ./stage1-pool/libwayland-egl1_*.deb
+                    ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                    ./stage1-pool/libwayland-dev_*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb
+                    ./stage1-pool/libcairo2_*.deb
+                    ./stage1-pool/libcairo-gobject2_*.deb
+                    ./stage1-pool/libcairo-script-interpreter2_*.deb
+                    ./stage1-pool/libcairo2-dev_*.deb
+                    ./stage1-pool/libgstreamer1.0-0_*.deb
+                    ./stage1-pool/libgstreamer1.0-dev_*.deb
+                    ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                    ./stage2-pool/libgstreamer-gl1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                    ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                    ./stage2-pool/gstreamer1.0-plugins-base_*.deb
+                    ./stage2-pool/gstreamer1.0-gl_*.deb
+                    ./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                    ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                    ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                    ./stage3-pool/gstreamer1.0-plugins-bad_*.deb)
+              ;;
+            sfwbar)
+              # libgtk-3-dev of this repository (it pins the whole GTK 3 set)
+              # plus the Stage-1 libraries and libxkbregistry-dev.
+              debs=(./stage4-pool/libgtk-3-0t64_*.deb
+                    ./stage4-pool/libgail-3-0t64_*.deb
+                    ./stage4-pool/libgtk-3-common_*.deb
+                    ./stage4-pool/libgtk-3-bin_*.deb
+                    ./stage4-pool/libgtk-3-dev_*.deb
+                    ./stage4-pool/libgail-3-dev_*.deb
+                    ./stage4-pool/gir1.2-gtk-3.0_*.deb
+                    ./stage1-pool/libwayland-bin_*.deb
+                    ./stage1-pool/libwayland-client0_*.deb
+                    ./stage1-pool/libwayland-server0_*.deb
+                    ./stage1-pool/libwayland-cursor0_*.deb
+                    ./stage1-pool/libwayland-egl1_*.deb
+                    ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                    ./stage1-pool/libwayland-dev_*.deb
+                    ./stage1-pool/libxkbcommon0_*.deb
+                    ./stage1-pool/libxkbcommon-dev_*.deb
+                    ./stage1-pool/libxkbregistry0_*.deb
+                    ./stage1-pool/libxkbregistry-dev_*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb
+                    ./stage1-pool/libcairo2_*.deb
+                    ./stage1-pool/libcairo-gobject2_*.deb
+                    ./stage1-pool/libcairo-script-interpreter2_*.deb
+                    ./stage1-pool/libcairo2-dev_*.deb)
+              ;;
+            wireplumber)
+              # PipeWire of this repository (Stage 4). The -dev packages pin
+              # their runtime siblings, so the whole set travels together.
+              debs=(./stage4-pool/libpipewire-0.3-0t64_*.deb
+                    ./stage4-pool/libpipewire-0.3-common_*.deb
+                    ./stage4-pool/libpipewire-0.3-dev_*.deb
+                    ./stage4-pool/libpipewire-0.3-modules_*.deb
+                    ./stage4-pool/libspa-0.2-dev_*.deb
+                    ./stage4-pool/libspa-0.2-modules_*.deb)
+              ;;
+          esac
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: ${{ matrix.package }}
+          stage: 5
+
+  # ---------------------------------------------------------------------------
+  # Stage 6: the last two applications.
+  #   pwvucontrol  -> libgtk-4-dev (Stage 4), libpipewire-0.3-dev (Stage 4) and
+  #                   libwireplumber-0.5-dev (Stage 5). It has to come after
+  #                   WirePlumber: 0.5.3 requires wireplumber >= 0.5.11 and
+  #                   trixie only has 0.5.8.
+  #                   IMPORTANT: it must be built against the GTK 4 of this
+  #                   repository, exactly like celluloid - the published
+  #                   libgtk-4.so.1 has no gdk_x11_* symbols.
+  #   imagemagick  -> needs nothing of this repository. It is an application,
+  #                   so by the staging rule it is built in the last stage.
+  #
+  # Note that pwvucontrol is a Rust program: its build downloads crates from
+  # crates.io and one git dependency, pinned in the Cargo.lock of the tarball.
+  # ---------------------------------------------------------------------------
+  stage6:
+    name: Stage 6 · ${{ matrix.package }}
+    needs: stage5
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - pwvucontrol
+          - imagemagick
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3
+
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download stage 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
+      - name: Download stage 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier stages
+        run: |
+          shopt -s nullglob
+          case "${{ matrix.package }}" in
+            pwvucontrol)
+              # GTK 4 of this repository (it pins the whole GTK 4 set) plus the
+              # libraries it pulls in, PipeWire (Stage 4) and WirePlumber
+              # (Stage 5). The -dev packages pin their runtime siblings, so
+              # every set goes in as a whole.
+              debs=(./stage4-pool/libgtk-4-1_*.deb
+                    ./stage4-pool/libgtk-4-common_*.deb
+                    ./stage4-pool/libgtk-4-bin_*.deb
+                    ./stage4-pool/libgtk-4-dev_*.deb
+                    ./stage4-pool/gir1.2-gtk-4.0_*.deb
+                    ./stage4-pool/gtk-update-icon-cache_*.deb
+                    ./stage4-pool/libpipewire-0.3-0t64_*.deb
+                    ./stage4-pool/libpipewire-0.3-common_*.deb
+                    ./stage4-pool/libpipewire-0.3-dev_*.deb
+                    ./stage4-pool/libpipewire-0.3-modules_*.deb
+                    ./stage4-pool/libspa-0.2-dev_*.deb
+                    ./stage4-pool/libspa-0.2-modules_*.deb
+                    ./stage5-pool/libwireplumber-0.5-0_*.deb
+                    ./stage5-pool/libwireplumber-0.5-dev_*.deb
+                    ./stage5-pool/gir1.2-wp-0.5_*.deb
+                    ./stage1-pool/libwayland-bin_*.deb
+                    ./stage1-pool/libwayland-client0_*.deb
+                    ./stage1-pool/libwayland-server0_*.deb
+                    ./stage1-pool/libwayland-cursor0_*.deb
+                    ./stage1-pool/libwayland-egl1_*.deb
+                    ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                    ./stage1-pool/libwayland-dev_*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb
+                    ./stage1-pool/libcairo2_*.deb
+                    ./stage1-pool/libcairo-gobject2_*.deb
+                    ./stage1-pool/libcairo-script-interpreter2_*.deb
+                    ./stage1-pool/libcairo2-dev_*.deb
+                    ./stage1-pool/libgstreamer1.0-0_*.deb
+                    ./stage1-pool/libgstreamer1.0-dev_*.deb
+                    ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                    ./stage2-pool/libgstreamer-gl1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
+                    ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                    ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                    ./stage2-pool/gstreamer1.0-plugins-base_*.deb
+                    ./stage2-pool/gstreamer1.0-gl_*.deb
+                    ./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                    ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                    ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                    ./stage3-pool/gstreamer1.0-plugins-bad_*.deb)
+              ;;
+          esac
+          if (( ${#debs[@]} > 0 )); then
+            echo "Installing: ${debs[*]}"
+            apt-get install -y --no-install-recommends "${debs[@]}"
+          else
+            echo "No packages of earlier stages required for ${{ matrix.package }}"
+          fi
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: ${{ matrix.package }}
+          stage: 6
+
+
+  # ---------------------------------------------------------------------------
+  # Stage 7: merge the full pool, generate APT metadata, publish to Pages.
   # ---------------------------------------------------------------------------
   publish:
-    name: Stage 4 · generate APT repository
-    needs: stage3
+    name: Stage 7 · generate APT repository
+    needs: stage6
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     container:

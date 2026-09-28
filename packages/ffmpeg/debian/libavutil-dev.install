@@ -1,0 +1,3 @@
+usr/include/*/libavutil
+usr/lib/*/libavutil.so
+usr/lib/*/pkgconfig/libavutil.pc

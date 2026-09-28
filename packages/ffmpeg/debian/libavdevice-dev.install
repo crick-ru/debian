@@ -1,0 +1,3 @@
+usr/include/*/libavdevice
+usr/lib/*/libavdevice.so
+usr/lib/*/pkgconfig/libavdevice.pc

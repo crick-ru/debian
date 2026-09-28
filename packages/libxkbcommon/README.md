@@ -3,14 +3,6 @@
 Сборка `libxkbcommon` 1.13.1 для Debian 13 (trixie, amd64) **без X11**.
 Упаковка взята из Debian (`libxkbcommon_1.13.1-1`) и переработана.
 
-## Зачем нужна более свежая версия
-
-`wlroots` 0.20.2 требует в meson libxkbcommon не ниже 1.8 и использует
-константы имён индикаторов, которых нет в libxkbcommon 1.7.0 из trixie:
-`XKB_LED_NAME_COMPOSE` и `XKB_LED_NAME_KANA`
-(`types/wlr_keyboard.c`, список имён LED). В meson 1.7.0 объявлены только
-`XKB_LED_NAME_CAPS`, `XKB_LED_NAME_NUM` и `XKB_LED_NAME_SCROLL`.
-
 ## Включено
 
 - `libxkbcommon0`, `libxkbcommon-dev`, `libxkbcommon-tools` (`xkbcli`),
@@ -77,9 +69,13 @@ apt-get -s upgrade | grep -E '^(Remv|The following.*be REMOVED)'
 apt-cache rdepends libxkbcommon-x11-0
 ```
 
-`libgstreamer-plugins-bad1.0-0` в этом репозитории не нужен: собственная
-`libgtk-4-1` от него не зависит (в её состав входит GStreamer-модуль с 4.19.2,
-но она объявляет только `libgtk-4-media-gstreamer` через `Provides`).
+`libgstreamer-plugins-bad1.0-0` в этом репозитории публикуется собственный
+(`gstreamer1.0-plugins-bad` 1.28.7), и он собран с `-Dx11=disabled`, то есть
+не зависит ни от `libxkbcommon-x11-0`, ни от `libxkbcommon0` — в GStreamer
+1.28.7 `libxkbcommon` встречается только в плагине `wpe` и в окне XCB
+плагина `vulkan`, а оба выключены. Поэтому штатный пакет trixie будет снят
+и заменён нашим, а не останется конфликтующим пинном. Подробности — в
+`packages/gstreamer1.0-plugins-bad/README.md`.
 
 ## Откат
 

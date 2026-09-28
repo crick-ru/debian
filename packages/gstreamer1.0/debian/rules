@@ -1,0 +1,50 @@
+#!/usr/bin/make -f
+# Сборка ядра GStreamer 1.28.7 для crick Debian backports. Упаковка взята из
+# Debian (gstreamer1.0 1.28.7-1) и упрощена: нет документации, примеров,
+# тестов, отладочного стека (libunwind/libdw) и PTP-помощника на Rust.
+# Подробности — в packages/gstreamer1.0/README.md.
+
+include /usr/share/dpkg/architecture.mk
+
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all
+
+# Ключевые решения:
+#   -Ddoc=disabled        документация не собирается (gstreamer1.0-doc не
+#                         публикуется), поэтому не нужен hotdoc;
+#   -Dexamples=disabled   примеры не собираются;
+#   -Dtests=disabled       тестовая система не собирается и не запускается;
+#   -Dlibunwind=disabled
+#   -Dlibdw=disabled      отладочный стек выключен, как это делает Debian:
+#                         поведение нестабильно между архитектурами;
+#   -Dptp-helper=disabled PTP-помощник написан на Rust. Включать его ради
+#                         одного бинарника нельзя: rustc в Build-Depends тянет
+#                         целый toolchain и заметно замедляет CI. Помощник
+#                         нужен только серверам точного времени (PTP), а не
+#                         десктопу.
+conf_flags = \
+	--libexecdir=lib/$(DEB_HOST_MULTIARCH)/gstreamer1.0 \
+	-Dpackage-name=GStreamer \
+	-Dpackage-origin=https://gstreamer.freedesktop.org \
+	-Dauto_features=enabled \
+	-Ddbghelp=disabled \
+	-Ddoc=disabled \
+	-Dexamples=disabled \
+	-Dtests=disabled \
+	-Dlibunwind=disabled \
+	-Dlibdw=disabled \
+	-Dptp-helper=disabled
+
+%:
+	dh $@ --buildsystem=meson
+
+override_dh_auto_test:
+
+# Утилита сопровождения Debian (проверка списка кодеков) и её man-страница
+# в репозиторий не попадают: это инструмент сборки, а не то, что нужно
+# пользователю. Файлы dh_gstscancodecs убраны из libgstreamer1.0-dev.install.
+override_dh_makeshlibs:
+	dh_makeshlibs -- -c4
+
+override_dh_installman:
+	# man-страницы не собираются (-Ddoc=disabled)
+	dh_installman --no-package

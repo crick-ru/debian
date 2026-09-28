@@ -1,0 +1,184 @@
+Source: gstreamer1.0-plugins-base
+Section: libs
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (gst-plugins-base1.0 1.28.7-1) и упрощена:
+#   * X11 выключен (-Dx11=disabled -Dxshm=disabled -Dxvideo=disabled
+#     -Dxi=disabled), поэтому убраны libx11-xcb-dev, libxi-dev, libxt-dev и
+#     libxv-dev, а пакет gstreamer1.0-x не публикуется;
+#   * аудио-CD выключен (-Dcdparanoia=disabled) - это оптический диск,
+#     поэтому убран libcdparanoia-dev;
+#   * GL-библиотека собирается только под Wayland и EGL
+#     (-Dgl_winsys=wayland,egl -Dgl_platform=egl), иначе libgstreamer-gl1.0-0
+#     тянет libX11 и libxcb;
+#   * документация и примеры не собираются (-Ddoc=disabled
+#     -Dexamples=disabled), man-страницы не публикуются;
+#   * тесты не собираются и не запускаются, поэтому убраны xvfb и xauth;
+#   * пакет gstreamer1.0-plugins-base-apps (gst-play-1.0,
+#     gst-discoverer-1.0, gst-device-monitor-1.0) не публикуется: в
+#     репозитории есть mpv, а discoverer и device-monitor - инструменты
+#     сопровождения, а не то, что нужно пользователю;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Подробности - в packages/gstreamer1.0-plugins-base/README.md.
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-sequence-gir,
+ gobject-introspection (>= 1.80),
+ meson (>= 1.4.0),
+ pkgconf,
+ python3,
+ iso-codes,
+ libbrotli-dev,
+ libdrm-dev [linux-any],
+ libegl-dev,
+ libgbm-dev [linux-any],
+ libgl-dev,
+ libgles-dev,
+ libglib2.0-dev (>= 2.62),
+ libgstreamer1.0-dev (>= 1.28.3),
+ libgudev-1.0-dev [linux-any],
+ libjpeg-dev,
+ libogg-dev,
+ libopengl-dev,
+ liborc-0.4-dev (>= 1:0.4.34),
+ libpango1.0-dev (>= 1.22),
+ libpng-dev,
+ libtheora-dev (>= 1.1),
+ libvisual-0.4-dev (>= 0.4.0),
+ libvorbis-dev (>= 1.3.1),
+ libwayland-dev (>= 1.11) [linux-any],
+ wayland-protocols (>= 1.15) [linux-any],
+ zlib1g-dev (>= 1:1.1.4),
+Standards-Version: 4.7.3
+Homepage: https://gstreamer.freedesktop.org/
+Vcs-Git: https://salsa.debian.org/gstreamer-team/gst-plugins-base1.0.git
+Vcs-Browser: https://salsa.debian.org/gstreamer-team/gst-plugins-base1.0/
+Rules-Requires-Root: no
+
+Package: libgstreamer-plugins-base1.0-0
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         iso-codes
+Recommends: gstreamer1.0-plugins-base
+Description: GStreamer libraries from the "base" set
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the libraries of the "base" set: the audio, video
+ and app helper libraries, the RTP/RTSP/SDP libraries, the FFT library and
+ the tag reader.
+ .
+ This build has no X11 support: the X11 sinks (ximagesink, xvimagesink) and
+ the X11 support inside the libraries are disabled. The GL integration
+ library is built for Wayland/EGL only, so it pulls no X11 either. See
+ README.md in the crick Debian backports repository.
+
+Package: libgstreamer-plugins-base1.0-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: ${gir:Depends},
+         ${misc:Depends},
+         ${shlibs:Depends},
+         gir1.2-gst-plugins-base-1.0 (= ${binary:Version}),
+         libc6-dev | libc-dev,
+         libdrm-dev [linux-any],
+         libegl-dev,
+         libgbm-dev [linux-any],
+         libgl-dev,
+         libgles-dev,
+         libglib2.0-dev,
+         libgstreamer1.0-dev (>= 1.16.2),
+         liborc-0.4-dev (>= 1:0.4.24),
+         libwayland-dev (>= 1.11) [linux-any],
+         pkgconf,
+Provides: ${gir:Provides}
+Description: GStreamer development files for the "base" set
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the headers, the pkg-config files and the
+ introspection data of the "base" set.
+
+Package: libgstreamer-gl1.0-0
+Architecture: any
+Section: libs
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: GStreamer OpenGL libraries
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the GStreamer OpenGL integration library, built
+ for Wayland and EGL only: it has no dependency on X11.
+
+Package: gstreamer1.0-alsa
+Architecture: any
+Section: plugins
+Depends: ${misc:Depends},
+         libasound2 (>= 0.9.1) [linux-any],
+         libgstreamer-plugins-base1.0-0 (= ${binary:Version})
+Description: GStreamer ALSA plugin
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the ALSA audio source and sink plugin, so that
+ GStreamer can output and capture audio on an ALSA device directly.
+
+Package: gstreamer1.0-gl
+Architecture: any
+Section: plugins
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libgstreamer-gl1.0-0 (= ${binary:Version})
+Description: GStreamer plugins for OpenGL
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the OpenGL plugin of the "base" set.
+
+Package: gstreamer1.0-plugins-base
+Architecture: any
+Section: plugins
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libgstreamer-plugins-base1.0-0 (= ${binary:Version})
+Description: GStreamer plugins from the "base" set
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the elements of the "base" set: audio and video
+ converters and scaling, the playback pipeline (playbin, decodebin,
+ parsebin, uridecodebin), the typefinder, the subtitle parser and the
+ Ogg, Vorbis, Opus and Theora plugins.
+ .
+ This build has no X11 support, so the X11 video sinks are absent.
+
+Package: gir1.2-gst-plugins-base-1.0
+Architecture: any
+Section: introspection
+Multi-Arch: same
+Depends: ${gir:Depends},
+         ${misc:Depends},
+         ${shlibs:Depends}
+Provides: ${gir:Provides}
+Description: GObject introspection data for the GStreamer "base" library
+ This package contains GObject introspection data for the "base" set of
+ the GStreamer streaming media framework.

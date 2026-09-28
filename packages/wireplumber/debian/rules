@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
+
+%:
+	dh $@ --buildsystem=meson
+
+# No documentation and no man pages are built: DOCS=disabled unconditionally.
+# Upstream would build the API reference with doxygen and sphinx, so the package
+# wireplumber-doc and the files wireplumber-doc.* are gone and doxygen,
+# python3-breathe, python3-sphinx and python3-sphinx-rtd-theme are not build
+# dependencies. -Dtests=false and -Ddbus-tests=false keep the test tree and the
+# test helper binaries out of the build. See .clinerules/project.md.
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Dmodules=true \
+		-Ddaemon=true \
+		-Dtools=true \
+		-Dsystem-lua=true \
+		-Dsystemd=enabled \
+		-Dsystemd-system-service=true \
+		-Dsystemd-user-service=true \
+		-Ddoc=disabled \
+		-Dintrospection=enabled \
+		-Dtests=false \
+		-Ddbus-tests=false \
+		$(NULL)
+
+override_dh_makeshlibs:
+	dh_makeshlibs \
+		--exclude=/usr/lib/$(DEB_HOST_MULTIARCH)/wireplumber-0.5 \
+		-- -c4
+
+# No test suite: this repository neither builds nor runs tests, see
+# .clinerules/project.md. -Dtests=false already keeps the test tree out of the
+# build, so there is nothing left to run.
+override_dh_auto_test:
+
+# The recommended way of installing wireplumber is using user services, but we
+# install system services anyway for specific use cases (like embedded and
+# accessibility) without enabling/starting them to avoid clashes.
+override_dh_installsystemd:
+	dh_installsystemd -pwireplumber-system-services --no-enable --no-start

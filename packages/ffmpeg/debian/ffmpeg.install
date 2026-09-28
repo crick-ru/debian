@@ -1,0 +1,5 @@
+usr/bin/ffmpeg
+usr/bin/ffprobe
+usr/bin/qt-faststart
+usr/share/ffmpeg/*.ffpreset
+usr/share/ffmpeg/*.xsd

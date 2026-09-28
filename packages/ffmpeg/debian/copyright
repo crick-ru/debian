@@ -1,0 +1,41 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ffmpeg
+Upstream-Contact: FFmpeg mailing list <ffmpeg-devel@ffmpeg.org>
+Source: https://ffmpeg.org/
+
+Files: *
+Copyright: 2000-2025 the FFmpeg developers
+License: LGPL-2.1+ and GPL-2+
+
+Files: libavcodec/*
+Copyright: 2000-2025 the FFmpeg developers
+License: LGPL-2.1+ and GPL-2+
+
+Files: libavdevice/*
+Copyright: 2007-2025 the FFmpeg developers
+License: LGPL-2.1+ and GPL-2+
+
+Files: libavfilter/*
+Copyright: 2008-2025 the FFmpeg developers
+License: LGPL-2.1+ and GPL-2+
+
+Files: libavformat/*
+Copyright: 2000-2025 the FFmpeg developers
+License: LGPL-2.1+ and GPL-2+
+
+Files: libavutil/*
+Copyright: 2000-2025 the FFmpeg developers
+License: LGPL-2.1+ and GPL-2+
+
+Files: libswresample/*
+Copyright: 2012-2025 the FFmpeg developers
+License: LGPL-2.1+ and GPL-2+
+
+Files: libswscale/*
+Copyright: 2007-2025 the FFmpeg developers
+License: LGPL-2.1+ and GPL-2+
+
+Files: debian/*
+Copyright: 2006-2025 the FFmpeg developers
+           2026 crick Debian Backports <backports@users.noreply.github.com>
+License: LGPL-2.1+ and GPL-2+

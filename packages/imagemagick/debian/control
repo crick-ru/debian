@@ -1,0 +1,287 @@
+Source: imagemagick
+Section: graphics
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (imagemagick_8:7.1.1.43+dfsg1-1) и переработана:
+#   * X11 выключен (--without-x): Debian собирает ImageMagick с
+#     --x-includes/--x-libraries, здесь X11-делегат не собирается вовсе,
+#     поэтому libx11-dev, libxext-dev и libxt-dev убраны из Build-Depends, а
+#     в пакетах нет зависимостей libx11-6/libxext-6;
+#   * собирается только квантовая глубина Q16 (--with-quantum-depth=16),
+#     Q16HDRI не собирается - это второй полный проход компиляции;
+#   * PerlMagick и Magick++ не собираются (--without-perl
+#     --without-magick-plus-plus);
+#   * документация и man-страницы не собираются, пакет imagemagick-7-doc не
+#     публикуется, каталог /usr/share/doc удаляется из дерева установки;
+#   * тесты не собираются и не запускаются (make check не вызывается,
+#     override_dh_auto_test пуст);
+#   * символьные файлы не поставляются - их генерирует dh_makeshlibs;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Правила отключения - в .clinerules/project.md.
+Build-Depends: debhelper-compat (= 13),
+               chrpath,
+               pkgconf,
+               libltdl-dev,
+               libfftw3-dev,
+               liblcms2-dev,
+               liblqr-1-0-dev,
+               libfreetype-dev,
+               libfontconfig-dev,
+               zlib1g-dev,
+               liblzma-dev,
+               libbz2-dev,
+               ghostscript,
+               libdjvulibre-dev,
+               libexif-dev,
+               libjpeg-dev,
+               libopenjp2-7-dev,
+               libopenexr-dev,
+               libpng-dev,
+               libtiff-dev,
+               libwmf-dev,
+               libheif-dev,
+               libwebp-dev,
+               libpango1.0-dev,
+               libxml2-dev,
+               libraw-dev
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://www.imagemagick.org/
+Vcs-Browser: https://salsa.debian.org/debian/imagemagick
+Vcs-Git: https://salsa.debian.org/debian/imagemagick.git
+
+Package: imagemagick-7-common
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}
+Breaks: imagemagick-common (<< 8:6.9.12.98+dfsg1-1~), imagemagick-6-common (<< 8:7.0.0-1~)
+Replaces: imagemagick-common (<< 8:6.9.12.98+dfsg1-1~), imagemagick-6-common (<< 8:7.0.0-1~)
+Provides: imagemagick-common (= ${source:Version}), imagemagick-6-common (= ${source:Version})
+# Пакеты C++ и Perl и переходные «пустышки» из trixie пинят точную версию
+# imagemagick-7-common и -dev-пакетов своей версии, поэтому рядом с нашими
+# они остаться не могут. Разбор - в README.md.
+Conflicts: imagemagick-doc,
+           libimage-magick-perl,
+           libimage-magick-q16-perl,
+           libimage-magick-q16hdri-perl,
+           libmagick++-7-headers,
+           libmagickcore-dev,
+           libmagickwand-dev,
+           libmagick++-dev,
+           perlmagick
+Replaces: imagemagick-doc,
+          libimage-magick-perl,
+          libimage-magick-q16-perl,
+          libimage-magick-q16hdri-perl,
+          libmagick++-7-headers,
+          libmagickcore-dev,
+          libmagickwand-dev,
+          libmagick++-dev,
+          perlmagick
+Description: image manipulation programs -- infrastructure
+ imagemagick-common contains the filesystem infrastructure required for
+ further installation of imagemagick in any configuration; it does not provide
+ a full installation of binaries, libraries, and utilities
+ required to run imagemagick.
+ .
+ This package is independent of channel depth.
+
+Package: libmagickcore-7-headers
+Architecture: all
+Multi-Arch: foreign
+Section: libdevel
+Depends: ${misc:Depends}
+Description: low-level image manipulation library - header files
+ The MagickCore API is a low-level interface between the C programming language
+ and the ImageMagick image processing libraries and is recommended for
+ wizard-level programmers only. Unlike the MagickWand C API which exposes only
+ a few opaque types and accessors, with MagickCore you almost exclusively access
+ the structure members directly.
+ .
+ This package includes the architecture independent header files
+ needed to compile programs using MagickCore.
+ .
+
+Package: libmagickcore-7.q16-10
+Architecture: any
+Multi-Arch: same
+Section: libs
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         imagemagick-7-common (>= ${source:Version})
+# Пакет "-extra" из trixie зависит от этой библиотеки лишь с ">=", но несёт
+# кодировщики djvu/exr/wmf/svg/pango, собранные под ImageMagick 7.1.1: наш
+# 7.1.2 их никогда не загрузит (в пути модулей есть версия апстрима). Поэтому
+# все кодировщики едут внутри этого пакета, а старый -extra уходит.
+Conflicts: libmagickcore-7.q16-10-extra, libimage-magick-q16-perl
+Replaces: libmagickcore-7.q16-10-extra, libimage-magick-q16-perl
+Description: low-level image manipulation library -- quantum depth Q16
+ The MagickCore API is a low-level interface between the C programming language
+ and the ImageMagick image processing libraries and is recommended for
+ wizard-level programmers only. Unlike the MagickWand C API which exposes only
+ a few opaque types and accessors, with MagickCore you almost exclusively access
+ the structure members directly.
+ .
+ This package contains the C libraries needed to run executables that make
+ use of MagickCore, including every coder and filter module.
+ .
+ This version of libmagickcore is compiled for a channel depth of Q16.
+
+Package: libmagickcore-7.q16-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: ${misc:Depends},
+         libmagickcore-7-arch-config (= ${source:Version}),
+         libmagickcore-7-headers (= ${source:Version}),
+         libmagickcore-7.q16-10 (= ${binary:Version}),
+         imagemagick-7-common (= ${source:Version}),
+         libbz2-dev,
+         libdjvulibre-dev,
+         libexif-dev,
+         libfreetype-dev,
+         libjpeg-dev,
+         liblcms2-dev,
+         liblqr-1-0-dev,
+         libltdl-dev,
+         libopenexr-dev,
+
+Package: libmagickwand-7-headers
+Architecture: all
+Multi-Arch: foreign
+Section: libdevel
+Depends: ${misc:Depends},
+         libmagickcore-7-headers (= ${source:Version}),
+         imagemagick-7-common (= ${source:Version})
+Description: image manipulation library - headers files
+ The MagickWand API is the recommended interface between the C programming
+ language and the ImageMagick image processing libraries. Unlike the
+ MagickCore C API, MagickWand uses only a few opaque types. Accessors are
+ available to set or get important wand properties.
+ .
+ This package includes header files needed to compile
+ programs using MagickWand.
+ .
+ This package is independent of channel depth.
+
+Package: libmagickwand-7.q16-10
+Architecture: any
+Multi-Arch: same
+Section: libs
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libmagickcore-7.q16-10 (= ${binary:Version}),
+         imagemagick-7-common (>= ${source:Version})
+Description: image manipulation library -- quantum depth Q16
+ The MagickWand API is the recommended interface between the C programming
+ language and the ImageMagick image processing libraries. Unlike the
+ MagickCore C API, MagickWand uses only a few opaque types. Accessors are
+ available to set or get important wand properties.
+ .
+ This version of libmagickwand is compiled for a channel depth of Q16.
+
+Package: libmagickwand-7.q16-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: ${misc:Depends},
+         libmagickwand-7-headers (= ${source:Version}),
+         libmagickwand-7.q16-10 (= ${binary:Version}),
+         libmagickcore-7.q16-dev (= ${binary:Version}),
+         imagemagick-7-common (= ${source:Version}),
+         pkgconf
+Description: image manipulation library -- development files (Q16)
+ The MagickWand API is the recommended interface between the C programming
+ language and the ImageMagick image processing libraries. Unlike the
+ MagickCore C API, MagickWand uses only a few opaque types. Accessors are
+ available to set or get important wand properties.
+ .
+ This package provides development files for libmagickwand, compiled for a
+ channel depth of Q16.
+
+Package: imagemagick-7.q16
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libmagickcore-7.q16-10 (= ${binary:Version}),
+         libmagickwand-7.q16-10 (= ${binary:Version}),
+         hicolor-icon-theme
+Recommends: ghostscript
+Replaces: imagemagick (<< 8:6.9.2.10+dfsg-2~)
+Breaks: libmagickcore-dev (<< 8:6.9.2.10+dfsg-2~)
+Provides: imagemagick, imagemagick-7.defaultquantum (= ${binary:Version})
+Description: image manipulation programs -- quantum depth Q16
+ ImageMagick is a software suite to create, edit, and compose bitmap images.
+ It can read, convert and write images in a variety of formats (over 100)
+ including DPX, EXR, GIF, JPEG, JPEG-2000, PDF, PhotoCD, PNG, Postscript,
+ SVG, and TIFF. Use ImageMagick to translate, flip, mirror, rotate, scale,
+ shear and transform images, adjust image colors, apply various special
+ effects, or draw text, lines, polygons, ellipses and Bezier curves.
+ .
+ This version of imagemagick is compiled for a channel depth of Q16.
+ .
+ Note that the X11 tools "display" and "import" are not shipped: this build has
+ no X11 delegate at all.
+
+Package: imagemagick
+Architecture: any
+Multi-Arch: foreign
+Section: oldlibs
+Depends: ${misc:Depends},
+         imagemagick-7.q16 (= ${binary:Version})
+Description: image manipulation programs -- binaries
+ ImageMagick is a software suite to create, edit, and compose bitmap images.
+ It can read, convert and write images in a variety of formats (over 100)
+ including DPX, EXR, GIF, JPEG, JPEG-2000, PDF, PhotoCD, PNG, Postscript,
+ SVG, and TIFF. Use ImageMagick to translate, flip, mirror, rotate, scale,
+ shear and transform images, adjust image colors, apply various special
+ effects, or draw text, lines, polygons, ellipses and Bezier curves.
+ .
+ This is a dependency package.
+ .
+ This package include links to channel depth specific binaries and manual
+ pages.
+
+         libopenjp2-7-dev,
+         libpng-dev,
+         libtiff-dev,
+         libwmf-dev,
+         libheif-dev,
+         libwebp-dev,
+         libxml2-dev,
+         libfftw3-dev,
+         zlib1g-dev,
+         pkgconf
+Conflicts: libmagick++-7.q16-dev
+Replaces: libmagick++-7.q16-dev
+Description: low-level image manipulation library -- development files (Q16)
+ The MagickCore API is a low-level interface between the C programming language
+ and the ImageMagick image processing libraries and is recommended for
+ wizard-level programmers only. Unlike the MagickWand C API which exposes only
+ a few opaque types and accessors, with MagickCore you almost exclusively access
+ the structure members directly.
+ .
+ This package provides development files for libmagickcore, compiled for a
+ channel depth of Q16.
+
+ This package is independent of channel depth.
+
+Package: libmagickcore-7-arch-config
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: ${misc:Depends},
+         libmagickcore-7-headers (= ${source:Version}),
+         imagemagick-7-common (>= ${source:Version})
+Description: low-level image manipulation library - architecture header files
+ The MagickCore API is a low-level interface between the C programming language
+ and the ImageMagick image processing libraries and is recommended for
+ wizard-level programmers only. Unlike the MagickWand C API which exposes only
+ a few opaque types and accessors, with MagickCore you almost exclusively access
+ the structure members directly.
+ .
+ This package includes the architecture dependent part of the
+ headers files used by MagickCore.
+ .
+ This package is independent of channel depth.

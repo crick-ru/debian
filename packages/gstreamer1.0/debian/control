@@ -1,0 +1,114 @@
+Source: gstreamer1.0
+Section: libs
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (gstreamer1.0 1.28.7-1) и упрощена:
+#   * документация не собирается (-Ddoc=disabled), поэтому пакеты
+#     gstreamer1.0-doc и gstreamer1.0-doc-hotdoc не публикуются;
+#   * примеры не собираются (-Dexamples=disabled);
+#   * тесты не собираются (-Dtests=disabled) и не запускаются, каталог
+#     debian/tests удалён;
+#   * отладочный стек выключен (-Dlibunwind=disabled -Dlibdw=disabled),
+#     иначе нужны libunwind-dev и libdw-dev;
+#   * PTP-помощник выключен (-Dptp-helper=disabled): он написан на Rust, а
+#     rustc в Build-Depends тянет целый toolchain ради программы, которая
+#     нужна только на серверах точного времени;
+#   * утилиты dh_gstscancodecs и её man-страница не публикуются: это
+#     инструмент сопровождения Debian для проверки кодеков;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Подробности — в packages/gstreamer1.0/README.md.
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-exec,
+ dh-sequence-gir,
+ bison,
+ flex,
+ gobject-introspection (>= 1.80),
+ meson (>= 1.4.0),
+ pkgconf,
+ python3,
+ libcap-dev [linux-any],
+ libglib2.0-dev (>= 2.64),
+ zlib1g-dev,
+Standards-Version: 4.7.3
+Homepage: https://gstreamer.freedesktop.org/
+Vcs-Git: https://salsa.debian.org/gstreamer-team/gstreamer1.0.git
+Vcs-Browser: https://salsa.debian.org/gstreamer-team/gstreamer1.0/
+Rules-Requires-Root: no
+
+Package: libgstreamer1.0-0
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Suggests: gstreamer1.0-tools
+Description: Core GStreamer libraries and elements
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Applications using this library can do
+ anything from real-time sound processing to playing videos, and just
+ about anything else media-related.  Its plugin-based architecture means
+ that new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the core library, the plugin scanner and the
+ plugins of the core itself.
+
+Package: libgstreamer1.0-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: libgstreamer1.0-0 (= ${binary:Version}),
+         gir1.2-gstreamer-1.0 (= ${binary:Version}),
+         libc6-dev | libc-dev,
+         libglib2.0-dev (>= 2.64),
+         pkgconf,
+         ${gir:Depends},
+         ${misc:Depends},
+         ${shlibs:Depends},
+Provides: ${gir:Provides}
+Description: GStreamer core development files
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Applications using this library can do
+ anything from real-time sound processing to playing videos, and just
+ about anything else media-related.  Its plugin-based architecture means
+ that new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains development files for the core library and
+ elements.
+
+Package: gstreamer1.0-tools
+Architecture: any
+Section: utils
+Depends: libgstreamer1.0-0 (>= 1.16.1),
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Tools for use with GStreamer
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Applications using this library can do
+ anything from real-time sound processing to playing videos, and just
+ about anything else media-related.  Its plugin-based architecture means
+ that new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains versioned command-line tools for GStreamer.
+ .
+ No manual pages are shipped: the documentation is not built.
+
+Package: gir1.2-gstreamer-1.0
+Section: introspection
+Architecture: any
+Multi-Arch: same
+Depends: ${gir:Depends},
+         ${shlibs:Depends},
+         ${misc:Depends}
+Provides: ${gir:Provides}
+Description: GObject introspection data for the GStreamer library
+ This package contains introspection data for the GStreamer streaming
+ media framework.
+ .
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Its plugin-based architecture means that
+ new data types or processing capabilities can be added simply by
+ installing new plug-ins.

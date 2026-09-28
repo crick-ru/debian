@@ -18,7 +18,7 @@ inputs:
     description: Package name (directory under packages/)
     required: true
   stage:
-    description: CI stage number, used in the artifact name (1 or 2)
+    description: CI stage number, used in the artifact name (1 to 5)
     required: true
 
 runs:

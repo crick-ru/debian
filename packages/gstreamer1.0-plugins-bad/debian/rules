@@ -1,0 +1,104 @@
+#!/usr/bin/make -f
+# Сборка GStreamer Bad Plugins 1.28.7 для crick Debian backports. Упаковка
+# взята из Debian (gst-plugins-bad1.0 1.28.7-2) и сильно упрощена: нет X11,
+# нет wpe, нет DVB и DVD, нет OpenCV, нейросетей и платформенных элементов.
+# Подробности — в packages/gstreamer1.0-plugins-bad/README.md.
+
+include /usr/share/dpkg/architecture.mk
+
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all
+
+# Ключевые решения:
+#   -Dx11=disabled            X11 выключен в плагинах Vulkan, GL и rfb;
+#   -Dvulkan-windowing=wayland окно Vulkan только Wayland. Вместе с
+#                            -Dx11=disabled это убирает единственные
+#                            обращения GStreamer к libxkbcommon: в 1.28.7
+#                            это плагин wpe и окно XCB в Vulkan. Поэтому
+#                            libgstreamer-plugins-bad1.0-0 не зависит ни от
+#                            libxkbcommon-x11-0, ни от libxkbcommon0;
+#   -Ddvb=disabled            DVB-тюнеры выключены;
+#   -Ddvdnav=disabled         навигация по DVD выключена (оптический диск);
+#   -Dwpe=disabled -Dwpe2=disabled
+#                            wpe выключен: libwpewebkit-2.0-1 из trixie сам
+#                            Depends на libgstreamer-plugins-bad1.0-0, то
+#                            есть наша сборка получила бы зависимость от
+#                            штатной. Ни один пакет репозитория wpe не
+#                            использует;
+#   -Dopencv=disabled         OpenCV выключен, как и в Debian: тяжёлая
+#                            библиотека компьютерного зрения, в trixie
+#                            тянет X11;
+#   -Donnx=disabled -Dtflite=disabled
+#                            нейросетевые фильтры не нужны ни десктопу,
+#                            ни серверу, а ONNX Runtime весит около 74 МБ
+#                            вместе с зависимостями;
+#   -Ddoc=disabled            документация не собирается;
+#   -Dtests=disabled          тестовая система не собирается и не запускается.
+conf_flags = \
+	-Dpackage-name=GStreamer \
+	-Dpackage-origin=https://gstreamer.freedesktop.org \
+	-Dauto_features=enabled \
+	-Dgpl=enabled \
+	-Ddoc=disabled \
+	-Dtests=disabled \
+	-Dexamples=disabled \
+	-Dx11=disabled \
+	-Dvulkan=enabled \
+	-Dvulkan-windowing=wayland \
+	-Ddvb=disabled \
+	-Ddvdnav=disabled \
+	-Dwpe=disabled \
+	-Dwpe2=disabled \
+	-Dopencv=disabled \
+	-Donnx=disabled \
+	-Dtflite=disabled \
+	-Dbluez=disabled \
+	-Ddc1394=disabled \
+	-Dfbdev=disabled \
+	-Duvch264=disabled \
+	-Dv4l2codecs=disabled \
+	-Drfb=disabled \
+	-Dladspa=disabled \
+	-Dlv2=disabled \
+	-Dsbc=disabled \
+	-Dopenni2=disabled \
+	-Dwebrtc=disabled \
+	-Dsctp=disabled \
+	-Dmicrodns=disabled \
+	-Dopensles=disabled \
+	-Dtinyalsa=disabled \
+	-Dmagicleap=disabled \
+	-Ddirectfb=disabled \
+	-Damfcodec=disabled \
+	-Dandroidmedia=disabled \
+	-Dfaac=disabled \
+	-Dgs=disabled \
+	-Diqa=disabled \
+	-Disac=disabled \
+	-Dldac=disabled \
+	-Dmsdk=disabled \
+	-Dtflite-edgetpu=disabled \
+	-Dlcevcdecoder=disabled \
+	-Dlcevcencoder=disabled \
+	-Dsvtjpegxs=disabled \
+	-Dcuda-nvmm=disabled \
+	-Dnvcomp=disabled \
+	-Dnvdswrapper=disabled \
+	-Dmpeghdec=disabled \
+	-Dvmaf=disabled \
+	-Dfdkaac=disabled \
+	-Dfaad=disabled
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(conf_flags)
+
+override_dh_auto_test:
+
+override_dh_makeshlibs:
+	dh_makeshlibs -- -c4
+
+override_dh_installman:
+	# man-страницы не собираются (-Ddoc=disabled)
+	dh_installman --no-package

@@ -1,12 +1,6 @@
 #!/usr/bin/make -f
 
-include /usr/share/dpkg/architecture.mk
-
 export DEB_BUILD_MAINT_OPTIONS := hardening=+all # #741439, #799738
-
-ifeq ($(DEB_HOST_ARCH_OS),linux)
-  ARCH_CONFIGURE = -Ddvbin=enabled
-endif
 
 %:
 	dh $@
@@ -16,6 +10,11 @@ override_dh_auto_configure:
 	# (-Dmanpage-build=false), so python3-docutils is not needed and the man
 	# page is not shipped. -Dtests=false is the upstream default, spelled out
 	# here to make the rule visible. See .clinerules/project.md.
+	#
+	# Optical discs, DVB tuners and VDPAU are disabled project-wide, see
+	# .clinerules/project.md. dvbin was the only linux-only option (it needs
+	# linux/dvb/frontend.h), so the ARCH_CONFIGURE block is gone with it and
+	# /usr/share/dpkg/architecture.mk is no longer included.
 	dh_auto_configure -- \
 		-Dx11=disabled \
 		-Dwayland=enabled \
@@ -25,6 +24,7 @@ override_dh_auto_configure:
 		-Degl-x11=disabled \
 		-Dgl-x11=disabled \
 		-Dvaapi-x11=disabled \
+		-Dvdpau=disabled \
 		-Dvdpau-gl-x11=disabled \
 		-Dxv=disabled \
 		-Dx11-clipboard=disabled \
@@ -32,9 +32,11 @@ override_dh_auto_configure:
 		-Dbuild-date=false \
 		-Dmanpage-build=disabled \
 		-Dtests=false \
-		-Dcdda=enabled \
-		-Ddvdnav=enabled \
-		$(ARCH_CONFIGURE)
+		-Dcdda=disabled \
+		-Ddvdnav=disabled \
+		-Dlibbluray=disabled \
+		-Dlibarchive=disabled \
+		-Ddvbin=disabled
 
 execute_after_dh_auto_install:
 	mv debian/tmp/usr/share/zsh/site-functions debian/tmp/usr/share/zsh/vendor-completions

@@ -1,0 +1,45 @@
+#!/usr/bin/make -f
+# Сборка GStreamer Good Plugins 1.28.7 для crick Debian backports. Упаковка
+# взята из Debian (gst-plugins-good1.0 1.28.7-1) и упрощена: нет видеосинков
+# Qt и GTK, нет документации и тестов, не публикуется плагин PulseAudio
+# (звук обслуживает pipewire). Подробности — в README пакета.
+
+include /usr/share/dpkg/architecture.mk
+
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all
+
+# Ключевые решения:
+#   -Dqt5=disabled -Dqt6=disabled
+#                         видеосинки Qt основаны на QML, то есть на
+#                         X11-ориентированном API. В репозитории нет ни Qt,
+#                         ни X11, а видео показывают labwc и mpv;
+#   -Dgtk3=disabled       видеосинк GTK 3 не нужен: тот же GTK 3 уже есть
+#                         в репозитории, но без X11, и задачу вывода
+#                         видео решает labwc;
+#   -Ddoc=disabled        документация не собирается;
+#   -Dtests=disabled      тестовая система не собирается и не запускается.
+conf_flags = \
+	-Dpackage-name=GStreamer \
+	-Dpackage-origin=https://gstreamer.freedesktop.org \
+	-Dauto_features=enabled \
+	-Ddoc=disabled \
+	-Dtests=disabled \
+	-Dexamples=disabled \
+	-Dqt5=disabled \
+	-Dqt6=disabled \
+	-Dgtk3=disabled
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(conf_flags)
+
+override_dh_auto_test:
+
+override_dh_makeshlibs:
+	dh_makeshlibs -- -c4
+
+override_dh_installman:
+	# man-страницы не собираются (-Ddoc=disabled)
+	dh_installman --no-package

@@ -2,7 +2,7 @@
 
 Новые версии пакетов для **Debian 13 (trixie, amd64)**.
 
-Репозиторий собран по двум правилам, которые действуют для **всех** пакетов
+Репозиторий собран по трём правилам, которые действуют для **всех** пакетов
 (подробности — в `.clinerules/project.md`, в `repo/`):
 
 1. **Ничего лишнего не собирается:** ни документации (включая man-страницы,
@@ -12,74 +12,90 @@
 2. **X11 нет нигде:** ни одной зависимости от `libX11`, `libXext`,
    `libXrender`, `libxcb*`, `x11proto-dev`, Xwayland — ни в `Build-Depends`,
    ни в собранных библиотеках. Даже `libxkbcommon-x11` не публикуется.
+3. **Оптические диски, DVB-тюнеры и VDPAU не поддерживаются.** Аппаратное
+   ускорение там, где оно не устарело: VA-API и NVDEC/NVENC работают.
 
 Цена второго правила — **два намеренных нарушения ABI** (SONAME сохранён,
-символы удалены): у GTK 3/4 и теперь у `cairo`. Разбор — в README каждого
+символы удалены): у GTK 3/4 и у `cairo`. Разбор — в README каждого
 пакета.
 
 ## Состав
 
-| Пакет       |                                    | Версия     | Особенности |
-|-------------|------------------------------------|------------|------------------------------------------------------|
-| `fdk-aac`   | [🔗](packages/fdk-aac/README.md)   | 2.0.3      | Fraunhofer FDK AAC |
-| `libtsm`    | [🔗](packages/libtsm/README.md)    | 4.8.0      | конечный автомат терминала для KMSCON |
-| `kmscon`    | [🔗](packages/kmscon/README.md)    | 10.0.3     | терминальный эмулятор на DRM/KMS, без X11 |
-| `sfwbar`    | [🔗](packages/sfwbar/README.md)    | 1.0~beta17 | панель задач для Wayland-композиторов |
-| `mpv`       | [🔗](packages/mpv/README.md)       | 0.41.0     | чистый Wayland, X11 вырезан |
-| `celluloid` | [🔗](packages/celluloid/README.md) | 0.29       | GTK4-фронтенд для mpv |
-| `pipewire`  | [🔗](packages/pipewire/README.md)  | 1.6.9      | Bluetooth AAC; X11, JACK, V4L2 и libcamera отключены |
-| `wlroots`   | [🔗](packages/wlroots/README.md)   | 0.20.2     | библиотека композитора; DRM/libinput, без Xwayland |
-| `labwc`     | [🔗](packages/labwc/README.md)     | 0.20.2     | Wayland-композитор на wlroots |
+| Пакет | | Версия | Особенности |
+|---|---|---|---|
+| **Графический стек** | | | |
+| `wayland` | [🔗](packages/wayland/README.md) | 1.26.0 | базовая библиотека Wayland |
+| `libdrm` | [🔗](packages/libdrm/README.md) | 2.4.134 | управление DRM, без X11 |
+| `libxkbcommon` | [🔗](packages/libxkbcommon/README.md) | 1.13.1 | **без X11-части** — это ломает состав системы |
+| `pixman` | [🔗](packages/pixman/README.md) | 0.46.4 | растеризация 2D |
+| `wayland-protocols` | [🔗](packages/wayland-protocols/README.md) | 1.47 | протоколы Wayland |
+| `cairo` | [🔗](packages/cairo/README.md) | 1.18.6 | **Xlib/XCB вырезаны, ломается ABI** |
+| `gtk+3.0` | [🔗](packages/gtk+3.0/README.md) | 3.24.52 | **только Wayland, ломается ABI** |
+| `gtk4` | [🔗](packages/gtk4/README.md) | 4.22.5 | **только Wayland, ломается ABI** |
+| `wlroots` | [🔗](packages/wlroots/README.md) | 0.20.2 | библиотека композитора, без Xwayland |
+| `labwc` | [🔗](packages/labwc/README.md) | 0.20.2 | Wayland-композитор |
+| **Медиастек** | | | |
+| `ffmpeg` | [🔗](packages/ffmpeg/README.md) | 9.0.2 | **epoch 7**; без X11, дисков, DVB и VDPAU |
+| `gstreamer1.0` | [🔗](packages/gstreamer1.0/README.md) | 1.28.7 | ядро GStreamer |
+| `gstreamer1.0-plugins-base` | [🔗](packages/gstreamer1.0-plugins-base/README.md) | 1.28.7 | конвейер воспроизведения, GL только под Wayland |
+| `gstreamer1.0-plugins-good` | [🔗](packages/gstreamer1.0-plugins-good/README.md) | 1.28.7 | Matroska, VP8/VP9, FLAC; без видеосинков Qt и GTK |
+| `gstreamer1.0-plugins-bad` | [🔗](packages/gstreamer1.0-plugins-bad/README.md) | 1.28.7 | аппаратное декодирование; **без X11 и wpe** |
+| `gstreamer1.0-libav` | [🔗](packages/gstreamer1.0-libav/README.md) | 1.28.7 | мост к нашему FFmpeg |
+| `mpv` | [🔗](packages/mpv/README.md) | 0.41.0 | чистый Wayland; без X11, дисков, DVB и VDPAU |
+| `celluloid` | [🔗](packages/celluloid/README.md) | 0.29 | GTK 4-фронтенд для mpv |
+| **Аудио и терминал** | | | |
+| `pipewire` | [🔗](packages/pipewire/README.md) | 1.6.9 | Bluetooth AAC; X11, JACK, V4L2 и libcamera отключены |
+| `wireplumber` | [🔗](packages/wireplumber/README.md) | 0.5.17 | сессионный менеджер PipeWire; в trixie только 0.5.8 |
+| `pwvucontrol` | [🔗](packages/pwvucontrol/README.md) | 0.5.3 | регулятор громкости на GTK 4 + Rust; **нет в Debian** |
+| `fdk-aac` | [🔗](packages/fdk-aac/README.md) | 2.0.3 | AAC-кодек для pipewire |
+| `libtsm` | [🔗](packages/libtsm/README.md) | 4.8.0 | конечный автомат терминала для KMSCON |
+| `kmscon` | [🔗](packages/kmscon/README.md) | 10.0.3 | терминальный эмулятор на DRM/KMS, без X11 |
+| `sfwbar` | [🔗](packages/sfwbar/README.md) | 1.0~beta17 | панель задач для Wayland-композиторов |
+| **Графика** | | | |
+| `imagemagick` | [🔗](packages/imagemagick/README.md) | 7.1.2-32 | **epoch 8**, только Q16, **без X11**; снимает часть пакетов trixie |
 
-Библиотеки, которые публикуются в связи с `wlroots` (у 0.20.2 нет в trixie
-версий с нужным API, поэтому версии вытесняют штатные при `apt upgrade` —
-в каждом README есть разбор влияния и порядок отката):
+### Что ломает состав системы
 
-| Пакет               |                                            | Версия  | Зачем |
-|---------------------|--------------------------------------------|---------|----------------------------------------------------|
-| `wayland`           | [🔗](packages/wayland/README.md)           | 1.26.0  | API wayland 1.24+ использует `wlroots` |
-| `libdrm`            | [🔗](packages/libdrm/README.md)            | 2.4.134 | 17 констант `DRM_FORMAT_*` из libdrm 2.4.129+ |
-| `libxkbcommon`      | [🔗](packages/libxkbcommon/README.md)      | 1.13.1  | `XKB_LED_NAME_COMPOSE`/`KANA` из libxkbcommon 1.8+ |
-| `pixman`            | [🔗](packages/pixman/README.md)            | 0.46.4  | 64-битный формат `PIXMAN_a16b16g16r16` |
-| `wayland-protocols` | [🔗](packages/wayland-protocols/README.md) | 1.47    | color-management-v1 второй версии |
+Три пакета удаляют то, что есть в trixie, и это нужно понимать до `apt upgrade`:
 
-`libxkbcommon` собирается **без X11-части** (`-Denable-x11=false`): пакетов
-`libxkbcommon-x11-0`/`-dev` в репозитории нет, поэтому при `apt upgrade`
-штатный `libxkbcommon-x11-0` будет снят вместе со всем, что от него зависит
-(в том числе `libgstreamer-plugins-bad1.0-0` и Qt-приложения). Разбор —
-в `packages/libxkbcommon/README.md`.
+- **`libxkbcommon` собран без X11-части** (`-Denable-x11=false`): пакетов
+  `libxkbcommon-x11-0`/`-dev` в репозитории нет, поэтому штатный
+  `libxkbcommon-x11-0` будет снят вместе со всем, что от него зависит
+  (Qt-приложения, `libmutter-16-0` и далее). Собственный
+  `libgstreamer-plugins-bad1.0-0` этого репозитория от `libxkbcommon-x11-0`
+  не зависит — он собран с `-Dx11=disabled`, и в GStreamer 1.28.7
+  `libxkbcommon` встречается только в плагине `wpe` и в окне XCB плагина
+  `vulkan`, а оба выключены. Проверка: `apt-get -s upgrade`, разбор — в
+  `packages/libxkbcommon/README.md`.
+- **GTK 3 и GTK 4 собраны без X11** (только Wayland-бэкенд): при неизменном
+  SONAME из `libgtk-3.so.0` удалено 101 символ, из `libgtk-4.so.1` — 81
+  (все `gdk_x11_*`, `gdk_broadway_*` и часть X11-only API). Приложения,
+  зовущие X11-API GTK напрямую, после `apt upgrade` падают; порядок отката —
+  в README каждого пакета.
+- **`cairo` собран без Xlib/XCB** (`-Dxlib=disabled -Dxcb=disabled
+  -Dxlib-xcb=disabled`): при неизменном SONAME `libcairo.so.2` удалены 26
+  публичных функций `cairo_xlib_*` и `cairo_xcb_*`. Реально ломаются GTK 2
+  и `libghc-gi-gdkx11-dev`; GTK 3/4 и labwc используют только
+  `cairo_image_surface_*` и `cairo_create`.
+- **`imagemagick` снимает часть своего набора из trixie.** Мы не публикуем
+  PerlMagick, Magick++ и переходные метапакеты: их триксийские версии пинят
+  точную версию `imagemagick-7-common` и `-dev`-пакетов своей сборки, поэтому
+  автоматически снимаются `libimage-magick-perl`, `libimage-magick-q16-perl`,
+  `libmagick++-7-headers`, `libmagick++-7.q16-dev`, `libmagickcore-dev`,
+  `libmagickwand-dev`, `libmagick++-dev`, `perlmagick` и
+  `libmagickcore-7.q16-10-extra`. Все кодировщики и фильтры при этом входят
+  в `libmagickcore-7.q16-10`, так что поддержка форматов не теряется.
+  Проверка: `apt-get -s upgrade`, разбор — в `packages/imagemagick/README.md`.
 
-`cairo` собирается **без X11-бэкендов** (`-Dxlib=disabled -Dxcb=disabled`).
-Это вторая (после GTK) намеренная ломка ABI: при неизменном SONAME
-`libcairo.so.2` из библиотеки удалены 26 публичных функций `cairo_xlib_*` и
-`cairo_xcb_*`. Почему, что перестаёт работать и как проверить конкретную
-программу — в `packages/cairo/README.md`.
+### Отключённые аппаратные и форматные возможности
 
-| Пакет               |                                            | Версия  | Особенности |
-|---------------------|--------------------------------------------|---------|----------------------------------------------------|
-| `cairo`             | [🔗](packages/cairo/README.md)             | 1.18.6  | 2D-библиотека; Xlib/XCB-бэкенды вырезаны, ломается ABI |
-| `gtk+3.0`           | [🔗](packages/gtk+3.0/README.md)           | 3.24.52 | GTK 3 без X11; без doc/examples/tests |
-| `gtk4`              | [🔗](packages/gtk4/README.md)              | 4.22.5  | GTK 4 без X11; без doc/examples/tests |
-
-GTK собирается без X11 (только Wayland-бэкенд) — это урезает и набор
-зависимостей, и состав репозитория, но **ломает ABI**: из
-`libgtk-3.so.0`/`libgtk-4.so.1` удалены символы `gdk_x11_*` при неизменном
-SONAME. Приложения, зовущие X11-API GTK напрямую (без
-`#ifdef GDK_WINDOWING_X11`), после `apt upgrade` падают; порядок отката —
-в README каждого пакета:
-
-| Пакет               |                                            | Версия  | Особенности |
-|---------------------|--------------------------------------------|---------|----------------------------------------------------|
-| `gtk+3.0`              | [🔗](packages/gtk+3.0/README.md)              | 3.24.52 | GTK 3 без X11; без doc/examples/tests |
-| `gtk4`              | [🔗](packages/gtk4/README.md)              | 4.22.5  | GTK 4 без X11; без doc/examples/tests |
-
-Состав бинарных пакетов сокращён против Debian: `gtk+3.0` — 7 пакетов
-(`libgtk-3-0t64`, `libgail-3-0t64`, `libgail-3-dev`, `libgtk-3-common`,
-`libgtk-3-bin`, `libgtk-3-dev`, `gir1.2-gtk-3.0`), `gtk4` — 6 пакетов
-(`libgtk-4-1`, `libgtk-4-common`, `libgtk-4-bin`, `libgtk-4-dev`,
-`gir1.2-gtk-4.0`, `gtk-update-icon-cache`). Именно `libgail-3-0t64`
-(пинит `libgtk-3-0t64`) и `gtk-update-icon-cache` (от него зависят
-`libgtk-3-bin` и `libgtk-4-bin`) обязательны в этих наборах.
+- **Оптические диски и DVB-тюнеры**: у `mpv` выключены CD, DVD, Blu-ray и
+  `dvbin`, у `ffmpeg` — `libcdio`, `libbluray`, `libdvdnav`, `libdvdread` и
+  `--disable-v4l2-m2m`, у GStreamer — `cdparanoia`, `dvb` и `dvdnav`.
+- **VDPAU** отключён везде: у `mpv` (`-Dvdpau=disabled`), у `ffmpeg`
+  (`--disable-vdpau`). В GStreamer плагина vdpau в 1.28.7 нет. VA-API и
+  NVDEC/NVENC работают.
+- Man-страниц нет ни у одного пакета, кроме готовых, приходящих в tar-боле.
 
 ## Подключение
 
