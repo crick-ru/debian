@@ -54,5 +54,10 @@ override_dh_makeshlibs:
 	dh_makeshlibs --remaining-packages -- -c4
 
 override_dh_installman:
-	# man-страницы не собираются (-Ddoc=disabled)
-	dh_installman --no-package
+	# Man-страниц у пакетов нет: -Ddoc=disabled, и debian/*.manpages тоже
+	# нет, поэтому обычный dh_installman и так ничего не ставит. Раньше здесь
+	# стоял несуществующий ключ --no-package: debhelper его не знает, и
+	# Getopt::Long читал его как отрицание общего ключа --package=<s>,
+	# который требует аргумента, — сборка падала с «Option no-package
+	# requires an argument». Override оставлен пустым намеренно: так видно,
+	# что отсутствие man-страниц осознанное, а не забытое.
