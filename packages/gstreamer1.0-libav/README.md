@@ -15,6 +15,10 @@ FFmpeg: плагин оборачивает кодировщики и декод
 
 - Документация: `-Ddoc=disabled`; man-страниц нет.
 - Тесты: `-Dtests=disabled`, `xvfb` и `xauth` убраны из `Build-Depends`.
+- Опции `examples` у gst-libav нет вовсе: апстрим объявляет только
+  `package-name`, `package-origin`, `doc` и `tests`, примеров в tar-боле тоже
+  нет, поэтому `-Dexamples=disabled` был бы неизвестной опцией, а meson на
+  такие падает (`ERROR: Unknown options`).
 
 Больше ничего выключать не нужно: сам плагин не обращается ни к X11, ни к
 оптическим дискам, ни к VDPAU. Видеосинки лежат в наборах «base» и «good»,
@@ -28,6 +32,13 @@ FFmpeg: плагин оборачивает кодировщики и декод
   собирается именно против неё (стадии 1–3 в `build.yml`), а не против
   версии из триxie.
 - `Maintainer`: нейтральная идентичность проекта.
+- Единственный бинарный пакет и единственный `*.install` — значит
+  `dh_auto_install` вызывается с `--destdir=debian/tmp`. Без этого debhelper
+  (одиночный пакет) ставит файлы прямо в `debian/gstreamer1.0-libav` — так
+  делает и Debian, у которой для gst-libav нет ни одного `*.install`, — а
+  `dh_install` искал бы их в `debian/tmp` и падал с «Cannot find (any matches
+  for) "usr/lib/*/gstreamer-1.0/libgstlibav.so"». С явным destdir работает и
+  список `.install`, и проверка `dh_missing --fail-missing`.
 
 ## Влияние на систему и откат
 

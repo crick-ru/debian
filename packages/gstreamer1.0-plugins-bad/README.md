@@ -33,9 +33,12 @@
   зависимость нашей сборки на штатную. Пакет `gstreamer1.0-wpe` не
   публикуется, `libwpewebkit-2.0-dev` и `libwpebackend-fdo-1.0-dev` убраны из
   `Build-Depends`.
-- **DVB-тюнеры и DVD**: `-Ddvb=disabled -Ddvdnav=disabled`; `libdvdnav-dev`
-  убран из `Build-Depends`. Правило — в `.clinerules/project.md`, раздел
-  «Оптические диски и DVB-тюнеры отключаются».
+- **DVB-тюнеры и DVD**: `-Ddvb=disabled -Dresindvd=disabled`; `libdvdnav-dev`
+  убран из `Build-Depends`. Опция DVD называется именно `resindvd` (плагин
+  `libgstresindvd.so`): имени `dvdnav` в `meson.options` нет, а meson падает
+  на неизвестной опции (`ERROR: Unknown options`). Правило — в
+  `.clinerules/project.md`, раздел «Оптические диски и DVB-тюнеры
+  отключаются».
 - **OpenCV**: `-Dopencv=disabled`, как и в Debian: тяжёлая библиотека
   компьютерного зрения, в триxie тянет X11. `libopencv-dev` убран.
   Пакеты `gstreamer1.0-opencv` и `libgstreamer-opencv1.0-0` не публикуются.
@@ -45,9 +48,11 @@
   `libcpuinfo0`, `libpthreadpool0`, `libprotobuf32t64`, `libre2-11`), а
   ML-фильтры не нужны ни десктопу, ни серверу.
 - **Устройства захвата**: `-Dbluez=disabled -Ddc1394=disabled -Dfbdev=disabled
-  -Duvch264=disabled -Dv4l2codecs=disabled -Drfb=disabled`. Bluetooth-звук
+  -Duvch264=disabled -Dv4l2codecs=disabled -Dlibrfb=disabled`. Bluetooth-звук
   обслуживает pipewire, камеры и framebuffer в целевом сценарии не нужны.
-  Строка `libgstrfbsrc.so` убрана из `gstreamer1.0-plugins-bad.install`.
+  Опция VNC-источника называется `librfb` (`gst/librfb`), имени `rfb` в
+  `meson.options` нет. Строка `libgstrfbsrc.so` убрана из
+  `gstreamer1.0-plugins-bad.install`.
 - **Платформенное и тяжёлое**: `-Dladspa=disabled -Dlv2=disabled
   -Dopenni2=disabled -Dwebrtc=disabled -Dsctp=disabled -Dmicrodns=disabled
   -Dopensles=disabled -Dtinyalsa=disabled -Dmagicleap=disabled

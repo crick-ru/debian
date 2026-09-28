@@ -52,6 +52,18 @@
   сборка использовала версии crate-ов, зафиксированные в `Cargo.lock` из
   tar-бола, а не разрешала дерево зависимостей заново.
 - `RUST_LOG=off` — убрать шум прогресса cargo из лога сборки.
+- Состав пакета: бинарник `usr/bin/pwvucontrol`, desktop-файл в
+  `usr/share/applications`, AppStream metainfo в `usr/share/metainfo`,
+  GSchema в `usr/share/glib-2.0/schemas`, иконки hicolor (scalable и
+  symbolic), GResource в `usr/share/pwvucontrol` и переводы в
+  `usr/share/locale`. Всё это перечислено в `debian/pwvucontrol.install`.
+  Скомпилированного `gschemas.compiled` в пакете нет и быть не должно: его
+  собирает триггер dpkg, а `gnome.post_install` при установке в `DESTDIR`
+  вообще не запускается (в meson у этих шагов `skip_if_destdir`).
+- Пакет единственный, поэтому `dh_auto_install` вызывается с
+  `--destdir=debian/tmp`: по умолчанию debhelper для одиночного пакета
+  ставит файлы прямо в `debian/pwvucontrol`, и тогда `dh_install` не нашёл бы
+  их в `debian/tmp`.
 
 ## Требования к сети при сборке
 

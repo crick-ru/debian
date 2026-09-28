@@ -17,7 +17,10 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #                            libgstreamer-plugins-bad1.0-0 не зависит ни от
 #                            libxkbcommon-x11-0, ни от libxkbcommon0;
 #   -Ddvb=disabled            DVB-тюнеры выключены;
-#   -Ddvdnav=disabled         навигация по DVD выключена (оптический диск);
+#   -Dresindvd=disabled       навигация по DVD выключена (оптический диск).
+#                            Опция называется resindvd (а не dvdnav): она
+#                            гасит плагин libgstresindvd.so, собираемый из
+#                            ext/resindvd;
 #   -Dwpe=disabled -Dwpe2=disabled
 #                            wpe выключен: libwpewebkit-2.0-1 из trixie сам
 #                            Depends на libgstreamer-plugins-bad1.0-0, то
@@ -45,7 +48,7 @@ conf_flags = \
 	-Dvulkan=enabled \
 	-Dvulkan-windowing=wayland \
 	-Ddvb=disabled \
-	-Ddvdnav=disabled \
+	-Dresindvd=disabled \
 	-Dwpe=disabled \
 	-Dwpe2=disabled \
 	-Dopencv=disabled \
@@ -56,7 +59,7 @@ conf_flags = \
 	-Dfbdev=disabled \
 	-Duvch264=disabled \
 	-Dv4l2codecs=disabled \
-	-Drfb=disabled \
+	-Dlibrfb=disabled \
 	-Dladspa=disabled \
 	-Dlv2=disabled \
 	-Dsbc=disabled \

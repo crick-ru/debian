@@ -11,6 +11,10 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 # Ключевые решения:
 #   -Ddoc=disabled   документация не собирается;
 #   -Dtests=disabled тестовая система не собирается и не запускается.
+# Опции examples у gst-libav нет вовсе — апстрим объявляет только
+# package-name, package-origin, doc и tests, примеров в tar-боле тоже нет,
+# поэтому передавать -Dexamples было бы ошибкой: meson падает на неизвестной
+# опции с «ERROR: Unknown options».
 # Ничего больше выключать не нужно: сам плагин не обращается ни к X11, ни к
 # оптическим дискам, ни к VDPAU. Видеосинки лежат в наборах base и good, а
 # они собраны без X11.
@@ -19,14 +23,22 @@ conf_flags = \
 	-Dpackage-origin=https://gstreamer.freedesktop.org \
 	-Dauto_features=enabled \
 	-Ddoc=disabled \
-	-Dtests=disabled \
-	-Dexamples=disabled
+	-Dtests=disabled
 
 %:
 	dh $@
 
 override_dh_auto_configure:
 	dh_auto_configure -- $(conf_flags)
+
+# Единственный бинарный пакет: без явного --destdir dh_auto_install ставит
+# файлы прямо в debian/gstreamer1.0-libav (так делает и Debian, где для
+# gst-libav нет ни одного *.install), а dh_install искал бы их в debian/tmp.
+# Явный destdir возвращает сборку к обычной схеме: файлы в debian/tmp,
+# переносит их gstreamer1.0-libav.install, а dh_missing --fail-missing
+# проверяет, что ничего не забыто.
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/tmp
 
 override_dh_auto_test:
 

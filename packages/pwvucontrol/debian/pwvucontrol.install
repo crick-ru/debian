@@ -1,1 +1,8 @@
 usr/bin/pwvucontrol
+usr/share/applications/com.saivert.pwvucontrol.desktop
+usr/share/glib-2.0/schemas/com.saivert.pwvucontrol.gschema.xml
+usr/share/icons/hicolor/scalable/apps/com.saivert.pwvucontrol.svg
+usr/share/icons/hicolor/symbolic/apps/com.saivert.pwvucontrol-symbolic.svg
+usr/share/locale
+usr/share/metainfo/com.saivert.pwvucontrol.metainfo.xml
+usr/share/pwvucontrol

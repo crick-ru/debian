@@ -20,3 +20,12 @@ export RUST_LOG = off
 # tests (validate-desktop, validate-appdata, validate-gschema); they are
 # validation checks rather than a test system, and none of them is run here.
 override_dh_auto_test:
+
+# Единственный бинарный пакет: без явного --destdir dh_auto_install ставит
+# файлы прямо в debian/pwvucontrol, а dh_install ищет их в debian/tmp и падает
+# с «Cannot find ... (tried in ., debian/tmp)». Явный destdir возвращает
+# сборку к обычной схеме: файлы попадают в debian/tmp, их переносит
+# debian/pwvucontrol.install, а dh_missing --fail-missing проверяет, что
+# ничего не забыто.
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/tmp

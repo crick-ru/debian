@@ -49,6 +49,13 @@ GStreamer и FFmpeg.
   удалены, пакет `ffmpeg-doc` не публикуется, а `debian/ffmpeg.manpages`
   вместе с `debian/qt-faststart.1` не используется. `man ffmpeg` не работает.
 - **Тесты**: `override_dh_auto_test` пуст, FATE не собирается и не запускается.
+- **Примеры**: исходники `doc/examples/*.c` вместе с `Makefile` и `README`
+  ставятся целью `install` — она складывается из двух правил: верхнего
+  `Makefile` (`install-libs install-headers`) и включаемого
+  `doc/examples/Makefile` (`install-examples`). Опции configure для примеров
+  нет, `--disable-doc` их не отключает, поэтому каталог
+  `usr/share/ffmpeg/examples` удаляется в `override_dh_auto_install` и в
+  репозиторий не попадает.
 
 ## Изменено
 

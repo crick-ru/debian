@@ -132,6 +132,14 @@ override_dh_auto_install:
 	# Готовые man-страницы из tar-бола не ставятся, сгенерированные не
 	# собираются: man-страниц у пакета ffmpeg нет.
 	rm -rf debian/tmp/usr/share/man
+	# Примеры (исходники doc/examples/*.c вместе с Makefile и README,
+	# установленные в usr/share/ffmpeg/examples) не публикуются: правило
+	# репозитория — примеры не собираются и не ставятся. Отдельной опции
+	# configure для них нет, а --disable-doc их не отключает: цель install
+	# складывается из двух правил — верхнего Makefile (install-libs
+	# install-headers) и включаемого doc/examples/Makefile (install-examples),
+	# поэтому каталог удаляется из staging-дерева до dh_install.
+	rm -rf debian/tmp/usr/share/ffmpeg/examples
 
 override_dh_install:
 	dh_install --remaining-packages
