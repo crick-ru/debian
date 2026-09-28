@@ -175,9 +175,6 @@ libgstgl-1.0.so.0 libgstreamer-gl1.0-0 #MINVER#
  (arch=linux-any)gst_gl_display_wayland_get_type@Base 1.14.0
  (arch=linux-any)gst_gl_display_wayland_new@Base 1.14.0
  (arch=linux-any)gst_gl_display_wayland_new_with_display@Base 1.14.0
- gst_gl_display_x11_get_type@Base 1.14.0
- gst_gl_display_x11_new@Base 1.14.0
- gst_gl_display_x11_new_with_display@Base 1.14.0
  gst_gl_dma_buf_transform_drm_formats_to_gst_formats@Base 1.25.1
  gst_gl_dma_buf_transform_gst_formats_to_drm_formats@Base 1.25.1
  gst_gl_drm_format_flags_get_type@Base 1.25.1

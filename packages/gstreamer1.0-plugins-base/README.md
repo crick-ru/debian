@@ -49,8 +49,32 @@
 
 ## Влияние на систему и откат
 
-SONAME библиотек не менялись, символы не удалены: X11-видеосинки — это
-отдельные плагины, а не часть ABI. Возврат к триxie-пакетам безопасен:
+SONAME библиотек не менялись. Символы тоже почти не тронуты: X11-видеосинки
+(`ximagesink`, `xvimagesink`) — это отдельные плагины, а не часть ABI.
+
+**Исключение — `libgstreamer-gl1.0-0`.** Из неё удалены три символа:
+
+```
+gst_gl_display_x11_get_type
+gst_gl_display_x11_new
+gst_gl_display_x11_new_with_display
+```
+
+Они исчезли вместе с X11 (тот же случай, что и `gdk_x11_*` в `gtk+3.0` и
+`gtk4`): SONAME `libgstgl-1.0.so.0` прежний, символы пропали, и
+`debian/libgstreamer-gl1.0-0.symbols` перегенерирован без них, иначе
+`dpkg-gensymbols` роняет сборку на «symbols disappeared». Программы,
+вызывающие `gst_gl_display_x11_*` напрямую, после `apt upgrade` не
+запустятся; проверка конкретной программы:
+
+```
+readelf -Ws /usr/lib/x86_64-linux-gnu/libmpv.so.2 | grep gst_gl_display_x11
+```
+
+Ни `mpv`, ни `celluloid`, ни `sfwbar` этого репозитория таких вызовов не
+делают: GL-библиотека собирается только под Wayland и EGL.
+
+Возврат к триксийским пакетам безопасен:
 
 ```
 apt install gstreamer1.0-plugins-base/trixie gstreamer1.0-plugins-base-apps/trixie
