@@ -16,6 +16,11 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #   -Dgtk3=disabled       видеосинк GTK 3 не нужен: тот же GTK 3 уже есть
 #                         в репозитории, но без X11, и задачу вывода
 #                         видео решает labwc;
+#   -Dx11=disabled        единственный X11-плагин набора, ximagesrc, не
+#                         собирается: в репозитории нет X11 вообще. Раньше
+#                         плагин оставался в gstreamer1.0-plugins-good.install
+#                         и падал бы на dh_missing --fail-missing; строка
+#                         удалена;
 #   -Ddoc=disabled        документация не собирается;
 #   -Dtests=disabled      тестовая система не собирается и не запускается.
 conf_flags = \
@@ -27,7 +32,8 @@ conf_flags = \
 	-Dexamples=disabled \
 	-Dqt5=disabled \
 	-Dqt6=disabled \
-	-Dgtk3=disabled
+	-Dgtk3=disabled \
+	-Dx11=disabled
 
 %:
 	dh $@

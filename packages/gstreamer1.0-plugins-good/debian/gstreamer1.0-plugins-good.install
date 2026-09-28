@@ -63,7 +63,6 @@ usr/lib/*/gstreamer-1.0/libgstvpx.so
 usr/lib/*/gstreamer-1.0/libgstwavenc.so
 usr/lib/*/gstreamer-1.0/libgstwavpack.so
 usr/lib/*/gstreamer-1.0/libgstwavparse.so
-usr/lib/*/gstreamer-1.0/libgstximagesrc.so
 usr/lib/*/gstreamer-1.0/libgstxingmux.so
 usr/lib/*/gstreamer-1.0/libgsty4m.so
 usr/share/locale
