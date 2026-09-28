@@ -46,4 +46,11 @@ override_dh_auto_test:
 # в репозиторий не попадают: это инструмент сборки, а не то, что нужно
 # пользователю. Файлы dh_gstscancodecs убраны из libgstreamer1.0-dev.install.
 override_dh_makeshlibs:
-	dh_makeshlibs -- -c4
+	# Каталог плагинов исключён: libgstcoreelements.so, libgstcoretracers.so и
+	# прочие .so оттуда загружаются сканером плагинов, а не линкуются
+	# программами, поэтому их символы никто не импортирует и в
+	# libgstreamer1.0-0.symbols их нет. Без -X dh_makeshlibs считает их
+	# новыми библиотеками и роняет сборку: "new libraries appeared in the
+	# symbols file" на уровне -c4. Так же исключён и в
+	# gstreamer1.0-plugins-base.
+	dh_makeshlibs -X /usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-1.0 -- -c4
