@@ -10,7 +10,7 @@ Debian (`gstreamer1.0 1.28.7-1`) и упрощена. Это фундамент 
 - `libgstreamer1.0-dev` — заголовки, pkg-config и данные GObject
   introspection (`gir1.2-gstreamer-1.0`).
 - `gstreamer1.0-tools` — `gst-inspect-1.0`, `gst-launch-1.0`, `gst-stats-1.0`,
-  `gst-tester-1.0`, `gst-typefind-1.0`, bash-дополнения.
+  `gst-typefind-1.0`, bash-дополнения.
 
 ## Отключено
 

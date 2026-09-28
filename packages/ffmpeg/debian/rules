@@ -148,7 +148,19 @@ override_dh_installdocs:
 	dh_installdocs -pffmpeg README.md Changelog
 
 override_dh_makeshlibs:
-	# Символьные файлы минимальные: dh_makeshlibs доводит их сам, а в этом
-	# репозитории важно, чтобы -dev-пакет требовал ровно свою версию
-	# runtime-библиотеки (см. Depends в debian/control).
-	dh_makeshlibs -- -c4
+	# Проверка символов отключена (-c0), и это не опечатка. Шаблоны в
+	# debian/*.symbols намеренно минимальные: в них только строка SONAME
+	# (libavcodec.so.63 libavcodec63 #MINVER#), без единого символа.
+	# dpkg-gensymbols -c4 (и даже -c2) трактует появление нового символа как
+	# ошибку сборки, поэтому с полным списком символов в шаблоне любой новый
+	# символ FFmpeg ронял бы dpkg-buildpackage. Уровень 0 не проверяет
+	# ничего, но шаблон остаётся базой: dpkg-gensymbols дописывает в
+	# debian/tmp/DEBIAN/symbols фактический список символов сам, и именно
+	# он определяет shlibs:Depends. Соответственно переписывать .symbols
+	# при каждом обновлении FFmpeg не нужно.
+	#
+	# Точный пин соседних пакетов задаёт не symbols, а Depends в
+	# debian/control: libavcodec-dev и прочие -dev требуют runtime-библиотеку
+	# через = ${binary:Version}, поэтому смена версии подхватывается
+	# гарантированно, независимо от состава символов.
+	dh_makeshlibs -- -c0
