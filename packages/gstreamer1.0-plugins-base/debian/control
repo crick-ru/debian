@@ -29,6 +29,7 @@ Build-Depends:
  pkgconf,
  python3,
  iso-codes,
+ libasound2-dev [linux-any],
  libbrotli-dev,
  libdrm-dev [linux-any],
  libegl-dev,
