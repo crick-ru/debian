@@ -97,6 +97,15 @@ CONFIG := \
 %:
 	dh $@
 
+override_dh_auto_clean:
+	# Верхнеуровневый Makefile апстрима подключает ffbuild/config.mak, а тот
+	# создаётся только configure, поэтому dh_auto_clean («make distclean») без
+	# предварительной конфигурации падает с «No rule to make target
+	# 'ffbuild/config.mak'». Сборка ведётся вне дерева исходников
+	# (см. override_dh_auto_configure), поэтому в самом дереве чистить нечего —
+	# удаляем только сборочный каталог.
+	rm -rf debian/build
+
 override_dh_auto_configure:
 	# Сборка в отдельном каталоге, чтобы не засорять дерево исходников.
 	mkdir -p debian/build

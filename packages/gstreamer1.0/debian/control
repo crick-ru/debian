@@ -21,6 +21,7 @@ Build-Depends:
  debhelper-compat (= 13),
  dh-exec,
  dh-sequence-gir,
+ gir1.2-glib-2.0-dev,
  bison,
  flex,
  gobject-introspection (>= 1.80),
