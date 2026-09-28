@@ -37,7 +37,7 @@ Build-Depends:
  libgl-dev,
  libgles-dev,
  libglib2.0-dev (>= 2.62),
- libgraphene-gobject-1.0-dev,
+ libgraphene-1.0-dev,
  libgstreamer1.0-dev (>= 1.28.3),
  libgudev-1.0-dev [linux-any],
  libjpeg-dev,
