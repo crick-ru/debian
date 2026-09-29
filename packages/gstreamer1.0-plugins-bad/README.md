@@ -105,8 +105,11 @@
 - Документация и примеры: `-Ddoc=disabled -Dexamples=disabled`; man-страниц
   нет.
 - Тесты: `-Dtests=disabled`, `xvfb` и `xauth` убраны из `Build-Depends`.
-- Утилиты `gst-transcoder-service` и `gst-transcoder` из
-  `gstreamer1.0-plugins-bad-apps` не публикуются.
+- Утилиты `gst-transcoder-1.0` и `gst-transcoder-service` из
+  `gstreamer1.0-plugins-bad-apps` не публикуются: в `debian/rules` они
+  удаляются из staging-дерева в `override_dh_auto_install`. Без этого
+  `dh_missing` (в compat 13 он по умолчанию работает с `--fail-missing`)
+  падает на файле, который никто не устанавливает.
 - Отладочные символы (`-dbgsym`) не собираются и не публикуются.
 
 ## Изменено

@@ -120,5 +120,20 @@ override_dh_auto_configure:
 
 override_dh_auto_test:
 
+# Утилиты gst-transcoder-1.0 и gst-transcoder-service из
+# gstreamer1.0-plugins-bad-apps не публикуются: это инструменты
+# сопровождения, а не то, что нужно пользователю. Они убираются из
+# staging-дерева, иначе dh_missing (в compat 13 он по умолчанию
+# работает с --fail-missing) падает на файле, который никто не
+# устанавливает.
+#
+# Первой строкой обязательно dh_auto_install: свой override полностью
+# заменяет штатный, и без явного вызова в debian/tmp не попало бы
+# ничего - dh_install затем не найдёт ни одного файла.
+override_dh_auto_install:
+	dh_auto_install
+	rm -f debian/tmp/usr/bin/gst-transcoder-1.0 \
+		debian/tmp/usr/bin/gst-transcoder-service
+
 override_dh_makeshlibs:
 	dh_makeshlibs -- -c4
