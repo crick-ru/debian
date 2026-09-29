@@ -66,5 +66,16 @@ override_dh_auto_configure:
 
 override_dh_auto_test:
 
+# dh_auto_install при единственном бинарном пакете ставит файлы прямо в
+# debian/<package>/, а dh_install ищет их в текущем каталоге и в
+# debian/tmp (см. dh_install(1), раздел FILES). Без явного destdir
+# получается расхождение: meson ставит в
+# debian/gstreamer1.0-plugins-good/, а dh_install затем сообщает
+# "Cannot find (any matches for) ..." на каждый плагин и обрывает
+# сборку. После удаления пакетов с библиотеками в наборе остался ровно
+# один бинарный пакет, поэтому destdir задан явно.
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/tmp
+
 override_dh_makeshlibs:
 	dh_makeshlibs -- -c4

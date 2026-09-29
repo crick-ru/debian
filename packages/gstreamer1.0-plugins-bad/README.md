@@ -81,6 +81,13 @@
   `libajantv2` (AJA NTV2), `vulkan_video_codec_*.h` и других. Состав набора
   задают перечисленные ниже отключения плюс фактический состав
   `Build-Depends`.
+- **`libssl-dev`**: добавлен ради плагинов `libgstaes.so` и `libgstdtls.so` —
+  оба ищут `openssl` и `libcrypto` через pkg-config (`ext/aes`,
+  `ext/dtls`). Без пакета они молча выключаются, и сборка падает на
+  `dh_install: missing files`.
+- **`libdrm-dev`, `zlib1g-dev`, `libopengl-dev`, `libegl-dev`,
+  `libgles-dev`**: добавлены из-за `.pc`-файлов нашего
+  `gstreamer1.0-plugins-base`.
 - **Синхронизация `.install`**: `gstreamer1.0-plugins-bad.install` и
   `libgstreamer-plugins-bad1.0-0.install` перечисляют ровно то, что
   фактически собирается (проверено `meson setup` с флагами из `debian/rules`).

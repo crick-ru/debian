@@ -20,6 +20,10 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #   * нейросетевые фильтры выключены (-Donnx=disabled -Dtflite=disabled),
 #     они не нужны ни десктопу, ни серверу;
 #   * прочие тяжёлые и платформенные элементы выключены (см. debian/rules);
+#   * libssl-dev добавлен для плагинов libgstaes.so и libgstdtls.so: оба
+#     ищут openssl и libcrypto через pkg-config (ext/aes, ext/dtls), а без
+#     него они молча выключаются, и dh_install падает на отсутствующих
+#     файлах из .install;
 #   * libdrm-dev, zlib1g-dev, libopengl-dev, libegl-dev, libgles-dev
 #     добавлены из-за .pc-файлов нашего gstreamer1.0-plugins-base:
 #     gstreamer-allocators-1.0.pc объявляет "Requires: libdrm >= 2.4.98",
@@ -74,6 +78,7 @@ Build-Depends:
  libpng-dev,
  librtmp-dev,
  libsrtp2-dev,
+ libssl-dev,
  libva-dev,
  libvpl-dev,
  libvulkan-dev,
