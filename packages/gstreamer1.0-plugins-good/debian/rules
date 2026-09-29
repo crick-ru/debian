@@ -9,6 +9,16 @@ include /usr/share/dpkg/architecture.mk
 export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 
 # Ключевые решения:
+#   -Dauto_features не задаётся намеренно. Это встроенная опция meson: она
+#                         превращает все опции со значением 'auto' в 'enabled',
+#                         то есть необязательные зависимости становятся
+#                         обязательными. Сборка на этом ломалась по очереди на
+#                         nasm (опция asm), затем на libraw1394/libavc1394/
+#                         libiec61883 (dv1394) и libgudev/libv4l2 (v4l2).
+#                         Состав набора задают перечисленные ниже отключения
+#                         плюс фактический состав Build-Depends, а .install
+#                         приведён в соответствие с фактически собираемыми
+#                         плагинами;
 #   -Dqt5=disabled -Dqt6=disabled
 #                         видеосинки Qt основаны на QML, то есть на
 #                         X11-ориентированном API. В репозитории нет ни Qt,
@@ -16,24 +26,37 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #   -Dgtk3=disabled       видеосинк GTK 3 не нужен: тот же GTK 3 уже есть
 #                         в репозитории, но без X11, и задачу вывода
 #                         видео решает labwc;
-#   -Dx11=disabled        единственный X11-плагин набора, ximagesrc, не
-#                         собирается: в репозитории нет X11 вообще. Раньше
-#                         плагин оставался в gstreamer1.0-plugins-good.install
-#                         и падал бы на dh_missing --fail-missing; строка
-#                         удалена;
+#   -Dximagesrc=disabled  единственный X11-плагин набора, ximagesrc, не
+#                         собирается: в репозитории нет X11 вообще. Важно:
+#                         опции 'x11' в gst-plugins-good 1.28.7 НЕТ вообще
+#                         (есть 'ximagesrc' и её подопции xshm/xfixes/
+#                         xdamage/navigation), поэтому прежний -Dx11=disabled
+#                         срывал конфигурацию с "Unknown options: x11";
+#   -Dpulse=disabled      плагин libgstpulseaudio.so не публикуется: звук
+#                         обслуживает pipewire с pulse-совместимостью. Раньше
+#                         строка была убрана только из .install, и сборку
+#                         ронял dh_missing --fail-missing (в compat 13 это
+#                         поведение по умолчанию) на неустановленном файле;
+#                         libpulse-dev убран из Build-Depends, mpv имеет свой;
+#   -Dv4l2=disabled       захват с видеоустройств (V4L2) не нужен - это
+#                         телекамеры и ТВ-тюнеры, тот же класс, что DVB;
+#   -Doss4=disabled       устаревший аудио-API OSSv4; звук идёт через
+#                         ALSA и pipewire;
 #   -Ddoc=disabled        документация не собирается;
 #   -Dtests=disabled      тестовая система не собирается и не запускается.
 conf_flags = \
 	-Dpackage-name=GStreamer \
 	-Dpackage-origin=https://gstreamer.freedesktop.org \
-	-Dauto_features=enabled \
 	-Ddoc=disabled \
 	-Dtests=disabled \
 	-Dexamples=disabled \
 	-Dqt5=disabled \
 	-Dqt6=disabled \
 	-Dgtk3=disabled \
-	-Dx11=disabled
+	-Dximagesrc=disabled \
+	-Dpulse=disabled \
+	-Dv4l2=disabled \
+	-Doss4=disabled
 
 %:
 	dh $@

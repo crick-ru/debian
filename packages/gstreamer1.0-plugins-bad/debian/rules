@@ -9,13 +9,34 @@ include /usr/share/dpkg/architecture.mk
 export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 
 # Ключевые решения:
+#   -Dauto_features не задаётся намеренно. Эта встроенная опция meson
+#                         превращает все опции 'auto' в 'enabled', то есть
+#                         необязательные зависимости становятся
+#                         обязательными. Для набора bad это означало бы
+#                         требовать libajantv2, aom, rist, zbar, flite,
+#                         frei0r, curl, shm, ttfs, spandsp, sndfile,
+#                         soundtouch, openaptx, wildmidi, fluidsynth, midi
+#                         и другие - ни одного из них в Build-Depends нет и
+#                         ни один не нужен. Состав набора задают перечисленные
+#                         ниже отключения плюс фактический состав
+#                         Build-Depends, а .install синхронизирован с
+#                         фактически собираемыми плагинами;
 #   -Dx11=disabled            X11 выключен в плагинах Vulkan, GL и rfb;
-#   -Dvulkan-windowing=wayland окно Vulkan только Wayland. Вместе с
+#   -Dvulkan=enabled
+#   -Dvulkan-video=disabled
+#   -Dvulkan-windowing=wayland
+#                            окно Vulkan только Wayland. Вместе с
 #                            -Dx11=disabled это убирает единственные
 #                            обращения GStreamer к libxkbcommon: в 1.28.7
 #                            это плагин wpe и окно XCB в Vulkan. Поэтому
 #                            libgstreamer-plugins-bad1.0-0 не зависит ни от
-#                            libxkbcommon-x11-0, ни от libxkbcommon0;
+#                            libxkbcommon-x11-0, ни от libxkbcommon0.
+#                            vulkan-video (кодирование и декодирование через
+#                            Vulkan Video Extensions) выключено: в trixie нет
+#                            заголовков vulkan_video_codec_*.h, а с
+#                            -Dauto_features=enabled опция 'auto' стала бы
+#                            обязательной и конфигурация падала бы с
+#                            "Vulkan Video extensions headers not found";
 #   -Ddvb=disabled            DVB-тюнеры выключены;
 #   -Dresindvd=disabled       навигация по DVD выключена (оптический диск).
 #                            Опция называется resindvd (а не dvdnav): она
@@ -39,13 +60,13 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 conf_flags = \
 	-Dpackage-name=GStreamer \
 	-Dpackage-origin=https://gstreamer.freedesktop.org \
-	-Dauto_features=enabled \
 	-Dgpl=enabled \
 	-Ddoc=disabled \
 	-Dtests=disabled \
 	-Dexamples=disabled \
 	-Dx11=disabled \
 	-Dvulkan=enabled \
+	-Dvulkan-video=disabled \
 	-Dvulkan-windowing=wayland \
 	-Ddvb=disabled \
 	-Dresindvd=disabled \

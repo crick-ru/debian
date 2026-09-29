@@ -34,23 +34,24 @@
 | `gtk4` | [🔗](packages/gtk4/README.md) | 4.22.5 | **только Wayland, ломается ABI** |
 | `wlroots` | [🔗](packages/wlroots/README.md) | 0.20.2 | библиотека композитора, без Xwayland |
 | `labwc` | [🔗](packages/labwc/README.md) | 0.20.2 | Wayland-композитор |
+| `sfwbar` | [🔗](packages/sfwbar/README.md) | 1.0~beta17 | панель задач для Wayland-композиторов |
 | **Медиастек** | | | |
 | `ffmpeg` | [🔗](packages/ffmpeg/README.md) | 9.0.2 | **epoch 7**; без X11, дисков, DVB и VDPAU |
 | `gstreamer1.0` | [🔗](packages/gstreamer1.0/README.md) | 1.28.7 | ядро GStreamer |
 | `gstreamer1.0-plugins-base` | [🔗](packages/gstreamer1.0-plugins-base/README.md) | 1.28.7 | конвейер воспроизведения, GL только под Wayland |
-| `gstreamer1.0-plugins-good` | [🔗](packages/gstreamer1.0-plugins-good/README.md) | 1.28.7 | Matroska, VP8/VP9, FLAC; без видеосинков Qt и GTK |
+| `gstreamer1.0-plugins-good` | [🔗](packages/gstreamer1.0-plugins-good/README.md) | 1.28.7 | Matroska, VP8/VP9, FLAC; без X11, видеосинков Qt и GTK, PulseAudio и V4L2 |
 | `gstreamer1.0-plugins-bad` | [🔗](packages/gstreamer1.0-plugins-bad/README.md) | 1.28.7 | аппаратное декодирование; **без X11 и wpe** |
 | `gstreamer1.0-libav` | [🔗](packages/gstreamer1.0-libav/README.md) | 1.28.7 | мост к нашему FFmpeg |
 | `mpv` | [🔗](packages/mpv/README.md) | 0.41.0 | чистый Wayland; без X11, дисков, DVB и VDPAU |
 | `celluloid` | [🔗](packages/celluloid/README.md) | 0.29 | GTK 4-фронтенд для mpv |
-| **Аудио и терминал** | | | |
+| **Аудио** | | | |
 | `pipewire` | [🔗](packages/pipewire/README.md) | 1.6.9 | Bluetooth AAC; X11, JACK, V4L2 и libcamera отключены |
 | `wireplumber` | [🔗](packages/wireplumber/README.md) | 0.5.17 | сессионный менеджер PipeWire; в trixie только 0.5.8 |
 | `pwvucontrol` | [🔗](packages/pwvucontrol/README.md) | 0.5.3 | регулятор громкости на GTK 4 + Rust; **нет в Debian** |
 | `fdk-aac` | [🔗](packages/fdk-aac/README.md) | 2.0.3 | AAC-кодек для pipewire |
+| **Терминал** | | | |
 | `libtsm` | [🔗](packages/libtsm/README.md) | 4.8.0 | конечный автомат терминала для KMSCON |
 | `kmscon` | [🔗](packages/kmscon/README.md) | 10.0.3 | терминальный эмулятор на DRM/KMS, без X11 |
-| `sfwbar` | [🔗](packages/sfwbar/README.md) | 1.0~beta17 | панель задач для Wayland-композиторов |
 | **Графика** | | | |
 | `imagemagick` | [🔗](packages/imagemagick/README.md) | 7.1.2-32 | **epoch 8**, только Q16, **без X11**; снимает часть пакетов trixie |
 

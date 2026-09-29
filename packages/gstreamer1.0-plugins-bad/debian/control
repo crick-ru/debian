@@ -20,6 +20,15 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #   * нейросетевые фильтры выключены (-Donnx=disabled -Dtflite=disabled),
 #     они не нужны ни десктопу, ни серверу;
 #   * прочие тяжёлые и платформенные элементы выключены (см. debian/rules);
+#   * libdrm-dev, zlib1g-dev, libopengl-dev, libegl-dev, libgles-dev
+#     добавлены из-за .pc-файлов нашего gstreamer1.0-plugins-base:
+#     gstreamer-allocators-1.0.pc объявляет "Requires: libdrm >= 2.4.98",
+#     gstreamer-gl-1.0.pc и gstreamer-gl-prototypes-1.0.pc - opengl, egl и
+#     glesv2, остальные - zlib и orc-0.4 в Requires.private. pkg-config
+#     в trixie (pkgconf) разрешает и Requires.private, поэтому без
+#     libdrm.pc, zlib.pc, opengl.pc, egl.pc и glesv2.pc не находится
+#     gstreamer-pbutils-1.0 и gstreamer-gl-1.0, и конфигурация падала с
+#     "Neither a subproject directory nor a gst-plugins-base.wrap file";
 #   * документация не собирается (-Ddoc=disabled), man-страницы не
 #     публикуются, тесты не собираются и не запускаются;
 #   * пакеты gstreamer1.0-wpe, gstreamer1.0-opencv и
@@ -41,7 +50,11 @@ Build-Depends:
  libass-dev (>= 0.10.4),
  libbz2-dev,
  libcairo2-dev,
+ libdrm-dev,
+ libegl-dev,
  libgme-dev,
+ libgles-dev,
+ libglib2.0-dev (>= 2.62),
  libgnutls28-dev,
  libgmp-dev,
  libgstreamer1.0-dev (>= 1.28.0),
@@ -54,6 +67,7 @@ Build-Depends:
  libopenh264-dev,
  libopenjp2-7-dev,
  libopenmpt-dev,
+ libopengl-dev,
  libopus-dev,
  liborc-0.4-dev (>= 1:0.4.34),
  libpango1.0-dev,
@@ -71,6 +85,7 @@ Build-Depends:
  libzvbi-dev,
  nettle-dev,
  wayland-protocols (>= 1.15) [linux-any],
+ zlib1g-dev (>= 1:1.1.4),
 Standards-Version: 4.7.3
 Homepage: https://gstreamer.freedesktop.org/
 Vcs-Git: https://salsa.debian.org/gstreamer-team/gst-plugins-bad1.0.git

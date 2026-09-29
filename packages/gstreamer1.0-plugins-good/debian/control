@@ -8,25 +8,37 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     X11. Видео на Wayland показывают labwc и mpv;
 #   * видеосинк GTK 3 выключен (-Dgtk3=disabled): в репозитории есть
 #     labwc и mpv, а собственный GTK 3 без X11 для этого не нужен;
+#   * X11-плагин ximagesrc выключен (-Dximagesrc=disabled); опции 'x11' в
+#     gst-plugins-good 1.28.7 не существует, есть 'ximagesrc';
+#   * не публикуются плагины pulse (звук обслуживает pipewire), v4l2
+#     (захват с ТВ-тюнеров и камер) и oss4 (устаревший аудио-API): они
+#     выключены опциями сборки, иначе dh_missing --fail-missing (в
+#     compat 13 это поведение по умолчанию) роняет сборку на файлах,
+#     не указанных в .install;
+#   * -Dauto_features=enabled не используется: опция превращает все
+#     'auto'-опции в обязательные, и сборка падала на отсутствующих
+#     nasm, libraw1394/libavc1394/libiec61883 и libgudev/libv4l2;
+#   * libdrm-dev и zlib1g-dev добавлены из-за .pc-файлов нашего
+#     gstreamer1.0-plugins-base: gstreamer-allocators-1.0.pc объявляет
+#     "Requires: libdrm >= 2.4.98", а gstreamer-audio-1.0.pc и другие -
+#     zlib и orc-0.4 в Requires.private. pkg-config в trixie (pkgconf)
+#     разрешает и Requires.private, поэтому без libdrm.pc и zlib.pc
+#     не находится даже gstreamer-pbutils-1.0;
 #   * документация не собирается (-Ddoc=disabled), man-страницы не
 #     публикуются;
 #   * тесты не собираются и не запускаются, поэтому убраны xvfb и xauth;
-#   * пакет gstreamer1.0-pulseaudio не публикуется: в репозитории есть
-#     pipewire с pulse-совместимостью, он и обслуживает вывод звука;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 # Подробности - в packages/gstreamer1.0-plugins-good/README.md.
 Build-Depends:
  debhelper-compat (= 13),
- dh-sequence-gir,
- gir1.2-glib-2.0-dev,
- gobject-introspection (>= 1.80),
  meson (>= 1.4.0),
  pkgconf,
  python3,
  libaa1-dev (>= 1.4p5),
  libcairo2-dev (>= 1.10.0),
  libcaca-dev,
- libdv4-dev | libdv-dev,
+ libdv4-dev,
+ libdrm-dev,
  libflac-dev (>= 1.1.4),
  libgdk-pixbuf-2.0-dev,
  libgstreamer1.0-dev (>= 1.28.0),
@@ -40,7 +52,6 @@ Build-Depends:
  libopencore-amrwb-dev,
  liborc-0.4-dev (>= 1:0.4.34),
  libpng-dev,
- libpulse-dev (>= 2.0),
  libsoup-3.0-dev,
  libshout-dev,
  libspeex-dev (>= 1.1.6),
@@ -49,54 +60,18 @@ Build-Depends:
  libvpx-dev (>= 1.7),
  libwavpack-dev (>= 4.60),
  libxml2-dev,
+ zlib1g-dev (>= 1:1.1.4),
 Standards-Version: 4.7.3
 Homepage: https://gstreamer.freedesktop.org/
 Vcs-Git: https://salsa.debian.org/gstreamer-team/gst-plugins-good1.0.git
 Vcs-Browser: https://salsa.debian.org/gstreamer-team/gst-plugins-good1.0/
 Rules-Requires-Root: no
 
-Package: libgstreamer-plugins-good1.0-0
-Architecture: any
-Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends},
-         ${shlibs:Depends}
-Description: GStreamer plugins from the "good" set (shared libraries)
- GStreamer is a streaming media framework, based on graphs of filters
- which operate on media data.  Its plugin-based architecture means that
- new data types or processing capabilities can be added simply by
- installing new plug-ins.
- .
- This package contains the shared libraries of the "good" set: the
- Matroska and FLV demuxers, the RTP payloaders, the Shout and Jack
- support and the audio tag writer.
-
-Package: libgstreamer-plugins-good1.0-dev
-Architecture: any
-Multi-Arch: same
-Section: libdevel
-Depends: ${gir:Depends},
-         ${misc:Depends},
-         ${shlibs:Depends},
-         gir1.2-gst-plugins-good-1.0 (= ${binary:Version}),
-         libgstreamer1.0-dev (>= 1.16.2),
-         libgstreamer-plugins-base1.0-dev (>= 1.16.2)
-Provides: ${gir:Provides}
-Description: GStreamer development files for the "good" set
- GStreamer is a streaming media framework, based on graphs of filters
- which operate on media data.  Its plugin-based architecture means that
- new data types or processing capabilities can be added simply by
- installing new plug-ins.
- .
- This package contains the headers, the pkg-config files and the
- introspection data of the "good" set.
-
 Package: gstreamer1.0-plugins-good
 Architecture: any
 Section: plugins
 Depends: ${misc:Depends},
-         ${shlibs:Depends},
-         libgstreamer-plugins-good1.0-0 (= ${binary:Version})
+         ${shlibs:Depends}
 Description: GStreamer plugins from the "good" set
  GStreamer is a streaming media framework, based on graphs of filters
  which operate on media data.  Its plugin-based architecture means that
@@ -105,19 +80,14 @@ Description: GStreamer plugins from the "good" set
  .
  This package contains the elements of the "good" set: the Matroska,
  FLV and RTP demuxers, the VP8 and VP9 codecs, the FLAC, Speex, WavPack,
- AMR, MP3, AAC, Shout and PulseAudio elements.
+ AMR, MP3, AAC and Shout elements.
  .
  This build has no Qt and no GTK video sinks: video is played by mpv
- and by labwc.
-
-Package: gir1.2-gst-plugins-good-1.0
-Architecture: any
-Section: introspection
-Multi-Arch: same
-Depends: ${gir:Depends},
-         ${misc:Depends},
-         ${shlibs:Depends}
-Provides: ${gir:Provides}
-Description: GObject introspection data for the GStreamer "good" library
- This package contains GObject introspection data for the "good" set of
- the GStreamer streaming media framework.
+ and by labwc. It also has no PulseAudio, V4L2 and OSSv4 elements.
+ .
+ Upstream 1.28.7 builds no shared libraries in this plugin set (its
+ gst-libs/gst directory contains only a header), so there is nothing
+ for libgstreamer-plugins-good1.0-0, libgstreamer-plugins-good1.0-dev
+ or gir1.2-gst-plugins-good-1.0 to carry: those binary packages are not
+ published. The Matroska, RTP, RTSP and tag helper libraries this set
+ uses come from gstreamer1.0-plugins-base.

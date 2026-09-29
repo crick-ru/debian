@@ -479,9 +479,6 @@ jobs:
                     ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
                     ./stage2-pool/gstreamer1.0-plugins-base_*.deb
                     ./stage2-pool/gstreamer1.0-gl_*.deb
-                    ./stage3-pool/libgstreamer-plugins-good1.0-0_*.deb
-                    ./stage3-pool/libgstreamer-plugins-good1.0-dev_*.deb
-                    ./stage3-pool/gir1.2-gst-plugins-good-1.0_*.deb
                     ./stage3-pool/gstreamer1.0-plugins-good_*.deb)
               ;;
             kmscon)

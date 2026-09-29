@@ -1,8 +1,11 @@
 usr/share/gstreamer-1.0/presets/
 usr/lib/*/gstreamer-1.0/libgstaasink.so
+usr/lib/*/gstreamer-1.0/libgstadaptivedemux2.so
 usr/lib/*/gstreamer-1.0/libgstalaw.so
 usr/lib/*/gstreamer-1.0/libgstalphacolor.so
 usr/lib/*/gstreamer-1.0/libgstalpha.so
+usr/lib/*/gstreamer-1.0/libgstamrnb.so
+usr/lib/*/gstreamer-1.0/libgstamrwbdec.so
 usr/lib/*/gstreamer-1.0/libgstapetag.so
 usr/lib/*/gstreamer-1.0/libgstaudiofx.so
 usr/lib/*/gstreamer-1.0/libgstaudioparsers.so

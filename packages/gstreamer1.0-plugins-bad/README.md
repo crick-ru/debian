@@ -6,13 +6,18 @@
 ## Включено
 
 - `libgstreamer-plugins-bad1.0-0` и `-dev` — общие библиотеки набора
-  (конвертер DXA, RTP/RTCP, GL-интеграция для Vulkan). **Здесь же живёт
-  GstPlay** — та самая библиотека, за которой стоит `gstreamer-play-1.0.pc`,
-  который требует медиабэкенд GTK 4. В 1.28.7 она в наборе «bad», а не в
-  «base», — поэтому `gtk4` собирается в стадии 4, после этого пакета.
+  (конвертер DXA, RTP/RTCP, **VA-API, Vulkan, HIP, CUDA и Wayland**).
+  **Здесь же живёт GstPlay** — та самая библиотека, за которой стоит
+  `gstreamer-play-1.0.pc`, который требует медиабэкенд GTK 4. В 1.28.7 она в
+  наборе «bad», а не в «base», — поэтому `gtk4` собирается в стадии 4, после
+  этого пакета.
 - `gstreamer1.0-plugins-bad` — элементы набора: аппаратное декодирование
   (VA-API, oneVPL, NVDEC/NVENC через библиотеку FFmpeg, Vulkan), аудиокодеки
-  вне набора «good», элементы RTP/RTCP, субтитры и видеоконвертеры.
+  вне набора «good», элементы RTP/RTCP, субтитры и видеоконвертеры. Сюда же
+  попадают плагины, собираемые без внешних SDK: `kms`, `qsv`, `uvcgadget`,
+  `decklink`, `hip` (драйверы и библиотеки вроде ROCm, Intel MFX, Blackmagic
+  и AJA они загружают в рантайме, поэтому в `Build-Depends` их нет, а в
+  состав пакетов они не попадают).
 - `gir1.2-gst-plugins-bad-1.0` — данные GObject introspection.
 
 ## Отключено
@@ -63,6 +68,33 @@
   -Dnvdswrapper=disabled -Dmpeghdec=disabled -Dvmaf=disabled -Dfdkaac=disabled
   -Dfaad=disabled` — тот же список, что и в Debian, только без вариантов для
   не-Linux.
+- **Vulkan Video**: `-Dvulkan-video=disabled`. Кодирование и декодирование
+  через Vulkan Video Extensions выключено: в триxie нет заголовков
+  `vulkan_video_codec_*.h` (их даёт `libvulkan-dev` в более новых версиях
+  Khronos), а с `-Dauto_features=enabled` опция `auto` становится обязательной
+  и конфигурация падала с `Vulkan Video extensions headers not found`. Сам
+  плагин `vulkan` и библиотека `libgstvulkan-1.0` при этом собираются.
+- **Плагины без сборочных зависимостей**: `-Dauto_features` намеренно не
+  задаётся. Эта встроенная опция meson превращает все опции `auto` в
+  `enabled`, то есть необязательные зависимости становятся обязательными;
+  для этого набора сборка последовательно падала на отсутствующих
+  `libajantv2` (AJA NTV2), `vulkan_video_codec_*.h` и других. Состав набора
+  задают перечисленные ниже отключения плюс фактический состав
+  `Build-Depends`.
+- **Синхронизация `.install`**: `gstreamer1.0-plugins-bad.install` и
+  `libgstreamer-plugins-bad1.0-0.install` перечисляют ровно то, что
+  фактически собирается (проверено `meson setup` с флагами из `debian/rules`).
+  Это обязательно: в compat 13 `dh_missing` работает с `--fail-missing` по
+  умолчанию, и любое расхождение — лишний файл в `debian/tmp` или
+  отсутствующая строка — останавливает сборку. Поэтому в наборе нет
+  плагинов, требующих `libaom-dev`, `libzbar-dev`, `libcurl4-openssl-dev`,
+  `libflite-dev`, `libfrei0r-dev`, `libde265-dev`, `librsvg2-dev`,
+  `libsndfile1-dev`, `libsoundtouch-dev`, `libspandsp-dev`, `libsrt-dev`,
+  `libmodplug-dev`, `libwildmidi-dev`, `libfluidsynth-dev`, `libbs2b-dev`,
+  `libchromaprint-dev`, `libgsm-dev`, `liblc3-dev`, `libneon27-dev`,
+  `libopenaptx-dev` и подобных, - их `-dev` пакетов в `Build-Depends` нет, и
+  добавлять их ради плагинов, которые в этом репозитории никто не
+  использует, смысла нет.
 - Документация и примеры: `-Ddoc=disabled -Dexamples=disabled`; man-страниц
   нет.
 - Тесты: `-Dtests=disabled`, `xvfb` и `xauth` убраны из `Build-Depends`.
