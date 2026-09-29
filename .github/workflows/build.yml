@@ -446,11 +446,15 @@ jobs:
                     ./stage2-pool/gstreamer1.0-gl_*.deb)
               if [[ "${{ matrix.package }}" == "gtk4" ]]; then
                 # The GTK 4 media backend needs GstPlay, and that library lives
-                # in the "bad" set (Stage 3), not in "base".
+                # in the "bad" set (Stage 3), not in "base". The "good" plugin
+                # set travels with it: gstreamer1.0-plugins-bad declares
+                # "Depends: gstreamer1.0-plugins-good (>= 1.28.0)", and the
+                # 1.26.2 of trixie does not satisfy that.
                 debs+=(./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
                        ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
                        ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                       ./stage3-pool/gstreamer1.0-plugins-bad_*.deb)
+                       ./stage3-pool/gstreamer1.0-plugins-bad_*.deb
+                       ./stage3-pool/gstreamer1.0-plugins-good_*.deb)
               fi
               ;;
             gstreamer1.0-libav)
@@ -490,11 +494,16 @@ jobs:
             pipewire)
               # libfdk-aac-dev pins libfdk-aac2t64 to its own version; the
               # GStreamer core and base are needed for the video sinks.
+              # libgstreamer-gl1.0-0 belongs to the base set and is pinned
+              # exactly by gstreamer1.0-gl, while
+              # gir1.2-gst-plugins-base-1.0 requires it as >= 1.27.2 - neither
+              # can be satisfied by the 1.26.2 of trixie, so it travels along.
               debs=(./stage1-pool/libfdk-aac2t64_*.deb
                     ./stage1-pool/libfdk-aac-dev_*.deb
                     ./stage1-pool/libgstreamer1.0-0_*.deb
                     ./stage1-pool/libgstreamer1.0-dev_*.deb
                     ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                    ./stage2-pool/libgstreamer-gl1.0-0_*.deb
                     ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
                     ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
                     ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
@@ -672,7 +681,8 @@ jobs:
                     ./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
                     ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
                     ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                    ./stage3-pool/gstreamer1.0-plugins-bad_*.deb)
+                    ./stage3-pool/gstreamer1.0-plugins-bad_*.deb
+                    ./stage3-pool/gstreamer1.0-plugins-good_*.deb)
               ;;
             sfwbar)
               # libgtk-3-dev of this repository (it pins the whole GTK 3 set)
@@ -871,7 +881,8 @@ jobs:
                     ./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
                     ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
                     ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                    ./stage3-pool/gstreamer1.0-plugins-bad_*.deb)
+                    ./stage3-pool/gstreamer1.0-plugins-bad_*.deb
+                    ./stage3-pool/gstreamer1.0-plugins-good_*.deb)
               ;;
           esac
           if (( ${#debs[@]} > 0 )); then
