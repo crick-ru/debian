@@ -39,6 +39,14 @@ apt сравнивает epoch первым, поэтому наша сборк�
   `debian/rules` и пересобирается пакет.
 - Воспроизводимая сборка: `--enable-reproducible-build`,
   `--without-gcc-arch` (иначе `-march=native` ломает воспроизводимость).
+- Desktop-файл и значки hicolor **не публикуются**: апстрим 7.1.2-32 их вообще
+  не ставит (единственный `.desktop` в tar-боле — `app-image/imagemagick.desktop`,
+  он нужен только для сборки AppImage, а иконок `share/icons/hicolor` в тарболе
+  нет). Строки `usr/share/applications/imagemagick*.desktop` и
+  `usr/share/icons/hicolor/*/apps/*.svg` из `imagemagick-7.q16.install`
+  убраны: с ними `dh_install` падал с `missing files`. Практической потери
+  нет — единственный desktop-файл ImageMagick открывает X11-просмотрщик
+  `display`, который здесь не собирается.
 
 ## Отключено
 

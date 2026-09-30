@@ -9,5 +9,3 @@ usr/bin/mogrify
 usr/bin/montage
 usr/bin/stream
 usr/bin/compare
-usr/share/applications/imagemagick*.desktop
-usr/share/icons/hicolor/*/apps/*.svg
