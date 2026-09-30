@@ -40,6 +40,19 @@ override_dh_makeshlibs:
 		--exclude=/usr/lib/$(DEB_HOST_MULTIARCH)/wireplumber-0.5 \
 		-- -c4
 
+# Upstream installs the example configurations from
+# src/config/meson.build as plain data: install_subdir('wireplumber.conf.d.examples')
+# goes to /usr/share/doc/wireplumber/examples/wireplumber.conf.d, and there is
+# no option to turn that off. The same configurations are already installed as
+# /usr/share/wireplumber/wireplumber.conf.d, so the examples add nothing, and
+# the repository does not publish examples at all. The directory is therefore
+# removed from the staging tree, exactly like the ffmpeg examples; that keeps
+# dh_missing --fail-missing working instead of hiding the files in
+# debian/not-installed.
+override_dh_auto_install:
+	dh_auto_install
+	rm -rf debian/tmp/usr/share/doc/wireplumber/examples
+
 # No test suite: this repository neither builds nor runs tests, see
 # .clinerules/project.md. -Dtests=false already keeps the test tree out of the
 # build, so there is nothing left to run.

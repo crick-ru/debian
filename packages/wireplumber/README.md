@@ -80,6 +80,13 @@ dependency('wireplumber-0.5', version: '>= 0.5.11')
   (autopkgtest) удалён, `override_dh_auto_test` пуст. Тестовое дерево
   `tests/` и вспомогательные программы не собираются. Из `Build-Depends`
   убраны `dbus-daemon` и `pipewire` — они были нужны ровно для тестов.
+- **Примеры конфигураций**: апстрим ставит каталог
+  `wireplumber.conf.d.examples` как файлы данных в
+  `/usr/share/doc/wireplumber/examples/wireplumber.conf.d`
+  (`src/config/meson.build`, `install_subdir`), отключить это опцией нельзя.
+  Каталог удаляется из staging-дерева в `override_dh_auto_install`
+  (`rm -rf debian/tmp/usr/share/doc/wireplumber/examples`) — те же конфиги
+  уже ставятся как рабочие в `/usr/share/wireplumber/wireplumber.conf.d`.
 - X11 в апстриме **отсутствует как таковой**: ни `libx11`/`libxcb` в
   `Build-Depends`, ни X11-кода в `lib/`, `modules/`, `src/` (проверено
   `grep -rniE 'libx(11|ext|render)|libxcb'` по исходникам — пусто).

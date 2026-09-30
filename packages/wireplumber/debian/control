@@ -17,6 +17,9 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     использует - pwvucontrol работает через Rust-FFI;
 #   * тестовое дерево не собиравается (-Dtests=false -Ddbus-tests=false),
 #     каталог debian/tests удалён, override_dh_auto_test пуст;
+#   * примеры конфигураций не публикуются: апстрим ставит их как файлы
+#     данных в usr/share/doc/wireplumber/examples (опции нет), поэтому
+#     каталог удаляется из staging-дерева в override_dh_auto_install;
 #   * X11 в апстриме нет ни в одном виде - ни в Build-Depends, ни в коде;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: debhelper-compat (= 13),
