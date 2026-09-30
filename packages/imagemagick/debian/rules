@@ -8,6 +8,12 @@ DEB_UPSTREAM_VERSION := $(shell dpkg-parsechangelog -SVersion | sed 's/^[0-9]*:/
 IMVERSION := $(shell echo $(DEB_UPSTREAM_VERSION) | sed -r 's/(^.+)\..+$$/\1/g')
 export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
+# Диспетчер debhelper. Без него make не знает, что делать с целями clean,
+# build, binary: tar-бол ImageMagick приходит уже с готовым configure,
+# поэтому сборка - обычная autoconf/autotools.
+%:
+	dh $@ --buildsystem=autoconf
+
 # X11 is switched off: this repository has no X11 anywhere, and Debian builds
 # ImageMagick with --x-includes/--x-libraries, which would drag libx11-dev,
 # libxext-dev and libxt-dev in and link libMagickCore against libX11/libXext.

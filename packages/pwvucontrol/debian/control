@@ -18,6 +18,7 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Build-Depends:
  debhelper-compat (= 13),
  blueprint-compiler,
+ desktop-file-utils,
  gettext,
  libadwaita-1-dev (>= 1.2),
  libglib2.0-dev (>= 2.66),
