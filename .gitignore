@@ -12,11 +12,14 @@ repo-pool/
 *.log
 
 # Debian packaging temporary files
-debian/.debhelper/
-debian/*-build/
-debian/tmp/
-debian/files
-debian/substvars
+# Шаблоны с ** иначе не сработали бы для вложенных путей вида
+# packages/<pkg>/debian/files: шаблон со слешем в .gitignore привязан к
+# корню репозитория.
+**/debian/.debhelper/
+**/debian/*-build/
+**/debian/tmp/
+**/debian/files
+**/debian/substvars
 *.substvars
 
 # System and editor files
