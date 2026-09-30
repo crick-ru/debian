@@ -55,7 +55,16 @@ Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
 Breaks: imagemagick-common (<< 8:6.9.12.98+dfsg1-1~), imagemagick-6-common (<< 8:7.0.0-1~)
-Replaces: imagemagick-common (<< 8:6.9.12.98+dfsg1-1~), imagemagick-6-common (<< 8:7.0.0-1~)
+Replaces: imagemagick-common (<< 8:6.9.12.98+dfsg1-1~), imagemagick-6-common (<< 8:7.0.0-1~),
+           imagemagick-doc,
+           libimage-magick-perl,
+           libimage-magick-q16-perl,
+           libimage-magick-q16hdri-perl,
+           libmagick++-7-headers,
+           libmagickcore-dev,
+           libmagickwand-dev,
+           libmagick++-dev,
+           perlmagick
 Provides: imagemagick-common (= ${source:Version}), imagemagick-6-common (= ${source:Version})
 # Пакеты C++ и Perl и переходные «пустышки» из trixie пинят точную версию
 # imagemagick-7-common и -dev-пакетов своей версии, поэтому рядом с нашими
@@ -69,15 +78,6 @@ Conflicts: imagemagick-doc,
            libmagickwand-dev,
            libmagick++-dev,
            perlmagick
-Replaces: imagemagick-doc,
-          libimage-magick-perl,
-          libimage-magick-q16-perl,
-          libimage-magick-q16hdri-perl,
-          libmagick++-7-headers,
-          libmagickcore-dev,
-          libmagickwand-dev,
-          libmagick++-dev,
-          perlmagick
 Description: image manipulation programs -- infrastructure
  imagemagick-common contains the filesystem infrastructure required for
  further installation of imagemagick in any configuration; it does not provide
