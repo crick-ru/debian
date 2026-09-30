@@ -96,13 +96,23 @@ override_dh_auto_install:
 override_dh_auto_test:
 
 # The coder and filter modules are dlopened modules built with libtool; they
-# must keep their SONAMEs, and dpkg-shlibdeps must not try to resolve them.
+# must keep their SONAMEs, and neither dh_makeshlibs nor dpkg-shlibdeps should
+# try to resolve them. Debian does the same: the two module directories are
+# excluded from the shlibs calculation, which is why the call is repeated per
+# binary package instead of being made once.
 override_dh_makeshlibs:
-	dh_makeshlibs -- -c4
+	# avoid plugins' dir
+	FAIL=0; \
+	for PKG in $$(dh_listpackages -a); do \
+		echo dh_makeshlibs -p$$PKG -Xcoders/ -Xfilters/; \
+		dh_makeshlibs -p$$PKG -Xcoders/ -Xfilters/; \
+		FAIL=$$?; \
+	done; \
+	exit $$FAIL
 
-# dh_shlibdeps walks every ELF file of every binary package, and the dlopened
-# modules (coders and filters) are not linked against anything resolvable, so
-# it is told not to treat that as fatal. The option is --ignore-missing-info
-# (there is no --no-missing-info: dh_shlibdeps rejects it as unknown).
+# No options of its own: debhelper 13 knows neither --no-missing-info nor
+# --ignore-missing-info (both are rejected as unknown options), and missing
+# shlibs information is not fatal by default anyway. Verbose output is on for
+# the same reason as in the Debian packaging.
 override_dh_shlibdeps:
-	dh_shlibdeps --ignore-missing-info
+	dh_shlibdeps -- -v
