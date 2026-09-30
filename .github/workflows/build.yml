@@ -639,6 +639,10 @@ jobs:
             celluloid)
               # libgtk-4-dev of this repository (it pins the whole GTK 4 set)
               # plus the Stage-1/2/3 libraries GTK 4 pulls in and libmpv-dev.
+              # libmpv2 links our FFmpeg 9.0.2 and pins every runtime library of
+              # it to that exact version, so the runtime half of the FFmpeg set
+              # has to travel along; trixie carries 7:7.1.5 and cannot satisfy
+              # a ">= 7:9.0.2-2+crick" requirement.
               debs=(./stage4-pool/libgtk-4-1_*.deb
                     ./stage4-pool/libgtk-4-common_*.deb
                     ./stage4-pool/libgtk-4-bin_*.deb
@@ -647,6 +651,13 @@ jobs:
                     ./stage4-pool/gtk-update-icon-cache_*.deb
                     ./stage2-pool/libmpv2_*.deb
                     ./stage2-pool/libmpv-dev_*.deb
+                    ./stage1-pool/libavcodec63_*.deb
+                    ./stage1-pool/libavdevice63_*.deb
+                    ./stage1-pool/libavfilter12_*.deb
+                    ./stage1-pool/libavformat63_*.deb
+                    ./stage1-pool/libavutil61_*.deb
+                    ./stage1-pool/libswresample7_*.deb
+                    ./stage1-pool/libswscale10_*.deb
                     ./stage1-pool/libwayland-bin_*.deb
                     ./stage1-pool/libwayland-client0_*.deb
                     ./stage1-pool/libwayland-server0_*.deb
@@ -846,7 +857,6 @@ jobs:
                     ./stage4-pool/libspa-0.2-modules_*.deb
                     ./stage5-pool/libwireplumber-0.5-0_*.deb
                     ./stage5-pool/libwireplumber-0.5-dev_*.deb
-                    ./stage5-pool/gir1.2-wp-0.5_*.deb
                     ./stage1-pool/libwayland-bin_*.deb
                     ./stage1-pool/libwayland-client0_*.deb
                     ./stage1-pool/libwayland-server0_*.deb

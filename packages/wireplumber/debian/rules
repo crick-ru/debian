@@ -12,6 +12,14 @@ export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
 # python3-breathe, python3-sphinx and python3-sphinx-rtd-theme are not build
 # dependencies. -Dtests=false and -Ddbus-tests=false keep the test tree and the
 # test helper binaries out of the build. See .clinerules/project.md.
+#
+# -Dintrospection=disabled removes gir1.2-wp-0.5 from the package set. Upstream
+# builds docs/meson.build unconditionally, and there the introspection path is
+# what forces the two heavy build dependencies: python3-lxml is required when
+# the option is enabled, and doxygen is then found with required: true - in
+# trixie that is 9 extra packages, ~150 MB of libllvm19/libclang-cpp19 for one
+# generated typelib that nothing in this repository consumes. See
+# packages/wireplumber/README.md for the impact and the way back.
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		-Dmodules=true \
@@ -22,7 +30,7 @@ override_dh_auto_configure:
 		-Dsystemd-system-service=true \
 		-Dsystemd-user-service=true \
 		-Ddoc=disabled \
-		-Dintrospection=enabled \
+		-Dintrospection=disabled \
 		-Dtests=false \
 		-Ddbus-tests=false \
 		$(NULL)

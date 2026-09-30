@@ -27,9 +27,6 @@ dependency('wireplumber-0.5', version: '>= 0.5.11')
 - systemd-интеграция и logind: `-Dsystemd=enabled`, пользовательские
   службы; системные службы — отдельным пакетом
   `wireplumber-system-services` (с `--no-enable --no-start`, как в Debian).
-- GObject-introspection: `-Dintrospection=enabled`, поэтому
-  `gir1.2-wp-0.5` публикуется, а `libwireplumber-0.5-dev` тянет его
-  зависимостью.
 
 ## Отключено
 
@@ -41,6 +38,44 @@ dependency('wireplumber-0.5', version: '>= 0.5.11')
   `python3-sphinx-rtd-theme`. В пакетах не остаётся страниц `wpctl.1`
   и man7 для модулей. `lintian-overrides` для `wireplumber` тоже удалён:
   он подавлял именно жалобу на отсутствие man-страницы у `wpctl`.
+- **GObject-интроспекция** (`-Dintrospection=disabled`): пакет
+  `gir1.2-wp-0.5` не публикуется, удалён `gir1.2-wp-0.5.install` и строка
+  `/usr/share/gir-1.0/*.gir` из `libwireplumber-0.5-dev.install`, из
+  `Build-Depends` убраны `dh-sequence-gir`, `gobject-introspection`,
+  `gir1.2-gio-2.0-dev`, `gir1.2-gobject-2.0-dev`, а из `Depends` пакета
+  `libwireplumber-0.5-dev` — `gir1.2-wp-0.5 (= ${binary:Version})`.
+  - **Почему:** апстрим подключает `docs/meson.build` безусловно, и именно
+    включённая интроспекция делает две вещи жёсткими: `python3` с модулем
+    `lxml` (`required: get_option('introspection')`) и `doxygen`
+    (`required: true`, если `doc` или `introspection` включены). В trixie это
+    9 дополнительных пакетов — `libllvm19`, `libclang-cpp19`, `libclang1-19`,
+    `libz3-4`, `libxslt1.1`, `libxapian30`, `libfmt10`, ~150 МБ — ради одного
+    типилиба. Это ровно тот toolchain, который правило репозитория («документация
+    и её зависимости не собираются») запрещает тянуть в CI.
+  - **Что теряется:** типилиб `Wp-0.5.typelib`, то есть GObject-API
+    WirePlumber для приложений на языках с биндингами gir (python3-gi и
+    подобные). Ни один пакет этого репозитория его не использует:
+    `pwvucontrol` работает через Rust-FFI (`libwireplumber-0.5-dev` даёт
+    заголовки и `pkgconfig`), сборка и запуск не требуют типилиба.
+  - **Масштаб для пользователя:** в trixie от `gir1.2-wp-0.5` зависит
+    только `libwireplumber-0.5-dev`, а он у нас свой и этой зависимости
+    больше не содержит; `waybar` и `wireplumber` из trixie зависят от
+    `libwireplumber-0.5-0`, который публикуется по-прежнему. Пакет
+    `gir1.2-wp-0.5` ещё никогда не публиковался в этом репозитории (в
+    опубликованном индексе его нет), поэтому `apt upgrade` ни у кого ничего
+    не удалит; убрать его можно только у того, кто поставил его вручную:
+    `apt-get purge gir1.2-wp-0.5`.
+  - **Как вернуть:** в `debian/rules` заменить `-Dintrospection=disabled` на
+    `enabled`, вернуть в `Build-Depends` `dh-sequence-gir`,
+    `gobject-introspection (>= 1.80)`, `gir1.2-gio-2.0-dev`,
+    `gir1.2-gobject-2.0-dev`, восстановить stanza `gir1.2-wp-0.5` и файл
+    `gir1.2-wp-0.5.install` с `/usr/lib/*/girepository-1.0`, вернуть строку
+    `/usr/share/gir-1.0/*.gir` в `libwireplumber-0.5-dev.install` и
+    зависимость `gir1.2-wp-0.5 (= ${binary:Version})` в
+    `libwireplumber-0.5-dev`; в списке установки `pwvucontrol` в
+    `.github/workflows/build.yml` вернуть `./stage5-pool/gir1.2-wp-0.5_*.deb`.
+    Поскольку пакет ещё не публиковался, ревизию поднимать не нужно.
+
 - **Тесты** (`-Dtests=false -Ddbus-tests=false`): каталог `debian/tests`
   (autopkgtest) удалён, `override_dh_auto_test` пуст. Тестовое дерево
   `tests/` и вспомогательные программы не собираются. Из `Build-Depends`

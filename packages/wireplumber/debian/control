@@ -7,16 +7,20 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     wireplumber-doc и файлы wireplumber-doc.* удалены, из Build-Depends
 #     убраны doxygen, python3-breathe, python3-sphinx и
 #     python3-sphinx-rtd-theme;
+#   * GObject-интроспекция выключена (-Dintrospection=disabled), поэтому пакет
+#     gir1.2-wp-0.5 и файл gir1.2-wp-0.5.install удалены, а из Build-Depends
+#     убраны dh-sequence-gir, gobject-introspection, gir1.2-gio-2.0-dev и
+#     gir1.2-gobject-2.0-dev: апстрим собирает docs/meson.build всегда, и
+#     именно включённая интроспекция требует python3-lxml и doxygen
+#     (required: true), а doxygen в trixie тянет ~150 МБ libllvm19 и
+#     libclang-cpp19 ради одного типилиба, который в репозитории никто не
+#     использует - pwvucontrol работает через Rust-FFI;
 #   * тестовое дерево не собиравается (-Dtests=false -Ddbus-tests=false),
 #     каталог debian/tests удалён, override_dh_auto_test пуст;
 #   * X11 в апстриме нет ни в одном виде - ни в Build-Depends, ни в коде;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: debhelper-compat (= 13),
                dh-exec,
-               dh-sequence-gir,
-               gir1.2-gio-2.0-dev,
-               gir1.2-gobject-2.0-dev,
-               gobject-introspection (>= 1.80),
                libglib2.0-dev (>= 2.68),
                liblua5.4-dev,
                libpipewire-0.3-dev (>= 1.0.2),
@@ -48,12 +52,9 @@ Section: libdevel
 Architecture: linux-any
 Multi-Arch: same
 Depends: ${misc:Depends},
-         ${gir:Depends},
          libglib2.0-dev,
          libpipewire-0.3-dev,
-         libwireplumber-0.5-0 (= ${binary:Version}),
-         gir1.2-wp-0.5 (= ${binary:Version}),
-Provides: ${gir:Provides}
+         libwireplumber-0.5-0 (= ${binary:Version})
 Description: Development files for WirePlumber
  WirePlumber is a modular session / policy manager for PipeWire and a
  GObject-based high-level library that wraps PipeWire's API, providing
@@ -97,19 +98,3 @@ Description: modular session / policy manager for PipeWire (system services)
  This package contains the systemd system services. NOTE: This is NOT the
  recommended way to use WirePlumber, but these services are provided for
  specific use cases like embedded and accessibility.
-
-Package: gir1.2-wp-0.5
-Section: introspection
-Architecture: linux-any
-Multi-Arch: same
-Depends: ${misc:Depends},
-         ${gir:Depends},
-         libwireplumber-0.5-0 (= ${binary:Version}),
-Provides: ${gir:Provides}
-Description: GObject introspection files for WirePlumber
- WirePlumber is a modular session / policy manager for PipeWire and a
- GObject-based high-level library that wraps PipeWire's API, providing
- convenience for writing the daemon's modules as well as external tools for
- managing PipeWire.
- .
- This package contains the GObject-introspection data in binary typelib format.
