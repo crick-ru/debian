@@ -145,24 +145,27 @@ Depends: ${misc:Depends},
          liblqr-1-0-dev,
          libltdl-dev,
          libopenexr-dev,
-
-Package: libmagickwand-7-headers
-Architecture: all
-Multi-Arch: foreign
-Section: libdevel
-Depends: ${misc:Depends},
-         libmagickcore-7-headers (= ${source:Version}),
-         imagemagick-7-common (= ${source:Version})
-Description: image manipulation library - headers files
- The MagickWand API is the recommended interface between the C programming
- language and the ImageMagick image processing libraries. Unlike the
- MagickCore C API, MagickWand uses only a few opaque types. Accessors are
- available to set or get important wand properties.
+         libopenjp2-7-dev,
+         libpng-dev,
+         libtiff-dev,
+         libwmf-dev,
+         libheif-dev,
+         libwebp-dev,
+         libxml2-dev,
+         libfftw3-dev,
+         zlib1g-dev,
+         pkgconf
+Conflicts: libmagick++-7.q16-dev
+Replaces: libmagick++-7.q16-dev
+Description: low-level image manipulation library -- development files (Q16)
+ The MagickCore API is a low-level interface between the C programming language
+ and the ImageMagick image processing libraries and is recommended for
+ wizard-level programmers only. Unlike the MagickWand C API which exposes only
+ a few opaque types and accessors, with MagickCore you almost exclusively access
+ the structure members directly.
  .
- This package includes header files needed to compile
- programs using MagickWand.
- .
- This package is independent of channel depth.
+ This package provides development files for libmagickcore, compiled for a
+ channel depth of Q16.
 
 Package: libmagickwand-7.q16-10
 Architecture: any
@@ -242,30 +245,6 @@ Description: image manipulation programs -- binaries
  .
  This package include links to channel depth specific binaries and manual
  pages.
-
-         libopenjp2-7-dev,
-         libpng-dev,
-         libtiff-dev,
-         libwmf-dev,
-         libheif-dev,
-         libwebp-dev,
-         libxml2-dev,
-         libfftw3-dev,
-         zlib1g-dev,
-         pkgconf
-Conflicts: libmagick++-7.q16-dev
-Replaces: libmagick++-7.q16-dev
-Description: low-level image manipulation library -- development files (Q16)
- The MagickCore API is a low-level interface between the C programming language
- and the ImageMagick image processing libraries and is recommended for
- wizard-level programmers only. Unlike the MagickWand C API which exposes only
- a few opaque types and accessors, with MagickCore you almost exclusively access
- the structure members directly.
- .
- This package provides development files for libmagickcore, compiled for a
- channel depth of Q16.
-
- This package is independent of channel depth.
 
 Package: libmagickcore-7-arch-config
 Architecture: any
