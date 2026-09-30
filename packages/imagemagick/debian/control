@@ -11,6 +11,10 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     Q16HDRI не собирается - это второй полный проход компиляции;
 #   * PerlMagick и Magick++ не собираются (--without-perl
 #     --without-magick-plus-plus);
+#   * делегат HEIF выключен (--without-heic): кодировщики HEIC/HEIF/AVCI/AVIF
+#     не собираются, libheif-dev убран из Build-Depends и из Depends пакета
+#     libmagickcore-7.q16-dev, а libheif1 - из runtime-зависимостей
+#     libmagickcore-7.q16-10;
 #   * документация и man-страницы не собираются, пакет imagemagick-7-doc не
 #     публикуется, каталог /usr/share/doc удаляется из дерева установки;
 #   * тесты не собираются и не запускаются (make check не вызывается,
@@ -39,7 +43,6 @@ Build-Depends: debhelper-compat (= 13),
                libpng-dev,
                libtiff-dev,
                libwmf-dev,
-               libheif-dev,
                libwebp-dev,
                libpango1.0-dev,
                libxml2-dev,
@@ -149,7 +152,6 @@ Depends: ${misc:Depends},
          libpng-dev,
          libtiff-dev,
          libwmf-dev,
-         libheif-dev,
          libwebp-dev,
          libxml2-dev,
          libfftw3-dev,

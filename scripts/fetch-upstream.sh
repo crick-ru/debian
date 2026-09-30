@@ -247,6 +247,8 @@ case "$PACKAGE" in
   ffmpeg) REVISION=2 ;;
   # mpv: 2 was the rework of the packaging, 3 is optical discs + DVB + VDPAU off.
   mpv)    REVISION=3 ;;
+  # imagemagick: 1 was published with the libheif delegate on, 2 is HEIF off.
+  imagemagick) REVISION=2 ;;
   celluloid|fdk-aac|kmscon|labwc|libdrm|libtsm|libxkbcommon|pipewire|pixman|sfwbar|wayland|wayland-protocols|wlroots)
     REVISION=2
     ;;

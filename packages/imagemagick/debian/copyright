@@ -141,6 +141,7 @@ Copyright: 2017 Anton Kortunov
            2017-2018 YANDEX LLC.
            1999-2024, ImageMagick Studio LLC
 License: ImageMagick
+Comment: use the libheif delegate, but not compiled here (--without-heic)
 
 Files: coders/ipl.c
 Copyright: 2008, Sean Burke
