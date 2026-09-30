@@ -1,0 +1,10 @@
+imagemagick-7-common_7.1.1.43+dfsg1-1+deb13u12_all.deb graphics optional
+imagemagick-7.q16_7.1.1.43+dfsg1-1+deb13u12_amd64.deb graphics optional
+imagemagick_7.1.1.43+dfsg1-1+deb13u12_amd64.deb oldlibs optional
+libmagickcore-7-arch-config_7.1.1.43+dfsg1-1+deb13u12_amd64.deb libdevel optional
+libmagickcore-7-headers_7.1.1.43+dfsg1-1+deb13u12_all.deb libdevel optional
+libmagickcore-7.q16-10_7.1.1.43+dfsg1-1+deb13u12_amd64.deb libs optional
+libmagickcore-7.q16-dev_7.1.1.43+dfsg1-1+deb13u12_amd64.deb libdevel optional
+libmagickwand-7-headers_7.1.1.43+dfsg1-1+deb13u12_all.deb libdevel optional
+libmagickwand-7.q16-10_7.1.1.43+dfsg1-1+deb13u12_amd64.deb libs optional
+libmagickwand-7.q16-dev_7.1.1.43+dfsg1-1+deb13u12_amd64.deb libdevel optional

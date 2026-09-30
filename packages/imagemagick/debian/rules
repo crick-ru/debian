@@ -18,7 +18,9 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # ImageMagick with --x-includes/--x-libraries, which would drag libx11-dev,
 # libxext-dev and libxt-dev in and link libMagickCore against libX11/libXext.
 # Upstream guards every X11 use with MAGICKCORE_X11_DELEGATE, so --without-x
-# needs no patch; the "display" and "import" X11 tools are simply not built.
+# needs no patch. The "display" and "import" tools are still built, but they
+# cannot work without an X11 delegate; they are dropped from the staging tree
+# in override_dh_auto_install below.
 #
 # Only the Q16 quantum depth is built. Debian builds Q16 *and* Q16HDRI, which
 # doubles the compile time for a second ABI variant that this repository does
@@ -71,9 +73,22 @@ override_dh_auto_configure:
 # under /usr/share/doc and /usr/share/man. None of that is published here, so
 # it is dropped from the staging directory; otherwise dh_missing
 # --fail-missing (the compat 13 default) would abort the build.
+#
+# Two more things are dropped, both deliberately:
+#   * display and import - the X11 tools. They are still built even with
+#     --without-x (the flag only removes the X11 coder), but without an X11
+#     delegate they cannot do anything, and the description of
+#     imagemagick-7.q16 says they are not shipped. They are the only two
+#     binaries the .install files did not name.
+#   * the libtool archives (*.la). libtool prefers a .la over the .so of the
+#     same name, so a package built against ours would link the static library
+#     and keep the build directory's paths inside the result. The static
+#     libraries themselves (*.a) are shipped, as in Debian.
 override_dh_auto_install:
 	dh_auto_install
 	rm -rf debian/tmp/usr/share/doc debian/tmp/usr/share/man
+	rm -f debian/tmp/usr/bin/display debian/tmp/usr/bin/import
+	find debian/tmp/usr/lib -name '*.la' -delete
 
 # No test suite: this repository neither builds nor runs tests, see
 # .clinerules/project.md. "make check" of ImageMagick runs a large Perl- and

@@ -1,3 +1,4 @@
 usr/lib/*/libMagickWand*.so
+usr/lib/*/libMagickWand*.a
 usr/lib/*/pkgconfig/MagickWand*.pc
 usr/bin/MagickWand-config
