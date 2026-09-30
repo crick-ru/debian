@@ -26,6 +26,14 @@
   приходят готовыми в tar-боле и ставятся, ничего не собирается.
 - Release-профиль сборки (`-Dprofile=default`): оптимизированный бинарник
   без суффикса `-devel`.
+- Сборочные инструменты, которые требует апстрим и которые поэтому есть в
+  `Build-Depends`: `blueprint-compiler` (`.ui`-файлы через
+  `blueprint-compiler batch-compile`; без него meson уходит в wrap-подпроект,
+  а `dh_meson_configure` запрещает его скачивать), `desktop-file-utils`
+  (`gnome.post_install(update_desktop_database: true)` → `update-desktop-database`),
+  `libclang-dev` (crate `pipewire` генерирует биндинги к нашим
+  `libpipewire`/`libspa` через `bindgen`, которому нужен `libclang.so`),
+  `gettext` (`msgfmt` и прочее), `cargo`/`rustc`.
 
 ## Отключено
 

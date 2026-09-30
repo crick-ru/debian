@@ -31,6 +31,14 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # No documentation is built: the imagemagick-7-doc package is not published
 # and /usr/share/doc is removed from the staging directory below. See
 # .clinerules/project.md.
+#
+# --with-security-policy=secure is the strictest variant that upstream's own
+# configure accepts (open|limited|secure|websafe). The value "debian" that
+# Debian passes works only with their patched configure, so it is not an
+# option here; "secure" is the closest upstream equivalent: it denies direct
+# file access, blocks the "follow" coder and path traversal, and allows
+# writing only through the safe coder list. Anyone who needs a coder that it
+# blocks switches the value to limited or open - see the README.
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		--prefix=/usr \
@@ -53,7 +61,7 @@ override_dh_auto_configure:
 		--with-webp \
 		--with-wmf \
 		--with-fftw \
-		--with-security-policy=debian \
+		--with-security-policy=secure \
 		--enable-reproducible-build \
 		--without-gcc-arch \
 		MVDelegate=/bin/mv \

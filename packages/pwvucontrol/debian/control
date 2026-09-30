@@ -20,6 +20,7 @@ Build-Depends:
  blueprint-compiler,
  desktop-file-utils,
  gettext,
+ libclang-dev,
  libadwaita-1-dev (>= 1.2),
  libglib2.0-dev (>= 2.66),
  libgtk-4-dev (>= 4.0.0),
