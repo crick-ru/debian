@@ -4,7 +4,7 @@
 # extra Debian не нужны, а вместе с ними уходят пакеты libav*-extra* и весь
 # GPLv3-набор кодировщиков, который тянет rustc (librav1e, librsvg).
 # Подробности — в packages/ffmpeg/README.md, правила отключения — в
-# .clinerules/project.md.
+# правилах проекта.
 
 include /usr/share/dpkg/architecture.mk
 
@@ -22,6 +22,8 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #   --disable-v4l2-m2m               выключены DVB-тюнеры и захват/кодирование
 #                                     через видеоустройство (V4L2 mem2mem);
 #   --disable-vdpau                  VDPAU выключен (правило репозитория);
+#   --disable-libjack                JACK выключен (правило репозитория),
+#                                     в configure он и так по умолчанию [no];
 #   --disable-librav1e/librsvg       не тянем rustc, AV1 остаётся через libaom
 #                                     и libdav1d.
 # Аппаратное ускорение оставлено там, где оно не устарело: VA-API
@@ -52,6 +54,7 @@ CONFIG := \
 	--disable-libdvdread \
 	--disable-v4l2-m2m \
 	--disable-vdpau \
+	--disable-libjack \
 	--disable-librav1e \
 	--disable-librsvg \
 	--disable-ladspa \

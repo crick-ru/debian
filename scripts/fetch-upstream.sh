@@ -239,7 +239,7 @@ esac
 # revision of the first published build of a package is 1, so every package
 # whose debian/ was reworked afterwards needs revision 2 - otherwise a system
 # that already has the first build would never receive the new one. Keep this
-# list in sync with .clinerules/project.md.
+# list in sync with the repository rules.
 REVISION=1
 case "$PACKAGE" in
   # ffmpeg: first published build was made against FFmpeg 8.x options and

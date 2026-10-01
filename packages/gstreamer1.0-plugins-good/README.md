@@ -5,10 +5,10 @@
 
 ## Включено
 
-- `gstreamer1.0-plugins-good` — элементы набора: демьксеры Matroska, FLV и
+- `gstreamer1.0-plugins-good` — элементы набора: демультиплексоры Matroska, FLV и
   RTP, кодеки VP8 и VP9, FLAC, Speex, WavPack, AMR (NB и WB), MP3, AAC,
   Shout, аудио-эффекты, видеофильтры, а также `libgstadaptivedemux2.so` —
-  адаптивный демьксер (его `-dev`-зависимость `libxml2-dev` уже была в
+  адаптивный демультиплексор (его `-dev`-зависимость `libxml2-dev` уже была в
   `Build-Depends`).
 
 Отдельных пакетов с библиотеками у этого набора нет: в апстриме 1.28.7
@@ -49,6 +49,19 @@
   ТВ-тюнеры, тот же класс, что и отключённые DVB/DVD. Без явного
   отключения он собирался бы: заголовки `linux/videodev2.h` есть в
   `libc6-dev`/`linux-libc-dev`, то есть проверка `cc.has_header` проходит.
+- **JACK**: `-Djack=disabled`. Плагин `libgstjack.so` не публикуется:
+  звук обслуживает pipewire, а JACK-клиенту нужен настоящий JACK-сервер
+  (например, `jackd2` из дистрибутива). `libjack-jackd2-dev` убран из
+  `Build-Depends`.
+- **Вывод видео в текстовую консоль**: `-Dlibcaca=disabled` и
+  `-Daalib=disabled`. Не публикуются `libgstcacasink.so` (caca) и
+  `libgstaasink.so` (aa1) — это ASCII-арт-вывод в терминал, тот же
+  класс, что и отключённые DVB: видео показывают `labwc` и `mpv`.
+  Из `Build-Depends` убраны `libcaca-dev` и `libaa1-dev`. Обратите
+  внимание на имя опции: в апстриме оно **`aalib`**, а не `aa1`, хотя
+  пакет Debian называется `libaa1-dev` — проверка в
+  `ext/aalib/meson.build` идёт по заголовку `aalib.h` и по `-laa`, и
+  именно их этот пакет и предоставляет.
 - **OSSv4**: `-Doss4=disabled`. Плагин `libgstoss4.so` — устаревший аудио-API;
   звук идёт через ALSA и `pipewire`. Отключается опцией, потому что
   `libgstoss4.so` собирается по одним стандартным заголовкам.
@@ -62,7 +75,7 @@
 - **`libdrm-dev` и `zlib1g-dev`**: добавлены из-за `.pc`-файлов нашего
   `gstreamer1.0-plugins-base`. `gstreamer-allocators-1.0.pc` объявляет
   `Requires: libdrm >= 2.4.98`, а `gstreamer-audio-1.0.pc` и другие — `zlib`
-  и `orc-0.4` в `Requires.private`. `pkg-config` в триxie (pkgconf)
+  и `orc-0.4` в `Requires.private`. `pkg-config` в trixie (pkgconf)
   разрешает и `Requires.private`, поэтому без `libdrm.pc` и `zlib.pc` не
   находится даже `gstreamer-pbutils-1.0`, и meson пытается скачать сабпроект
   `gst-plugins-base`.
@@ -73,7 +86,7 @@
 ## Синхронизация .install
 
 `gstreamer1.0-plugins-good.install` перечисляет ровно те плагины, которые
-фактически собираются при флагах из `debian/rules` (69 штук, проверено
+фактически собираются при флагах из `debian/rules` (66 плагинов, проверено
 `meson setup`). Это обязательно: в compat 13 `dh_missing` работает с
 `--fail-missing` по умолчанию, и любое расхождение — лишний файл в
 `debian/tmp` или отсутствующая строка — останавливает сборку.
@@ -81,17 +94,17 @@
 ## Изменено
 
 - Версия: `1.28.7-1+crick`.
-- Состав пакета: `gstreamer1.0-plugins-good.install` синхронизирован с тем,
-  что реально собирается; в него добавлены `libgstadaptivedemux2.so`,
-  `libgstamrnb.so` и `libgstamrwbdec.so` (их `-dev`-зависимости уже были в
-  `Build-Depends`).
-- `Maintainer`: нейтральная идентичность проекта.
+- Состав пакета: в `gstreamer1.0-plugins-good.install` добавлены
+  `libgstadaptivedemux2.so`, `libgstamrnb.so` и `libgstamrwbdec.so` (их
+  `-dev`-зависимости уже были в `Build-Depends`), и убраны
+  `libgstaasink.so`, `libgstcacasink.so` и `libgstjack.so` (JACK, libcaca и
+  libaa1 отключены — см. «Отключено»). Стало 66 плагинов вместо 69.
 
 ## Влияние на систему и откат
 
 Пакеты `gstreamer1.0-qt5`, `gstreamer1.0-qt6` и `gstreamer1.0-gtk3` из
-триxie при `apt upgrade` будут сняты вместе со всем, что их требует (Qt5/Qt6
-приложения). Если они нужны, верните триxie-пакеты:
+trixie при `apt upgrade` будут сняты вместе со всем, что их требует (Qt5/Qt6
+приложения). Если они нужны, верните trixie-пакеты:
 
 ```
 apt install gstreamer1.0-qt5/trixie gstreamer1.0-gtk3/trixie

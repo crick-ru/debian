@@ -22,9 +22,7 @@
   `Build-Depends` убраны `libx11-xcb-dev`, `libxi-dev`, `libxt-dev` и
   `libxv-dev`. Пакет `gstreamer1.0-x` не публикуется.
 - **Аудио-CD**: `-Dcdparanoia=disabled` — это оптический диск, поэтому
-  `libcdparanoia-dev` убран из `Build-Depends`. Правило — в
-  `.clinerules/project.md`, раздел «Оптические диски и DVB-тюнеры
-  отключаются».
+  `libcdparanoia-dev` убран из `Build-Depends` (по правилам проекта).
 - **Утилиты для сопровождения**: пакет `gstreamer1.0-plugins-base-apps`
   (`gst-play-1.0`, `gst-discoverer-1.0`, `gst-device-monitor-1.0`) не
   публикуется. В репозитории есть `mpv`, а discoverer и device-monitor —
@@ -45,7 +43,6 @@
   явным списком остаётся только Wayland, то есть EGL и `libwayland-client0`.
 - Плагин `pango` (текстовые наложения, субтитры) остаётся: он использует
   `pangocairo`, а не X11.
-- `Maintainer`: нейтральная идентичность проекта.
 
 ## Влияние на систему и откат
 
@@ -74,7 +71,7 @@ readelf -Ws /usr/lib/x86_64-linux-gnu/libmpv.so.2 | grep gst_gl_display_x11
 Ни `mpv`, ни `celluloid`, ни `sfwbar` этого репозитория таких вызовов не
 делают: GL-библиотека собирается только под Wayland и EGL.
 
-Возврат к триксийским пакетам безопасен:
+Возврат к пакетам trixie безопасен:
 
 ```
 apt install gstreamer1.0-plugins-base/trixie gstreamer1.0-plugins-base-apps/trixie

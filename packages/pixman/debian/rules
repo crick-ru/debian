@@ -26,7 +26,7 @@ override_dh_makeshlibs:
 	dh_makeshlibs -p$(PACKAGE) --add-udeb $(PACKAGE)-udeb -V"$(PACKAGE) (>= $(SHLIBS))" -- -c4
 
 # No test suite: this repository does not build or run tests, see
-# .clinerules/project.md. The pixman test suite is long and needs no CPU
+# the repository rules. The pixman test suite is long and needs no CPU
 # validation of the shipped library.
 override_dh_auto_test:
 

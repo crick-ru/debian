@@ -16,7 +16,9 @@ Debian (`wayland_1.26.0-1`).
 - `libwayland-doc` — документация не собирается (`-Ddocumentation=false`
   безусловно), поэтому удалены весь `Build-Depends-Indep` (doxygen, graphviz,
   xmlto, xsltproc, mdbook) и файл `libwayland-doc.install`.
-- Man-страницы тоже не собираются: они генерируются в апстриме вместе с API-документацией (опция `documentation`), поэтому строки `usr/share/man/man3` убраны из `libwayland-dev.install`.
+- Man-страницы тоже не собираются: они генерируются в апстриме вместе
+  с API-документацией (опция `documentation`), поэтому строки
+  `usr/share/man/man3` убраны из `libwayland-dev.install`.
 - Собственные тесты wayland не собираются (`-Dtests=false`) и не запускаются:
   `override_dh_auto_test` пуст, каталог `debian/tests` удалён.
 - Отладочные символы (`-dbgsym`) не собираются и не публикуются.
@@ -25,7 +27,6 @@ Debian (`wayland_1.26.0-1`).
 
 - Версия: `1.26.0-2+crick` (новее штатной 1.23.1-3; ревизия 2 — из-за
   переработки упаковки).
-- `Maintainer`: нейтральная идентичность проекта.
 - Формат исходников `3.0 (quilt)`; собственных патчей у пакета нет.
 
 ## Влияние на другие пакеты

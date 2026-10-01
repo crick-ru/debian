@@ -21,7 +21,7 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     override_dh_auto_test пуст);
 #   * символьные файлы не поставляются - их генерирует dh_makeshlibs;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
-# Правила отключения - в .clinerules/project.md.
+# Правила отключения - в правилах проекта.
 Build-Depends: debhelper-compat (= 13),
                chrpath,
                pkgconf,

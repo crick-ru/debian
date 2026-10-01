@@ -6,7 +6,7 @@ Celluloid has no meson option to switch its test programs off: meson.build
 enters the "test" subdirectory unconditionally, so test-option-parser and
 test-playlist-model are compiled on every build (they are not installed, but
 they are still built and run by "meson test"). This repository does not build
-tests at all, see .clinerules/project.md, so the subdirectory is dropped.
+tests at all, see the repository rules, so the subdirectory is dropped.
 ---
  meson.build | 1 -
  1 file changed, 1 deletion(-)

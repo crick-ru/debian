@@ -9,10 +9,10 @@ override_dh_auto_configure:
 	# No man page, HTML or PDF is generated out of DOCS/man/mpv.rst
 	# (-Dmanpage-build=false), so python3-docutils is not needed and the man
 	# page is not shipped. -Dtests=false is the upstream default, spelled out
-	# here to make the rule visible. See .clinerules/project.md.
+	# here to make the rule visible. See the repository rules.
 	#
-	# Optical discs, DVB tuners and VDPAU are disabled project-wide, see
-	# .clinerules/project.md. dvbin was the only linux-only option (it needs
+	# Optical discs, DVB tuners, VDPAU and JACK are disabled project-wide,
+	# see the repository rules. dvbin was the only linux-only option (it needs
 	# linux/dvb/frontend.h), so the ARCH_CONFIGURE block is gone with it and
 	# /usr/share/dpkg/architecture.mk is no longer included.
 	dh_auto_configure -- \
@@ -26,6 +26,7 @@ override_dh_auto_configure:
 		-Dvaapi-x11=disabled \
 		-Dvdpau=disabled \
 		-Dvdpau-gl-x11=disabled \
+		-Djack=disabled \
 		-Dxv=disabled \
 		-Dx11-clipboard=disabled \
 		-Dlibmpv=true \

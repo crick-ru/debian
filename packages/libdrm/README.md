@@ -16,7 +16,7 @@ Debian (`libdrm_2.4.134-3`).
 - `libdrm-tests` — тестовые программы (`modetest`, `amdgpu_stress`,
   `drmdevice`, `vbltest`, `modeprint`, `proptest`) не собираются
   (`-Dinstall-test-programs=false`), файл `libdrm-tests.install` удалён.
-- Тестовая сбрут-система не запускается: `override_dh_auto_test` пуст.
+- Тестовая сборочная система не запускается: `override_dh_auto_test` пуст.
 - Man-страницы не генерируются (`-Dman-pages=disabled`), поэтому убран
   `python3-docutils` (нужен был для `rst2man`) и строки `usr/share/man` из
   `libdrm-dev.install`.
@@ -35,7 +35,6 @@ Debian (`libdrm_2.4.134-3`).
 - Версия: `2.4.134-2+crick` (версия `-2+crick` новее штатной 2.4.124-2 и
   новее первой опубликованной сборки `2.4.134-1+crick`, поэтому `apt upgrade`
   подхватывает и переработанную упаковку).
-- `Maintainer`: нейтральная идентичность проекта.
 - Формат исходников принудительно `3.0 (quilt)` (`scripts/build-package.sh`),
   поэтому патч `debian/patches/01_default_perms.diff` накладывает `dpkg-source`.
 

@@ -41,7 +41,7 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 #
 # No documentation is built: the imagemagick-7-doc package is not published
 # and /usr/share/doc is removed from the staging directory below. See
-# .clinerules/project.md.
+# the repository rules.
 #
 # --with-security-policy=secure is the strictest variant that upstream's own
 # configure accepts (open|limited|secure|websafe). The value "debian" that
@@ -100,7 +100,7 @@ override_dh_auto_install:
 	find debian/tmp/usr/lib -name '*.la' -delete
 
 # No test suite: this repository neither builds nor runs tests, see
-# .clinerules/project.md. "make check" of ImageMagick runs a large Perl- and
+# the repository rules. "make check" of ImageMagick runs a large Perl- and
 # Ghostscript-based suite; override_dh_auto_test keeps it from being invoked.
 override_dh_auto_test:
 

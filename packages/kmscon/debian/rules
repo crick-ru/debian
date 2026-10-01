@@ -15,7 +15,7 @@ export SYSTEMD_SYSTEM_UNIT_DIR = $(shell $(PKG_CONFIG) --variable=systemdsystemu
 
 # The unit tests need libcheck even though they are never run, because
 # upstream defaults its `tests` option to true and that is exactly what pulls
-# the dependency in. -Dtests=false keeps it out (see .clinerules/project.md);
+# the dependency in. -Dtests=false keeps it out (see the repository rules);
 # `override_dh_auto_test` is empty as well.
 override_dh_auto_configure:
 	# -Ddocs=disabled unconditionally: no man pages, no docbook tooling, no
@@ -23,7 +23,7 @@ override_dh_auto_configure:
 	# -Dtests=false: upstream defaults this option to true and it is exactly
 	# what gates the `check` dependency, so without it meson.build still looks
 	# for the unit-test framework even though override_dh_auto_test never runs
-	# the tests. See .clinerules/project.md.
+	# the tests. See the repository rules.
 	dh_auto_configure -- --auto-features=enabled \
 	                     -Ddocs=disabled \
 	                     -Dtests=false \

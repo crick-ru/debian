@@ -9,5 +9,5 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 override_dh_auto_configure:
 	# -Dexamples=false: the example programs (including examples/cairo-buffer,
 	# the only reason wlroots needed cairo) are not built, so the package
-	# libwlroots-0.20-examples is gone. See .clinerules/project.md.
+	# libwlroots-0.20-examples is gone. See the repository rules.
 	dh_auto_configure -- -Dbackends=drm,libinput -Dxwayland=disabled -Dxcb-errors=disabled -Dexamples=false

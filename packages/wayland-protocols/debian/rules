@@ -4,7 +4,7 @@
 	dh $@
 
 # No test suite: this repository does not build or run tests, see
-# .clinerules/project.md. (wayland-protocols only ships data: XML schemas and
+# the repository rules. (wayland-protocols only ships data: XML schemas and
 # the generated client/server headers.)
 override_dh_auto_test:
 

@@ -16,9 +16,10 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     --disable-libdvdnav --disable-libdvdread);
 #   * DVB-тюнеры и захват с видеоустройств выключены (--disable-v4l2-m2m);
 #   * VDPAU выключен (--disable-vdpau), libvdpau-dev убран;
+#   * JACK выключен (--disable-libjack);
 #   * Rust-библиотеки (librav1e, librsvg) выключены, чтобы не тянуть rustc;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
-# Правила отключения — в .clinerules/project.md.
+# Правила отключения — в правилах проекта.
 Build-Depends:
  debhelper-compat (= 13),
  nasm,

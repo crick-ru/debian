@@ -1,6 +1,6 @@
 # spa-0.2/test is not listed: it is the test helper library of the upstream
 # test suite, and this repository does not build tests (see
-# .clinerules/project.md). The audiotestsrc/videotestsrc plugins ARE listed:
+# the repository rules). The audiotestsrc/videotestsrc plugins ARE listed:
 # they are ordinary spa modules that ship in the main modules package, and
 # nothing builds them as part of the test suite.
 usr/lib/*/spa-0.2/aec

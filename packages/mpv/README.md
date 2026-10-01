@@ -16,16 +16,18 @@
   (навигация по DVD), `-Dlibbluray=disabled` (Blu-ray), `-Dlibarchive=disabled`
   (движок чтения BD/ISO, который нужен только libbluray). Из `Build-Depends`
   и из `Depends` пакета `libmpv-dev` убраны `libcdio-dev`,
-  `libcdio-paranoia-dev`, `libdvdnav-dev`, `libbluray-dev` и `libarchive-dev`.
-  Правило — в `.clinerules/project.md`, раздел «Оптические диски и DVB-тюнеры
-  отключаются».
+  `libcdio-paranoia-dev`, `libdvdnav-dev`, `libbluray-dev` и `libarchive-dev`
+  (по правилам проекта).
 - **DVB-тюнеры**: `-Ddvbin=disabled`. У этой опции не было внешних библиотек
   (только заголовок `linux/dvb/frontend.h`), и она была единственной,
   требовавшей блок `ARCH_CONFIGURE` в `debian/rules`; блок удалён вместе с
   ней, как и `include /usr/share/dpkg/architecture.mk`.
 - **VDPAU**: `-Dvdpau=disabled`, `-Dvdpau-gl-x11=disabled`. Вторая опция и так
-  была выключена из-за `-Dx11=disabled`, но задана явно. Правило — в
-  `.clinerules/project.md`, раздел «Аппаратное ускорение VDPAU отключается».
+  была выключена из-за `-Dx11=disabled`, но задана явно (по правилам проекта).
+- **JACK**: `-Djack=disabled`. Аудио выводится через pipewire (ALSA, Pulse и
+  sndio остаются); JACK-клиент собирать нечего без JACK-сервера, поэтому
+  `libjack-dev` убран и из `Build-Depends`, и из `Depends` пакета `libmpv-dev`
+  (по правилам проекта).
 - **X11 и все бэкенды X11**: `-Dx11=disabled`, `-Degl-x11=disabled`,
   `-Dgl-x11=disabled`, `-Dvaapi-x11=disabled`,
   `-Dxv=disabled`, `-Dx11-clipboard=disabled`. Пакеты `mpv` и `libmpv2` не

@@ -24,7 +24,7 @@ override_dh_auto_install:
 # man pages with xsltproc), so the package pipewire-doc and the *.manpages
 # files are gone. -Dtest=disabled stops building the pw-test-* helper programs
 # as well; the test suite itself was never run in this build anyway.
-# See .clinerules/project.md.
+# See the repository rules.
 DOCS=disabled
 MAN=disabled
 
@@ -109,7 +109,7 @@ override_dh_auto_configure:
 		$(NULL)
 
 # No test suite: this repository does not build or run tests, see
-# .clinerules/project.md. The -Dtest=disabled configure flag already keeps the
+# the repository rules. The -Dtest=disabled configure flag already keeps the
 # test tree out of the build, so there is nothing left to run.
 override_dh_auto_test:
 

@@ -73,7 +73,7 @@ mv debian/changelog.new debian/changelog
 # Build debian package.
 # Debug symbol packages (-dbgsym) are not published in this repository: debhelper
 # generates them automatically, so the generation is disabled via DEB_BUILD_OPTIONS.
-# The rule is fixed in .clinerules/project.md.
+# The rule is stated in the repository rules.
 export DEB_BUILD_OPTIONS="${DEB_BUILD_OPTIONS:+$DEB_BUILD_OPTIONS }noautodbgsym"
 echo "==> Running dpkg-buildpackage for $PACKAGE (DEB_BUILD_OPTIONS=$DEB_BUILD_OPTIONS)..."
 dpkg-buildpackage -us -uc -b "$@"

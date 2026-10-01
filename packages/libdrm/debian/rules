@@ -94,7 +94,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- $(confflags)
 
 # No test suite: this repository does not build or run tests, see
-# .clinerules/project.md.
+# the repository rules.
 override_dh_auto_test:
 
 override_dh_install:

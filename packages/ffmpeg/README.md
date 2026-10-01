@@ -24,12 +24,15 @@ GStreamer и FFmpeg.
 - **Оптические диски**: `--disable-libcdio --disable-libbluray
   --disable-libdvdnav --disable-libdvdread`. `libcdio-paranoia-dev` убран из
   `Build-Depends` (в Debian он был включён через `--enable-libcdio`).
-- **DVB-тюнеры и захват с видеоустройств**: `--disable-v4l2-m2m`. Демьксер DVB
+- **DVB-тюнеры и захват с видеоустройств**: `--disable-v4l2-m2m`. Демультиплексор DVB
   в FFmpeg отсутствует как минимум с 6.1 — `libavformat/dvdec.c` не существует
   и в n7.1, и в n9.0.2, — поэтому отключать нечего.
-- **VDPAU**: `--disable-vdpau`, `libvdpau-dev` убран из `Build-Depends`.
-  Правило — в `.clinerules/project.md`, раздел «Аппаратное ускорение VDPAU
-  отключается».
+- **VDPAU**: `--disable-vdpau`, `libvdpau-dev` убран из `Build-Depends`
+  (по правилам проекта).
+- **JACK**: `--disable-libjack`. В `configure` он и так по умолчанию `[no]`
+  (то есть включается только `--enable-libjack`), а `libjack-dev` у нас и не
+  было в `Build-Depends`; опция задана явно, чтобы правило было видно в
+  `debian/rules` (по правилам проекта).
 - **X11**: `--disable-libxcb --disable-libxcb-shm --disable-libxcb-xfixes
   --disable-libxcb-shape`. Из `Build-Depends` убраны `libx11-xcb-dev`,
   `libxcb-shape0-dev`, `libxcb-shm0-dev`, `libxcb-xfixes0-dev` и `libxv-dev`.

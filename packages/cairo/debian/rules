@@ -22,7 +22,7 @@ confflags += -Ddefault_library=shared
 # -Dsymbol-lookup=disabled keeps binutils' bfd out, so the debugging helpers
 # do not get the bfd-based symbol lookup.
 #
-# See .clinerules/project.md: this repository builds no documentation and no
+# See the repository rules: this repository builds no documentation and no
 # tests.
 override_dh_auto_configure:
 	dh_auto_configure -- \
@@ -36,7 +36,7 @@ override_dh_auto_configure:
 		$(NULL)
 
 # No test suite: this repository does not build or run tests, see
-# .clinerules/project.md.
+# the repository rules.
 override_dh_auto_test:
 
 # Meson installs into / directly; stage the tree so that dh_install can split

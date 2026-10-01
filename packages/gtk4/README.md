@@ -28,11 +28,13 @@
   (`gtkapplication-wayland` NULL-проверка и 32-битная сборка
   `gskvulkanimage`) в 4.22.5 уже в апстриме и удалены из серии.
 - Требования к зависимостям не занижены патчами: glib ≥ 2.84, pango ≥ 1.56,
+  cairo ≥ 1.18.2, harfbuzz ≥ 8.4, graphene ≥ 1.10, epoxy ≥ 1.4,
+  gobject-introspection ≥ 1.84, gstreamer ≥ 1.24 — всё есть в trixie.
 
 ## Отключено
 
 - **X11-бэкенд GDK** (`-Dx11-backend=false`) — намеренно, под цель
-  «чистый Wayland» (см. `.clinerules/project.md`). Единственный бэкенд —
+  «чистый Wayland» (по правилам проекта). Единственный бэкенд —
   Wayland. Из `libgtk-4.so.1` удалены **81 символ** при неизменном SONAME:
   69 `gdk_x11_*` (включая `(arch=linux-any)gdk_x11_vulkan_context_get_type`),
   9 `gdk_broadway_*`, 2 `gsk_broadway_renderer_*` (рендерер broadway — тоже
@@ -59,7 +61,6 @@
 ## Изменено
 
 - Версия: `4.22.5-1+crick` (новее штатной `4.18.6+ds-2`).
-- `Maintainer`: нейтральная идентичность проекта.
 - Формат исходников `3.0 (quilt)`; quilt-серия сокращена с 22 патчей до 1.
 - `debian/libgtk-4-1.symbols` перегенерирован без `gdk_x11_*` и
   `gdk_broadway_*` — иначе `dpkg-gensymbols` ругается на удалённые символы.
@@ -82,7 +83,7 @@ SONAME прежний: `libgtk-4.so.1`, поэтому `celluloid`, `libadwaita`
 мажорной версии 4.x, а `libadwaita`/`celluloid`, собранные против 4.18,
 используют только стабильный API.
 
-Как и в `gtk3`, программы, которые зовут X11-API GTK напрямую (без
+Как и в `gtk+3.0`, программы, которые зовут X11-API GTK напрямую (без
 `#ifdef GDK_WINDOWING_X11`), сломаются — у них `gdk_x11_*` не находится:
 
 ```bash
@@ -109,6 +110,3 @@ sudo apt install libgtk-4-1=4.18.6+ds-2 libgtk-4-common=4.18.6+ds-2 \
 При `Pin-Priority: 1001` следующий `apt upgrade` вернёт версии из этого
 репозитория обратно. После отката `celluloid` этого репозитория
 установить нельзя: ему нужен `libgtk-4-dev` с wayland ≥ 1.24.
-
-  cairo ≥ 1.18.2, harfbuzz ≥ 8.4, graphene ≥ 1.10, epoxy ≥ 1.4,
-  gobject-introspection ≥ 1.84, gstreamer ≥ 1.24 — всё есть в trixie.

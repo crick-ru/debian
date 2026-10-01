@@ -3,12 +3,13 @@
 Новые версии пакетов для **Debian 13 (trixie, amd64)**.
 
 Репозиторий собран по трём правилам, которые действуют для **всех** пакетов
-(подробности — в `.clinerules/project.md`, в `repo/`):
+(что именно отключено и как откатить — в README каждого пакета):
 
 1. **Ничего лишнего не собирается:** ни документации (включая man-страницы,
    генерируемые из docbook/rst/scdoc), ни примеров, ни тестов. Пакеты
    `*-doc`, `*-examples`, `*-tests` и `installed-tests` не публикуются,
-   тестовые сьюты не собираются и не запускаются.
+   тестовые сьюты не собираются и не запускаются. Примеры конфигурационных
+   файлов при этом сохраняются.
 2. **X11 нет нигде:** ни одной зависимости от `libX11`, `libXext`,
    `libXrender`, `libxcb*`, `x11proto-dev`, Xwayland — ни в `Build-Depends`,
    ни в собранных библиотеках. Даже `libxkbcommon-x11` не публикуется.
@@ -16,8 +17,8 @@
    ускорение там, где оно не устарело: VA-API и NVDEC/NVENC работают.
 
 Цена второго правила — **два намеренных нарушения ABI** (SONAME сохранён,
-символы удалены): у GTK 3/4 и у `cairo`. Разбор — в README каждого
-пакета.
+символы удалены): у GTK 3/4 и у `cairo`. Разбор и порядок отката — в README
+соответствующего пакета.
 
 ## Состав
 
@@ -57,36 +58,27 @@
 
 ### Что ломает состав системы
 
-Три пакета удаляют то, что есть в trixie, и это нужно понимать до `apt upgrade`:
+Четыре пакета удаляют то, что есть в trixie, и это нужно понимать до `apt upgrade`:
 
 - **`libxkbcommon` собран без X11-части** (`-Denable-x11=false`): пакетов
   `libxkbcommon-x11-0`/`-dev` в репозитории нет, поэтому штатный
   `libxkbcommon-x11-0` будет снят вместе со всем, что от него зависит
-  (Qt-приложения, `libmutter-16-0` и далее). Собственный
-  `libgstreamer-plugins-bad1.0-0` этого репозитория от `libxkbcommon-x11-0`
-  не зависит — он собран с `-Dx11=disabled`, и в GStreamer 1.28.7
-  `libxkbcommon` встречается только в плагине `wpe` и в окне XCB плагина
-  `vulkan`, а оба выключены. Проверка: `apt-get -s upgrade`, разбор — в
-  `packages/libxkbcommon/README.md`.
+  (Qt-приложения, `libmutter-16-0` и далее). Проверка `apt-get -s upgrade` и
+  полный разбор — в `packages/libxkbcommon/README.md`.
 - **GTK 3 и GTK 4 собраны без X11** (только Wayland-бэкенд): при неизменном
-  SONAME из `libgtk-3.so.0` удалено 101 символ, из `libgtk-4.so.1` — 81
-  (все `gdk_x11_*`, `gdk_broadway_*` и часть X11-only API). Приложения,
-  зовущие X11-API GTK напрямую, после `apt upgrade` падают; порядок отката —
-  в README каждого пакета.
-- **`cairo` собран без Xlib/XCB** (`-Dxlib=disabled -Dxcb=disabled
-  -Dxlib-xcb=disabled`): при неизменном SONAME `libcairo.so.2` удалены 26
-  публичных функций `cairo_xlib_*` и `cairo_xcb_*`. Реально ломаются GTK 2
-  и `libghc-gi-gdkx11-dev`; GTK 3/4 и labwc используют только
-  `cairo_image_surface_*` и `cairo_create`.
-- **`imagemagick` снимает часть своего набора из trixie.** Мы не публикуем
-  PerlMagick, Magick++ и переходные метапакеты: их триксийские версии пинят
-  точную версию `imagemagick-7-common` и `-dev`-пакетов своей сборки, поэтому
-  автоматически снимаются `libimage-magick-perl`, `libimage-magick-q16-perl`,
-  `libmagick++-7-headers`, `libmagick++-7.q16-dev`, `libmagickcore-dev`,
-  `libmagickwand-dev`, `libmagick++-dev`, `perlmagick` и
-  `libmagickcore-7.q16-10-extra`. Все кодировщики и фильтры при этом входят
-  в `libmagickcore-7.q16-10`, так что поддержка форматов не теряется.
-  Проверка: `apt-get -s upgrade`, разбор — в `packages/imagemagick/README.md`.
+  SONAME из библиотек удалены символы `gdk_x11_*`, `gdk_broadway_*` и часть
+  X11-only API. Приложения, зовущие X11-API GTK напрямую, после `apt upgrade`
+  падают; порядок отката — в `packages/gtk+3.0/README.md` и
+  `packages/gtk4/README.md`.
+- **`cairo` собран без Xlib/XCB** (`-Dxlib=disabled -Dxcb=disabled`): при
+  неизменном SONAME удалены публичные функции `cairo_xlib_*`/`cairo_xcb_*`.
+  Реально ломаются GTK 2 и `libghc-gi-gdkx11-dev`; разбор — в
+  `packages/cairo/README.md`.
+- **`imagemagick` снимает часть своего набора из trixie** (PerlMagick,
+  Magick++ и переходные метапакеты): их версии из trixie пинят точную версию
+  `imagemagick-7-common`, поэтому эти пакеты устанавливаются из нашего набора
+  автоматически. Проверка `apt-get -s upgrade`, разбор — в
+  `packages/imagemagick/README.md`.
 
 ### Отключённые аппаратные и форматные возможности
 

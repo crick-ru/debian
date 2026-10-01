@@ -40,6 +40,17 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #                         libpulse-dev убран из Build-Depends, mpv имеет свой;
 #   -Dv4l2=disabled       захват с видеоустройств (V4L2) не нужен - это
 #                         телекамеры и ТВ-тюнеры, тот же класс, что DVB;
+#   -Djack=disabled       JACK-плагин libgstjack.so не публикуется: звук
+#                         обслуживает pipewire, а JACK-клиенту нужен
+#                         JACK-сервер (jackd2 из дистрибутива);
+#   -Dlibcaca=disabled    плагин libgstcacasink.so не публикуется: вывод
+#                         видео в текстовую консоль, тот же класс, что
+#                         aalib;
+#   -Daalib=disabled      плагин libgstaasink.so не публикуется по той же
+#                         причине. Опция называется aalib (не aa1), хотя
+#                         пакет Debian называется libaa1-dev: проверка в
+#                         ext/aalib/meson.build идёт по заголовку aalib.h и
+#                         по -laa, и именно их даёт libaa1-dev;
 #   -Doss4=disabled       устаревший аудио-API OSSv4; звук идёт через
 #                         ALSA и pipewire;
 #   -Ddoc=disabled        документация не собирается;
@@ -56,6 +67,9 @@ conf_flags = \
 	-Dximagesrc=disabled \
 	-Dpulse=disabled \
 	-Dv4l2=disabled \
+	-Djack=disabled \
+	-Dlibcaca=disabled \
+	-Daalib=disabled \
 	-Doss4=disabled
 
 %:

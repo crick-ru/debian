@@ -15,6 +15,11 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     выключены опциями сборки, иначе dh_missing --fail-missing (в
 #     compat 13 это поведение по умолчанию) роняет сборку на файлах,
 #     не указанных в .install;
+#   * JACK, libcaca и libaa1 выключены (-Djack=disabled
+#     -Dlibcaca=disabled -Daalib=disabled), поэтому убраны
+#     libjack-jackd2-dev, libcaca-dev и libaa1-dev. Опция для aa1
+#     называется aalib, а не aa1: проверка идёт по aalib.h и -laa,
+#     и именно их даёт libaa1-dev;
 #   * -Dauto_features=enabled не используется: опция превращает все
 #     'auto'-опции в обязательные, и сборка падала на отсутствующих
 #     nasm, libraw1394/libavc1394/libiec61883 и libgudev/libv4l2;
@@ -34,9 +39,7 @@ Build-Depends:
  meson (>= 1.4.0),
  pkgconf,
  python3,
- libaa1-dev (>= 1.4p5),
  libcairo2-dev (>= 1.10.0),
- libcaca-dev,
  libdv4-dev,
  libdrm-dev,
  libflac-dev (>= 1.1.4),
@@ -44,7 +47,6 @@ Build-Depends:
  libgstreamer1.0-dev (>= 1.28.0),
  libgstreamer-plugins-base1.0-dev (>= 1.28.0),
  gstreamer1.0-plugins-base (>= 1.28.0),
- libjack-jackd2-dev,
  libjpeg-dev,
  libmp3lame-dev,
  libmpg123-dev (>= 1.13),

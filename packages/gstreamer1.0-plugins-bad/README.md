@@ -26,14 +26,14 @@
   `libxkbcommon` встречается ровно в двух местах — в плагине `wpe` и в окне
   XCB плагина `vulkan`. Оба выключены, поэтому наш
   `libgstreamer-plugins-bad1.0-0` **не зависит ни от `libxkbcommon-x11-0`, ни
-  от `libxkbcommon0`**. Это и было целью: устаревшая версия из триxie
+  от `libxkbcommon0`**. Это и было целью: устаревшая версия из trixie
   (1.7.0-2, жёстко запинена `libxkbcommon-x11-0`) не должна попадать в
   систему, а наша `libxkbcommon0` 1.13.1 должна быть пригодна для GTK и
   pipewire. Проверка: `dpkg -s libgstreamer-plugins-bad1.0-0 | grep xkbcommon`
   не даёт совпадений.
 - **wpe**: `-Dwpe=disabled -Dwpe2=disabled`. Плагин нужен только приложениям
   на WebKit (встраивание видео в веб-страницу); ни один пакет репозитория его
-  не использует. Вдобавок `libwpewebkit-2.0-1` из триxie сам
+  не использует. Вдобавок `libwpewebkit-2.0-1` из trixie сам
   `Depends: libgstreamer-plugins-bad1.0-0`, то есть плагин создал бы
   зависимость нашей сборки на штатную. Пакет `gstreamer1.0-wpe` не
   публикуется, `libwpewebkit-2.0-dev` и `libwpebackend-fdo-1.0-dev` убраны из
@@ -41,11 +41,10 @@
 - **DVB-тюнеры и DVD**: `-Ddvb=disabled -Dresindvd=disabled`; `libdvdnav-dev`
   убран из `Build-Depends`. Опция DVD называется именно `resindvd` (плагин
   `libgstresindvd.so`): имени `dvdnav` в `meson.options` нет, а meson падает
-  на неизвестной опции (`ERROR: Unknown options`). Правило — в
-  `.clinerules/project.md`, раздел «Оптические диски и DVB-тюнеры
-  отключаются».
+  на неизвестной опции (`ERROR: Unknown options`). Отключается по правилам
+  проекта.
 - **OpenCV**: `-Dopencv=disabled`, как и в Debian: тяжёлая библиотека
-  компьютерного зрения, в триxie тянет X11. `libopencv-dev` убран.
+  компьютерного зрения, в trixie тянет X11. `libopencv-dev` убран.
   Пакеты `gstreamer1.0-opencv` и `libgstreamer-opencv1.0-0` не публикуются.
 - **Нейросетевые фильтры**: `-Donnx=disabled -Dtflite=disabled
   -Dtflite-edgetpu=disabled`. ONNX Runtime весит около 74 МБ вместе с
@@ -69,7 +68,7 @@
   -Dfaad=disabled` — тот же список, что и в Debian, только без вариантов для
   не-Linux.
 - **Vulkan Video**: `-Dvulkan-video=disabled`. Кодирование и декодирование
-  через Vulkan Video Extensions выключено: в триxie нет заголовков
+  через Vulkan Video Extensions выключено: в trixie нет заголовков
   `vulkan_video_codec_*.h` (их даёт `libvulkan-dev` в более новых версиях
   Khronos), а с `-Dauto_features=enabled` опция `auto` становится обязательной
   и конфигурация падала с `Vulkan Video extensions headers not found`. Сам
@@ -119,13 +118,12 @@
   на `gstreamer1.0-plugins-base` и `gstreamer1.0-plugins-good` версий
   ancient (`<< 0.11.94`, `<< 1.1.2`) — они не перенесены, они относятся к
   2008 году.
-- `Maintainer`: нейтральная идентичность проекта.
 
 ## Влияние на систему и откат
 
-`libgstreamer1.0-plugins-bad1.0-dev` больше не подтягивает `libopencv-dev`
+`libgstreamer-plugins-bad1.0-dev` больше не подтягивает `libopencv-dev`
 и `libgstreamer-opencv1.0-0`, а `gstreamer1.0-wpe` и `gstreamer1.0-opencv`
-из триxie будут сняты. Если нужны, верните триxie-пакеты:
+из trixie будут сняты. Если нужны, верните trixie-пакеты:
 
 ```
 apt install gstreamer1.0-wpe/trixie gstreamer1.0-opencv/trixie

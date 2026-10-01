@@ -13,8 +13,9 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     libarchive-dev;
 #   * DVB-тюнеры выключены (-Ddvbin=disabled);
 #   * VDPAU выключен (-Dvdpau=disabled);
+#   * JACK выключен (-Djack=disabled), поэтому убран libjack-dev;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
-# Правила отключения — в .clinerules/project.md.
+# Правила отключения — в правилах проекта.
 Build-Depends:
  debhelper-compat (= 13),
  libasound2-dev [linux-any],
@@ -29,7 +30,6 @@ Build-Depends:
  libegl-dev [linux-any],
  libffmpeg-nvenc-dev [amd64 arm64 i386],
  libgbm-dev,
- libjack-dev,
  libjpeg-dev,
  liblcms2-dev (>= 2.6~),
  liblua5.2-dev,
@@ -109,7 +109,6 @@ Depends:
  libegl-dev [linux-any],
  libffmpeg-nvenc-dev [amd64 arm64 i386],
  libgbm-dev,
- libjack-dev,
  libjpeg-dev,
  liblcms2-dev (>= 2.6~),
  liblua5.2-dev,

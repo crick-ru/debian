@@ -30,8 +30,7 @@ FFmpeg: плагин оборачивает кодировщики и декод
 - `libav*-dev` в `Build-Depends` имеют нижнюю границу `(>= 7:9.0)`: она
   закрывается только сборкой с epoch 7 из этого репозитория, и в CI плагин
   собирается именно против неё (стадии 1–3 в `build.yml`), а не против
-  версии из триxie.
-- `Maintainer`: нейтральная идентичность проекта.
+  версии из trixie.
 - Единственный бинарный пакет и единственный `*.install` — значит
   `dh_auto_install` вызывается с `--destdir=debian/tmp`. Без этого debhelper
   (одиночный пакет) ставит файлы прямо в `debian/gstreamer1.0-libav` — так
@@ -42,8 +41,8 @@ FFmpeg: плагин оборачивает кодировщики и декод
 
 ## Влияние на систему и откат
 
-Пакет снимает из `Depends` `libavcodec61`/`libavutil59` триxie и ставит
-`libavcodec63`/`libavutil61` нашего FFmpeg. Если нужен триxie-плагин:
+Пакет снимает из `Depends` `libavcodec61`/`libavutil59` trixie и ставит
+`libavcodec63`/`libavutil61` нашего FFmpeg. Если нужен trixie-плагин:
 
 ```
 apt install gstreamer1.0-libav/trixie

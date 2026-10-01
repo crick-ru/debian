@@ -15,7 +15,7 @@ endif
 # subcommands that query an X server, and it is the only thing in this
 # package that needs libxcb/libxcb-xkb/X11. This repository is Wayland-only,
 # so the packages libxkbcommon-x11-0 and libxkbcommon-x11-dev are gone;
-# see .clinerules/project.md and packages/libxkbcommon/README.md.
+# see the repository rules and packages/libxkbcommon/README.md.
 # -Denable-docs=false: no documentation, no libxkbcommon-doc (doxygen).
 # The test suite is neither built nor run (no debian/tests, no <!nocheck>
 # build deps), so meson's -Dtests has nothing left to enable.

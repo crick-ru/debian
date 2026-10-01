@@ -11,7 +11,7 @@ export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
 # wireplumber-doc and the files wireplumber-doc.* are gone and doxygen,
 # python3-breathe, python3-sphinx and python3-sphinx-rtd-theme are not build
 # dependencies. -Dtests=false and -Ddbus-tests=false keep the test tree and the
-# test helper binaries out of the build. See .clinerules/project.md.
+# test helper binaries out of the build. See the repository rules.
 #
 # -Dintrospection=disabled removes gir1.2-wp-0.5 from the package set. Upstream
 # builds docs/meson.build unconditionally, and there the introspection path is
@@ -40,21 +40,17 @@ override_dh_makeshlibs:
 		--exclude=/usr/lib/$(DEB_HOST_MULTIARCH)/wireplumber-0.5 \
 		-- -c4
 
-# Upstream installs the example configurations from
-# src/config/meson.build as plain data: install_subdir('wireplumber.conf.d.examples')
-# goes to /usr/share/doc/wireplumber/examples/wireplumber.conf.d, and there is
-# no option to turn that off. The same configurations are already installed as
-# /usr/share/wireplumber/wireplumber.conf.d, so the examples add nothing, and
-# the repository does not publish examples at all. The directory is therefore
-# removed from the staging tree, exactly like the ffmpeg examples; that keeps
-# dh_missing --fail-missing working instead of hiding the files in
-# debian/not-installed.
-override_dh_auto_install:
-	dh_auto_install
-	rm -rf debian/tmp/usr/share/doc/wireplumber/examples
+# Upstream installs the example configurations from src/config/meson.build as
+# plain data: install_subdir('wireplumber.conf.d.examples') goes to
+# /usr/share/doc/wireplumber/examples/wireplumber.conf.d, and there is no option
+# to turn that off. They are kept: reference configuration examples are an
+# allowed exception to the "no documentation/examples" rule (see
+# packages/wireplumber/README.md), and the path is listed in
+# wireplumber.install. The working configurations are installed separately in
+# /usr/share/wireplumber/wireplumber.conf.d.
 
 # No test suite: this repository neither builds nor runs tests, see
-# .clinerules/project.md. -Dtests=false already keeps the test tree out of the
+# the repository rules. -Dtests=false already keeps the test tree out of the
 # build, so there is nothing left to run.
 override_dh_auto_test:
 
