@@ -9,18 +9,20 @@
 
 ## Почему свой mesa
 
-Штатная mesa в trixie тянет X11 практически во всё:
+Штатная mesa в trixie тянет X11 уже в сам `libgallium`:
 
 ```
-libglx-mesa0    Depends: libx11-6, libx11-xcb1, libxcb-glx0, libxcb-*, libxext6, libxxf86vm1
-libegl-mesa0    Depends: libx11-xcb1, libxcb-dri3-0, libxcb-present-0, libxcb-randr0, libxcb-shm0, libxcb-xfixes0
-mesa-libgallium Depends: libgl1-mesa-dri  (а тот — libx11-6, libxcb-*)
-libgbm1         Depends: mesa-libgallium
+mesa-libgallium Depends: libx11-xcb1, libxcb-dri3-0, libxcb-present0,
+                         libxcb-randr0, libxcb-sync1, libxcb-xfixes0, libxcb1, libxshmfence1
+libgbm1            Depends: mesa-libgallium
+libegl-mesa0       Depends: libgbm1, mesa-libgallium, libx11-xcb1, libxcb-*
+libglx-mesa0       Depends: libx11-6, libx11-xcb1, libxcb-glx0, libgl1-mesa-dri, …
 ```
 
 То есть даже `libgbm1`, от которого зависит `neatvnc`, в trixie приводит за
-собой X11. Это нарушает правило репозитория «X11 нет нигде», поэтому mesa
-собирается здесь: `-Dplatforms=['wayland']` и `-Dglx=disabled`.
+собой X11 — XCB приходит транзитивно через `mesa-libgallium`. Это нарушает
+правило репозитория «X11 нет нигде», поэтому mesa собирается здесь:
+`-Dplatforms=['wayland']` и `-Dglx=disabled`.
 
 Побочный эффект, важный для wayvnc: с нашей mesa `libneatvnc1` больше не
 тянет X11 через gbm.
@@ -45,12 +47,13 @@ trixie (llvm-19), и под наш `libdrm` 2.4.134 она подходит.
 | `libgbm1` | `libgbm.so.1`, плагин `gbm/dri_gbm.so` |
 | `libgbm-dev` | `gbm.h`, `gbm.pc`, `libgbm.so` |
 | `libegl-mesa0` | `libEGL_mesa.so.0`, `50_mesa.json` для glvnd |
-| `libgl1-mesa-dri` | DRI-модули `*_dri.so` (hardlink-и, переносятся вручную) |
-| `mesa-libgallium` | `libgallium-*.so` **и VA-драйверы** `*_drv_video.so` |
+| `mesa-libgallium` | `libgallium-*.so` (настоящий DRI) **и VA-драйверы** `*_drv_video.so` |
 | `mesa-common-dev` | `dri_interface.h`, `dri.pc` |
 | `mesa-vulkan-drivers` | Vulkan-драйверы и слои |
 
-Не публикуются: `libglx-mesa0` (это GLX, то есть X11), `libegl1-mesa-dev`,
+Не публикуются: `libgl1-mesa-dri` (X11-обёртка для GLX, настоящий DRI лежит
+в `mesa-libgallium` — разбор в разделе «DRI: что где лежит»), `libglx-mesa0`
+(это GLX, то есть X11), `libegl1-mesa-dev`,
 `libgles2-mesa-dev`, `libgl1-mesa-dev` (переходные обёртки над glvnd),
 `mesa-teflon-delegate` (только arm64), `mesa-opencl-icd`, `mesa-drm-shim`.
 
@@ -59,7 +62,8 @@ trixie (llvm-19), и под наш `libdrm` 2.4.134 она подходит.
 это уже сделано в упаковке Debian, поэтому apt аккуратно снимет штатные
 `mesa-va-drivers` и `mesa-vdpau-drivers` при обновлении.
 
-`mesa-common-dev` больше не зависит от `libx11-dev` и `libglx-dev`: без них
+`mesa-common-dev` больше не зависит от `libx11-dev` и `libglx-dev`.
+
 Отключено:
 
 | Что | Почему | Чем вместо |
@@ -90,15 +94,38 @@ VA-API (`-Dgallium-va=enabled`) и аппаратное декодировани
 меняются (`libGLX_mesa.so.0` не собирается вовсе, поэтому
 `libglx-mesa0.symbols` не нужен).
 
-## Главное ограничение: DRI в mesa неотделим от GLX/X11
+## DRI: что где лежит (и почему `libgl1-mesa-dri` не публикуется)
 
-Это не дефект нашей упаковки, а свойство апстрима, и оно упирается прямо в
-правило репозитория «X11 нет нигде».
+Пакет называется `libgl1-mesa-dri`, но **настоящих DRI-драйверов в нём
+нет**. Это X11-специфичная склейка, и разобраться пришлось по исходникам
+mesa и по содержимому штатных пакетов Debian.
 
-В mesa 25.x и 26.x DRI-модули не собираются как отдельные библиотеки.
-Собирается один общий `libgallium*.so`, а симлинки `*_dri.so` на него
-(и `libdril_dri.so`) создаёт цель `src/gallium/targets/dril`. А она
-подключается так (`src/meson.build`):
+В mesa 25.x и 26.x DRI-драйверы не собираются как отдельные библиотеки.
+Собирается один общий мега-драйвер, и раскладка такая:
+
+| Что | Пакет | Чем строится | Нужен X11? |
+|---|---|---|---|
+| `libgallium-<версия>.so` — **настоящий DRI-драйвер**, все gallium-драйверы внутри | `mesa-libgallium` | `src/gallium/targets/dri` (`with_dri`) | **нет** |
+| `dri/libdril_dri.so` + симлинки `*_dri.so` — обёртка для GLX | `libgl1-mesa-dri` | `src/gallium/targets/dril` | **да** |
+
+Ключевой факт: **`libegl-mesa0` зависит от `mesa-libgallium` напрямую**, а
+не через dlopen. Проверено на штатном trixie:
+
+```
+$ dpkg-deb -f libegl-mesa0_25.0.7-2+deb13u1_amd64.deb Depends
+… libgbm1 (= 25.0.7-2+deb13u1), mesa-libgallium (= 25.0.7-2+deb13u1) …
+```
+
+А `libglx-mesa0` — единственный потребитель `libgl1-mesa-dri`, и он целиком
+X11:
+
+```
+$ dpkg-deb -f libglx-mesa0_25.0.7-2+deb13u1_amd64.deb Depends
+… libx11-6, libxcb-glx0, libgl1-mesa-dri, mesa-libgallium …
+```
+
+Симлинки `*_dri.so` создаёт цель `src/gallium/targets/dril`, которая
+подключается так (`src/meson.build:158` в 26.1.6, `:140` в 25.0.7):
 
 ```meson
 if with_gallium
@@ -108,40 +135,46 @@ if with_gallium
 endif
 ```
 
-То есть **без GLX или X11 DRI-модулей не будет вообще**. Наш `-Dglx=disabled`
-в сочетании с `-Dplatforms=['wayland']` выключает ровно эту ветку, поэтому
-`libgl1-mesa-dri` пустеет, а с ним уходят и OpenGL, и VA-API.
+То есть без GLX/X11 её нет — и она не нужна: `libdril_dri.so` лишь
+`dlopen`ает `libEGL.so.1`, чтобы отдать GLX запросы в EGL
+(`src/gallium/targets/dril/dril_target.c:362`). Это обратный путь для
+устаревшей связки GLX → EGL, а не источник драйверов.
 
-Проверено на обоих вариантах:
+**Вывод: `libgl1-mesa-dri` в этом репозитории не публикуется**, и OpenGL,
+VA-API и EGL при этом полностью работают — они идут через
+`mesa-libgallium` → `libgallium-*.so`, который собирается без X11.
+Штатный trixie-пакет при этом остаётся: мы его не заменяем и не удаляем,
+просто он не нужен нашей ветке. То, что он лежит в trixie с X11 внутри,
+не делает его нашим — правило репозитория касается публикуемых пакетов.
 
-| Проверка | 26.1.6 | 25.0.7 |
+Проверено, что тарболл и патчи Debian совпадают с нашими побайтно
+(md5 `1b93168f…` из `.dsc`, патчи sid и backports идентичны), так что
+расхождение поведения объясняется не исходником, а составом сборки:
+Debian собирает с X11 и получает обе цели, мы — только `targets/dri`.
+
+### Что публикуется
+
+| Пакет | Состав | X11 |
 |---|---|---|
-| `subdir('gallium/targets/dril')` только при GLX/X11 | да (`src/meson.build:158`) | да (`src/meson.build:140`) |
-| tarball Debian и наш совпадают | md5 `1b93168f…` совпадает с `.dsc` | — |
-| патчи Debian и наши совпадают | идентичны sid и backports | — |
+| `mesa-libgallium` | `libgallium-*.so`, симлинки `*_drv_video.so`, `drirc.d/00-mesa-defaults.conf` | нет |
+| `libgbm1` | `libgbm.so.1`, `gbm/dri_gbm.so` | нет |
+| `libgbm-dev` | заголовки, `.pc` | нет |
+| `libegl-mesa0` | `libEGL_mesa.so.0`, `50_mesa.json` | нет |
+| `mesa-vulkan-drivers` | драйверы и слои Vulkan | нет |
+| `mesa-common-dev` | заголовки DRI, `dri.pc` | нет |
 
-Поэтому у Debian в `libgl1-mesa-dri` и лежит ровно один
-`dri/libdril_dri.so`: он получает DRI-модули **потому, что собирает с X11**.
+`libglapi-mesa`, `mesa-va-drivers` и `mesa-vdpau-drivers` отдельными
+пакетами не публикуются: glapi живёт внутри `libgallium`, а VA-драйверы
+едят в `mesa-libgallium` (Debian держит для них `Provides`/`Breaks` —
+это сохранено).
 
-## Варианты
+### Последствие для `apt upgrade`
 
-1. **Не публиковать свою mesa.** Тогда `libgbm1` из trixie продолжит тянуть
-   X11 через `mesa-libgallium → libgl1-mesa-dri → libx11-6`, и правило
-   «X11 нет нигде» нарушается для `neatvnc`/`wayvnc`. Простое, но не
-   удовлетворяет правилу.
-2. **Собирать mesa с X11, как Debian, и публиковать только те пакеты, где
-   X11 не видно.** Требует проверки, что `libgallium*.so` и `libdril_dri.so`
-   не линкуют libX11 (в нашей сборке `libgallium*.so` X11 не линкует — это
-   видно по строке линковки в логе CI), и отказа от `libegl-mesa0`,
-   где X11-платформа EGL точно есть. Тогда правило нарушается только в
-   `Build-Depends` и в непубликуемых пакетах.
-3. **Оставить mesa без DRI.** Собирается, но без OpenGL и VA-API: остаются
-   только lavapipe (софтверный Vulkan) и Wayland/EGL-обвязка. Для задачи
-   «собрать mesa без X11» это формально решение, практически — нет.
-
-Сейчас `override_dh_install` **падает внятно**, а не публикует
-`libgl1-mesa-dri` без DRI-модулей: такой пакет молча сломал бы OpenGL и
-VA-API у всех, кто обновится.
+`libglx-mesa0` из trixie пинит `mesa-libgallium (= 25.0.7-2+deb13u1)`.
+Наша `mesa-libgallium` имеет другую версию, поэтому при `apt upgrade`
+штатный `libglx-mesa0` будет снят — его нечем удовлетворить. Это
+ожидаемо и правильно: GLX на X11 в репозитории не публикуется.
+Своего `libglx-mesa0` мы не собираем.
 
 ## dbgsym
 
@@ -149,13 +182,16 @@ VA-API у всех, кто обновится.
 
 ## Что произойдёт при `apt upgrade`
 
-Штатные `libegl-mesa0`, `libgbm1`, `libgl1-mesa-dri`, `mesa-libgallium`,
-`mesa-common-dev` заменяются нашими (те же имена, версия выше). Штатный
-`libglx-mesa0` **останется установленным**: его больше никто не производит,
-но apt не считает его «нашим» пакетом и не удаляет. Он нужен только для
-X11-клиентов, которых в системе быть не должно.
-| `mesa-drm-shim` | инструмент для тестов | `-Dtools=` пуст |
-| тесты | правило репозитория | `-Dbuild-tests=false`, `override_dh_auto_test` пуст, `debian/tests` удалён |
+Штатные `libegl-mesa0`, `libgbm1`, `mesa-libgallium`, `mesa-common-dev`,
+`mesa-vulkan-drivers` заменяются нашими (те же имена, версия выше). Штатный
+`libgl1-mesa-dri` **остаётся**: мы пакет с таким именем не производим, apt
+не считает его нашим и не трогает. Он лежит на месте, но больше ничего
+общего с нашей mesa не связывает — `libEGL_mesa` смотрит на
+`mesa-libgallium`, а не на него.
+
+`libglx-mesa0` из trixie, наоборот, **будет снят**: он пинит
+`mesa-libgallium (= 25.0.7-2+deb13u1)`, а наша версия другая, и удовлетворить
+пин нечем. Это ожидаемо — GLX на X11 в репозитории не публикуется.
 
 **Про `libclc` и clang.** Они остаются в `Build-Depends` и не имеют отношения
 к OpenCL. `libclc`, `libllvmspirvlib` и `spirv-tools` — это компиляция
@@ -198,7 +234,6 @@ apt-get -s upgrade
 sudo apt install mesa-libgallium=25.0.7-2+deb13u1 \
                  libgbm1=25.0.7-2+deb13u1 \
                  libegl-mesa0=25.0.7-2+deb13u1 \
-                 libgl1-mesa-dri=25.0.7-2+deb13u1 \
                  mesa-common-dev=25.0.7-2+deb13u1 \
                  mesa-vulkan-drivers=25.0.7-2+deb13u1
 ```

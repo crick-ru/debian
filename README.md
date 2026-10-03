@@ -91,10 +91,13 @@
   штатный. Демон `pulseaudio`, `pulseaudio-utils` и модули не публикуются —
   звуковый сервер здесь `pipewire`. Разбор — в
   `packages/pulseaudio/README.md`.
-- **`mesa` собрана без X11**: `libegl-mesa0`, `libgbm1`, `libgl1-mesa-dri` и
-  `mesa-libgallium` заменяются нашими и перестают тянуть `libx11-6`,
-  `libxcb-*` и `libxext6`. `libglx-mesa0` не публикуется, и штатный останется
-  установленным как никем не используемый. VDPAU и OpenCL выключены, VA-API
+- **`mesa` собрана без X11**: `libegl-mesa0`, `libgbm1` и `mesa-libgallium`
+  заменяются нашими и перестают тянуть `libx11-xcb1`, `libxcb-*` и `libxshmfence1`.
+  `libgl1-mesa-dri` (X11-обёртка для GLX) и `libglx-mesa0` не публикуются:
+  настоящий DRI-драйвер — `libgallium-*.so` внутри `mesa-libgallium`, и
+  `libEGL_mesa` зависит от него напрямую. Штатный `libgl1-mesa-dri` при этом
+  остаётся установленным, а штатный `libglx-mesa0` будет снят — его пин на
+  `mesa-libgallium` нечем удовлетворить. VDPAU и OpenCL выключены, VA-API
   оставлен. Разбор — в `packages/mesa/README.md`.
 - **`libheif` публикуется как два пакета с плагинами кодеков внутри
   `libheif1`**, поэтому плагины trixie (`libheif-plugin-*`) будут сняты: они

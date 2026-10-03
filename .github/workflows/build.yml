@@ -125,7 +125,7 @@ jobs:
   #                    libdrm-dev >= 2.4.124-1 and wayland-protocols >= 1.41,
   #                    and because neatvnc (Stage 3) builds against its
   #                    libgbm-dev: the libgbm of trixie drags in X11 through
-  #                    mesa-libgallium -> libgl1-mesa-dri -> libx11-6.
+  #                    mesa-libgallium -> libx11-xcb1, libxcb-*, libxshmfence1.
   # ---------------------------------------------------------------------------
   stage2:
     name: Stage 2 · ${{ matrix.package }}
@@ -366,7 +366,7 @@ jobs:
               # the FFmpeg set to the exact version, so the runtime half
               # travels along. Our mesa (Stage 2): libgbm-dev is what keeps X11
               # out of libneatvnc1 - the libgbm of trixie pulls in
-              # mesa-libgallium -> libgl1-mesa-dri -> libx11-6. aml (Stage 1)
+              # mesa-libgallium -> libx11-xcb1, libxcb-*, libxshmfence1. aml (Stage 1)
               # is pinned by libaml-dev.
               debs=(./stage1-pool/libavcodec63_*.deb
                     ./stage1-pool/libavcodec-dev_*.deb

@@ -1,1 +1,2 @@
 usr/lib/*/libgallium-*.so
+usr/share/drirc.d/00-mesa-defaults.conf

@@ -122,27 +122,20 @@ override_dh_install:
 	rm -f debian/tmp/usr/lib/*/libGLX_mesa.so
 	rm -f debian/tmp/usr/lib/*/libgrl.a
 
-	# DRI-модули. В mesa 26.x они больше не отдельные swrast_dri.so и т. п.,
-	# а один общий libgallium-*.so плюс симлинки *_dri.so на него; симлинки
-	# создаёт цель src/gallium/targets/dril, а она в 26.1.6 вообще не
-	# подключается (subdir('targets/dril') не вызывается). Если модулей нет -
-	# падаем внятно, потому что libgl1-mesa-dri без них бессмысленен: на них
-	# держится весь OpenGL и VA-API.
-	install -m755 -d debian/libgl1-mesa-dri/usr/lib/${DEB_HOST_MULTIARCH}/dri/
-	set -- debian/tmp/usr/lib/${DEB_HOST_MULTIARCH}/dri/*_dri.so; \
-	if [ ! -e "$$1" ]; then \
-		echo "ОШИБКА: в debian/tmp/usr/lib/${DEB_HOST_MULTIARCH}/dri нет ни одного *_dri.so." >&2; \
-		echo "См. packages/mesa/README.md, раздел 'DRI-модули'." >&2; \
-		exit 1; \
-	fi
-	mv "$$@" debian/libgl1-mesa-dri/usr/lib/${DEB_HOST_MULTIARCH}/dri/
+	# libgl1-mesa-dri не публикуется: это X11-склейка, а не DRI-драйверы.
+	# Разбор - в packages/mesa/README.md, раздел "DRI: что где лежит".
+	# Настоящий DRI-драйвер - libgallium-*.so, он ставится в mesa-libgallium
+	# (debian/mesa-libgallium.install), и на него напрямую завязан libEGL_mesa.
 
-	# Copy the hardlinked va drivers correctly. They are shipped inside
-	# mesa-libgallium, which is why the separate mesa-va-drivers package is
-	# not published here (in Debian it stays empty).
+	# VA-драйверы - симлинки на libgallium, едут в тот же mesa-libgallium,
+	# поэтому отдельный пакет mesa-va-drivers у нас пустой и не публикуется.
+	# Набор *_drv_video.so зависит от списка gallium-drivers, поэтому он
+	# может оказаться пустым - это не ошибка, просто VA для них не собрана.
 	install -m755 -d debian/mesa-libgallium/usr/lib/${DEB_HOST_MULTIARCH}/dri/
-	mv debian/tmp/usr/lib/${DEB_HOST_MULTIARCH}/dri/*_drv_video.so \
-	   debian/mesa-libgallium/usr/lib/${DEB_HOST_MULTIARCH}/dri/
+	set -- debian/tmp/usr/lib/${DEB_HOST_MULTIARCH}/dri/*_drv_video.so; \
+	if [ -e "$$1" ]; then \
+		mv "$$@" debian/mesa-libgallium/usr/lib/${DEB_HOST_MULTIARCH}/dri/; \
+	fi
 
 	dh_install -a
 
