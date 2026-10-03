@@ -1,0 +1,70 @@
+#!/usr/bin/make -f
+
+# libheif uses the upstream CMake build system; the Debian packaging is taken
+# from libheif_1.23.4 and reworked down to the minimal set of packages that
+# imagemagick needs (libheif1 + libheif-dev). See README.md and the repository
+# rules for the full rationale.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+include /usr/share/dpkg/architecture.mk
+
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure --buildsystem=cmake -- \
+		-DCMAKE_INSTALL_INCLUDEDIR=include/$(DEB_HOST_MULTIARCH) \
+		-DCMAKE_LIBRARY_ARCHITECTURE="$(DEB_HOST_MULTIARCH)" \
+		-DPLUGIN_DIRECTORY=/usr/lib/$(DEB_HOST_MULTIARCH)/libheif/plugins \
+		-DCMAKE_COMPILE_WARNING_AS_ERROR=OFF \
+		-DWITH_LIBDE265=ON \
+		-DWITH_LIBDE265_PLUGIN=ON \
+		-DWITH_X265=ON \
+		-DWITH_X265_PLUGIN=ON \
+		-DWITH_AOM_DECODER=ON \
+		-DWITH_AOM_DECODER_PLUGIN=ON \
+		-DWITH_AOM_ENCODER=ON \
+		-DWITH_AOM_ENCODER_PLUGIN=ON \
+		-DWITH_DAV1D=ON \
+		-DWITH_DAV1D_PLUGIN=ON \
+		-DWITH_UNCOMPRESSED_CODEC=ON \
+		-DWITH_HEADER_COMPRESSION=OFF \
+		-DWITH_LIBSHARPYUV=OFF \
+		-DWITH_X264=OFF \
+		-DWITH_X264_PLUGIN=OFF \
+		-DWITH_OpenH264_DECODER=OFF \
+		-DWITH_KVAZAAR=OFF \
+		-DWITH_KVAZAAR_PLUGIN=OFF \
+		-DWITH_UVG266=OFF \
+		-DWITH_VVDEC=OFF \
+		-DWITH_VVENC=OFF \
+		-DWITH_SvtEnc=OFF \
+		-DWITH_SvtEnc_PLUGIN=OFF \
+		-DWITH_RAV1E=OFF \
+		-DWITH_RAV1E_PLUGIN=OFF \
+		-DWITH_JPEG_DECODER=OFF \
+		-DWITH_JPEG_DECODER_PLUGIN=OFF \
+		-DWITH_JPEG_ENCODER=OFF \
+		-DWITH_JPEG_ENCODER_PLUGIN=OFF \
+		-DWITH_OpenJPEG_DECODER=OFF \
+		-DWITH_OpenJPEG_DECODER_PLUGIN=OFF \
+		-DWITH_OpenJPEG_ENCODER=OFF \
+		-DWITH_OpenJPEG_ENCODER_PLUGIN=OFF \
+		-DWITH_OPENJPH_ENCODER=OFF \
+		-DWITH_OPENJPH_ENCODER_PLUGIN=OFF \
+		-DWITH_FFMPEG_DECODER=OFF \
+		-DWITH_FFMPEG_DECODER_PLUGIN=OFF \
+		-DWITH_EXAMPLES=OFF \
+		-DWITH_EXAMPLE_HEIF_THUMB=OFF \
+		-DWITH_EXAMPLE_HEIF_VIEW=OFF \
+		-DWITH_GDK_PIXBUF=OFF \
+		-DBUILD_DOCUMENTATION=OFF \
+		-DBUILD_TESTING=OFF
+
+# BUILD_TESTING=OFF: the upstream test suite is not built and not run. See the
+# repository rules (documentation, examples and tests are not built).
+override_dh_auto_test:
+	# tests are disabled via -DBUILD_TESTING=OFF

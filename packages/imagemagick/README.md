@@ -1,10 +1,12 @@
 # imagemagick (crick Debian backports)
 
-Сборка `ImageMagick` 7.1.2-32 для Debian 13 (trixie) **без X11 и без HEIF**,
-только в квантовой глубине Q16.
+Сборка `ImageMagick` 7.1.2-32 для Debian 13 (trixie) **без X11**, с
+делегатом HEIF/AVIF, только в квантовой глубине Q16.
 
-Версия: `8:7.1.2-32-2+crick` (ревизия 2 — отключён делегат HEIF;
-ревизия 1, `8:7.1.2-32-1+crick`, опубликована и заменяется этой).
+Версия: `8:7.1.2-32-3+crick` (ревизия 3 — HEIF включён обратно против
+`libheif` этого репозитория; ревизия 2, `8:7.1.2-32-2+crick`, была с
+выключенным делегатом, ревизия 1, `8:7.1.2-32-1+crick`, — с включённым, но
+на `libheif` из trixie).
 
 ## Почему epoch 8 — обязателен
 
@@ -36,8 +38,8 @@ apt сравнивает epoch первым, поэтому наша сборк�
   JPEG, PNG, TIFF, Raw, OpenEXR, liblqr, LCMS, Fontconfig/FreeType, pango,
   XML. librsvg выключен (`--without-rsvg`), как и в Debian: вместо него
   работает встроенный рендерер MSVG, а зависимость от cairo/pango в
-  `libmagickcore` не появляется. `libheif` выключен (`--without-heic`) —
-  см. «Отключено».
+  `libmagickcore` не появляется. `libheif` включён (`--with-heic`) —
+  см. `packages/libheif`.
 - `policy.xml` — `--with-security-policy=secure`, самый строгий из вариантов,
   которые принимает штатный `configure` апстрима (`open`, `limited`, `secure`,
   `websafe`). Значение `debian`, которое передаёт Debian, работает только с их
@@ -84,36 +86,23 @@ apt сравнивает epoch первым, поэтому наша сборк�
     на чистом Wayland им нечего делать;
   - проверка: `grep -rniE 'libx(11|ext|render)|libxcb|x11proto|x11-xkb|xvfb|xwayland' packages/*/debian/control`
     даёт пустой результат.
-- **HEIF** (`--without-heic`). Делегат `libheif` не собирается: в
-  `configure` это `AC_ARG_WITH([heic])` + `PKG_CHECK_MODULES([HEIF],[libheif >= 1.7.0])`,
-  поэтому патч не нужен — достаточно заменить `--with-heic` на `--without-heic`
-  (в `configure` значение по умолчанию — `yes`, то есть без явного ключа
-  делегат ищется всегда).
-  Следствия, все проверены на опубликованной `8:7.1.2-32-1+crick`:
-  - **пропадают четыре формата, а не один**: `coders/heic.c` под
-    `MAGICKCORE_HEIC_DELEGATE` регистрирует `HEIC`, `HEIF`, `AVCI` и `AVIF`
-    (`AcquireMagickInfo`). То есть **AVIF отключается вместе с HEIC** —
-    отдельного ключа для него в апстриме нет, AVIF у ImageMagick читается и
-    пишется тем же `libheif`. Если AVIF нужен, отключать HEIF нельзя;
-  - исчезает модуль `ImageMagick-7.1.2/modules-Q16/coders/heic.so`
-    (47 КБ в опубликованной сборке) из `libmagickcore-7.q16-10`;
-  - из `Depends` пакета `libmagickcore-7.q16-10` уходит `libheif1 (>= 1.21.2)`:
-    `libheif.so.1` есть в `DT_NEEDED` **только** у `heic.so`, главная
-    библиотека `libMagickCore-7.Q16.so.10` его не линкует (проверено `readelf -d`);
-  - `libheif-dev` убран из `Build-Depends` и из `Depends` пакета
-    `libmagickcore-7.q16-dev` (список `-dev` повторяет сборочные зависимости
-    делегатов: `MagickCore.pc` в `Libs.private` перечисляет их библиотеки, и
-    потребителю нужны их заголовки; сам `libheif` в `Libs.private` не входит).
-  Что будет с `libheif1` в системе: загрузчик HEIF для `gdk-pixbuf` — это
-  отдельный пакет `heif-gdk-pixbuf`, а не сама библиотека GTK, поэтому держать
-  `libheif1` (~1.6 МБ, плюс плагины `libheif-plugin-*`) теперь могут только
-  другие потребители: в trixie это `heif-gdk-pixbuf`, `libvips42t64`,
-  `swayimg`, `siril`, `libopenimageio2.5`. Если их нет, `apt autoremove`
-  предложит снести `libheif1` — это ожидаемое следствие. Проверка собранного
-  пакета:
+- **HEIF/AVIF — делегат включён.** В ревизии 2 он был выключен
+  (`--without-heic`), теперь в `debian/rules` стоит `--with-heic`, а
+  `libheif-dev` снова в `Build-Depends` и в `Depends` пакета
+  `libmagickcore-7.q16-dev`. Делегат берётся из этого репозитория:
+  `libheif1` + `libheif-dev` 1.23.4, причём плагины кодеков лежат внутри
+  `libheif1` (см. `packages/libheif/README.md`).
+  Один кодировщик `coders/heic.so` даёт четыре формата — `HEIC`, `HEIF`,
+  `AVCI` и `AVIF`: отдельного ключа для AVIF в апстриме нет, поэтому он
+  включается и выключается вместе с HEIC.
+  `libheif.so.1` в `DT_NEEDED` есть **только** у `heic.so`, главная библиотека
+  `libMagickCore-7.Q16.so.10` его не линкует (проверено `readelf -d`),
+  поэтому `libheif1` появляется в `Depends` пакета
+  `libmagickcore-7.q16-10` — ровно как было в ревизии 1.
+  Проверка собранного пакета:
   ```
-  dpkg-deb -c libmagickcore-7.q16-10_*_amd64.deb | grep -iE 'heic|avif'  # пусто
-  dpkg-deb -f libmagickcore-7.q16-10_*_amd64.deb Depends | grep -i heif  # пусто
+  dpkg-deb -c libmagickcore-7.q16-10_*_amd64.deb | grep -iE 'heic|avif'  # есть coders/heic.so
+  dpkg-deb -f libmagickcore-7.q16-10_*_amd64.deb Depends | grep -i heif  # есть libheif1
   ```
 - **Q16HDRI**. Debian собирает две глубины (`q16` и `q16hdri`) — это два
   полных прохода компиляции. Здесь только Q16. Пакеты `*q16hdri*` из
@@ -196,13 +185,17 @@ sudo apt install imagemagick=8:7.1.1.43+dfsg1-1+deb13u12 \
 `libMagickWand-7.Q16.so.10`), удалённых символов нет — в отличие от
 намеренных разрывов ABI в `gtk+3.0`, `gtk4` и `cairo`.
 
-Вернуть HEIF (и вместе с ним AVIF) — четыре правки, ровно те, что были
-сделаны при отключении:
+Выключить HEIF обратно (и вместе с ним AVIF) — четыре правки, обратные тем,
+что были сделаны при включении:
 
-1. `--without-heic` → `--with-heic` в `debian/rules` (или просто убрать
-   строку: `configure` по умолчанию ищет делегат всегда);
-2. `libheif-dev` обратно в `Build-Depends` в `debian/control`;
-3. `libheif-dev` обратно в `Depends` пакета `libmagickcore-7.q16-dev`;
+1. `--with-heic` → `--without-heic` в `debian/rules`;
+2. `libheif-dev` убрать из `Build-Depends` в `debian/control`;
+3. `libheif-dev` убрать из `Depends` пакета `libmagickcore-7.q16-dev`
+   (тогда же из `Depends` уйдёт `libheif1` у `libmagickcore-7.q16-10`,
+   который подставляется автоматически по `${shlibs:Depends}`);
 4. следующая ревизия пакета в `scripts/fetch-upstream.sh`
-   (`imagemagick) REVISION=3 ;;`), иначе `apt upgrade` новую сборку
+   (`imagemagick) REVISION=4 ;;`), иначе `apt upgrade` новую сборку
    не подхватит.
+
+Причина, по которой HEIF когда-то выключали, и которую стоит помнить: без
+него пропадают сразу четыре формата — `HEIC`, `HEIF`, `AVCI` и `AVIF`.

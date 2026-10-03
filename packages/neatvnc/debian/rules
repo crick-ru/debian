@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+include /usr/share/dpkg/default.mk
+
+%:
+	dh $@
+
+# Тесты не собираются и не запускаются (Debian собирает их через
+# -Dtests=true и прогоняет meson test). Примеры и бенчмарки по умолчанию
+# выключены и не публикуются. См. README.md и правила проекта.
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Dtests=false \
+		-Dexamples=false \
+		-Dbenchmarks=false

@@ -1,0 +1,140 @@
+#!/usr/bin/make -f
+# debian/rules для пакета mesa в репозитории crick Debian backports.
+# Упаковка взята из Debian (mesa_26.1.6-1~bpo13+1) и переработана под
+# правила репозитория: X11 нет вообще, VDPAU и OpenCL выключены, тесты и
+# mesa-drm-shim не собираются, Rust-драйверы и D3D12 отключены.
+# Подробный разбор - в packages/mesa/README.md и в комментарии debian/control.
+
+include /usr/share/dpkg/pkg-info.mk
+
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+DEB_HOST_ARCH      ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+# meson не знает, где лежит llvm-config нужной версии
+LLVM_VERSION = 19
+export PATH:=/usr/lib/llvm-$(LLVM_VERSION)/bin/:$(PATH)
+
+export DEB_BUILD_MAINT_OPTIONS=optimize=-lto
+
+DEB_CFLAGS_MAINT_APPEND := -Wall
+DEB_CXXFLAGS_MAINT_APPEND := -Wall
+
+buildflags = $(shell \
+	DEB_CFLAGS_MAINT_APPEND='$(DEB_CFLAGS_MAINT_APPEND)' \
+	DEB_CXXFLAGS_MAINT_APPEND='$(DEB_CXXFLAGS_MAINT_APPEND)' \
+	dpkg-buildflags --export=configure)
+
+# EGL: только Wayland. X11-платформа убрана, поэтому libx11-dev,
+# libx11-xcb-dev, libxcb-*-dev, libxext-dev, libxrandr-dev,
+# libxshmfence-dev, x11proto-dev и libxxf86vm-dev не нужны.
+EGL_PLATFORMS = wayland
+
+# Gallium-драйверы. Rust-драйверы (asahi) и D3D12 (directx-headers-dev из
+# Wine) убраны, virgl убран вместе с его wrap-файлом. LLVM нужен для
+# llvmpipe/radeonsi/zink, поэтому -Dllvm=enabled.
+GALLIUM_DRIVERS = softpipe nouveau r300 r600 crocus iris i915 svga freedreno radeonsi zink llvmpipe
+
+# Vulkan-драйверы. nouveau убран (это naga на Rust), asahi и gfxstream убраны
+# (naga и Android). VA-API (gallium-va) оставлен - по правилу репозитория он
+# не отключается.
+VULKAN_DRIVERS = amd intel_hasvk intel swrast virtio freedreno
+
+VULKAN_LAYERS = anti-lag device-select intel-nullhw overlay screenshot
+
+confflags_TEFLON = -Dteflon=false
+
+GALLIUM_DRIVERS := $(patsubst %,'%',$(GALLIUM_DRIVERS))
+VULKAN_DRIVERS := $(patsubst %,'%',$(VULKAN_DRIVERS))
+VULKAN_LAYERS := $(patsubst %,'%',$(VULKAN_LAYERS))
+
+confflags_GLES = -Dgles1=disabled -Dgles2=enabled
+confflags_GALLIUM = \
+	-Dgallium-drivers="[$(GALLIUM_DRIVERS)]" \
+	-Dgallium-extra-hud=true \
+	-Dlmsensors=enabled \
+	-Dgallium-va=enabled \
+	-Dvideo-codecs="all" \
+	-Dllvm=enabled \
+	-Dgallium-rusticl=false
+
+confflags = \
+	-Ddri-drivers-path=/usr/lib/$(DEB_HOST_MULTIARCH)/dri \
+	-Dplatforms="[$(EGL_PLATFORMS)]" \
+	-Dvulkan-drivers="[$(VULKAN_DRIVERS)]" \
+	-Dvulkan-layers="[$(VULKAN_LAYERS)]" \
+	-Dvulkan-manifest-per-architecture=false \
+	-Dglvnd=enabled \
+	-Db_ndebug=true \
+	-Dgbm=enabled \
+	-Dglx=disabled \
+	-Dbuild-tests=false \
+	$(confflags_GALLIUM) \
+	$(confflags_GLES) \
+	$(confflags_TEFLON)
+
+override_dh_clean:
+	dpkg-parsechangelog | awk '/^Version:/ {print $$2}' | sed 's/-.*//;s/~/-/' > VERSION
+	rm -rf build
+	rm -rf $$(find -name Makefile.in)
+	rm -f src/intel/vulkan/grl/parser.out
+	rm -f src/intel/vulkan/grl/parsetab.py
+	find -name '*.pyc' -delete
+	find -name '__pycache__' -delete
+	dh_clean
+
+override_dh_auto_configure:
+	dpkg-parsechangelog | awk '/^Version:/ {print $$2}' > VERSION
+	$(buildflags) dh_auto_configure -- \
+		$(confflags)
+
+override_dh_auto_install:
+	dh_auto_install
+
+# Тесты не собираются (-Dbuild-tests=false) и не запускаются.
+override_dh_auto_test:
+	# tests are disabled via -Dbuild-tests=false
+
+allpkg = $(shell dh_listpackages -a)
+
+override_dh_installchangelogs:
+	dh_installchangelogs -a
+	dh_installchangelogs -pmesa-common-dev
+
+override_dh_install:
+	# purge .la files
+	find debian/tmp/ -name '*.la' -exec rm '{}' ';'
+
+	# Get rid of some files which aren't installed. libGLX_mesa.so is not
+	# built at all any more (-Dglx=disabled), hence -f for both.
+	rm -f debian/tmp/usr/lib/*/libEGL_mesa.so
+	rm -f debian/tmp/usr/lib/*/libGLX_mesa.so
+	rm -f debian/tmp/usr/lib/*/libgrl.a
+
+	# Copy the hardlinked *_dri.so correctly.
+	install -m755 -d debian/libgl1-mesa-dri/usr/lib/${DEB_HOST_MULTIARCH}/dri/
+	mv debian/tmp/usr/lib/${DEB_HOST_MULTIARCH}/dri/*_dri.so \
+	   debian/libgl1-mesa-dri/usr/lib/${DEB_HOST_MULTIARCH}/dri/
+
+	# Copy the hardlinked va drivers correctly. They are shipped inside
+	# mesa-libgallium, which is why the separate mesa-va-drivers package is
+	# not published here (in Debian it stays empty).
+	install -m755 -d debian/mesa-libgallium/usr/lib/${DEB_HOST_MULTIARCH}/dri/
+	mv debian/tmp/usr/lib/${DEB_HOST_MULTIARCH}/dri/*_drv_video.so \
+	   debian/mesa-libgallium/usr/lib/${DEB_HOST_MULTIARCH}/dri/
+
+	dh_install -a
+
+	# Install bug control and script:
+	set -e; for p in $(allpkg); do \
+		install -d debian/$$p/usr/share/bug/$$p && \
+		install -m 644 debian/local/control debian/$$p/usr/share/bug/$$p && \
+		install -m 755 debian/local/script  debian/$$p/usr/share/bug/$$p; \
+	done
+
+override_dh_makeshlibs:
+	dh_makeshlibs -a -- -c4
+
+%:
+	dh $@ \
+		--builddirectory=build/ \
+		--buildsystem=meson

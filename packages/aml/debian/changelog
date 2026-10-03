@@ -1,0 +1,69 @@
+aml (1.0.0-1) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Han Gao <rabenda.cn@gmail.com>  Mon, 13 Jul 2026 22:28:46 +0800
+
+aml (1.0.0-1~exp1) experimental; urgency=medium
+
+  * d/gbp.conf: init gbp.conf
+  * d/watch: bump version 5
+  * New upstream version 1.0.0
+  * d/libaml1: bump libaml so version
+  * d/control: bump Standards-Version: 4.7.4
+  * d/copyright: bump 2026
+  * d/control: use linux-any to avoid compiling hurd-*
+
+ -- Han Gao <rabenda.cn@gmail.com>  Wed, 03 Jun 2026 00:18:04 +0800
+
+aml (0.3.0-3) unstable; urgency=medium
+
+  * Change Maintainer to Han Gao (Closes: #1065737)
+
+ -- Han Gao <rabenda.cn@gmail.com>  Thu, 21 Nov 2024 15:19:35 +0000
+
+aml (0.3.0-2) unstable; urgency=medium
+
+  * QA upload.
+  * Ack previous NMU.
+  * Orphan the package.
+  * debian/control: Build-Depends on pkgconf instead of pkg-config.
+
+ -- Boyuan Yang <byang@debian.org>  Sat, 09 Mar 2024 10:40:12 -0500
+
+aml (0.3.0-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Rename libraries for 64-bit time_t transition.  Closes: #1061887
+
+ -- Steve Langasek <vorlon@debian.org>  Wed, 28 Feb 2024 00:57:17 +0000
+
+aml (0.3.0-1) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Boyuan Yang <byang@debian.org>  Mon, 24 Jul 2023 21:12:54 -0400
+
+aml (0.3.0-1~exp1) experimental; urgency=medium
+
+  * New upstream release.
+
+ -- Boyuan Yang <byang@debian.org>  Thu, 22 Jun 2023 14:47:23 -0400
+
+aml (0.2.2-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Boyuan Yang <byang@debian.org>  Fri, 08 Jul 2022 21:21:07 -0400
+
+aml (0.2.1-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Boyuan Yang <byang@debian.org>  Fri, 03 Dec 2021 12:23:37 -0500
+
+aml (0.2.0-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #1000901)
+
+ -- Boyuan Yang <byang@debian.org>  Tue, 30 Nov 2021 16:56:11 -0500

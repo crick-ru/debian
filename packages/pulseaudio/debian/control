@@ -1,0 +1,90 @@
+Source: pulseaudio
+Section: libs
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (pulseaudio_17.0+dfsg1-2) и переработана: публикуется
+# только клиентская часть.
+#   * демон не собирается (-Ddaemon=false): не публикуются пакеты pulseaudio,
+#     pulseaudio-utils, pulseaudio-equalizer, pulseaudio-module-* и libpulsedsp.
+#     Pulseaudio нужен этому репозиторию только как зависимость клиентских
+#     библиотек - их используют mpv (ao_pulse) и sfwbar (pulsectl.c);
+#   * X11 выключен (-Dx11=disabled): штатный libpulse0 из trixie зависит от
+#     libx11-6, libx11-xcb1 и libxcb1, что нарушает правило репозитория "X11
+#     нет нигде". Ни один символ из libpulse0.symbols при этом не исчезает:
+#     единственный X11-код в библиотеке - pa_client_conf_from_x11(), который
+#     нужен только для автозапуска pax11publish;
+#   * JACK выключен (-Djack=disabled) по правилу репозитория;
+#   * возможности демона выключены: ALSA, Bluetooth, GStreamer, LIRC, RAOP
+#     (openssl), resample (soxr/speex), FFTW, orc, avahi, udev, tcpwrap,
+#     WebRTC/adrian AEC, GSettings. Из-за -Ddaemon=false они всё равно не
+#     собираются, но выключены явно;
+#   * libpulsedsp не собирается (-Doss-output=disabled): это OSS-обёртка для
+#     устаревших программ, а не то, что нужно mpv и sfwbar;
+#   * man-страницы, doxygen и тесты не собираются (-Dman=false
+#     -Ddoxygen=false -Dtests=false);
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Правила отключения — в правилах проекта.
+Build-Depends:
+ debhelper-compat (= 13),
+ gettext,
+ m4,
+ meson,
+ ninja-build,
+ pkgconf,
+ libasyncns-dev,
+ libdbus-1-dev,
+ libglib2.0-dev,
+ libsndfile1-dev,
+ libsystemd-dev
+Standards-Version: 4.7.0
+Homepage: https://www.freedesktop.org/software/pulseaudio/
+Vcs-Git: https://salsa.debian.org/debian/pulseaudio.git
+Vcs-Browser: https://salsa.debian.org/debian/pulseaudio
+
+Package: libpulse0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: PulseAudio client libraries
+ PulseAudio, previously known as Polypaudio, is a sound server for POSIX and
+ WIN32 systems. It is a drop in replacement for the ESD sound server with
+ much better latency, mixing/re-sampling quality and overall architecture.
+ .
+ Client libraries used by applications that access a PulseAudio sound server
+ via PulseAudio's native interface.
+ .
+ This build has no X11 support at all, so unlike the libpulse0 of Debian it
+ pulls in none of the X11 client libraries. The daemon itself is not published
+ here; use pipewire from this repository instead.
+
+Package: libpulse-mainloop-glib0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: PulseAudio client libraries (glib support)
+ PulseAudio, previously known as Polypaudio, is a sound server for POSIX and
+ WIN32 systems. It is a drop in replacement for the ESD sound server with
+ much better latency, mixing/re-sampling quality and overall architecture.
+ .
+ Client libraries used by applications that access a PulseAudio sound server
+ via PulseAudio's native interface.
+ .
+ This package adds support for glib2 client applications.
+
+Package: libpulse-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends},
+ libpulse0 (= ${binary:Version}),
+ libpulse-mainloop-glib0 (= ${binary:Version}),
+ libglib2.0-dev
+Description: PulseAudio client development headers and libraries
+ PulseAudio, previously known as Polypaudio, is a sound server for POSIX and
+ WIN32 systems. It is a drop in replacement for the ESD sound server with
+ much better latency, mixing/re-sampling quality and overall architecture.
+ .
+ Headers and libraries for developing applications that access a PulseAudio
+ sound server via PulseAudio's native interface.

@@ -1,0 +1,72 @@
+Source: libheif
+Section: libs
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (libheif_1.23.4, ветка 1.23) и переработана:
+#   * публикуется только минимальный набор пакетов для зависимости
+#     imagemagick: libheif1 и libheif-dev. Отдельные пакеты плагинов
+#     libheif-plugin-*, metapackage libheif-plugins-all, libheif-examples,
+#     heif-thumbnailer и heif-gdk-pixbuf не публикуются;
+#   * плагины кодеков остаются внутри libheif1 (как модули ImageMagick внутри
+#     libmagickcore), поэтому их отдельные пакеты не нужны;
+#   * включены только кодеки HEIC (libde265 — декодер, x265 — кодер) и AV1
+#     (aom — декодер+кодер, dav1d — декодер): этого достаточно для чтения и
+#     записи HEIF/HEIC/AVIF через imagemagick. Остальные кодеки (ffmpeg, jpeg,
+#     openjpeg/J2K, kvazaar, rav1e, svt, uncompressed-кроме-встроенного, webp,
+#     tiff, png) выключены — см. README;
+#   * сжатие заголовков (libbrotli) и libsharpyuv выключены — не нужны для
+#     HEIC/AVIF и тянули бы лишние зависимости;
+#   * документация (doxygen), примеры, thumbnailer и gdk-pixbuf-плагин не
+#     собираются и не публикуются (правило репозитория: ничего лишнего);
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Правила отключения — в правилах проекта.
+Build-Depends:
+ cmake,
+ debhelper-compat (= 13),
+ pkgconf,
+ libaom-dev,
+ libdav1d-dev,
+ libde265-dev (>= 1.0.7),
+ libx265-dev,
+ zlib1g-dev
+Standards-Version: 4.7.4
+Homepage: http://www.libheif.org
+Vcs-Git: https://salsa.debian.org/multimedia-team/libheif.git
+Vcs-Browser: https://salsa.debian.org/multimedia-team/libheif
+
+Package: libheif1
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends}
+Description: HEIF and AVIF file format decoder and encoder - shared library
+ libheif is an ISO/IEC 23008-12:2017 HEIF and AVIF (AV1 Image File Format) file
+ format decoder and encoder. There is partial support for ISO/IEC 23008-12:2022
+ (2nd Edition) capabilities.
+ .
+ HEIF and AVIF are new image file formats employing HEVC (H.265) or AV1 image
+ coding, respectively, for the best compression ratios currently possible.
+ .
+ This package contains the shared library together with the codec plugins it
+ loads: libde265 and x265 for HEIC, aom and dav1d for AVIF. Unlike Debian, the
+ plugins are not split into separate libheif-plugin-* packages.
+
+Package: libheif-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends:
+ libheif1 (= ${binary:Version}),
+ zlib1g-dev,
+ ${misc:Depends}
+Description: HEIF and AVIF file format decoder and encoder - development files
+ libheif is an ISO/IEC 23008-12:2017 HEIF and AVIF (AV1 Image File Format) file
+ format decoder and encoder. There is partial support for ISO/IEC 23008-12:2022
+ (2nd Edition) capabilities.
+ .
+ HEIF and AVIF are new image file formats employing HEVC (H.265) or AV1 image
+ coding, respectively, for the best compression ratios currently possible.
+ .
+ The development headers for compiling programs that use libheif are provided
+ by this package.

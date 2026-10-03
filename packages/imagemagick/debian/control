@@ -11,10 +11,12 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #     Q16HDRI не собирается - это второй полный проход компиляции;
 #   * PerlMagick и Magick++ не собираются (--without-perl
 #     --without-magick-plus-plus);
-#   * делегат HEIF выключен (--without-heic): кодировщики HEIC/HEIF/AVCI/AVIF
-#     не собираются, libheif-dev убран из Build-Depends и из Depends пакета
-#     libmagickcore-7.q16-dev, а libheif1 - из runtime-зависимостей
-#     libmagickcore-7.q16-10;
+#   * делегат HEIF включён (--with-heic): кодировщики HEIC/HEIF/AVCI/AVIF
+#     собираются, libheif-dev добавлен в Build-Depends и в Depends пакета
+#     libmagickcore-7.q16-dev, а libheif1 - в runtime-зависимости
+#     libmagickcore-7.q16-10 (через coders/heic.so, не через саму
+#     libMagickCore). libheif поставляется этим репозиторием как libheif1 +
+#     libheif-dev - см. packages/libheif/README.md;
 #   * документация и man-страницы не собираются, пакет imagemagick-7-doc не
 #     публикуется, каталог /usr/share/doc удаляется из дерева установки;
 #   * тесты не собираются и не запускаются (make check не вызывается,
@@ -37,6 +39,7 @@ Build-Depends: debhelper-compat (= 13),
                ghostscript,
                libdjvulibre-dev,
                libexif-dev,
+               libheif-dev,
                libjpeg-dev,
                libopenjp2-7-dev,
                libopenexr-dev,
@@ -143,6 +146,7 @@ Depends: ${misc:Depends},
          libdjvulibre-dev,
          libexif-dev,
          libfreetype-dev,
+         libheif-dev,
          libjpeg-dev,
          liblcms2-dev,
          liblqr-1-0-dev,
