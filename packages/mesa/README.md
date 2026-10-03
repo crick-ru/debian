@@ -48,7 +48,7 @@ trixie (llvm-19), и под наш `libdrm` 2.4.134 она подходит.
 | `libgbm-dev` | `gbm.h`, `gbm.pc`, `libgbm.so` |
 | `libegl-mesa0` | `libEGL_mesa.so.0`, `50_mesa.json` для glvnd |
 | `mesa-libgallium` | `libgallium-*.so` (настоящий DRI) **и VA-драйверы** `*_drv_video.so` |
-| `mesa-common-dev` | `dri_interface.h`, `dri.pc` |
+| `mesa-common-dev` | `dri_interface.h`, заголовки `EGL/eglmesaext.h` и `EGL/eglext_angle.h`, `dri.pc` |
 | `mesa-vulkan-drivers` | Vulkan-драйверы и слои |
 
 Не публикуются: `libgl1-mesa-dri` (X11-обёртка для GLX, настоящий DRI лежит

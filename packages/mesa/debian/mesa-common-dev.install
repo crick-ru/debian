@@ -1,2 +1,4 @@
+usr/include/EGL/eglext_angle.h
+usr/include/EGL/eglmesaext.h
 usr/include/GL/internal/dri_interface.h
 usr/lib/*/pkgconfig/dri.pc
