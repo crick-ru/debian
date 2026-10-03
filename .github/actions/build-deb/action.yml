@@ -5,20 +5,29 @@ description: >
   10 GB per-repository Actions cache, not in the much smaller 0.5 GB artifact
   quota of a free account):
 
-    src-<pkg>-<hash of fetch-upstream.sh>  -> build/sources (upstream tarballs)
+    src-<pkg>-<hash of scripts/upstream/<pkg>.conf>  -> build/sources (upstream tarballs)
     deb-<pkg>-<version>-<packaging hash>-<release> -> build/result (*.deb)
 
-  The deb key contains the package version, a hash of packages/<pkg>/debian plus
-  the build scripts, and the Debian release, so any change to the packaging, the
+  The deb key contains the package version, a hash of packages/<pkg>/debian, of
+  the scripts/upstream/<pkg>.conf file of that one package and of the shared
+  build scripts, plus the Debian release, so any change to the packaging, the
   upstream version or the toolchain forces a rebuild. A cache hit skips the
   build completely and reuses the previously built .deb files verbatim.
+
+  Hashing the per-package .conf is what keeps the cache useful. An earlier
+  revision hashed the whole scripts/fetch-upstream.sh, which holds the version
+  of all 32 packages at once, so bumping the version of a single package
+  invalidated the cache of every package and each change rebuilt the whole
+  repository. A change to a genuinely shared script - build-package.sh,
+  pkg-version.sh, install-build-deps.sh - still rebuilds everything, because
+  it really does affect every package.
 
 inputs:
   package:
     description: Package name (directory under packages/)
     required: true
   stage:
-    description: CI stage number, used in the artifact name (1 to 5)
+    description: CI stage number, used in the artifact name (1 to 6)
     required: true
 
 runs:
@@ -31,17 +40,23 @@ runs:
         set -euo pipefail
         pkg="${{ inputs.package }}"
         version="$(scripts/pkg-version.sh "$pkg")"
+        conf="scripts/upstream/$pkg.conf"
+        if [[ ! -f "$conf" ]]; then
+          echo "::error::no upstream data for $pkg (expected $conf)" >&2
+          exit 1
+        fi
         packaging="$(
           {
             find "packages/$pkg/debian" -type f -exec sha256sum {} +
-            sha256sum scripts/fetch-upstream.sh scripts/build-package.sh \
+            sha256sum "$conf" \
+                       scripts/fetch-upstream.sh scripts/build-package.sh \
                        scripts/pkg-version.sh scripts/install-build-deps.sh
           } | LC_ALL=C sort | sha256sum | cut -c1-16
         )"
         release="$(. /etc/os-release && echo "${VERSION_ID}")"
         {
           echo "deb-key=deb-$pkg-$version-$packaging-$release"
-          echo "src-key=src-$pkg-$(sha256sum scripts/fetch-upstream.sh | cut -c1-16)"
+          echo "src-key=src-$pkg-$(sha256sum "$conf" | cut -c1-16)"
           echo "version=$version"
         } >> "$GITHUB_OUTPUT"
 

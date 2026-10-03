@@ -42,7 +42,7 @@ SONAME `libpulse.so.0` не менялся, а удалённых символо
 Штатная версия в trixie — `17.0+dfsg1-2+b1`. Наша `17.0+dfsg1-1+crick` была
 бы **старее** неё (ревизия 1 < 2), и `apt upgrade` её просто не подхватил бы.
 `17.0+dfsg1-2+crick` новее: сравнение доходит до локальной части и `+crick` >
-`+b1`. Карта ревизий живёт в `scripts/fetch-upstream.sh`.
+`+b1`. Карта ревизий живёт в `scripts/upstream/<pkg>.conf` (поле `REVISION`).
 
 ## Почему `-Ddaemon=false`
 
