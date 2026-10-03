@@ -994,6 +994,9 @@ jobs:
               # libneatvnc1 exactly and depends on libaml-dev, libdrm-dev and
               # the libav*-dev set, so our FFmpeg and libdrm travel along too.
               # libneatvnc1 links libgbm, which is our mesa (Stage 2).
+              # libgbm-dev must travel with libgbm1: libneatvnc-dev depends on
+              # it, and the trixie libgbm-dev pins libgbm1 (= 25.0.7-2+deb13u1),
+              # which conflicts with ours.
               # wayvnc itself builds against our wayland, libdrm, pixman and
               # libxkbcommon.
               debs=(./stage1-pool/libwayland-bin_*.deb
@@ -1030,6 +1033,7 @@ jobs:
                     ./stage1-pool/libaml1_*.deb
                     ./stage1-pool/libaml-dev_*.deb
                     ./stage2-pool/libgbm1_*.deb
+                    ./stage2-pool/libgbm-dev_*.deb
                     ./stage2-pool/mesa-libgallium_*.deb
                     ./stage3-pool/libneatvnc1_*.deb
                     ./stage3-pool/libneatvnc-dev_*.deb)
