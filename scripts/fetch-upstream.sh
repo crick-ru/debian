@@ -224,10 +224,17 @@ case "$PACKAGE" in
     # Official release tarball from GitHub. Debian repacks it as +dfsg1, which
     # only exists for the versions Debian has uploaded; for the newest 7.1.2.x
     # the plain upstream tarball is used. Note the epoch 8 (see below).
+    #
+    # "7.1.2-32" is ImageMagick's own upstream version (upstream numbers its
+    # releases with a dash), so it stays in VERSION as is: our Debian revision
+    # is REVISION below, and the binary version is 8:7.1.2-32-2+crick. The
+    # orig tarball name must therefore keep the whole version - stripping the
+    # "-32" made dpkg-source look for imagemagick_7.1.2.orig.tar.xz while the
+    # changelog announces upstream 7.1.2-32, and the source build failed.
     VERSION="${VERSION:-7.1.2-32}"
     TARBALL="ImageMagick-${VERSION}.tar.xz"
     URL="https://github.com/ImageMagick/ImageMagick/releases/download/${VERSION}/ImageMagick-${VERSION}.tar.xz"
-    ORIG_TAR="imagemagick_${VERSION%%-*}.orig.tar.xz"
+    ORIG_TAR="imagemagick_${VERSION}.orig.tar.xz"
     ;;
   *)
     echo "Unknown package: $PACKAGE" >&2
@@ -249,7 +256,11 @@ case "$PACKAGE" in
   mpv)    REVISION=3 ;;
   # imagemagick: 1 was published with the libheif delegate on, 2 is HEIF off.
   imagemagick) REVISION=2 ;;
-  celluloid|fdk-aac|kmscon|labwc|libdrm|libtsm|libxkbcommon|pipewire|pixman|sfwbar|wayland|wayland-protocols|wlroots)
+  # sfwbar: 3 dropped the three quilt patches - by 1.0~beta17 upstream had
+  # fixed the typos and switched the embedded scripts to python3 itself, so
+  # they became no-ops and dpkg-source -b refused to build the source package.
+  sfwbar) REVISION=3 ;;
+  celluloid|fdk-aac|kmscon|labwc|libdrm|libtsm|libxkbcommon|pipewire|pixman|wayland|wayland-protocols|wlroots)
     REVISION=2
     ;;
 esac

@@ -2,7 +2,12 @@
 set -euo pipefail
 
 # build-package.sh: Unpack source tarball, overlay debian/ directory, update changelog and build .deb packages
-# Usage: ./build-package.sh <package-name> [extra dpkg-buildpackage args]
+# Usage: ./build-package.sh <package-name> [--source-only] [extra dpkg-buildpackage args]
+#
+# --source-only builds just the source package (.dsc): dpkg-buildpackage -S
+# applies quilt patches to the real tarball, runs debian/rules clean, parses
+# control/changelog and produces the .dsc - without compiling anything.
+# tools/local-source-check.sh uses it as the pre-CI packaging check.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -10,9 +15,20 @@ PACKAGE="${1:-}"
 shift || true
 
 if [[ -z "$PACKAGE" ]]; then
-  echo "Usage: $0 <package-name> [extra dpkg-buildpackage args]"
+  echo "Usage: $0 <package-name> [--source-only] [extra dpkg-buildpackage args]"
   exit 1
 fi
+
+# Peel --source-only off; everything else goes to dpkg-buildpackage unchanged.
+SOURCE_ONLY=0
+DPKG_ARGS=()
+for arg in "$@"; do
+  if [[ "$arg" == "--source-only" ]]; then
+    SOURCE_ONLY=1
+  else
+    DPKG_ARGS+=("$arg")
+  fi
+done
 
 BUILD_SRC="$REPO_ROOT/build/sources"
 ENV_FILE="$BUILD_SRC/$PACKAGE.env"
@@ -23,6 +39,7 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 
 # Load variables: VERSION, ORIG_TAR
+# shellcheck source=/dev/null
 source "$ENV_FILE"
 
 BUILD_WORK="$REPO_ROOT/build/work/$PACKAGE"
@@ -70,13 +87,18 @@ if [[ -f debian/changelog ]]; then
 fi
 mv debian/changelog.new debian/changelog
 
-# Build debian package.
-# Debug symbol packages (-dbgsym) are not published in this repository: debhelper
-# generates them automatically, so the generation is disabled via DEB_BUILD_OPTIONS.
-# The rule is stated in the repository rules.
+# Build the package. Debug symbol packages (-dbgsym) are not published in this
+# repository: debhelper generates them automatically, so the generation is
+# disabled via DEB_BUILD_OPTIONS. The rule is stated in the repository rules.
 export DEB_BUILD_OPTIONS="${DEB_BUILD_OPTIONS:+$DEB_BUILD_OPTIONS }noautodbgsym"
+if (( SOURCE_ONLY )); then
+  echo "==> Running dpkg-buildpackage -S for $PACKAGE (source-only, no compilation, DEB_BUILD_OPTIONS=$DEB_BUILD_OPTIONS)..."
+  dpkg-buildpackage -us -uc -S "${DPKG_ARGS[@]}"
+  echo "SUCCESS: Source package check passed for $PACKAGE (patches applied, debian/rules clean ran, .dsc built)"
+  exit 0
+fi
 echo "==> Running dpkg-buildpackage for $PACKAGE (DEB_BUILD_OPTIONS=$DEB_BUILD_OPTIONS)..."
-dpkg-buildpackage -us -uc -b "$@"
+dpkg-buildpackage -us -uc -b "${DPKG_ARGS[@]}"
 
 # Move generated .deb packages to repository output
 OUTPUT_DIR="$REPO_ROOT/repo-pool"
