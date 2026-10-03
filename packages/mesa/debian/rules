@@ -43,13 +43,25 @@ VULKAN_LAYERS = anti-lag device-select intel-nullhw overlay screenshot
 
 confflags_TEFLON = -Dteflon=false
 
+# Meson принимает массив только вида "['a','b']" - каждый элемент в кавычках,
+# элементы через запятую. Поэтому элементы цитируются поштучно, а потом
+# склеиваются запятыми (через пробел не подходит: "-Dplatforms=[wayland]"
+# даёт "malformed value"). Это ровно то, что делает Debian.
+empty :=
+space := $(empty) $(empty)
+comma := ,
+EGL_PLATFORMS := $(patsubst %,'%',$(EGL_PLATFORMS))
 GALLIUM_DRIVERS := $(patsubst %,'%',$(GALLIUM_DRIVERS))
 VULKAN_DRIVERS := $(patsubst %,'%',$(VULKAN_DRIVERS))
 VULKAN_LAYERS := $(patsubst %,'%',$(VULKAN_LAYERS))
+EGL_PLATFORMS_LIST := $(subst $(space),$(comma),$(EGL_PLATFORMS))
+GALLIUM_DRIVERS_LIST := $(subst $(space),$(comma),$(GALLIUM_DRIVERS))
+VULKAN_DRIVERS_LIST := $(subst $(space),$(comma),$(VULKAN_DRIVERS))
+VULKAN_LAYERS_LIST := $(subst $(space),$(comma),$(VULKAN_LAYERS))
 
 confflags_GLES = -Dgles1=disabled -Dgles2=enabled
 confflags_GALLIUM = \
-	-Dgallium-drivers="[$(GALLIUM_DRIVERS)]" \
+	-Dgallium-drivers="[$(GALLIUM_DRIVERS_LIST)]" \
 	-Dgallium-extra-hud=true \
 	-Dlmsensors=enabled \
 	-Dgallium-va=enabled \
@@ -59,9 +71,9 @@ confflags_GALLIUM = \
 
 confflags = \
 	-Ddri-drivers-path=/usr/lib/$(DEB_HOST_MULTIARCH)/dri \
-	-Dplatforms="[$(EGL_PLATFORMS)]" \
-	-Dvulkan-drivers="[$(VULKAN_DRIVERS)]" \
-	-Dvulkan-layers="[$(VULKAN_LAYERS)]" \
+	-Dplatforms="[$(EGL_PLATFORMS_LIST)]" \
+	-Dvulkan-drivers="[$(VULKAN_DRIVERS_LIST)]" \
+	-Dvulkan-layers="[$(VULKAN_LAYERS_LIST)]" \
 	-Dvulkan-manifest-per-architecture=false \
 	-Dglvnd=enabled \
 	-Db_ndebug=true \
