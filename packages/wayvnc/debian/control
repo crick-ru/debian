@@ -1,0 +1,45 @@
+Source: wayvnc
+Priority: optional
+Section: admin
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (wayvnc_0.10.1-1) и переработана:
+#   * man-страницы не генерируются (-Dman-pages=disabled), поэтому scdoc убран
+#     из Build-Depends;
+#   * тесты не собираются (-Dtests=false; в апстриме эта опция по умолчанию
+#     включена);
+#   * gnutls-dev заменён на его реальное имя libgnutls28-dev (gnutls-dev в
+#     Debian - виртуальный пакет);
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Примеры конфигураций (auto-attach.py, event-watcher, single-output-sway)
+# публикуются - это файлы, которые пользователь кладёт рядом с конфигом
+# wayvnc, а не код и не документация.
+# Правила отключения — в правилах проекта.
+Build-Depends:
+ debhelper-compat (= 13),
+ dpkg-build-api (= 1),
+ meson,
+ pkgconf,
+ libpam0g-dev,
+ libpixman-1-dev,
+ libdrm-dev,
+ libxkbcommon-dev,
+ libwayland-dev,
+ libaml-dev (>= 1.0.0),
+ libjansson-dev,
+ libneatvnc-dev (>= 1.0.0),
+ zlib1g-dev,
+ libturbojpeg0-dev,
+ libgnutls28-dev
+Standards-Version: 4.7.4
+Homepage: https://github.com/any1/wayvnc
+Vcs-Git: https://salsa.debian.org/debian/wayvnc.git
+Vcs-Browser: https://salsa.debian.org/debian/wayvnc
+
+Package: wayvnc
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends},
+Description: VNC server for wlroots-based Wayland compositors
+ It attaches to a running Wayland session, creates virtual input devices, and
+ exposes a single display via the RFB protocol. The Wayland session may be a
+ headless one, so it is also possible to run wayvnc without a physical display
+ attached.

@@ -22,14 +22,16 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # cannot work without an X11 delegate; they are dropped from the staging tree
 # in override_dh_auto_install below.
 #
-# The HEIC delegate is switched off: --without-heic skips the
-# PKG_CHECK_MODULES([HEIF],[libheif >= 1.7.0]) check, so HEIC_DELEGATE stays
-# undefined and coders/heic.c is not compiled; no patch is needed for that. That
-# one coder registers four formats - HEIC, HEIF, AVCI and AVIF - all guarded by
-# MAGICKCORE_HEIC_DELEGATE, so AVIF goes away with HEIC: upstream has no
+# The HEIC delegate is switched on: --with-heic runs the
+# PKG_CHECK_MODULES([HEIF],[libheif >= 1.7.0]) check, HEIC_DELEGATE is defined
+# and coders/heic.c is compiled; no patch is needed for that. That one coder
+# registers four formats - HEIC, HEIF, AVCI and AVIF - all guarded by
+# MAGICKCORE_HEIC_DELEGATE, so enabling HEIC brings AVIF along: upstream has no
 # separate switch for AVIF. Only coders/heic.so has libheif.so.1 in DT_NEEDED
-# (the main library does not link libheif), so libheif1 also leaves the runtime
-# dependencies of libmagickcore-7.q16-10. See README.md for the rollback.
+# (the main library does not link libheif), so libheif1 enters the runtime
+# dependencies of libmagickcore-7.q16-10 through the coder module. libheif is
+# built by this repository as libheif1 + libheif-dev (with the codec plugins
+# inside libheif1); see packages/libheif and README.md.
 #
 # Only the Q16 quantum depth is built. Debian builds Q16 *and* Q16HDRI, which
 # doubles the compile time for a second ABI variant that this repository does
@@ -67,7 +69,7 @@ override_dh_auto_configure:
 		--without-dps \
 		--without-fpx \
 		--with-djvu \
-		--without-heic \
+		--with-heic \
 		--with-openjp2 \
 		--with-webp \
 		--with-wmf \

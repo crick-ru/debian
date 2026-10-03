@@ -1,0 +1,75 @@
+Source: neatvnc
+Priority: optional
+Section: libs
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (neatvnc_1.0.1+dfsg-1) и переработана:
+#   * тесты не собираются и не запускаются (-Dtests=false вместо Debian-ных
+#     -Dtests=true; в rules убираются override_dh_auto_test и вывод testlog),
+#     поэтому openssl <!nocheck> - сборочная зависимость тестов - убран;
+#   * gnutls-dev заменён на его реальное имя libgnutls28-dev (gnutls-dev в
+#     Debian - виртуальный пакет);
+#   * библиотека собирается против наших libav*-dev (FFmpeg этого репозитория)
+#     и libgbm-dev (mesa этого репозитория), поэтому neatvnc ставится в стадию
+#     после обоих - см. .github/workflows/build.yml;
+#   * README не ставится в /usr/share/doc, примеры не публикуются;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Правила отключения — в правилах проекта.
+Standards-Version: 4.7.4
+Build-Depends:
+ dpkg-build-api (= 1),
+ debhelper-compat (= 13),
+ libgnutls28-dev,
+ libaml-dev (>= 1.0.0),
+ libavcodec-dev,
+ libavfilter-dev,
+ libavutil-dev,
+ libdrm-dev,
+ libgbm-dev,
+ libpixman-1-dev,
+ libturbojpeg0-dev,
+ libxxhash-dev,
+ meson,
+ openssl <!nocheck>,
+ pkgconf,
+ zlib1g-dev,
+Homepage: https://github.com/any1/neatvnc/
+Vcs-Git: https://salsa.debian.org/debian/neatvnc.git
+Vcs-Browser: https://salsa.debian.org/debian/neatvnc
+
+Package: libneatvnc-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends:
+ libgnutls28-dev,
+ libaml-dev (>= 1.0.0),
+ libavcodec-dev,
+ libavfilter-dev,
+ libavutil-dev,
+ libdrm-dev,
+ libgbm-dev,
+ libneatvnc1 (= ${binary:Version}),
+ libpixman-1-dev,
+ libturbojpeg0-dev,
+ libxxhash-dev,
+ zlib1g-dev,
+ ${misc:Depends},
+Description: Fast and neat VNC server library (development files)
+ Neatvnc is a liberally licensed VNC server library that's intended
+ to be fast and neat. It comes with the goal of speed, clean interface
+ and interoperability with the Freedesktop.org ecosystem.
+ .
+ This package provides library development files.
+
+Package: libneatvnc1
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: Fast and neat VNC server library (shared library)
+ Neatvnc is a liberally licensed VNC server library that's intended
+ to be fast and neat. It comes with the goal of speed, clean interface
+ and interoperability with the Freedesktop.org ecosystem.
+ .
+ This package provides shared libraries.

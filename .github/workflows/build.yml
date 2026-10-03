@@ -49,6 +49,16 @@ jobs:
   #   - ffmpeg: mpv and gstreamer1.0-libav build against our libav*-dev.
   #   - gstreamer1.0 (core): needed as -dev by every other GStreamer package,
   #     by GTK and by pipewire.
+  #   - pulseaudio: client library only (no daemon), without X11. The libpulse0
+  #     of trixie depends on libx11-6, libx11-xcb1 and libxcb1, which violates
+  #     the "no X11 anywhere" rule. mpv (Stage 2) and sfwbar (Stage 5) build
+  #     against it.
+  #   - aml: event loop library, needed by neatvnc (Stage 3) and therefore by
+  #     wayvnc. trixie only has 0.3.0 and ships it under a different name
+  #     (libaml0t64); neatvnc 1.0.1 and wayvnc 0.10.1 both require >= 1.0.0.
+  #   - libheif: only libheif1 + libheif-dev, which is what imagemagick needs
+  #     for the HEIC/HEIF coder (Stage 6). The codec plugins live inside
+  #     libheif1, so none of the libheif-plugin-* packages are published.
   # ---------------------------------------------------------------------------
   stage1:
     name: Stage 1 · ${{ matrix.package }}
@@ -69,6 +79,9 @@ jobs:
           - cairo
           - ffmpeg
           - gstreamer1.0
+          - pulseaudio
+          - aml
+          - libheif
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -105,7 +118,14 @@ jobs:
   #   wlroots       -> wayland/libdrm/libxkbcommon/pixman/wayland-protocols
   #   mpv           -> an application, but it is a build dependency of
   #                    celluloid (libmpv-dev), so it has to be built before the
-  #                    last stage; it also builds against our ffmpeg
+  #                    last stage; it also builds against our ffmpeg and our
+  #                    client-only libpulse
+  #   mesa         -> libdrm, wayland, wayland-protocols (Stage 1). It is here
+  #                    rather than in Stage 1 because its Build-Depends are
+  #                    libdrm-dev >= 2.4.124-1 and wayland-protocols >= 1.41,
+  #                    and because neatvnc (Stage 3) builds against its
+  #                    libgbm-dev: the libgbm of trixie drags in X11 through
+  #                    mesa-libgallium -> libgl1-mesa-dri -> libx11-6.
   # ---------------------------------------------------------------------------
   stage2:
     name: Stage 2 · ${{ matrix.package }}
@@ -120,6 +140,7 @@ jobs:
           - gstreamer1.0-plugins-base
           - wlroots
           - mpv
+          - mesa
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -219,7 +240,32 @@ jobs:
                     ./stage1-pool/libswresample7_*.deb
                     ./stage1-pool/libswresample-dev_*.deb
                     ./stage1-pool/libswscale10_*.deb
-                    ./stage1-pool/libswscale-dev_*.deb)
+                    ./stage1-pool/libswscale-dev_*.deb
+                    ./stage1-pool/libpulse0_*.deb
+                    ./stage1-pool/libpulse-mainloop-glib0_*.deb
+                    ./stage1-pool/libpulse-dev_*.deb)
+              ;;
+            mesa)
+              # libdrm-dev (>= 2.4.124-1), libwayland-dev (>= 1.15.0) and
+              # wayland-protocols (>= 1.41) must come from this repository.
+              # The -dev packages pin their runtime siblings to the exact
+              # version, so libdrm and wayland travel as whole sets.
+              debs=(./stage1-pool/libwayland-bin_*.deb
+                    ./stage1-pool/libwayland-client0_*.deb
+                    ./stage1-pool/libwayland-server0_*.deb
+                    ./stage1-pool/libwayland-cursor0_*.deb
+                    ./stage1-pool/libwayland-egl1_*.deb
+                    ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                    ./stage1-pool/libwayland-dev_*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb)
               ;;
           esac
           if (( ${#debs[@]} > 0 )); then
@@ -244,6 +290,9 @@ jobs:
   # the "bad" set, not in "base".
   #   gstreamer1.0-plugins-good -> core (Stage 1) + plugins-base (Stage 2)
   #   gstreamer1.0-plugins-bad  -> core (Stage 1) + plugins-base (Stage 2)
+  #   neatvnc  -> our ffmpeg (Stage 1), our mesa (Stage 2) and aml (Stage 1).
+  #               It is needed as libneatvnc-dev by wayvnc (Stage 6); trixie only
+  #               has neatvnc 0.9.1, which wayvnc 0.10.1 refuses (>= 1.0.0).
   # ---------------------------------------------------------------------------
   stage3:
     name: Stage 3 · ${{ matrix.package }}
@@ -257,6 +306,7 @@ jobs:
         package:
           - gstreamer1.0-plugins-good
           - gstreamer1.0-plugins-bad
+          - neatvnc
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -294,6 +344,8 @@ jobs:
       - name: Install required packages of earlier stages
         run: |
           shopt -s nullglob
+          case "${{ matrix.package }}" in
+            gstreamer1.0-plugins-good|gstreamer1.0-plugins-bad)
           # The GStreamer core (Stage 1) and the base plugin set (Stage 2).
           # Every -dev package pins its runtime siblings, so the whole set goes
           # in together. "good" is deliberately not installed: the Debian
@@ -308,6 +360,32 @@ jobs:
                 ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
                 ./stage2-pool/gstreamer1.0-plugins-base_*.deb
                 ./stage2-pool/gstreamer1.0-gl_*.deb)
+              ;;
+            neatvnc)
+              # Our FFmpeg (Stage 1): libav*-dev pin every runtime library of
+              # the FFmpeg set to the exact version, so the runtime half
+              # travels along. Our mesa (Stage 2): libgbm-dev is what keeps X11
+              # out of libneatvnc1 - the libgbm of trixie pulls in
+              # mesa-libgallium -> libgl1-mesa-dri -> libx11-6. aml (Stage 1)
+              # is pinned by libaml-dev.
+              debs=(./stage1-pool/libavcodec63_*.deb
+                    ./stage1-pool/libavcodec-dev_*.deb
+                    ./stage1-pool/libavformat63_*.deb
+                    ./stage1-pool/libavfilter12_*.deb
+                    ./stage1-pool/libavfilter-dev_*.deb
+                    ./stage1-pool/libavutil61_*.deb
+                    ./stage1-pool/libavutil-dev_*.deb
+                    ./stage1-pool/libswresample7_*.deb
+                    ./stage1-pool/libswresample-dev_*.deb
+                    ./stage1-pool/libswscale10_*.deb
+                    ./stage1-pool/libswscale-dev_*.deb
+                    ./stage2-pool/libgbm1_*.deb
+                    ./stage2-pool/libgbm-dev_*.deb
+                    ./stage2-pool/mesa-libgallium_*.deb
+                    ./stage1-pool/libaml1_*.deb
+                    ./stage1-pool/libaml-dev_*.deb)
+              ;;
+          esac
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
 
@@ -730,7 +808,10 @@ jobs:
                     ./stage1-pool/libcairo2_*.deb
                     ./stage1-pool/libcairo-gobject2_*.deb
                     ./stage1-pool/libcairo-script-interpreter2_*.deb
-                    ./stage1-pool/libcairo2-dev_*.deb)
+                    ./stage1-pool/libcairo2-dev_*.deb
+                    ./stage1-pool/libpulse0_*.deb
+                    ./stage1-pool/libpulse-mainloop-glib0_*.deb
+                    ./stage1-pool/libpulse-dev_*.deb)
               ;;
             wireplumber)
               # PipeWire of this repository (Stage 4). The -dev packages pin
@@ -753,7 +834,7 @@ jobs:
           stage: 5
 
   # ---------------------------------------------------------------------------
-  # Stage 6: the last two applications.
+  # Stage 6: the last three applications.
   #   pwvucontrol  -> libgtk-4-dev (Stage 4), libpipewire-0.3-dev (Stage 4) and
   #                   libwireplumber-0.5-dev (Stage 5). It has to come after
   #                   WirePlumber: 0.5.3 requires wireplumber >= 0.5.11 and
@@ -761,8 +842,13 @@ jobs:
   #                   IMPORTANT: it must be built against the GTK 4 of this
   #                   repository, exactly like celluloid - the published
   #                   libgtk-4.so.1 has no gdk_x11_* symbols.
-  #   imagemagick  -> needs nothing of this repository. It is an application,
-  #                   so by the staging rule it is built in the last stage.
+  #   imagemagick  -> libheif-dev + libheif1 (Stage 1) for the HEIC/HEIF coder.
+  #                   It is an application, so by the staging rule it is built
+  #                   in the last stage.
+  #   wayvnc       -> libneatvnc-dev (Stage 3), libaml-dev (Stage 1) and the
+  #                   Stage-1 libraries wayland/libdrm/pixman/xkbcommon. It is
+  #                   an application: nothing in this repository builds
+  #                   against it.
   #
   # Note that pwvucontrol is a Rust program: its build downloads crates from
   # crates.io and one git dependency, pinned in the Cargo.lock of the tarball.
@@ -779,6 +865,7 @@ jobs:
         package:
           - pwvucontrol
           - imagemagick
+          - wayvnc
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -893,6 +980,59 @@ jobs:
                     ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
                     ./stage3-pool/gstreamer1.0-plugins-bad_*.deb
                     ./stage3-pool/gstreamer1.0-plugins-good_*.deb)
+              ;;
+            imagemagick)
+              # libheif1 and libheif-dev of this repository (Stage 1) for the
+              # HEIC/HEIF coder, which was switched back on in this revision.
+              # libheif-dev pins libheif1 to the exact version, so both travel
+              # together. Everything else imagemagick needs is in trixie.
+              debs=(./stage1-pool/libheif1_*.deb
+                    ./stage1-pool/libheif-dev_*.deb)
+              ;;
+            wayvnc)
+              # neatvnc (Stage 3) with libaml (Stage 1): libneatvnc-dev pins
+              # libneatvnc1 exactly and depends on libaml-dev, libdrm-dev and
+              # the libav*-dev set, so our FFmpeg and libdrm travel along too.
+              # libneatvnc1 links libgbm, which is our mesa (Stage 2).
+              # wayvnc itself builds against our wayland, libdrm, pixman and
+              # libxkbcommon.
+              debs=(./stage1-pool/libwayland-bin_*.deb
+                    ./stage1-pool/libwayland-client0_*.deb
+                    ./stage1-pool/libwayland-server0_*.deb
+                    ./stage1-pool/libwayland-cursor0_*.deb
+                    ./stage1-pool/libwayland-egl1_*.deb
+                    ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                    ./stage1-pool/libwayland-dev_*.deb
+                    ./stage1-pool/libdrm-common_*.deb
+                    ./stage1-pool/libdrm2_*.deb
+                    ./stage1-pool/libdrm-amdgpu1_*.deb
+                    ./stage1-pool/libdrm-freedreno1_*.deb
+                    ./stage1-pool/libdrm-intel1_*.deb
+                    ./stage1-pool/libdrm-nouveau2_*.deb
+                    ./stage1-pool/libdrm-radeon1_*.deb
+                    ./stage1-pool/libdrm-dev_*.deb
+                    ./stage1-pool/libpixman-1-0_*.deb
+                    ./stage1-pool/libpixman-1-dev_*.deb
+                    ./stage1-pool/wayland-protocols_*.deb
+                    ./stage1-pool/libxkbcommon0_*.deb
+                    ./stage1-pool/libxkbcommon-dev_*.deb
+                    ./stage1-pool/libavcodec63_*.deb
+                    ./stage1-pool/libavcodec-dev_*.deb
+                    ./stage1-pool/libavformat63_*.deb
+                    ./stage1-pool/libavfilter12_*.deb
+                    ./stage1-pool/libavfilter-dev_*.deb
+                    ./stage1-pool/libavutil61_*.deb
+                    ./stage1-pool/libavutil-dev_*.deb
+                    ./stage1-pool/libswresample7_*.deb
+                    ./stage1-pool/libswresample-dev_*.deb
+                    ./stage1-pool/libswscale10_*.deb
+                    ./stage1-pool/libswscale-dev_*.deb
+                    ./stage1-pool/libaml1_*.deb
+                    ./stage1-pool/libaml-dev_*.deb
+                    ./stage2-pool/libgbm1_*.deb
+                    ./stage2-pool/mesa-libgallium_*.deb
+                    ./stage3-pool/libneatvnc1_*.deb
+                    ./stage3-pool/libneatvnc-dev_*.deb)
               ;;
           esac
           if (( ${#debs[@]} > 0 )); then

@@ -1,0 +1,5 @@
+Version: 5
+Template: GitHub
+Owner: any1
+Project: aml
+Uversionmangle: s/[-_]?(rc|alpha|beta|pre)(\d*)/~$1$2/i

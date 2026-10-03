@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+include /usr/share/dpkg/default.mk
+
+%:
+	dh $@
+
+# man-страницы генерируются из wayvnc.scd/wayvncctl.scd через scdoc, который
+# убран из Build-Depends, поэтому генерация выключена явно. Тесты в апстриме
+# включены по умолчанию (-Dtests=true), здесь выключены. См. README.md.
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Dman-pages=disabled \
+		-Dtests=false

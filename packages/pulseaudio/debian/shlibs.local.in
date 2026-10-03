@@ -1,0 +1,1 @@
+libpulsecommon PA_MAJORMINOR libpulse0 (= ${binary:Version})

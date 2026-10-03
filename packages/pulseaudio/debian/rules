@@ -1,0 +1,80 @@
+#!/usr/bin/make -f
+
+# Клиентская сборка PulseAudio. Демон не собирается, X11 выключен: см.
+# debian/control и README.md. SONAME не меняются, libpulse0.symbols и
+# libpulse-mainloop-glib0.symbols из Debian используются как есть.
+
+DPKG_EXPORT_BUILDFLAGS = 1
+
+DEB_LDFLAGS_MAINT_APPEND = -Wl,--no-as-needed
+
+DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+include /usr/share/dpkg/default.mk
+
+PA_MAJORMINOR = $(shell echo $(DEB_VERSION_UPSTREAM) | sed -r -e 's/^([0-9]+\.[0-9]+).*/\1/')
+
+DEB_MESON_OPTIONS = \
+  -Dclient=true \
+  -Ddaemon=false \
+  -Ddoxygen=false \
+  -Dman=false \
+  -Dtests=false \
+  -Dx11=disabled \
+  -Dgtk=disabled \
+  -Dglib=enabled \
+  -Ddbus=enabled \
+  -Dasyncns=enabled \
+  -Dsystemd=enabled \
+  -Dalsa=disabled \
+  -Davahi=disabled \
+  -Dadrian-aec=false \
+  -Dbluez5=disabled \
+  -Dbluez5-gstreamer=disabled \
+  -Dconsolekit=disabled \
+  -Delogind=disabled \
+  -Dfftw=disabled \
+  -Dgsettings=disabled \
+  -Dgstreamer=disabled \
+  -Dipv6=true \
+  -Djack=disabled \
+  -Dlirc=disabled \
+  -Dopenssl=disabled \
+  -Dorc=disabled \
+  -Doss-output=disabled \
+  -Dsamplerate=disabled \
+  -Dsoxr=disabled \
+  -Dspeex=disabled \
+  -Dtcpwrap=disabled \
+  -Dudev=disabled \
+  -Dvalgrind=disabled \
+  -Dwebrtc-aec=disabled \
+  -Dhal-compat=false
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(DEB_MESON_OPTIONS)
+
+# Клиентские утилиты (pactl, pacat, pa-info и их симлинки) и автодополнение
+# оболочек — это PulseAudio, но нужны только библиотеки: mpv и sfwbar
+# линкуются к libpulse. Всё это удаляется из дерева установки, иначе
+# dh_missing --fail-missing (поведение compat 13 по умолчанию) остановит
+# сборку. Локали остаются в libpulse0 - библиотека их использует.
+override_dh_auto_install:
+	dh_auto_install
+	rm -rf debian/tmp/usr/bin
+	rm -rf debian/tmp/usr/share/bash-completion
+	rm -rf debian/tmp/usr/share/zsh
+
+override_dh_makeshlibs:
+	sed 's/PA_MAJORMINOR/$(PA_MAJORMINOR)/' debian/shlibs.local.in > debian/shlibs.local
+	dh_makeshlibs
+
+override_dh_auto_test:
+	# -Dtests=false: тесты не собираются и не запускаются
+
+override_dh_clean:
+	dh_clean
+	rm -f debian/shlibs.local

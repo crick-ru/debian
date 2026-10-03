@@ -202,6 +202,77 @@ case "$PACKAGE" in
     URL="https://gstreamer.freedesktop.org/src/gst-libav/gst-libav-${VERSION}.tar.xz"
     ORIG_TAR="gstreamer1.0-libav_${VERSION}.orig.tar.xz"
     ;;
+libheif)
+    # Debian's own orig tarball, byte-for-byte the one dpkg-source expects.
+    # Upstream lives at https://github.com/strukturag/libheif, but Debian ships
+    # the plain release tarball without a repack suffix, so the upstream version
+    # stays 1.23.4 (no +dfsg / +ds). Packaging is taken from Debian
+    # libheif_1.23.4-1~deb13u1 (branch 1.23), i.e. the Security Team upload for
+    # trixie, chosen over the sid one because it is the newest 1.23.4 already
+    # adapted to trixie's dependencies (it drops heif-view, so libsdl2-dev is
+    # not needed). The packaging is then reworked down to libheif1 +
+    # libheif-dev with the codec plugins kept inside libheif1 - see
+    # packages/libheif.
+    VERSION="${VERSION:-1.23.4}"
+    TARBALL="libheif-${VERSION}.tar.gz"
+    URL="http://deb.debian.org/debian/pool/main/libh/libheif/libheif_${VERSION}.orig.tar.gz"
+    ORIG_TAR="libheif_${VERSION}.orig.tar.gz"
+    ;;
+  pulseaudio)
+    # Debian's own orig tarball: PulseAudio is repacked by Debian as +dfsg1
+    # (non-DFSG bits are removed), so the upstream part of our version keeps the
+    # +dfsg1 suffix and the orig tarball is taken from the Debian pool - an
+    # upstream release tarball would not match the announced version. Packaging
+    # is taken from trixie (pulseaudio_17.0+dfsg1-2), not from unstable: after
+    # the 17.0 upload Debian went back to 16.1 in sid, so trixie is where the
+    # packaging for the 17.0 line actually is. It is reworked into a
+    # client-only build: no daemon, no X11 - see packages/pulseaudio.
+    VERSION="${VERSION:-17.0+dfsg1}"
+    TARBALL="pulseaudio-${VERSION}.tar.xz"
+    URL="http://deb.debian.org/debian/pool/main/p/pulseaudio/pulseaudio_${VERSION}.orig.tar.xz"
+    ORIG_TAR="pulseaudio_${VERSION}.orig.tar.xz"
+    ;;
+  aml)
+    # Debian's own orig tarball (upstream tag archive, renamed). aml is packaged
+    # by Debian with no repack suffix, so the upstream version stays 1.0.0. It is
+    # needed because wayvnc 0.10.1 requires libaml-dev >= 1.0.0 and trixie only
+    # has 0.3.0 (and ships it under a different name, libaml0t64).
+    VERSION="${VERSION:-1.0.0}"
+    TARBALL="aml-${VERSION}.tar.gz"
+    URL="http://deb.debian.org/debian/pool/main/a/aml/aml_${VERSION}.orig.tar.gz"
+    ORIG_TAR="aml_${VERSION}.orig.tar.gz"
+    ;;
+  neatvnc)
+    # Debian's own orig tarball: neatvnc is repacked by Debian as +dfsg, so the
+    # upstream part of our version keeps the +dfsg suffix. neatvnc is needed
+    # because wayvnc 0.10.1 requires libneatvnc-dev >= 1.0.0 and trixie only has
+    # 0.9.1+dfsg (shipped as libneatvnc0).
+    VERSION="${VERSION:-1.0.1+dfsg}"
+    TARBALL="neatvnc-${VERSION}.tar.xz"
+    URL="http://deb.debian.org/debian/pool/main/n/neatvnc/neatvnc_${VERSION}.orig.tar.xz"
+    ORIG_TAR="neatvnc_${VERSION}.orig.tar.xz"
+    ;;
+  wayvnc)
+    # Debian's own orig tarball (upstream tag archive, renamed), no repack
+    # suffix. Packaged from Debian (wayvnc_0.10.1-1) and reworked for this
+    # repository: no man pages, no tests - see packages/wayvnc.
+    VERSION="${VERSION:-0.10.1}"
+    TARBALL="wayvnc-${VERSION}.tar.gz"
+    URL="http://deb.debian.org/debian/pool/main/w/wayvnc/wayvnc_${VERSION}.orig.tar.gz"
+    ORIG_TAR="wayvnc_${VERSION}.orig.tar.gz"
+    ;;
+  mesa)
+    # Debian's own orig tarball of the trixie-backports upload of 26.1.6. The
+    # backports packaging is used as the base rather than the sid one (26.2.4)
+    # because 26.2.x needs llvm-22 and libdrm >= 2.4.134-3~, neither of which
+    # trixie has; 26.1.6 builds against llvm-19 from trixie and against our
+    # libdrm 2.4.134. Packaging is taken from Debian (mesa_26.1.6-1~bpo13+1,
+    # branch 26.1) and reworked without X11 - see packages/mesa.
+    VERSION="${VERSION:-26.1.6}"
+    TARBALL="mesa-${VERSION}.tar.xz"
+    URL="http://deb.debian.org/debian/pool/main/m/mesa/mesa_${VERSION}.orig.tar.xz"
+    ORIG_TAR="mesa_${VERSION}.orig.tar.xz"
+    ;;
   wireplumber)
     # Session/policy manager for PipeWire. Built from the GitLab tag archive.
     # Needed by pwvucontrol, which requires wireplumber >= 0.5.11 while trixie
@@ -254,12 +325,16 @@ case "$PACKAGE" in
   ffmpeg) REVISION=2 ;;
   # mpv: 2 was the rework of the packaging, 3 is optical discs + DVB + VDPAU off.
   mpv)    REVISION=3 ;;
-  # imagemagick: 1 was published with the libheif delegate on, 2 is HEIF off.
-  imagemagick) REVISION=2 ;;
+  # imagemagick: 1 was published with the libheif delegate on, 2 was HEIF off,
+  # 3 turns HEIF back on against the libheif1 of this repository.
+  imagemagick) REVISION=3 ;;
   # sfwbar: 3 dropped the three quilt patches - by 1.0~beta17 upstream had
   # fixed the typos and switched the embedded scripts to python3 itself, so
   # they became no-ops and dpkg-source -b refused to build the source package.
   sfwbar) REVISION=3 ;;
+  # pulseaudio: the trixie binary package is 17.0+dfsg1-2+b1, so revision 1
+  # would sort as older and apt would never pick our client-only build up.
+  pulseaudio) REVISION=2 ;;
   celluloid|fdk-aac|kmscon|labwc|libdrm|libtsm|libxkbcommon|pipewire|pixman|wayland|wayland-protocols|wlroots)
     REVISION=2
     ;;
