@@ -529,8 +529,8 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libheif1_*.deb
                 ./stage1-pool/libheif-dev_*.deb
+                ./stage1-pool/libheif1_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -583,6 +583,13 @@ jobs:
           path: stage1-pool
           merge-multiple: true
 
+      - name: Download level 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -597,7 +604,7 @@ jobs:
                 ./stage1-pool/libwayland-egl-backend-dev_*.deb
                 ./stage1-pool/libwayland-egl1_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -642,6 +649,13 @@ jobs:
           path: stage1-pool
           merge-multiple: true
 
+      - name: Download level 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -649,22 +663,22 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
                 ./stage1-pool/libdrm-freedreno1_*.deb
                 ./stage1-pool/libdrm-intel1_*.deb
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -710,11 +724,11 @@ jobs:
             git \
             python3 \
 
-      - name: Download level 1 packages
+      - name: Download level 3 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage1-*
-          path: stage1-pool
+          pattern: deb-stage3-*
+          path: stage3-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -724,10 +738,10 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -779,6 +793,13 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download level 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -786,8 +807,6 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libgstreamer1.0-0_*.deb
-                ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
@@ -797,9 +816,8 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
-                ./stage2-pool/libgbm-dev_*.deb
-                ./stage2-pool/libgbm1_*.deb
-                ./stage2-pool/mesa-libgallium_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-cursor0_*.deb
@@ -807,7 +825,10 @@ jobs:
                 ./stage1-pool/libwayland-egl-backend-dev_*.deb
                 ./stage1-pool/libwayland-egl1_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -859,6 +880,13 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download level 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -866,35 +894,35 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
                 ./stage1-pool/libdrm-freedreno1_*.deb
                 ./stage1-pool/libdrm-intel1_*.deb
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
-                ./stage2-pool/libgbm-dev_*.deb
-                ./stage2-pool/libgbm1_*.deb
-                ./stage2-pool/mesa-libgallium_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -946,6 +974,13 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download level 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -953,22 +988,8 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libavcodec63_*.deb
-                ./stage1-pool/libavcodec-dev_*.deb
-                ./stage1-pool/libavformat63_*.deb
-                ./stage1-pool/libavfilter12_*.deb
-                ./stage1-pool/libavfilter-dev_*.deb
-                ./stage1-pool/libavutil61_*.deb
-                ./stage1-pool/libavutil-dev_*.deb
-                ./stage1-pool/libswresample7_*.deb
-                ./stage1-pool/libswresample-dev_*.deb
-                ./stage1-pool/libswscale10_*.deb
-                ./stage1-pool/libswscale-dev_*.deb
-                ./stage2-pool/libgbm1_*.deb
-                ./stage2-pool/libgbm-dev_*.deb
-                ./stage2-pool/mesa-libgallium_*.deb
-                ./stage1-pool/libaml1_*.deb
                 ./stage1-pool/libaml-dev_*.deb
+                ./stage1-pool/libaml1_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
@@ -979,6 +1000,20 @@ jobs:
                 ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage2-pool/libavcodec-dev_*.deb
+                ./stage2-pool/libavcodec63_*.deb
+                ./stage2-pool/libavfilter-dev_*.deb
+                ./stage2-pool/libavfilter12_*.deb
+                ./stage2-pool/libavformat63_*.deb
+                ./stage2-pool/libavutil-dev_*.deb
+                ./stage2-pool/libavutil61_*.deb
+                ./stage2-pool/libswresample-dev_*.deb
+                ./stage2-pool/libswresample7_*.deb
+                ./stage2-pool/libswscale-dev_*.deb
+                ./stage2-pool/libswscale10_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1031,11 +1066,18 @@ jobs:
           path: stage1-pool
           merge-multiple: true
 
-      - name: Download level 2 packages
+      - name: Download level 3 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage2-*
-          path: stage2-pool
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -1045,8 +1087,6 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libtsm4_*.deb
-                ./stage1-pool/libtsm-dev_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
@@ -1055,13 +1095,15 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
-                ./stage2-pool/libgbm-dev_*.deb
-                ./stage2-pool/libgbm1_*.deb
-                ./stage2-pool/mesa-libgallium_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
+                ./stage4-pool/libtsm-dev_*.deb
+                ./stage4-pool/libtsm4_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1113,6 +1155,13 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -1120,19 +1169,7 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libgstreamer1.0-0_*.deb
-                ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
-                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage2-pool/gstreamer1.0-gl_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
@@ -1141,6 +1178,18 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1192,6 +1241,13 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -1199,19 +1255,7 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libgstreamer1.0-0_*.deb
-                ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
-                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage2-pool/gstreamer1.0-gl_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
@@ -1220,6 +1264,8 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-cursor0_*.deb
@@ -1227,7 +1273,17 @@ jobs:
                 ./stage1-pool/libwayland-egl-backend-dev_*.deb
                 ./stage1-pool/libwayland-egl1_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1272,11 +1328,11 @@ jobs:
           path: stage1-pool
           merge-multiple: true
 
-      - name: Download level 2 packages
+      - name: Download level 4 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage2-*
-          path: stage2-pool
+          pattern: deb-stage4-*
+          path: stage4-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -1286,20 +1342,20 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libfdk-aac2t64_*.deb
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
                 ./stage1-pool/libfdk-aac-dev_*.deb
+                ./stage1-pool/libfdk-aac2t64_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
-                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
-                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage2-pool/gstreamer1.0-gl_*.deb
                 ./stage1-pool/libpulse-dev_*.deb
                 ./stage1-pool/libpulse-mainloop-glib0_*.deb
                 ./stage1-pool/libpulse0_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1351,6 +1407,20 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download level 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -1358,34 +1428,34 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage2-pool/libwlroots-0.20_*.deb
-                ./stage2-pool/libwlroots-0.20-dev_*.deb
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
                 ./stage1-pool/libdrm-freedreno1_*.deb
                 ./stage1-pool/libdrm-intel1_*.deb
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage4-pool/libwlroots-0.20_*.deb
+                ./stage4-pool/libwlroots-0.20-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1444,6 +1514,13 @@ jobs:
           path: stage3-pool
           merge-multiple: true
 
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -1451,44 +1528,44 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libaml-dev_*.deb
+                ./stage1-pool/libaml1_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
                 ./stage1-pool/libdrm-freedreno1_*.deb
                 ./stage1-pool/libdrm-intel1_*.deb
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libavcodec63_*.deb
-                ./stage1-pool/libavcodec-dev_*.deb
-                ./stage1-pool/libavformat63_*.deb
-                ./stage1-pool/libavfilter12_*.deb
-                ./stage1-pool/libavfilter-dev_*.deb
-                ./stage1-pool/libavutil61_*.deb
-                ./stage1-pool/libavutil-dev_*.deb
-                ./stage1-pool/libswresample7_*.deb
-                ./stage1-pool/libswresample-dev_*.deb
-                ./stage1-pool/libswscale10_*.deb
-                ./stage1-pool/libswscale-dev_*.deb
-                ./stage1-pool/libaml1_*.deb
-                ./stage1-pool/libaml-dev_*.deb
-                ./stage2-pool/libgbm1_*.deb
-                ./stage2-pool/libgbm-dev_*.deb
-                ./stage2-pool/mesa-libgallium_*.deb
-                ./stage3-pool/libneatvnc1_*.deb
-                ./stage3-pool/libneatvnc-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libavcodec-dev_*.deb
+                ./stage2-pool/libavcodec63_*.deb
+                ./stage2-pool/libavfilter-dev_*.deb
+                ./stage2-pool/libavfilter12_*.deb
+                ./stage2-pool/libavformat63_*.deb
+                ./stage2-pool/libavutil-dev_*.deb
+                ./stage2-pool/libavutil61_*.deb
+                ./stage2-pool/libswresample-dev_*.deb
+                ./stage2-pool/libswresample7_*.deb
+                ./stage2-pool/libswscale-dev_*.deb
+                ./stage2-pool/libswscale10_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
+                ./stage4-pool/libneatvnc-dev_*.deb
+                ./stage4-pool/libneatvnc1_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1548,11 +1625,18 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
-      - name: Download level 4 packages
+      - name: Download level 3 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage4-*
-          path: stage4-pool
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -1562,23 +1646,6 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage1-pool/libavcodec63_*.deb
-                ./stage1-pool/libavcodec-dev_*.deb
-                ./stage1-pool/libavdevice63_*.deb
-                ./stage1-pool/libavdevice-dev_*.deb
-                ./stage1-pool/libavfilter12_*.deb
-                ./stage1-pool/libavfilter-dev_*.deb
-                ./stage1-pool/libavformat63_*.deb
-                ./stage1-pool/libavformat-dev_*.deb
-                ./stage1-pool/libavutil61_*.deb
-                ./stage1-pool/libavutil-dev_*.deb
-                ./stage1-pool/libswresample7_*.deb
-                ./stage1-pool/libswresample-dev_*.deb
-                ./stage1-pool/libswscale10_*.deb
-                ./stage1-pool/libswscale-dev_*.deb
-                ./stage1-pool/libpulse0_*.deb
-                ./stage1-pool/libpulse-mainloop-glib0_*.deb
-                ./stage1-pool/libpulse-dev_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
@@ -1587,19 +1654,9 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
-                ./stage2-pool/libgbm-dev_*.deb
-                ./stage2-pool/libgbm1_*.deb
-                ./stage2-pool/mesa-libgallium_*.deb
-                ./stage4-pool/libpipewire-0.3-0t64_*.deb
-                ./stage4-pool/libpipewire-0.3-common_*.deb
-                ./stage4-pool/libpipewire-0.3-dev_*.deb
-                ./stage4-pool/libpipewire-0.3-modules_*.deb
-                ./stage4-pool/libspa-0.2-dev_*.deb
-                ./stage4-pool/libspa-0.2-modules_*.deb
+                ./stage1-pool/libpulse-dev_*.deb
+                ./stage1-pool/libpulse-mainloop-glib0_*.deb
+                ./stage1-pool/libpulse0_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-cursor0_*.deb
@@ -1607,7 +1664,34 @@ jobs:
                 ./stage1-pool/libwayland-egl-backend-dev_*.deb
                 ./stage1-pool/libwayland-egl1_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
+                ./stage2-pool/libavcodec-dev_*.deb
+                ./stage2-pool/libavcodec63_*.deb
+                ./stage2-pool/libavdevice-dev_*.deb
+                ./stage2-pool/libavdevice63_*.deb
+                ./stage2-pool/libavfilter-dev_*.deb
+                ./stage2-pool/libavfilter12_*.deb
+                ./stage2-pool/libavformat-dev_*.deb
+                ./stage2-pool/libavformat63_*.deb
+                ./stage2-pool/libavutil-dev_*.deb
+                ./stage2-pool/libavutil61_*.deb
+                ./stage2-pool/libswresample-dev_*.deb
+                ./stage2-pool/libswresample7_*.deb
+                ./stage2-pool/libswscale-dev_*.deb
+                ./stage2-pool/libswscale10_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
+                ./stage5-pool/libpipewire-0.3-0t64_*.deb
+                ./stage5-pool/libpipewire-0.3-common_*.deb
+                ./stage5-pool/libpipewire-0.3-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-modules_*.deb
+                ./stage5-pool/libspa-0.2-dev_*.deb
+                ./stage5-pool/libspa-0.2-modules_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1622,587 +1706,6 @@ jobs:
     if: >-
       ${{ !inputs.package || inputs.package == 'gtk+3.0' || inputs.package == 'sfwbar' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
-    runs-on: ubuntu-latest
-    container:
-      image: debian:trixie
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Configure APT sources and install build toolchain
-        run: |
-          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
-            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            build-essential \
-            debhelper \
-            devscripts \
-            dpkg-dev \
-            curl \
-            ca-certificates \
-            rsync \
-            git \
-            python3 \
-
-      - name: Download level 1 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage1-*
-          path: stage1-pool
-          merge-multiple: true
-
-      - name: Download level 2 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage2-*
-          path: stage2-pool
-          merge-multiple: true
-
-      - name: Download level 3 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage3-*
-          path: stage3-pool
-          merge-multiple: true
-
-      - name: Install required packages of earlier levels
-        run: |
-          shopt -s nullglob
-          # apt-get трактует аргументы без разделителя пути как
-          # имена пакетов, поэтому скачанные .deb передаются как
-          # ./stageN-pool/<файл>.deb
-          debs=(
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
-                ./stage1-pool/libdrm-amdgpu1_*.deb
-                ./stage1-pool/libdrm-freedreno1_*.deb
-                ./stage1-pool/libdrm-intel1_*.deb
-                ./stage1-pool/libdrm-nouveau2_*.deb
-                ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
-                ./stage1-pool/libpixman-1-0_*.deb
-                ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
-                ./stage1-pool/libgstreamer1.0-0_*.deb
-                ./stage1-pool/libgstreamer1.0-dev_*.deb
-                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
-                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage2-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-bad_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-good_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
-          )
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
-
-      - name: Build package (cached, reuses unchanged results)
-        uses: ./.github/actions/build-deb
-        with:
-          package: gtk+3.0
-          stage: 6
-  build_gtk4:
-    name: gtk4 (ур. 6)
-    if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
-    runs-on: ubuntu-latest
-    container:
-      image: debian:trixie
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Configure APT sources and install build toolchain
-        run: |
-          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
-            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            build-essential \
-            debhelper \
-            devscripts \
-            dpkg-dev \
-            curl \
-            ca-certificates \
-            rsync \
-            git \
-            python3 \
-
-      - name: Download level 1 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage1-*
-          path: stage1-pool
-          merge-multiple: true
-
-      - name: Download level 2 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage2-*
-          path: stage2-pool
-          merge-multiple: true
-
-      - name: Download level 3 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage3-*
-          path: stage3-pool
-          merge-multiple: true
-
-      - name: Install required packages of earlier levels
-        run: |
-          shopt -s nullglob
-          # apt-get трактует аргументы без разделителя пути как
-          # имена пакетов, поэтому скачанные .deb передаются как
-          # ./stageN-pool/<файл>.deb
-          debs=(
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
-                ./stage1-pool/libdrm-amdgpu1_*.deb
-                ./stage1-pool/libdrm-freedreno1_*.deb
-                ./stage1-pool/libdrm-intel1_*.deb
-                ./stage1-pool/libdrm-nouveau2_*.deb
-                ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
-                ./stage1-pool/libpixman-1-0_*.deb
-                ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
-                ./stage1-pool/libgstreamer1.0-0_*.deb
-                ./stage1-pool/libgstreamer1.0-dev_*.deb
-                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
-                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage2-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-bad_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-good_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
-          )
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
-
-      - name: Build package (cached, reuses unchanged results)
-        uses: ./.github/actions/build-deb
-        with:
-          package: gtk4
-          stage: 6
-  build_gstreamer1_0-libav:
-    name: gstreamer1.0-libav (ур. 6)
-    if: >-
-      ${{ !inputs.package || inputs.package == 'gstreamer1.0-libav' }}
-    needs: [build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good]
-    runs-on: ubuntu-latest
-    container:
-      image: debian:trixie
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Configure APT sources and install build toolchain
-        run: |
-          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
-            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            build-essential \
-            debhelper \
-            devscripts \
-            dpkg-dev \
-            curl \
-            ca-certificates \
-            rsync \
-            git \
-            python3 \
-
-      - name: Download level 1 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage1-*
-          path: stage1-pool
-          merge-multiple: true
-
-      - name: Download level 2 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage2-*
-          path: stage2-pool
-          merge-multiple: true
-
-      - name: Download level 3 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage3-*
-          path: stage3-pool
-          merge-multiple: true
-
-      - name: Install required packages of earlier levels
-        run: |
-          shopt -s nullglob
-          # apt-get трактует аргументы без разделителя пути как
-          # имена пакетов, поэтому скачанные .deb передаются как
-          # ./stageN-pool/<файл>.deb
-          debs=(
-                ./stage1-pool/libavcodec63_*.deb
-                ./stage1-pool/libavcodec-dev_*.deb
-                ./stage1-pool/libavdevice63_*.deb
-                ./stage1-pool/libavdevice-dev_*.deb
-                ./stage1-pool/libavfilter12_*.deb
-                ./stage1-pool/libavfilter-dev_*.deb
-                ./stage1-pool/libavformat63_*.deb
-                ./stage1-pool/libavformat-dev_*.deb
-                ./stage1-pool/libavutil61_*.deb
-                ./stage1-pool/libavutil-dev_*.deb
-                ./stage1-pool/libswresample7_*.deb
-                ./stage1-pool/libswresample-dev_*.deb
-                ./stage1-pool/libswscale10_*.deb
-                ./stage1-pool/libswscale-dev_*.deb
-                ./stage1-pool/libgstreamer1.0-0_*.deb
-                ./stage1-pool/libgstreamer1.0-dev_*.deb
-                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
-                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage2-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-good_*.deb
-          )
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
-
-      - name: Build package (cached, reuses unchanged results)
-        uses: ./.github/actions/build-deb
-        with:
-          package: gstreamer1.0-libav
-          stage: 6
-  build_wireplumber:
-    name: wireplumber (ур. 6)
-    if: >-
-      ${{ !inputs.package || inputs.package == 'pwvucontrol' || inputs.package == 'wireplumber' }}
-    needs: [build_pipewire]
-    runs-on: ubuntu-latest
-    container:
-      image: debian:trixie
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Configure APT sources and install build toolchain
-        run: |
-          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
-            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            build-essential \
-            debhelper \
-            devscripts \
-            dpkg-dev \
-            curl \
-            ca-certificates \
-            rsync \
-            git \
-            python3 \
-
-      - name: Download level 4 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage4-*
-          path: stage4-pool
-          merge-multiple: true
-
-      - name: Install required packages of earlier levels
-        run: |
-          shopt -s nullglob
-          # apt-get трактует аргументы без разделителя пути как
-          # имена пакетов, поэтому скачанные .deb передаются как
-          # ./stageN-pool/<файл>.deb
-          debs=(
-                ./stage4-pool/libpipewire-0.3-0t64_*.deb
-                ./stage4-pool/libpipewire-0.3-common_*.deb
-                ./stage4-pool/libpipewire-0.3-dev_*.deb
-                ./stage4-pool/libpipewire-0.3-modules_*.deb
-                ./stage4-pool/libspa-0.2-dev_*.deb
-                ./stage4-pool/libspa-0.2-modules_*.deb
-          )
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
-
-      - name: Build package (cached, reuses unchanged results)
-        uses: ./.github/actions/build-deb
-        with:
-          package: wireplumber
-          stage: 6
-
-  # -------------------------------------------------------------------------
-  # Уровень 7.
-  #
-  # Уровень считается по фактическим спискам .deb ниже: пакет стоит
-  # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
-  # Барьеров стадий нет - job ждёт только тех, от кого зависит.
-  # -------------------------------------------------------------------------
-  build_celluloid:
-    name: celluloid (ур. 7)
-    if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' }}
-    needs: [build_cairo, build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_gtk4, build_libdrm, build_mpv, build_pixman, build_wayland, build_wayland-protocols]
-    runs-on: ubuntu-latest
-    container:
-      image: debian:trixie
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Configure APT sources and install build toolchain
-        run: |
-          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
-            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            build-essential \
-            debhelper \
-            devscripts \
-            dpkg-dev \
-            curl \
-            ca-certificates \
-            rsync \
-            git \
-            python3 \
-
-      - name: Download level 1 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage1-*
-          path: stage1-pool
-          merge-multiple: true
-
-      - name: Download level 2 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage2-*
-          path: stage2-pool
-          merge-multiple: true
-
-      - name: Download level 3 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage3-*
-          path: stage3-pool
-          merge-multiple: true
-
-      - name: Download level 4 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage4-*
-          path: stage4-pool
-          merge-multiple: true
-
-      - name: Install required packages of earlier levels
-        run: |
-          shopt -s nullglob
-          # apt-get трактует аргументы без разделителя пути как
-          # имена пакетов, поэтому скачанные .deb передаются как
-          # ./stageN-pool/<файл>.deb
-          debs=(
-                ./stage4-pool/libgtk-4-1_*.deb
-                ./stage4-pool/libgtk-4-common_*.deb
-                ./stage4-pool/libgtk-4-bin_*.deb
-                ./stage4-pool/libgtk-4-dev_*.deb
-                ./stage4-pool/gir1.2-gtk-4.0_*.deb
-                ./stage4-pool/gtk-update-icon-cache_*.deb
-                ./stage2-pool/libmpv2_*.deb
-                ./stage2-pool/libmpv-dev_*.deb
-                ./stage1-pool/libavcodec63_*.deb
-                ./stage1-pool/libavdevice63_*.deb
-                ./stage1-pool/libavfilter12_*.deb
-                ./stage1-pool/libavformat63_*.deb
-                ./stage1-pool/libavutil61_*.deb
-                ./stage1-pool/libswresample7_*.deb
-                ./stage1-pool/libswscale10_*.deb
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
-                ./stage1-pool/libdrm-amdgpu1_*.deb
-                ./stage1-pool/libdrm-freedreno1_*.deb
-                ./stage1-pool/libdrm-intel1_*.deb
-                ./stage1-pool/libdrm-nouveau2_*.deb
-                ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
-                ./stage1-pool/libpixman-1-0_*.deb
-                ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
-                ./stage1-pool/libgstreamer1.0-0_*.deb
-                ./stage1-pool/libgstreamer1.0-dev_*.deb
-                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
-                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage2-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-bad_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-good_*.deb
-          )
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
-
-      - name: Build package (cached, reuses unchanged results)
-        uses: ./.github/actions/build-deb
-        with:
-          package: celluloid
-          stage: 7
-  build_sfwbar:
-    name: sfwbar (ур. 7)
-    if: >-
-      ${{ !inputs.package || inputs.package == 'sfwbar' }}
-    needs: [build_cairo, build_gtk_3_0, build_libdrm, build_libxkbcommon, build_pixman, build_pulseaudio, build_wayland, build_wayland-protocols]
-    runs-on: ubuntu-latest
-    container:
-      image: debian:trixie
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Configure APT sources and install build toolchain
-        run: |
-          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
-            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            build-essential \
-            debhelper \
-            devscripts \
-            dpkg-dev \
-            curl \
-            ca-certificates \
-            rsync \
-            git \
-            python3 \
-
-      - name: Download level 1 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage1-*
-          path: stage1-pool
-          merge-multiple: true
-
-      - name: Download level 4 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage4-*
-          path: stage4-pool
-          merge-multiple: true
-
-      - name: Install required packages of earlier levels
-        run: |
-          shopt -s nullglob
-          # apt-get трактует аргументы без разделителя пути как
-          # имена пакетов, поэтому скачанные .deb передаются как
-          # ./stageN-pool/<файл>.deb
-          debs=(
-                ./stage4-pool/libgtk-3-0t64_*.deb
-                ./stage4-pool/libgail-3-0t64_*.deb
-                ./stage4-pool/libgtk-3-common_*.deb
-                ./stage4-pool/libgtk-3-bin_*.deb
-                ./stage4-pool/libgtk-3-dev_*.deb
-                ./stage4-pool/libgail-3-dev_*.deb
-                ./stage4-pool/gir1.2-gtk-3.0_*.deb
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libxkbcommon0_*.deb
-                ./stage1-pool/libxkbcommon-dev_*.deb
-                ./stage1-pool/libxkbregistry0_*.deb
-                ./stage1-pool/libxkbregistry-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
-                ./stage1-pool/libdrm-amdgpu1_*.deb
-                ./stage1-pool/libdrm-freedreno1_*.deb
-                ./stage1-pool/libdrm-intel1_*.deb
-                ./stage1-pool/libdrm-nouveau2_*.deb
-                ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
-                ./stage1-pool/libpixman-1-0_*.deb
-                ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
-                ./stage1-pool/libpulse0_*.deb
-                ./stage1-pool/libpulse-mainloop-glib0_*.deb
-                ./stage1-pool/libpulse-dev_*.deb
-          )
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
-
-      - name: Build package (cached, reuses unchanged results)
-        uses: ./.github/actions/build-deb
-        with:
-          package: sfwbar
-          stage: 7
-  build_pwvucontrol:
-    name: pwvucontrol (ур. 7)
-    if: >-
-      ${{ !inputs.package || inputs.package == 'pwvucontrol' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_gtk4, build_libdrm, build_pipewire, build_pixman, build_wayland, build_wayland-protocols, build_wireplumber]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2268,56 +1771,693 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage4-pool/libgtk-4-1_*.deb
-                ./stage4-pool/libgtk-4-common_*.deb
-                ./stage4-pool/libgtk-4-bin_*.deb
-                ./stage4-pool/libgtk-4-dev_*.deb
-                ./stage4-pool/gir1.2-gtk-4.0_*.deb
-                ./stage4-pool/gtk-update-icon-cache_*.deb
-                ./stage4-pool/libpipewire-0.3-0t64_*.deb
-                ./stage4-pool/libpipewire-0.3-common_*.deb
-                ./stage4-pool/libpipewire-0.3-dev_*.deb
-                ./stage4-pool/libpipewire-0.3-modules_*.deb
-                ./stage4-pool/libspa-0.2-dev_*.deb
-                ./stage4-pool/libspa-0.2-modules_*.deb
-                ./stage5-pool/libwireplumber-0.5-0_*.deb
-                ./stage5-pool/libwireplumber-0.5-dev_*.deb
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libdrm-common_*.deb
-                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
                 ./stage1-pool/libdrm-freedreno1_*.deb
                 ./stage1-pool/libdrm-intel1_*.deb
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
-                ./stage1-pool/libdrm-dev_*.deb
-                ./stage1-pool/libpixman-1-0_*.deb
-                ./stage1-pool/libpixman-1-dev_*.deb
-                ./stage1-pool/wayland-protocols_*.deb
-                ./stage1-pool/libcairo2_*.deb
-                ./stage1-pool/libcairo-gobject2_*.deb
-                ./stage1-pool/libcairo-script-interpreter2_*.deb
-                ./stage1-pool/libcairo2-dev_*.deb
+                ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: gtk+3.0
+          stage: 6
+  build_gtk4:
+    name: gtk4 (ур. 6)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' }}
+    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Download level 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download level 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download level 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier levels
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          debs=(
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
-                ./stage2-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage2-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage2-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage2-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage2-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/libgstreamer-plugins-bad1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-bad1.0-dev_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-bad_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: gtk4
+          stage: 6
+  build_gstreamer1_0-libav:
+    name: gstreamer1.0-libav (ур. 6)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'gstreamer1.0-libav' }}
+    needs: [build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good]
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Download level 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download level 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier levels
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          debs=(
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage2-pool/libavcodec-dev_*.deb
+                ./stage2-pool/libavcodec63_*.deb
+                ./stage2-pool/libavdevice-dev_*.deb
+                ./stage2-pool/libavdevice63_*.deb
+                ./stage2-pool/libavfilter-dev_*.deb
+                ./stage2-pool/libavfilter12_*.deb
+                ./stage2-pool/libavformat-dev_*.deb
+                ./stage2-pool/libavformat63_*.deb
+                ./stage2-pool/libavutil-dev_*.deb
+                ./stage2-pool/libavutil61_*.deb
+                ./stage2-pool/libswresample-dev_*.deb
+                ./stage2-pool/libswresample7_*.deb
+                ./stage2-pool/libswscale-dev_*.deb
+                ./stage2-pool/libswscale10_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: gstreamer1.0-libav
+          stage: 6
+  build_wireplumber:
+    name: wireplumber (ур. 6)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'pwvucontrol' || inputs.package == 'wireplumber' }}
+    needs: [build_pipewire]
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier levels
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          debs=(
+                ./stage5-pool/libpipewire-0.3-0t64_*.deb
+                ./stage5-pool/libpipewire-0.3-common_*.deb
+                ./stage5-pool/libpipewire-0.3-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-modules_*.deb
+                ./stage5-pool/libspa-0.2-dev_*.deb
+                ./stage5-pool/libspa-0.2-modules_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: wireplumber
+          stage: 6
+
+  # -------------------------------------------------------------------------
+  # Уровень 7.
+  #
+  # Уровень считается по фактическим спискам .deb ниже: пакет стоит
+  # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
+  # Барьеров стадий нет - job ждёт только тех, от кого зависит.
+  # -------------------------------------------------------------------------
+  build_celluloid:
+    name: celluloid (ур. 7)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'celluloid' }}
+    needs: [build_cairo, build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_gtk4, build_libdrm, build_mpv, build_pixman, build_wayland, build_wayland-protocols]
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Download level 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download level 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
+      - name: Download level 6 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage6-*
+          path: stage6-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier levels
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          debs=(
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libavcodec63_*.deb
+                ./stage2-pool/libavdevice63_*.deb
+                ./stage2-pool/libavfilter12_*.deb
+                ./stage2-pool/libavformat63_*.deb
+                ./stage2-pool/libavutil61_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libswresample7_*.deb
+                ./stage2-pool/libswscale10_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                ./stage6-pool/gir1.2-gtk-4.0_*.deb
+                ./stage6-pool/gtk-update-icon-cache_*.deb
+                ./stage6-pool/libgtk-4-1_*.deb
+                ./stage6-pool/libgtk-4-bin_*.deb
+                ./stage6-pool/libgtk-4-common_*.deb
+                ./stage6-pool/libgtk-4-dev_*.deb
+                ./stage6-pool/libmpv-dev_*.deb
+                ./stage6-pool/libmpv2_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: celluloid
+          stage: 7
+  build_sfwbar:
+    name: sfwbar (ур. 7)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'sfwbar' }}
+    needs: [build_cairo, build_gtk_3_0, build_libdrm, build_libxkbcommon, build_pixman, build_pulseaudio, build_wayland, build_wayland-protocols]
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Download level 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download level 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download level 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download level 6 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage6-*
+          path: stage6-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier levels
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          debs=(
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libpulse-dev_*.deb
+                ./stage1-pool/libpulse-mainloop-glib0_*.deb
+                ./stage1-pool/libpulse0_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage6-pool/gir1.2-gtk-3.0_*.deb
+                ./stage6-pool/libgail-3-0t64_*.deb
+                ./stage6-pool/libgail-3-dev_*.deb
+                ./stage6-pool/libgtk-3-0t64_*.deb
+                ./stage6-pool/libgtk-3-bin_*.deb
+                ./stage6-pool/libgtk-3-common_*.deb
+                ./stage6-pool/libgtk-3-dev_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: sfwbar
+          stage: 7
+  build_pwvucontrol:
+    name: pwvucontrol (ур. 7)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'pwvucontrol' }}
+    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_gtk4, build_libdrm, build_pipewire, build_pixman, build_wayland, build_wayland-protocols, build_wireplumber]
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Download level 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download level 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
+      - name: Download level 6 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage6-*
+          path: stage6-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier levels
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          debs=(
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-0t64_*.deb
+                ./stage5-pool/libpipewire-0.3-common_*.deb
+                ./stage5-pool/libpipewire-0.3-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-modules_*.deb
+                ./stage5-pool/libspa-0.2-dev_*.deb
+                ./stage5-pool/libspa-0.2-modules_*.deb
+                ./stage6-pool/gir1.2-gtk-4.0_*.deb
+                ./stage6-pool/gtk-update-icon-cache_*.deb
+                ./stage6-pool/libgtk-4-1_*.deb
+                ./stage6-pool/libgtk-4-bin_*.deb
+                ./stage6-pool/libgtk-4-common_*.deb
+                ./stage6-pool/libgtk-4-dev_*.deb
+                ./stage6-pool/libwireplumber-0.5-0_*.deb
+                ./stage6-pool/libwireplumber-0.5-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -2417,6 +2557,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
