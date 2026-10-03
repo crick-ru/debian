@@ -66,7 +66,7 @@ trixie (llvm-19), и под наш `libdrm` 2.4.134 она подходит.
 |---|---|---|
 | GLX и платформа `x11` | правило «X11 нет нигде» | `-Dglx=disabled`, `-Dplatforms=['wayland']` |
 | VDPAU | правило репозитория | в mesa 26.1.6 VDPAU-драйверов нет вовсе; пакет не публикуется |
-| OpenCL (`rusticl`) | тянет rustc, bindgen, cbindgen, `librust-*-dev`, llvm-spirv, libclc, libllvmspirvlib, libclang — около сотни мегабайт | `-Dgallium-rusticl=false` |
+| OpenCL (`rusticl`) | тянет rustc, bindgen, cbindgen, `librust-*-dev`, llvm-spirv, libllvmspirvlib, libclang — около сотни мегабайт | `-Dgallium-rusticl=false` |
 | `asahi`, Vulkan `nouveau` | это `naga` на Rust | — |
 | `d3d12` | нужен `directx-headers-dev` из Wine | — |
 | `virgl` | отдельный wrap-файл, лишняя зависимость | — |
@@ -101,6 +101,34 @@ VA-API (`-Dgallium-va=enabled`) и аппаратное декодировани
 `libglx-mesa0` **останется установленным**: его больше никто не производит,
 но apt не считает его «нашим» пакетом и не удаляет. Он нужен только для
 X11-клиентов, которых в системе быть не должно.
+| `mesa-drm-shim` | инструмент для тестов | `-Dtools=` пуст |
+| тесты | правило репозитория | `-Dbuild-tests=false`, `override_dh_auto_test` пуст, `debian/tests` удалён |
+
+**Про `libclc` и clang.** Они остаются в `Build-Depends` и не имеют отношения
+к OpenCL. `libclc`, `libllvmspirvlib` и `spirv-tools` — это компиляция
+SPIR-V-шейдеров драйверов `iris`, `crocus` и `intel` (в `meson.build` это
+`with_clc` / `with_driver_using_clc`), а `libclang`/`libclang-cpp` нужны той же
+ветке `with_clc`. В ней требуются **все пять сразу**, и отсутствие любого
+роняет `meson setup`:
+
+| Не хватает | Ошибка |
+|---|---|
+| `libclc-19(-dev)` | `Dependency "libclc" not found` |
+| `libllvmspirvlib-19-dev` | `Dependency "LLVMSPIRVLib" not found` |
+| `libclang-19-dev` | `C++ library 'clangBasic' not found` |
+
+А вот `rustc`, `bindgen`, `cbindgen`, `librust-*-dev`, `llvm-spirv` — они как
+раз про OpenCL на Rust, и они убраны. Набор зависимостей и сами опции
+проверены локальным прогоном `meson setup` на sysroot из
+`tools/local-sysroot.sh mesa`: он даёт `build.ninja` и сводку
+`glx: disabled`, `platforms: ['wayland']`, `gallium-rusticl: false`.
+
+Оговорка про инструменты: `tools/local-meson-setup.sh mesa` для mesa не
+годится — он читает из `debian/rules` только литеральный блок `conf_flags`, а
+у mesa списки драйверов вычисляются в make (`$(GALLIUM_DRIVERS_LIST)`), и после
+извлечения текста они не раскрываются. Поэтому `meson setup` запускался
+вручную с теми же флагами, что и CI. Для остальных мезон-пакетов инструмент
+работает как обычно.
 
 `mesa-va-drivers` и `mesa-vdpau-drivers` из trixie будут сняты автоматически:
 наш `mesa-libgallium` объявляет `Breaks`/`Replaces` для их версий.

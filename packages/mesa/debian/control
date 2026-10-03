@@ -11,8 +11,14 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 #   * VDPAU отключён по правилу репозитория: mesa-vdpau-drivers не
 #     публикуется (в mesa 26.1.6 VDPAU-драйверов больше нет);
 #   * OpenCL не собирается (-Dgallium-rusticl=false), поэтому убраны rustc,
-#     bindgen, cbindgen, librust-*-dev, llvm-spirv, libclc, libllvmspirvlib и
-#     libclang*; mesa-opencl-icd не публикуется;
+#     bindgen, cbindgen, librust-*-dev и llvm-spirv; mesa-opencl-icd не
+#     публикуется. При этом остаются libclc-19, libllvmspirvlib-19-dev,
+#     spirv-tools, libclang-19-dev и libclang-cpp19-dev: они не про OpenCL, а про
+#     компиляцию SPIR-V-шейдеров драйверов iris, crocus и intel. В meson.build
+#     это with_clc / with_driver_using_clc, и ветка with_clc требует весь набор
+#     сразу: без libclc - "Dependency libclc not found", без libllvmspirvlib -
+#     "Dependency LLVMSPIRVLib not found", без clang - "Library clangBasic not
+#     found";
 #   * D3D12 отключён - ему нужен directx-headers-dev из Wine;
 #   * драйверы на Rust (asahi, nouveau-Vulkan через naga) отключены, virgl тоже
 #     (ему нужен отдельный wrap). Оставлены gallium: softpipe, nouveau, r300,
@@ -35,11 +41,16 @@ Build-Depends:
  bison,
  flex,
  glslang-tools,
+ libclc-19,
+ libclc-19-dev,
+ libclang-19-dev,
+ libclang-cpp19-dev,
  libdisplay-info-dev,
  libdrm-dev (>= 2.4.124-1),
  libelf-dev,
  libexpat1-dev,
  libglvnd-core-dev (>= 1.3.2),
+ libllvmspirvlib-19-dev,
  libpng-dev,
  libsensors-dev,
  libva-dev (>= 1.6.0) [linux-any],
