@@ -181,6 +181,70 @@ jobs:
         with:
           package: pixman
           stage: 1
+  build_at-spi2-core:
+    name: at-spi2-core (stage 1)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'at-spi2-core' || inputs.package == 'chromium' || inputs.package == 'gtk+3.0' || inputs.package == 'sfwbar' }}
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: at-spi2-core
+          stage: 1
+  build_dummyx11:
+    name: dummyx11 (stage 1)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'dummyx11' }}
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: dummyx11
+          stage: 1
   build_fdk-aac:
     name: fdk-aac (stage 1)
     if: >-
@@ -2015,7 +2079,7 @@ jobs:
     name: gtk+3.0 (stage 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'chromium' || inputs.package == 'gtk+3.0' || inputs.package == 'sfwbar' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_at-spi2-core, build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2080,12 +2144,22 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
+          # ci-closure: at-spi2-core собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
+                ./stage1-pool/at-spi2-common_*.deb
+                ./stage1-pool/gir1.2-atk-1.0_*.deb
+                ./stage1-pool/gir1.2-atspi-2.0_*.deb
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage1-pool/libatk-bridge2.0-0t64_*.deb
+                ./stage1-pool/libatk-bridge2.0-dev_*.deb
+                ./stage1-pool/libatk1.0-0t64_*.deb
+                ./stage1-pool/libatk1.0-dev_*.deb
+                ./stage1-pool/libatspi2.0-0t64_*.deb
+                ./stage1-pool/libatspi2.0-dev_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
@@ -3052,6 +3126,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 

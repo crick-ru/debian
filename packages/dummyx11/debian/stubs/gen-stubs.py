@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""Собрать библиотеки-заглушки с SONAME настоящих X11-библиотек.
+
+Зачем. Официальный deb Яндекс.Браузера объявляет `Depends` на `libx11-6`,
+`libxcb1` и ещё пять X11-пакетов, а его бинарник при `BIND_NOW` (Debian
+линкует с `-Wl,-z,now`) резолвит ВСЕ импорты при старте. Поэтому «просто
+убрать NEEDED» невозможно: бинарник падает с `undefined symbol`. Вместо
+удаления подставляется настоящая по SONAME библиотека, экспортирующая все
+символы, но ничего не делающая.
+
+Почему нужен ПОЛНЫЙ список символов, а не только те 123, что зовёт браузер:
+транзитивные X11-библиотеки ссылаются на внутренние символы друг друга
+(`libXrender.so.1` тянет `_XUnlockMutex_fn` из `libX11.so.6`). Заглушка с
+урезанным списком сломала бы их, поэтому берём весь экспорт библиотеки.
+
+Вход:  symbols-<SONAME>.txt - по одному имени символа в строке.
+Выход: <SONAME> - разделяемая библиотека с тем же SONAME.
+"""
+
+import os
+import subprocess
+import sys
+
+# SONAME -> файл со списком символов. Список не выводится из программы:
+# он снят с настоящих библиотек trixie один раз (readelf --dyn-syms) и
+# зафиксирован в репозитории, чтобы сборка не зависела от trixie.
+SONAMES = [
+    'libX11.so.6',
+    'libXext.so.6',
+    'libxcb.so.1',
+    'libXcomposite.so.1',
+    'libXdamage.so.1',
+    'libXfixes.so.3',
+    'libXrandr.so.2',
+]
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def gen(soname, outdir):
+    lst = os.path.join(HERE, 'symbols-%s.txt' % soname)
+    with open(lst, encoding='utf-8') as fh:
+        symbols = [line.strip() for line in fh if line.strip()]
+    if not symbols:
+        raise SystemExit('Пустой список символов: %s' % lst)
+
+    csrc = os.path.join(outdir, '.src', soname + '.c')
+    so = os.path.join(outdir, soname)
+    os.makedirs(os.path.join(outdir, '.src'), exist_ok=True)
+    with open(csrc, 'w', encoding='utf-8') as fh:
+        fh.write('/* Заглушки вместо %s. Сгенерировано gen-stubs.py,\n'
+                 ' * правьте symbols-%s.txt, а не этот файл. */\n'
+                 % (soname, soname))
+        for sym in symbols:
+            # Все нужные символы — функции (проверено readelf: тип FUNC),
+            # поэтому заглушка возвращает NULL. Критично, что возвращаемое
+            # значение ОПРЕДЕЛЕНО: браузер проверяет XOpenDisplay() на NULL и
+            # по нему выбирает бэкенд, а мусор в регистре привёл бы к
+            # попытке работать через несуществующий X-сервер.
+            fh.write('void *%s(void) { return (void *) 0; }\n' % sym)
+
+    # -fPIC: заглушка должна быть грузима как обычная .so; SONAME совпадает с
+    # настоящей библиотекой, поэтому поиск по имени её находит.
+    subprocess.run(
+        ['gcc', '-shared', '-fPIC', '-O2', '-o', so, csrc,
+         '-Wl,-soname,' + soname],
+        check=True)
+    return so, len(symbols)
+
+
+def main():
+    outdir = sys.argv[1] if len(sys.argv) > 1 else '.'
+    os.makedirs(outdir, exist_ok=True)
+    total = 0
+    for soname in SONAMES:
+        so, n = gen(soname, outdir)
+        total += n
+        print('==> %s: %d символов' % (os.path.basename(so), n))
+    print('==> Заглушек: %d, символов всего: %d' % (len(SONAMES), total))
+
+
+if __name__ == '__main__':
+    main()

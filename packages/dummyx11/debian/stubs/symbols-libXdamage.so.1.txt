@@ -1,0 +1,13 @@
+Name
+XDamageAdd
+XDamageCreate
+XDamageDestroy
+XDamageExtensionInfo
+XDamageExtensionName
+XDamageFindDisplay
+XDamageQueryExtension
+XDamageQueryVersion
+XDamageSubtract
+__bss_start
+_edata
+_end

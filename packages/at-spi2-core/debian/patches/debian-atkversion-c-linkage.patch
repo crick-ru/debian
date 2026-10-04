@@ -1,0 +1,33 @@
+Author: Robert Ancell <robert.ancell@canonical.com>
+Date: Wed, 10 Dec 2025 11:02:20 +1300
+Subject: Fix atk_get_major_version etc not linking on C++
+Origin: upstream, commit:5ae24f981ddce448682d123fd71ff20329bdd014
+Applied-Upstream: 2.59.0, commit:5ae24f981ddce448682d123fd71ff20329bdd014
+
+These failed because the version header was missing extern "C" (via
+G_BEGIN_DECLS).
+.
+The atkversion.h header is missing G_BEGIN_DECLS/G_END_DECLS, causing
+link failures when the header is included from C++ code. The version
+functions (atk_get_major_version, atk_get_minor_version, etc.) are
+declared without C linkage, so C++ consumers get mangled symbols that
+do not match the C exports in libatk-1.
+
+--- a/atk/atkversion.h.in
++++ b/atk/atkversion.h.in
+@@ -30,6 +30,8 @@
+ 
+ #include <glib.h>
+ 
++G_BEGIN_DECLS
++
+ /**
+  * ATK_MAJOR_VERSION:
+  *
+@@ -473,4 +475,6 @@ guint atk_get_interface_age (void) G_GNUC_CONST;
+ #define atk_binary_age atk_get_binary_age ()
+ #define atk_interface_age atk_get_interface_age ()
+ 
++G_END_DECLS
++
+ #endif /* __ATK_VERSION_H__ */

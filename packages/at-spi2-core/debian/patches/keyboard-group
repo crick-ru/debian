@@ -1,0 +1,39 @@
+commit f615fc67b1a19c507b083dcbce046429653b8144
+Author: Mike Gorse <mgorse@suse.com>
+Date:   Tue Sep 9 19:17:48 2025 -0500
+
+    AtspiDeviceX11: Encode group in the key event before passing to XLookupString
+    
+    We receive key events via XInput and convert the XInput events to
+    XKeyEvents before passing them to XLookupString. When doing this, we need to
+    check the active xkb group and pass it in the upper bits of the state.
+    Otherwise, we will always receive the keysym from the first group, regardless
+    of which group is active, causing the wrong keysym to be returned when a
+    non-default keyboard layout is active.
+    
+    Closes #201
+
+diff --git a/atspi/atspi-device-x11.c b/atspi/atspi-device-x11.c
+index be99a5d4..b70f61f7 100644
+--- a/atspi/atspi-device-x11.c
++++ b/atspi/atspi-device-x11.c
+@@ -98,7 +98,10 @@ event_check (GSource *source)
+ static void
+ xi2keyevent (XIDeviceEvent *xievent, XEvent *xkeyevent)
+ {
++                    XkbStateRec st= {};
++
+   memset (xkeyevent, 0, sizeof (*xkeyevent));
++                    XkbGetState (xievent->display, XkbUseCoreKbd, &st);
+ 
+   switch (xievent->evtype)
+     {
+@@ -122,7 +125,7 @@ xi2keyevent (XIDeviceEvent *xievent, XEvent *xkeyevent)
+   xkeyevent->xkey.y = xievent->event_y;
+   xkeyevent->xkey.x_root = xievent->root_x;
+   xkeyevent->xkey.y_root = xievent->root_y;
+-  xkeyevent->xkey.state = xievent->mods.effective;
++  xkeyevent->xkey.state = xievent->mods.effective | (st.group << 13);
+   xkeyevent->xkey.keycode = xievent->detail;
+   xkeyevent->xkey.same_screen = 1;
+ }

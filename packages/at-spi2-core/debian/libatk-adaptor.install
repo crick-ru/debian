@@ -1,0 +1,9 @@
+usr/lib/*/gtk-*/modules
+usr/lib/*/gnome-settings-daemon-3.0 usr/lib
+usr/lib/*/gnome-settings-daemon-3.0/* usr/lib/unity-settings-daemon-1.0
+# Строка `debian/90atk-adaptor etc/X11/Xsession.d` из упаковки Debian убрана:
+# это старт AT-SPI из X11-сессии. Репозиторий публикует пакеты для чистого
+# Wayland, где X-сессии не бывает, и dh_missing --fail-missing упал бы на
+# неустановленном файле. Автозапуск в Wayland даёт
+# etc/xdg/Xwayland-session.d/00-at-spi из at-spi2-core.install.
+debian/90atk-adaptor.conf etc/environment.d

@@ -1,0 +1,5 @@
+dummyx11 (1.0-1) unstable; urgency=low
+
+  * Initial release: X11 stub libraries for Wayland-only systems.
+
+ -- crick Debian Backports <backports@users.noreply.github.com>  Thu, 01 Oct 2026 00:00:00 +0000

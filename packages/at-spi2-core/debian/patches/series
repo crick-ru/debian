@@ -1,0 +1,4 @@
+at-spi-by-default
+workaround_tests_issue.patch
+keyboard-group
+debian-atkversion-c-linkage.patch

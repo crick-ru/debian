@@ -1,0 +1,50 @@
+#!/usr/bin/make -f
+# Сборка at-spi2-core для crick Debian backports. Упаковка Debian
+# (at-spi2-core 2.56.2-1+deb13u2) переработана: X11 отключён, тесты и
+# документация не собираются, udeb-пакеты и X11-сессия не публикуются.
+# Подробности - в packages/at-spi2-core/README.md.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
+
+configure_options :=
+
+ifeq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
+configure_options += --native-file=$(CURDIR)/debian/meson/no-exe-wrapper.ini
+endif
+
+# Документация не собирается. В Debian здесь стояло
+# -Ddocs=$(if $(filter at-spi2-doc libatk1.0-doc,$(DO_PACKAGES)),true,false),
+# но обоих пакетов у нас нет, так что условие всегда давало бы false; задание
+# значения явно делает отключение видимым в правилах репозитория.
+configure_options += -Ddocs=false
+
+# Ключевая опция: X11 выключен. В апстриме это option('x11', feature, auto),
+# и при -Dx11=disabled не собирается atspi-device-x11.c, а x11_deps остаётся
+# пустым - то есть libatspi.so.0 не линкуется с libX11/libXi/libXtst.
+configure_options += -Dx11=disabled
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	ac_cv_lib_ICE_IceConnectionNumber=no \
+	dh_auto_configure -- \
+		-Dintrospection=enabled \
+		$(configure_options) \
+		-Ddefault_bus=dbus-broker
+
+# Тесты не собираются: с -Dx11=disabled часть тестов всё равно не проходит
+# (нет X-сервера), а xvfb-run в Build-Depends мы не тянем - это противоречило
+# бы правилу «никакого X11» и тянуло бы в сборочную среду xauth.
+override_dh_auto_test:
+
+# Стандартные символьные файлы остаются: библиотеки не меняют ABI при
+# отключении X11 (отсутствующие символы в них не появлялись). Но --add-udeb
+# убран: udeb-пакеты не собираются (см. debian/control).
+override_dh_makeshlibs:
+	dh_makeshlibs -plibatspi2.0-0t64 -V 'libatspi2.0-0t64 (>= 2.9.90)'
+	dh_makeshlibs -plibatk-bridge2.0-0t64 -V -- -c4
+	dh_makeshlibs -plibatk1.0-0t64 -V -- -c4
+	dh_makeshlibs -a --remaining-packages
+	dh_girepository -pgir1.2-atspi-2.0

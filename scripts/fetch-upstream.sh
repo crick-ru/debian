@@ -62,15 +62,19 @@ fi
 # apt would sort the new build as older and never upgrade to it.
 REVISION=1
 EPOCH=""
+# NATIVE=1 - пакет без апстрима: исходников нет, всё содержимое собирается из
+# debian/. Для него вместо загрузки orig-тарбола создаётся минимальный тарбол с
+# одним каталогом: build-package.sh распаковывает его тем же кодом, что и
+# обычный, а dpkg-source находит ожидаемое имя. Причина: у such-пакета нечего
+# скачивать, а требование VERSION/URL/ORIG_TAR в .conf оставить нужно - от них
+# зависят и версия, и имя тарбола в ключах кэша CI.
+NATIVE=0
 # shellcheck source=/dev/null
 source "$PKG_CONF"
 
-for var in VERSION URL ORIG_TAR; do
-  if [[ -z "${!var:-}" ]]; then
-    echo "Error: $PKG_CONF does not set $var" >&2
-    exit 1
-  fi
-done
+if [[ "$NATIVE" == "1" ]]; then
+  URL=""
+fi
 
 if [[ -n "$PRINT_MODE" ]]; then
   case "$PRINT_MODE" in
@@ -82,6 +86,39 @@ if [[ -n "$PRINT_MODE" ]]; then
 fi
 
 TARGET_ORIG="$BUILD_SRC/$ORIG_TAR"
+
+# Пакет без апстрима: тарбол не качается, а собирается на месте из
+# packages/<pkg>/upstream. Каталог нужен, потому что dpkg-source и
+# build-package.sh ожидают дерево с одним верхним уровнем.
+if [[ "$NATIVE" == "1" ]]; then
+  if [[ ! -f "$TARGET_ORIG" ]]; then
+    echo "==> Creating empty upstream tarball for native package $PACKAGE..."
+    local_dir="$REPO_ROOT/packages/$PACKAGE/upstream"
+    [[ -d "$local_dir" ]] || { echo "Error: no $local_dir" >&2; exit 1; }
+    rm -rf "$BUILD_SRC/$PACKAGE-native"
+    mkdir -p "$BUILD_SRC/$PACKAGE-native/$(basename "$local_dir")"
+    cp -a "$local_dir/." "$BUILD_SRC/$PACKAGE-native/$(basename "$local_dir")/"
+    tar -czf "$TARGET_ORIG" -C "$BUILD_SRC/$PACKAGE-native" "$(basename "$local_dir")"
+    rm -rf "$BUILD_SRC/$PACKAGE-native"
+    echo "Created $ORIG_TAR"
+  else
+    echo "$ORIG_TAR already exists in $BUILD_SRC"
+  fi
+  echo "PACKAGE=$PACKAGE" > "$BUILD_SRC/$PACKAGE.env"
+  echo "VERSION=$VERSION" >> "$BUILD_SRC/$PACKAGE.env"
+  echo "REVISION=$REVISION" >> "$BUILD_SRC/$PACKAGE.env"
+  echo "ORIG_TAR=$ORIG_TAR" >> "$BUILD_SRC/$PACKAGE.env"
+  echo "EXTRA_TARBALLS=" >> "$BUILD_SRC/$PACKAGE.env"
+  echo "SUCCESS: Prepared native package $PACKAGE $VERSION-$REVISION+crick"
+  exit 0
+fi
+
+for var in VERSION URL ORIG_TAR; do
+  if [[ -z "${!var:-}" ]]; then
+    echo "Error: $PKG_CONF does not set $var" >&2
+    exit 1
+  fi
+done
 
 echo "==> Fetching $PACKAGE $VERSION from $URL..."
 

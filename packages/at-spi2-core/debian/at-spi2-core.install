@@ -1,0 +1,10 @@
+etc
+usr/lib/systemd/user
+usr/libexec
+usr/share/dbus-1
+usr/share/defaults
+# Строка `debian/90qt-a11y etc/X11/Xsession.d` из упаковки Debian убрана:
+# это запуск Qt-доступности из X11-сессии, а репозиторий публикует пакеты
+# для чистого Wayland. Строка `debian/90qt-a11y.conf etc/environment.d`
+# остаётся: она не X11-специфична (переменные окружения для Qt).
+debian/90qt-a11y.conf etc/environment.d

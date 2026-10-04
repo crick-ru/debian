@@ -1,0 +1,15 @@
+Name
+XCompositeCreateRegionFromBorderClip
+XCompositeExtensionInfo
+XCompositeExtensionName
+XCompositeFindDisplay
+XCompositeGetOverlayWindow
+XCompositeNameWindowPixmap
+XCompositeQueryExtension
+XCompositeQueryVersion
+XCompositeRedirectSubwindows
+XCompositeRedirectWindow
+XCompositeReleaseOverlayWindow
+XCompositeUnredirectSubwindows
+XCompositeUnredirectWindow
+XCompositeVersion
