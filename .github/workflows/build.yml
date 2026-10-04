@@ -2264,7 +2264,7 @@ jobs:
     name: gstreamer1.0-libav (stage 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'gstreamer1.0-libav' }}
-    needs: [build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good]
+    needs: [build_cairo, build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2293,6 +2293,13 @@ jobs:
         with:
           pattern: deb-stage1-*
           path: stage1-pool
+          merge-multiple: true
+
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
           merge-multiple: true
 
       - name: Download stage 3 packages
@@ -2330,6 +2337,10 @@ jobs:
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
                 ./stage3-pool/libavcodec-dev_*.deb
                 ./stage3-pool/libavcodec63_*.deb
                 ./stage3-pool/libavdevice-dev_*.deb
@@ -3041,6 +3052,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
