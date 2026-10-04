@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
+# X11 нет нигде в репозитории, поэтому и не собирается: -Dx11=disabled убирает
+# из libEGL.so.1 платформу X11 (за неё отвечает макрос ENABLE_EGL_X11, который
+# meson ставит только при найденной зависимости x11), а -Dglx=disabled отключает
+# сам GLX. Проверено сборкой: в NEEDED готовых libEGL.so.1 и libGLdispatch.so.0
+# остаются только libGLdispatch.so.0 и libc.so.6, а строк libX11.so.6 и
+# libGLX.so.0 в бинарниках нет вовсе.
+# GL, OpenGL и OpenGL ES тоже не публикуются: GL у нас не собирается (mesa
+# собрана с -Dglx=disabled), и эти обёртки без него бессмысленны.
+conf_flags = \
+	-Dx11=disabled \
+	-Dglx=disabled \
+	-Dgles1=false \
+	-Dgles2=false \
+	-Dentrypoint-patching=disabled \
+	-Dhgl=false
+
+%:
+	dh $@ --buildsystem=meson --without autoreconf
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(conf_flags)
+
+# Тесты апстрима гоняются через xvfb и проверяют GLX - того, что здесь нет.
+override_dh_auto_test:
+	# тесты не собираются (общее правило репозитория)
+
+override_dh_auto_install:
+	dh_auto_install
+	# Состав установки при наших флагах проверен: остаются libEGL.so*,
+	# libGLdispatch.so*, заголовки EGL/ и glvnd/, KHR/khrplatform.h и два
+	# pkg-config (egl.pc, libglvnd.pc). Лишнее убираем - оно относится к
+	# непубликуемым API, и dh_missing (в compat 13 он по умолчанию
+	# --fail-missing) иначе споткнулся бы о лишние файлы в дереве сборки:
+	rm -f debian/tmp/usr/lib/*/libOpenGL.so*
+	rm -f debian/tmp/usr/include/GL/gl.h
+	rm -f debian/tmp/usr/include/GL/glext.h
+	rm -f debian/tmp/usr/include/GL/glcorearb.h
+	rm -f debian/tmp/usr/lib/*/pkgconfig/opengl.pc
+
+override_dh_missing:
+	dh_missing --list-missing

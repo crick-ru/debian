@@ -53,6 +53,38 @@ jobs:
   # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
   # Барьеров стадий нет - job ждёт только тех, от кого зависит.
   # -------------------------------------------------------------------------
+  build_libglvnd:
+    name: libglvnd (ур. 1)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libglvnd' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: libglvnd
+          stage: 1
   build_wayland:
     name: wayland (ур. 1)
     if: >-
@@ -618,7 +650,7 @@ jobs:
     name: mesa (ур. 3)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
-    needs: [build_libdrm, build_wayland, build_wayland-protocols]
+    needs: [build_libdrm, build_libglvnd, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -671,6 +703,10 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-cursor0_*.deb
@@ -700,7 +736,7 @@ jobs:
     name: gstreamer1.0-plugins-base (ур. 4)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wireplumber' }}
-    needs: [build_gstreamer1_0, build_libdrm, build_mesa, build_wayland, build_wayland-protocols]
+    needs: [build_gstreamer1_0, build_libdrm, build_libglvnd, build_mesa, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -761,6 +797,10 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
@@ -933,7 +973,7 @@ jobs:
     name: wlroots (ур. 4)
     if: >-
       ${{ !inputs.package || inputs.package == 'labwc' || inputs.package == 'wlroots' }}
-    needs: [build_cairo, build_libdrm, build_libxkbcommon, build_mesa, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_cairo, build_libdrm, build_libglvnd, build_libxkbcommon, build_mesa, build_pixman, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -993,6 +1033,10 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
@@ -1121,7 +1165,7 @@ jobs:
     name: gstreamer1.0-plugins-bad (ур. 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_wayland, build_wayland-protocols]
+    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_libglvnd, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1182,6 +1226,10 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
@@ -1394,7 +1442,7 @@ jobs:
     name: kmscon (ур. 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'kmscon' }}
-    needs: [build_libdrm, build_libtsm, build_libxkbcommon, build_mesa]
+    needs: [build_libdrm, build_libglvnd, build_libtsm, build_libxkbcommon, build_mesa]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1454,6 +1502,10 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
                 ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
@@ -1584,7 +1636,7 @@ jobs:
     name: mpv (ур. 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'mpv' }}
-    needs: [build_ffmpeg, build_libdrm, build_libxkbcommon, build_mesa, build_pipewire, build_pulseaudio, build_wayland, build_wayland-protocols]
+    needs: [build_ffmpeg, build_libdrm, build_libglvnd, build_libxkbcommon, build_mesa, build_pipewire, build_pulseaudio, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1651,6 +1703,10 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libpulse-dev_*.deb
                 ./stage1-pool/libpulse-mainloop-glib0_*.deb
                 ./stage1-pool/libpulse0_*.deb
@@ -2554,6 +2610,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+
 
 
 

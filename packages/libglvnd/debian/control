@@ -1,0 +1,79 @@
+Source: libglvnd
+Section: libs
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Standards-Version: 4.7.3
+# Упаковка взята из Debian (libglvnd 1.7.0-3) и переработана:
+#   * GLX, OpenGL, OpenGL ES и Haiku не публикуются: это X11- и GL-обвязка,
+#     а у нас ни X11, ни GL нет (см. rules: -Dx11=disabled -Dglx=disabled,
+#     -Dgles1=false -Dgles2=false). Из 14 бинарных пакетов Debian остаются
+#     четыре: libglvnd0, libglvnd-core-dev, libegl1, libegl-dev;
+#   * X11-пакеты убраны из Build-Depends (libx11-dev, libxext-dev, x11proto-dev,
+#     xauth, xvfb), тесты не собираются;
+#   * в libegl-dev не осталось Depends: libgl-dev, libgles-dev, libglx-dev,
+#     libopengl-dev - их публикует glvnd, а тот тянет libgl1-mesa-dev и
+#     libglx-mesa0, которые пинят libgbm1 версии trixie. Из-за этого
+#     libegl-dev становился неразрешимым рядом с нашей mesa. Разбор -
+#     в packages/libglvnd/README.md;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+Build-Depends: debhelper-compat (= 13),
+               meson,
+               pkgconf,
+               python3-setuptools
+Homepage: https://gitlab.freedesktop.org/glvnd/libglvnd
+Vcs-Git: https://salsa.debian.org/xorg-team/lib/libglvnd.git
+Vcs-Browser: https://salsa.debian.org/xorg-team/lib/libglvnd.git
+
+Package: libglvnd0
+Section: libs
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: Vendor neutral GL dispatch library
+ This is an implementation of the vendor-neutral dispatch layer for arbitrating
+ OpenGL API calls between multiple vendors on a per-screen basis.
+ .
+ This package provides libGLdispatch, the dispatching half of the library. It
+ is needed by libegl1 and is not useful on its own.
+
+Package: libglvnd-core-dev
+Section: libdevel
+Architecture: any
+Depends:
+ libglvnd0 (= ${binary:Version}),
+ ${misc:Depends}
+Multi-Arch: same
+Description: Vendor neutral GL dispatch library -- core development files
+ Internal headers and the pkg-config file of the vendor-neutral dispatch
+ layer.
+
+Package: libegl1
+Section: libs
+Architecture: any
+Depends:
+ libglvnd0 (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: GL dispatch library runtime for EGL
+ This is a runtime package for EGL, the vendor-neutral dispatch layer. The
+ window-system platform for X11 is not built here, so libEGL.so.1 depends on
+ no window-system library at all.
+
+Package: libegl-dev
+Section: libdevel
+Architecture: any
+Depends:
+ libegl1 (= ${binary:Version}),
+ libglvnd-core-dev (= ${binary:Version}),
+ ${misc:Depends}
+Multi-Arch: same
+Description: GL dispatch library runtime and development files for EGL
+ This package provides the EGL headers, egl.pc and libEGL.so needed to build
+ against EGL.
+ .
+ The GL, GLES, GLX and OpenGL variants of this package are not published
+ here: they require X11 and GL, neither of which is part of this repository.

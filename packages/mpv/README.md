@@ -50,12 +50,13 @@
 - `-Dbuild-date=false` для воспроизводимости сборки (без временных меток).
 - Отладочные символы (`-dbgsym`) не собираются и не публикуются.
 
-## `libgbm-dev` берётся из этого репозитория
+## `libegl-dev` берётся из этого репозитория
 
-`libgbm-dev`, `libgbm1` и `mesa-libgallium` ставятся из нашей `mesa`
-(см. `CLOSURE_EXCEPT` в `tools/gen-workflow.py` — исключений сейчас нет).
-Раньше здесь было исключение: наша `mesa-common-dev` зависела от
-`libgl-dev`, а тот объявляет `Breaks: mesa-common-dev`, из-за чего установка
-`libegl-dev` (нужного этому пакету по `Build-Depends`) становилась
-неразрешимой. Зависимость убрана — GL у нас не собирается, и заголовки GL
-ничем не требуются. Подробности — в `packages/mesa/README.md`.
+`libegl-dev`, `libegl1`, `libglvnd0` и `libglvnd-core-dev` ставятся из нашей
+сборки `libglvnd` (см. `packages/libglvnd/README.md`).
+
+Раньше здесь было исключение: штатный `libegl-dev` нельзя поставить рядом с
+нашей mesa — он тянет `libgl1-mesa-dev`, а тот пинит `libgbm1` версии trixie.
+Теперь пин снят: наш `libglvnd` собран без X11 и без GL-обвязок, поэтому
+`libegl-dev` ставится рядом с mesa без конфликтов. Исключений в
+`CLOSURE_EXCEPT` сейчас нет.
