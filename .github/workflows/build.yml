@@ -2886,21 +2886,35 @@ jobs:
           # ci-closure: pipewire собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pulseaudio собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libegl-dev_*.deb
                 ./stage1-pool/libegl1_*.deb
                 ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
                 ./stage1-pool/libgles2_*.deb
                 ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
                 ./stage1-pool/libpulse-dev_*.deb
                 ./stage1-pool/libpulse-mainloop-glib0_*.deb
                 ./stage1-pool/libpulse0_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
                 ./stage1-pool/libwayland-dev_*.deb
                 ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
                 ./stage2-pool/libva-dev_*.deb
@@ -3025,6 +3039,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+
 
 
 

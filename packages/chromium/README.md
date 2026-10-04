@@ -141,6 +141,25 @@ if (is_linux) {
 `debian/patches/series` и вернуть stanza `chromium-l10n` в
 `debian/control` из `debian/` Debian.
 
+## Почему список .deb такой длинный
+
+Job ставит 54 пакета из предыдущих стадий, и это не перестраховка. Наши
+пакеты пинят друг друга версией `= ${binary:Version}`, поэтому установка
+одного `-dev` без остальных даёт неразрешимые зависимости:
+
+| Поставщик | Что обязано попасть в список |
+|---|---|
+| `libdrm` | `libdrm-dev` тянет `libdrm-common`, `libdrm-amdgpu1`, `libdrm-freedreno1`, `libdrm-intel1`, `libdrm-nouveau2`, `libdrm-radeon1` — все с `= ${binary:Version}` |
+| `libglvnd` | `libegl1`, `libgles1`, `libgles2`, `libglvnd-core-dev` пинят `libglvnd0 (= ...)` |
+| `wayland` | `libwayland-dev` пинят `libwayland-server0`, `libwayland-cursor0`, `libwayland-egl1`, `libwayland-bin` |
+| `cairo` | `libcairo2-dev` и `libgtk-3-0t64` требуют `libcairo-gobject2`, `libcairo-script-interpreter2` |
+| `pulseaudio`, `libva`, `mesa`, `pipewire`, `gtk+3.0` | runtime- и `-dev`-пакеты с пинами версий |
+
+Правило «замкнутость по символьным файлам и пинам версий» проверяет
+`tools/check-ci-deps.py`: без полного набора job падает на шаге установки с
+`E: Unable to correct problems, you have held broken packages`, и следом
+падают все, кто от него зависит.
+
 ## Про два orig-тарбола
 
 У chromium их два: `chromium_154.0.8037.92.orig.tar.xz` (995 МБ) и
