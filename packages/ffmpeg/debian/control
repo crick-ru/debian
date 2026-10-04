@@ -180,7 +180,6 @@ Multi-Arch: same
 Depends: libavfilter12 (= ${binary:Version}),
          libavcodec-dev (= ${binary:Version}),
          libavformat-dev (= ${binary:Version}),
-         libpostproc-dev (= ${binary:Version}),
          libavutil-dev (= ${binary:Version}),
          libswresample-dev (= ${binary:Version}),
          libswscale-dev (= ${binary:Version}),
