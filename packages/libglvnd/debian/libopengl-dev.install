@@ -1,2 +1,5 @@
+usr/include/GL/gl.h
+usr/include/GL/glext.h
+usr/include/GL/glcorearb.h
 usr/lib/*/libOpenGL.so
 usr/lib/*/pkgconfig/opengl.pc

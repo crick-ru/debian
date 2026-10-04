@@ -44,14 +44,14 @@ override_dh_auto_install:
 	# libopengl_main, а сам он - общий доступ к GL/GLES-функциям для
 	# приложений, собранных с opengl.pc.
 	#
-	# Заголовки GL/ - единственное лишнее: они относятся к API, который мы
-	# не публикуем (нет ни GL, ни GLX), поэтому соответствующего пакета
-	# libgl-dev у нас нет. dh_missing в compat 13 по умолчанию работает с
-	# --fail-missing, то есть оставь их - и сборка упадёт на лишних файлах
-	# в дереве:
-	rm -f debian/tmp/usr/include/GL/gl.h
-	rm -f debian/tmp/usr/include/GL/glext.h
-	rm -f debian/tmp/usr/include/GL/glcorearb.h
+	# Заголовки GL/ (gl.h, glext.h, glcorearb.h) публикуются в libopengl-dev,
+	# а KHR/ - в libegl-dev. Раньше они считались лишними, потому что
+	# соответствующего пакета libgl-dev у нас не было, и удалялись из
+	# дерева. Оказалось неверно: gstreamer1.0-plugins-base включает <GL/gl.h>
+	# при сборке libgstgl (gst-libs/gst/gl/gstglfuncs.h:71), а EGL/eglplatform.h
+	# включает <KHR/khrplatform.h>, то есть без них сборка падает с
+	# "GL/gl.h: No such file or directory". Заголовки сами по себе не тянут
+	# ни GLX, ни X11, поэтому публикуются; не публикуются GLX и libGL.so.
 
 override_dh_missing:
 	dh_missing --list-missing

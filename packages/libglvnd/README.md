@@ -19,7 +19,7 @@
 | `libgles2` | `libGLESv2.so.2` — OpenGL ES 2.x и 3.x |
 | `libgles-dev` | заголовки `GLES/`, `GLES2/`, `GLES3/`, `glesv1_cm.pc`, `glesv2.pc` |
 | `libopengl0` | `libOpenGL.so.0` — OpenGL **без** GLX |
-| `libopengl-dev` | `opengl.pc`, `libOpenGL.so` |
+| `libopengl-dev` | `GL/gl.h`, `GL/glext.h`, `GL/glcorearb.h`, `opengl.pc`, `libOpenGL.so` |
 
 Не публикуются: `libglx0`, `libgl1`, `libgl-dev`, `libglx-dev`,
 `libglvnd-dev` — это GLX и GL. GLX есть X11-протокол, а GL в этом
@@ -110,6 +110,26 @@ libgl1-mesa-dev Depends: libgbm1 (= 25.0.7-2+deb13u1)   ← ПИН ВЕРСИИ 
 
 Символы не отличаются от штатных, поэтому ABI совместим: приложения, собранные
 против `libegl-dev` из trixie, работают против нашей `libegl1` без пересборки.
+
+## Заголовки KHR и GL публикуются — иначе сборка падает
+
+Первая версия пакета удаляла заголовки `GL/` из дерева сборки: они относятся
+к API, который мы не публикуем, а пакета `libgl-dev` у нас нет. Оказалось
+неверно, и прогон CI `37190102272` упал на двух пакетах:
+
+```
+gstreamer1.0-plugins-base: gst-libs/gst/gl/gstglfuncs.h:71: fatal error: GL/gl.h
+wlroots: EGL/eglplatform.h:18: fatal error: KHR/khrplatform.h
+```
+
+`KHR/khrplatform.h` включает сам `eglplatform.h`, а `GL/gl.h` нужен gstreamer
+при сборке `libgstgl` — то есть заголовки нужны не только в готовом бинарнике,
+но и при компиляции. Заголовки сами по себе не тянут ни GLX, ни X11, поэтому
+публикуются: `KHR/` в `libegl-dev`, `GL/` в `libopengl-dev`. `opengl.pc` в
+ описании прямо говорит «library and headers», так что это ожидаемо.
+
+Не публикуются по-прежнему: `libGL.so`, `gl.pc`, `libGLX.so` и пакеты
+`libgl1`/`libglx0` — они и есть GLX.
 
 ## Что снято у потребителей
 
