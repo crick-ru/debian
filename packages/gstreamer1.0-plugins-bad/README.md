@@ -111,6 +111,17 @@
   падает на файле, который никто не устанавливает.
 - Отладочные символы (`-dbgsym`) не собираются и не публикуются.
 
+## VA-API берётся из этого репозитория
+
+`libva-dev`, `libva2`, `libva-drm2`, `libva-wayland2` ставятся из нашей сборки
+`libva` (см. `packages/libva/README.md`).
+
+Раньше здесь было исключение: штатный `libva-dev` нельзя поставить рядом с
+нашим `libglvnd0` — он тянет `libva-glx2`, а тот `Depends: libgl1`, который
+пинит `libglvnd0` версии trixie. Теперь пин снят: наш `libva` собран без
+GLX и X11, при этом пути DRM и Wayland на месте, так что VA-API работает
+полностью. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+
 ## GL и GLES берутся из этого репозитория
 
 `libegl-dev`, `libegl1`, `libgles-dev`, `libgles1`, `libgles2`, `libopengl-dev`,

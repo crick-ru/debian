@@ -60,6 +60,17 @@ GStreamer и FFmpeg.
   `usr/share/ffmpeg/examples` удаляется в `override_dh_auto_install` и в
   репозиторий не попадает.
 
+## VA-API берётся из этого репозитория
+
+`libva-dev`, `libva2`, `libva-drm2`, `libva-wayland2` ставятся из нашей сборки
+`libva` (см. `packages/libva/README.md`).
+
+Раньше здесь было исключение: штатный `libva-dev` нельзя поставить рядом с
+нашим `libglvnd0` — он тянет `libva-glx2`, а тот `Depends: libgl1`, который
+пинит `libglvnd0` версии trixie. Теперь пин снят: наш `libva` собран без
+GLX и X11, при этом пути DRM и Wayland на месте, так что VA-API работает
+полностью. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+
 ## Изменено
 
 - Версия: `7:9.0.2-2+crick`. **Epoch 7 обязателен** — историческое значение

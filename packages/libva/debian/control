@@ -1,0 +1,77 @@
+Source: libva
+Section: libs
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Standards-Version: 4.7.3
+# Упаковка взята из Debian unstable (libva_2.24.1-2) и переработана:
+#   * X11-путь VA-API не публикуется: -Dwith_x11=no убирает не только X11,
+#     но и GLX (в meson.build блоки GLX стоят под WITH_X11). Из шести
+#     бинарных пакетов Debian остаются четыре: libva2, libva-drm2,
+#     libva-wayland2, libva-dev;
+#   * VA-API полностью сохраняется: drm- и wayland-пути на месте, у обоих в
+#     NEEDED только libva, libdrm, libwayland-client и libc. X11-пакеты убраны
+#     из Build-Depends, тесты и документация не собираются;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Разбор - в packages/libva/README.md.
+Build-Depends: debhelper-compat (= 13),
+               meson,
+               pkgconf,
+               libdrm-dev,
+               libwayland-bin,
+               libwayland-dev
+Homepage: https://github.com/intel/libva
+Vcs-Git: https://salsa.debian.org/multimedia-team/libva.git
+Vcs-Browser: https://salsa.debian.org/multimedia-team/libva.git
+
+Package: libva2
+Section: libs
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: Video Acceleration API runtime library
+ This is the core of the Video Acceleration API, a video acceleration
+ interface which provides hardware-accelerated video encoding and decoding.
+ .
+ The X11 display path of VA-API is not built here, so this package needs no
+ window-system library.
+
+Package: libva-drm2
+Section: libs
+Architecture: any
+Depends:
+ libva2 (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${misc:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: Video Acceleration API runtime library - DRM display
+ This is the DRM display of the Video Acceleration API, used to pass DRM
+ device and buffer handles between the client and the driver.
+
+Package: libva-wayland2
+Section: libs
+Architecture: any
+Depends:
+ libva2 (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${misc:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: Video Acceleration API runtime library - Wayland display
+ This is the Wayland display of the Video Acceleration API, used to pass
+ Wayland surfaces and EGL buffers between the client and the driver.
+
+Package: libva-dev
+Section: libdevel
+Architecture: any
+Depends:
+ libva2 (= ${binary:Version}),
+ libva-drm2 (= ${binary:Version}),
+ libva-wayland2 (= ${binary:Version}),
+ ${misc:Depends}
+Multi-Arch: same
+Description: Video Acceleration API - development files
+ This package provides the headers, the pkg-config files and the link-time
+ libraries needed to build against the Video Acceleration API.

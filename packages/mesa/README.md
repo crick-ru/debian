@@ -176,6 +176,21 @@ Debian собирает с X11 и получает обе цели, мы — т�
 ожидаемо и правильно: GLX на X11 в репозитории не публикуется.
 Своего `libglx-mesa0` мы не собираем.
 
+## VA-API берётся из этого репозитория
+
+`libva-dev`, `libva2`, `libva-drm2`, `libva-wayland2` ставятся из нашей сборки
+`libva` (см. `packages/libva/README.md`).
+
+VA-API у mesa включается опцией `-Dgallium-va=enabled` и требует пакет
+`libva-dev` по `Build-Depends`. Штатный `libva-dev` был неразрешим рядом с
+нашим `libglvnd0`: он тянет `libva-glx2`, а тот `Depends: libgl1`, который
+пинит `libglvnd0` версии trixie. Именно на этом падала mesa —
+`cannot resolve build-dependency 'libva-dev'`, прогон CI `37168394656`.
+
+Теперь пин снят: наш `libva` собран без GLX и X11, пути DRM и Wayland на
+месте, то есть VA-API работает полностью. По правилу репозитория VA-API не
+отключается — это единственный оставшийся ускоритель.
+
 ## Почему из `mesa-common-dev` убран `libgl-dev`
 
 `mesa-common-dev` больше не зависит от `libgl-dev`. Зависимость была

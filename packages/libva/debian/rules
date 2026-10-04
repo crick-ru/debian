@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/pkg-info.mk
+include /usr/share/dpkg/architecture.mk
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all optimize=+lto
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
+# X11 нет нигде в репозитории, поэтому и не собирается. Механизм такой:
+# meson.build ставит WITH_X11 только если нашёл x11, xext, xfixes, x11-xcb,
+# xcb и xcb-dri3; при -Dwith_x11=no зависимости не ищутся вовсе, WITH_X11
+# остаётся false, и блоки сборки libva_x11 и libva_glx не входят
+# (meson.build:141 и 191 - "if WITH_X11" и "if WITH_GLX"). При -Dwith_x11=no
+# опция with_glx тоже уходит в no: строка 104 запрещает явное включение
+# GLX без X11. То есть GLX и X11-путь VA-API снимаются одной опцией.
+#
+# VA-API при этом полностью сохраняется: собираются libva.so.2 (нужна
+# mesa, реализующая интерфейс драйвера), libva-drm.so.2 (путь DRM) и
+# libva-wayland.so.2 (путь Wayland). Теряется только X11-путь, которого
+# в репозитории нет по правилу.
+conf_flags = \
+	-Dwith_x11=no \
+	-Dwith_glx=no \
+	-Denable_docs=false
+
+%:
+	dh $@ -Smeson
+
+override_dh_autoreconf:
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(conf_flags)
+
+# Тесты апстрима проверяют GLX и X11, которых здесь нет.
+override_dh_auto_test:
+	# тесты не собираются (общее правило репозитория)
+
+# shlibs.local из Debian нужен для переходного пакета со старым soname;
+# он рассчитан на параллельную сборку libva1/libva2, которой у нас нет.
+execute_before_dh_shlibdeps:
+	:
+
+override_dh_installchangelogs:
+	dh_installchangelogs NEWS
