@@ -39,6 +39,14 @@ override_dh_auto_configure:
 # dh_missing делает по умолчанию (правило репозитория опирается именно на неё).
 # Остаются только исключения: .la и gdlib-config в бинарные пакеты не идут.
 override_dh_install:
+	# Утилиты из src/ (annotate, gdtopng, pngtogd, bdftogd и ещё десяток) в Debian
+	# едут в пакет libgd-tools, который мы не публикуем: это примеры
+	# (см. правило репозитория). libgd.la - служебный файл libtool, его
+	# Debian тоже исключает. Удаляем из дерева, иначе dh_missing падает с
+	# "missing files, aborting": опция --list-missing у него включена по
+	# умолчанию с compat 12, а -X в dh_install на неё не влияет.
+	rm -f debian/tmp/usr/bin/*
+	rm -f debian/tmp/usr/lib/*/libgd.la
 	dh_install -Xlibgd.la -Xgdlib-config
 
 # Тесты не собираются и не запускаются: каталог debian/tests удалён, примеры
