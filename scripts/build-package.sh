@@ -51,6 +51,21 @@ cd "$BUILD_WORK"
 # Copy orig tarball to build work directory parent
 cp "$BUILD_SRC/$ORIG_TAR" "$REPO_ROOT/build/work/"
 
+# Пакеты с несколькими orig-тарболами (chromium: основной + orig-pre-gen).
+# dpkg-source требует их рядом с исходным деревом, поэтому они копируются
+# туда же. Список приходит из fetch-upstream.sh, который кладёт их в
+# build/sources и перечисляет в <package>.env.
+#
+# Их нужно ещё и распаковать в дерево: у chromium второй тарбол содержит
+# каталог pre-gen/ с файлами, которые генерируются во время сборки (bindgen,
+# nodejs), и без них сборка падает на Debian stable. Основной тарбол
+# распаковывается с --strip-components=1, дополнительные — без него: их
+# внутренние пути значимы (pre-gen/<arch>/...), а верхний каталог у них уже
+# именно тот, что нужен.
+for extra in ${EXTRA_TARBALLS:-}; do
+  cp "$BUILD_SRC/$extra" "$REPO_ROOT/build/work/"
+done
+
 # Extract tarball
 echo "==> Extracting $ORIG_TAR..."
 mkdir src-extracted
@@ -58,6 +73,11 @@ tar -xf "$BUILD_SRC/$ORIG_TAR" -C src-extracted --strip-components=1
 
 mv src-extracted/* src-extracted/.* . 2>/dev/null || true
 rmdir src-extracted || true
+
+for extra in ${EXTRA_TARBALLS:-}; do
+  echo "==> Extracting $extra..."
+  tar -xf "$BUILD_SRC/$extra"
+done
 
 # Overlay debian/ directory from package definitions
 echo "==> Overlaying debian/ directory for $PACKAGE..."

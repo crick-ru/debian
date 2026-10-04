@@ -92,8 +92,36 @@ else
   echo "$ORIG_TAR already exists in $BUILD_SRC"
 fi
 
+# Некоторые пакеты (пока только chromium) состоят из ДВУХ orig-тарболов:
+# основного и дополнительного (у chromium - orig-pre-gen с файлами, которые
+# генерируются во время сборки). dpkg-source требует их оба, и файл должен
+# лежать в build/sources рядом с основным. Имена дополнительных файлов
+# перечислены в .conf через EXTRA_TARBALLS (пробел-separated), их URL - через
+# EXTRA_TARBALL_URLS в том же порядке.
+extra_list=(${EXTRA_TARBALLS:-})
+extra_urls=(${EXTRA_TARBALL_URLS:-})
+if (( ${#extra_list[@]} != ${#extra_urls[@]} )); then
+  echo "Error: $PKG_CONF: EXTRA_TARBALLS (${#extra_list[@]}) and EXTRA_TARBALL_URLS (${#extra_urls[@]}) differ in length" >&2
+  exit 1
+fi
+for i in "${!extra_list[@]}"; do
+  extra="${extra_list[$i]}"
+  target="$BUILD_SRC/$extra"
+  if [[ -f "$target" ]]; then
+    echo "$extra already exists in $BUILD_SRC"
+    continue
+  fi
+  echo "==> Fetching extra orig tarball $extra..."
+  curl -fsSL -o "$target" "${extra_urls[$i]}"
+  echo "Downloaded $extra"
+done
+
 echo "PACKAGE=$PACKAGE" > "$BUILD_SRC/$PACKAGE.env"
 echo "VERSION=$VERSION" >> "$BUILD_SRC/$PACKAGE.env"
 echo "REVISION=$REVISION" >> "$BUILD_SRC/$PACKAGE.env"
 echo "ORIG_TAR=$ORIG_TAR" >> "$BUILD_SRC/$PACKAGE.env"
+# Список дополнительных orig-тарболов (пусто у большинства пакетов). Без этой
+# строки build-package.sh не скопирует их в рабочий каталог, и dpkg-source
+# не найдёт второй исходный файл.
+echo "EXTRA_TARBALLS=${EXTRA_TARBALLS:-}" >> "$BUILD_SRC/$PACKAGE.env"
 echo "SUCCESS: Fetched $PACKAGE $VERSION-$REVISION+crick"

@@ -1,0 +1,202 @@
+Source: chromium
+Section: web
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (chromium_154.0.8037.92-1, unstable) и переработана:
+#   * X11 нет вообще. В debian/rules задано use_ozone=true,
+#     ozone_auto_platforms=false, ozone_platform_wayland=true,
+#     ozone_platform_headless=true, ozone_platform_x11=false,
+#     use_xkbcommon=true. Поэтому из Build-Depends убраны X11-пакеты
+#     (xcb-proto, xfonts-base, libx11-xcb-dev, libxt-dev, libxss-dev,
+#     libxtst-dev, libxnvctrl-dev, libxshmfence-dev, libxcb-dri3-dev, xvfb),
+#     из Depends пакета chromium-common убран x11-utils, из Conflicts пакета
+#     chromium убран libgl1-mesa-swx11, из Recommends chromium-common убран
+#     libgl1-mesa-dri (X11-DRI): GL/GLES chromium берёт из собственных
+#     libEGL.so/libGLESv2.so пакета chromium-common, а не из GLX;
+#   * VA-API НЕ отключён: use_vaapi=true для amd64 остаётся (это разрешённый
+#     вид ускорения). Условие его умолчания -
+#     (ozone_platform_x11 || ozone_platform_wayland) - выполняется и при
+#     отключённом X11, так что аппаратное декодирование видео работает под
+#     Wayland. V4L2-кодек на amd64 у Debian и не включался;
+#   * публикуются chromium, chromium-common, chromium-sandbox и chromium-ru.
+#     chromium-l10n НЕ публикуется: вместо него сделана сборка только с русским
+#     языком (патч debianization/only-russian-locale.patch режет список локалей
+#     до "ru"), поэтому chromium-l10n не публикуется. chromium-shell,
+#     chromium-headless-shell и chromium-driver тоже не публикуются - см. README;
+#   * тесты и бенчмарки не собираются (патчи disable/* оставлены);
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Правила отключения - в правилах проекта.
+Vcs-Git: https://salsa.debian.org/chromium-team/chromium.git
+Vcs-Browser: https://salsa.debian.org/chromium-team/chromium
+Homepage: http://www.chromium.org/Home
+Standards-Version: 4.5.0
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper (>= 11),
+ devscripts,
+ llvm-22:native,
+ lld-22:native,
+ clang-22:native,
+ clang-format-22:native,
+ libclang-rt-22-dev,
+ libc++-22-dev,
+ rustc:any (>= 1.86),
+ libstd-rust-dev (>= 1.86),
+ bindgen:native,
+ rustfmt:any,
+ python3:any,
+ pkgconf,
+ ninja-build,
+ python3-jinja2:native,
+ ca-certificates,
+ wget,
+ flex,
+ wdiff,
+ golang,
+ gperf,
+ bison,
+ nodejs:any,
+ node-rollup-plugin-terser:native,
+ node-typescript (>= 6.0.0),
+ rollup,
+ esbuild:native,
+ esbuild-wasm,
+ xz-utils,
+ libdav1d-dev,
+ mesa-common-dev,
+ rapidjson-dev,
+ libva-dev,
+ libgbm-dev,
+ libpng-dev,
+ libelf-dev,
+ libpci-dev,
+ libcap-dev,
+ libffi-dev,
+ libkrb5-dev,
+ libexif-dev,
+ libflac-dev,
+ libudev-dev,
+ libpipewire-0.3-dev,
+ libpthreadpool-dev,
+ libopus-dev,
+ libjpeg-dev,
+ libgtk-3-dev,
+ liblcms2-dev,
+ libpulse-dev,
+ libpam0g-dev,
+ libdouble-conversion-dev,
+ libglib2.0-dev,
+ libasound2-dev,
+ libsecret-1-dev,
+ libspeechd-dev,
+ libminizip-dev,
+ libhunspell-dev,
+ libharfbuzz-dev,
+ libusb-1.0-0-dev,
+ libopenjp2-7-dev,
+ libnss3-dev,
+ libnspr4-dev,
+ libcups2-dev,
+ libevdev-dev,
+ libgcrypt20-dev,
+ libcurl4-openssl-dev,
+ libzstd-dev,
+ fonts-ipafont-gothic,
+ fonts-ipafont-mincho,
+ cross-exe-wrapper <cross>,
+ linux-libc-dev (>= 6.5),
+Build-Conflicts:
+ bindgen-0.56,
+ bindgen-0.65,
+ rustc-1.74,
+
+Package: chromium
+Architecture: amd64
+Built-Using: ${Built-Using}
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+ libgtk-3-0t64 | xdg-desktop-portal-backend,
+ chromium-common (= ${binary:Version}),
+Recommends:
+ fonts-liberation,
+ notification-daemon,
+ system-config-printer,
+Suggests:
+ chromium-shell,
+ chromium-driver,
+Provides:
+ www-browser,
+ gnome-www-browser,
+Breaks:
+ chromium-lwn4chrome (<= 1.0-2),
+ chromium-tt-rss-notifier (<= 0.5.2-2),
+Conflicts:
+ libnettle4,
+ libsecret-1-0 (<< 0.18),
+Description: web browser
+ Web browser that aims to build a safer, faster, and more stable internet
+ browsing experience.
+ .
+ This package contains the web browser component.
+ .
+ This build has no X11 support at all: the browser runs under Wayland or
+ headless only. Hardware video acceleration (VA-API) is available and does
+ not require X11.
+
+Package: chromium-ru
+Architecture: all
+Section: localization
+Depends:
+ ${misc:Depends},
+ chromium (>= ${source:Version}),
+ chromium (<< ${source:Version}.1~),
+Description: web browser - Russian language pack
+ Web browser that aims to build a safer, faster, and more stable internet
+ browsing experience.
+ .
+ This package contains the Russian localization of the browser interface:
+ the message catalogs ru.pak plus the gender variants ru_FEMININE.pak,
+ ru_MASCULINE.pak and ru_NEUTER.pak.
+ .
+ Unlike Debian's chromium-l10n, which ships 54 languages (~118 MB installed),
+ this package carries Russian only (~2.4 MB). Other locales are not built at
+ all - see packages/chromium/README.md.
+
+Package: chromium-common
+Architecture: amd64
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+ xdg-utils,
+Recommends:
+ upower,
+ udev,
+ fonts-liberation,
+ notification-daemon,
+ system-config-printer,
+Breaks:
+ chromium (<< ${binary:Version}),
+Replaces:
+ chromium (<< ${binary:Version}),
+Description: web browser - common resources used by the chromium packages
+ Web browser that aims to build a safer, faster, and more stable internet
+ browsing experience.
+ .
+ This package contains resources that are in common to different chromium
+ packages.
+
+Package: chromium-sandbox
+Architecture: amd64
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Breaks:
+ chromium (<< ${binary:Version}),
+Replaces:
+ chromium (<< ${binary:Version}),
+Description: web browser - setuid security sandbox for chromium
+ Web browser that aims to build a safer, faster, and more stable internet
+ browsing experience.
+ .
+ This package contains the setuid chromium sandbox.
