@@ -1,5 +1,5 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: dummyx11
+Upstream-Name: dummy-x11
 Source: https://github.com/<OWNER>/<REPO>
 
 Files: *

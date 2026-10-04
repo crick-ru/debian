@@ -1,0 +1,339 @@
+#!/usr/bin/env python3
+"""Отчёт о зависимостях Яндекс.Браузера и о состоянии заглушек X11.
+
+Зачем. Пакет dummy-x11 подменяет X11-библиотеки заглушками, чтобы
+официальный deb браузера (исходников нет, пересборка невозможна) запускался
+в системе без X11. Списки символов в `symbols-<SONAME>.txt` сняты с одной
+конкретной версии браузера, поэтому рано или поздно новая версия потребует
+X11-вызова, которого в списках нет, и не запустится.
+
+Этот скрипт - ручной инструмент для такого случая: его запускают из консоли,
+смотрят отчёт и, если нужно, дописывают недостающие символы в списки пакета.
+Скрипт ничего не меняет в системе: вызов остаётся за пользователем.
+
+Что показывает:
+
+1. Версию браузера и его состав - сколько ELF-файлов в поставке.
+2. Зависимости каждого ELF-файла: что лежит в `NEEDED`, какие закрываются
+   заглушками X11, какие приходят из нашего репозитория (в них X11 уже
+   вырезан), а какие ни с чем не связаны.
+3. Символы: сколько X11-вызовов импортирует браузер, сколько покрыто
+   заглушками, и - главное - каких не хватает.
+4. Изменения: `--compare` сверяет текущее состояние с эталоном (файл
+   `.installed`, который создаётся командой `--snapshot`) и перечисляет
+   появившиеся и исчезнувшие символы. Код возврата 1 - появились новые
+   X11-символы, то есть пакет пора пересобирать.
+
+Запуск:
+    dummy-x11-report              # полный отчёт
+    dummy-x11-report --brief      # сводка и недостающие символы
+    dummy-x11-report --snapshot   # записать/обновить эталон
+    dummy-x11-report --compare    # сравнить с эталоном
+"""
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+
+BROWSER_DIRS = ['/opt/yandex/browser']
+
+STUB_SONAMES = (
+    'libX11.so.6',
+    'libXext.so.6',
+    'libxcb.so.1',
+    'libXcomposite.so.1',
+    'libXdamage.so.1',
+    'libXfixes.so.3',
+    'libXrandr.so.2',
+)
+
+# Признак имени X11-символа. `XML_*` исключены явно: это libxml2, а не X11.
+X11_SYMBOL_RE = re.compile(r'^_?[Xx](cb_|(?!ML_)[A-Z_])')
+
+# Пакеты нашего репозитория, которые браузер использует вместо штатных.
+# В них X11 уже вырезан, поэтому отдельно они не проблема - но полезно знать,
+# что в системе именно они, а не версии из trixie.
+OUR_PACKAGES = ('libcairo2', 'libgtk-3-0t64', 'libgbm1', 'libxkbcommon0',
+                'libatspi2.0-0t64', 'libatk1.0-0t64')
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+# Эталон хранится рядом со списками символов, а не рядом со скриптом: сам
+# скрипт лежит в /usr/bin, и туда же писать нельзя - это каталог бинарников.
+SNAPSHOT = '/usr/share/dummy-x11/.installed'
+if not os.path.isdir(os.path.dirname(SNAPSHOT)):
+    # Запуск из дерева репозитория: свалка эталонов рядом с исходниками.
+    SNAPSHOT = os.path.join(HERE, '.installed')
+
+
+def multiarch():
+    out = subprocess.run(['dpkg-architecture', '-qDEB_HOST_MULTIARCH'],
+                         capture_output=True, text=True).stdout.strip()
+    return out or 'x86_64-linux-gnu'
+
+
+def libdirs():
+    m = multiarch()
+    return ['/usr/lib/%s' % m, '/lib/%s' % m]
+
+
+def find_stub(soname):
+    for d in libdirs():
+        p = os.path.join(d, soname)
+        if os.path.exists(p):
+            return p
+    return None
+
+
+def known_symbols(soname):
+    """Символы, которые заглушка содержит по замыслу пакета.
+
+    Списки лежат в /usr/share/dummy-x11 - рядом с установленным генератором,
+    а не рядом с самим скриптом (/usr/bin). Поэтому каталогов два: штатное
+    размещение пакета и каталог исходников (при запуске из дерева репозитория).
+    Иначе скрипт, запущенный как обычно, находил бы ноль символов и врал,
+    что не покрыто всё.
+    """
+    names = set()
+    for d in ('/usr/share/dummy-x11', HERE):
+        lst = os.path.join(d, 'symbols-%s.txt' % soname)
+        if os.path.exists(lst):
+            with open(lst, encoding='utf-8') as fh:
+                names |= {line.strip() for line in fh if line.strip()}
+    return names
+
+
+def is_elf(path):
+    try:
+        with open(path, 'rb') as fh:
+            return fh.read(4) == b'\x7fELF'
+    except OSError:
+        return False
+
+
+def dynsyms(path):
+    """(импортируемые, экспортируемые) имена символов из .dynsym."""
+    out = subprocess.run(['readelf', '-W', '--dyn-syms', path],
+                         capture_output=True, text=True).stdout
+    und, defd = set(), set()
+    for line in out.splitlines():
+        parts = line.split()
+        if len(parts) < 8:
+            continue
+        name = parts[7].split('@')[0]
+        (und if parts[6] == 'UND' else defd).add(name)
+    return und, defd
+
+
+def needed(path):
+    out = subprocess.run(['readelf', '-d', path],
+                         capture_output=True, text=True).stdout
+    return re.findall(r'NEEDED.*\[(.*?)\]', out)
+
+
+def browser_elfs():
+    for d in BROWSER_DIRS:
+        if not os.path.isdir(d):
+            continue
+        for root, _dirs, files in os.walk(d):
+            for name in sorted(files):
+                p = os.path.join(root, name)
+                if is_elf(p):
+                    yield p
+
+
+def browser_version():
+    for d in BROWSER_DIRS:
+        exe = os.path.join(d, 'yandex_browser')
+        if os.path.exists(exe):
+            try:
+                r = subprocess.run([exe, '--version'], capture_output=True,
+                                   text=True, timeout=20)
+                return (r.stdout or r.stderr).strip().split('\n')[0]
+            except (OSError, subprocess.SubprocessError):
+                return '(не удалось запустить)'
+    return '(браузер не установлен)'
+
+
+def collect():
+    """Собирает полную картину по поставке браузера."""
+    stubs, missing_files = {}, []
+    for soname in STUB_SONAMES:
+        p = find_stub(soname)
+        if p:
+            stubs[soname] = p
+        else:
+            missing_files.append(soname)
+
+    known_all = set()
+    for soname in STUB_SONAMES:
+        known_all |= known_symbols(soname)
+
+    elfs, covered, missing, allx11 = [], set(), set(), set()
+    for path in browser_elfs():
+        try:
+            und, _ = dynsyms(path)
+        except OSError:
+            continue
+        name = os.path.relpath(path, BROWSER_DIRS[0])
+        x11_imports = {s for s in und if X11_SYMBOL_RE.match(s)}
+        elfs.append({
+            'name': name,
+            'needed': needed(path),
+            'x11_imports': sorted(x11_imports),
+        })
+        for s in x11_imports:
+            allx11.add(s)
+            (covered if s in known_all else missing).add(s)
+
+    return {
+        'stubs': stubs,
+        'missing_files': missing_files,
+        'elfs': elfs,
+        'covered': sorted(covered),
+        'missing': sorted(missing),
+        'all_x11': sorted(allx11),
+    }
+
+
+def is_ours(soname):
+    """NEEDED относится к пакету нашего репозитория, а не к trixie.
+
+    Сравнение идёт по характерной основе имени библиотеки: у libcairo2 -
+    `cairo`, у libgtk-3-0t64 - `gtk-3`, у libgbm1 - `gbm`.
+    """
+    lib = soname.split('.so')[0]
+    for p in OUR_PACKAGES:
+        base = p[len('lib'):] if p.startswith('lib') else p
+        # -dev, -1 и версии отбрасываем: нас интересует имя библиотеки
+        base = re.split(r'[-0]', base)[0]
+        if base and base in lib:
+            return True
+    return False
+
+
+def print_report(data, brief):
+    print('=== Яндекс.Браузер: зависимости и заглушки X11 ===')
+    print('версия браузера : %s' % browser_version())
+    print('каталог         : %s' % ', '.join(BROWSER_DIRS))
+    print()
+
+    print('--- 1. Заглушки X11 ---')
+    for s in data['missing_files']:
+        print('  ОТСУТСТВУЕТ: %s' % s)
+    for soname, path in sorted(data['stubs'].items()):
+        print('  %-22s %s (%d символов)'
+              % (soname, path, len(known_symbols(soname))))
+    print()
+
+    print('--- 2. Символы ---')
+    print('  X11-импортов всего : %d' % len(data['all_x11']))
+    print('  покрыто заглушками : %d' % len(data['covered']))
+    print('  НЕ покрыто         : %d' % len(data['missing']))
+    if data['missing']:
+        print()
+        print('  Недостающие символы - их нужно добавить в')
+        print('  symbols-<SONAME>.txt нужного пакета и пересобрать dummy-x11:')
+        for s in data['missing']:
+            print('    %s' % s)
+    print()
+
+    if brief:
+        return
+
+    print('--- 3. Зависимости по файлам ---')
+    print('  Разделение: X11 закрывается заглушками, «наши» - пакеты нашего')
+    print('  репозитория (в них X11 уже вырезан), «прочие» - ни с чем не')
+    print('  связаны, их можно ставить без оговорок.')
+    for e in data['elfs']:
+        stubs = [n for n in e['needed'] if n in data['stubs']]
+        ours = [n for n in e['needed'] if n not in stubs and is_ours(n)]
+        rest = [n for n in e['needed'] if n not in stubs and n not in ours]
+        print('\n  %s' % e['name'])
+        print('    X11 (заглушки)      : %s' % (', '.join(stubs) or '-'))
+        print('    наши из репозитория: %s' % (', '.join(ours) or '-'))
+        print('    прочие (не X11)    : %s' % (', '.join(rest) or '-'))
+    print()
+
+
+def compare(data):
+    """Сравнивает с эталоном. True - появились новые X11-символы."""
+    if not os.path.exists(SNAPSHOT):
+        print('Эталона нет: %s' % SNAPSHOT)
+        print('Создайте его командой: dummy-x11-report --snapshot')
+        return False
+    with open(SNAPSHOT, encoding='utf-8') as fh:
+        old = json.load(fh)
+
+    cur = set(data['all_x11'])
+    was = set(old.get('x11_symbols', []))
+    added = sorted(cur - was)
+    removed = sorted(was - cur)
+
+    print('=== Сравнение с эталоном ===')
+    print('версия в эталоне : %s' % old.get('version', '?'))
+    print('версия сейчас    : %s' % browser_version())
+    print('ELF в эталоне    : %d' % old.get('elf_count', 0))
+    print('ELF сейчас       : %d' % len(data['elfs']))
+    print()
+    print('новых X11-символов: %d' % len(added))
+    for s in added:
+        print('  + %s' % s)
+    print('исчезло символов  : %d' % len(removed))
+    for s in removed:
+        print('  - %s' % s)
+    if added:
+        print()
+        print('Новые символы означают, что браузер обновился и требует')
+        print('X11-вызовов, которых нет в заглушках: он не запустится.')
+        print('Добавьте их в списки пакета dummy-x11 и пересоберите его.')
+    return bool(added)
+
+
+def save_snapshot(data):
+    snap = {
+        'version': browser_version(),
+        'elf_count': len(data['elfs']),
+        'x11_symbols': sorted(data['all_x11']),
+    }
+    with open(SNAPSHOT, 'w', encoding='utf-8') as fh:
+        json.dump(snap, fh, indent=1, ensure_ascii=False)
+    print('Эталон записан: %s' % SNAPSHOT)
+    print('  версия  : %s' % snap['version'])
+    print('  ELF     : %d' % snap['elf_count'])
+    print('  символов: %d' % len(snap['x11_symbols']))
+
+
+def main():
+    ap = argparse.ArgumentParser(
+        description='Отчёт о зависимостях Яндекс.Браузера и заглушках X11')
+    ap.add_argument('--brief', action='store_true',
+                    help='только сводка и список недостающих символов')
+    ap.add_argument('--snapshot', action='store_true',
+                    help='записать текущее состояние эталоном')
+    ap.add_argument('--compare', action='store_true',
+                    help='сравнить с эталоном; код 1, если есть новые символы')
+    args = ap.parse_args()
+
+    if not os.path.isdir(BROWSER_DIRS[0]):
+        print('Браузер не найден в %s' % BROWSER_DIRS[0], file=sys.stderr)
+        print('Проверьте, что установлены оба пакета:', file=sys.stderr)
+        print('  dpkg -l dummy-x11 yandex-browser-stable', file=sys.stderr)
+        return 2
+
+    data = collect()
+
+    if args.snapshot:
+        save_snapshot(data)
+        return 0
+    if args.compare:
+        return 1 if compare(data) else 0
+
+    print_report(data, args.brief)
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

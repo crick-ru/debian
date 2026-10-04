@@ -1,4 +1,4 @@
-dummyx11 (1.0-1) unstable; urgency=low
+dummy-x11 (1.0-1) unstable; urgency=low
 
   * Initial release: X11 stub libraries for Wayland-only systems.
 

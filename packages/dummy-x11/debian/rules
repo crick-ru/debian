@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+# Сборка dummy-x11: пакет без исходников, состоящий только из заглушек X11
+# и диагностического скрипта. Подробности - в packages/dummy-x11/README.md.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+STUBDIR := debian/stubs
+BUILDDIR := $(CURDIR)/build-stubs
+# DEB_HOST_MULTIARCH, а не $(shell dpkg-architecture ...): переменную
+# экспортирует dpkg-buildpackage, и в правилах она уже есть. `:=` здесь
+# не годится: значение вычисляется на момент чтения строки, когда make
+# ещё не видел окружения сборки, и каталог получался пустым.
+LIBDIR   := debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)
+
+%:
+	dh $@
+
+# Сгенерировать библиотеки-заглушки. Списки символов лежат в debian/stubs/
+# (сняты с настоящих библиотек trixie readelf --dyn-syms), а скрипт
+# генерирует из них .so с теми же SONAME.
+override_dh_auto_build:
+	python3 $(STUBDIR)/gen-stubs $(BUILDDIR)
+
+override_dh_auto_install:
+	install -d $(LIBDIR)
+	install -m 0644 $(BUILDDIR)/lib*.so.* $(LIBDIR)/
+	# Диагностический скрипт - то, чем пользователь проверяет браузер
+	# после обновления. Ставится в /usr/bin, чтобы вызывался просто
+	# `dummy-x11-report`.
+	install -d debian/tmp/usr/bin
+	install -m 0755 $(STUBDIR)/dummy-x11-report \
+		debian/tmp/usr/bin/dummy-x11-report
+	install -d debian/tmp/usr/share/dummy-x11
+	install -m 0755 $(STUBDIR)/gen-stubs debian/tmp/usr/share/dummy-x11/
+	# Списки символов ставятся вместе со скриптом: он сверяет импорты
+	# браузера именно с ними и без них ничего не смог бы проверить
+	# (см. known_symbols() в dummy-x11-report).
+	install -m 0644 $(STUBDIR)/symbols-*.txt debian/tmp/usr/share/dummy-x11/

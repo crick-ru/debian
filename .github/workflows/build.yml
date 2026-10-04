@@ -213,10 +213,10 @@ jobs:
         with:
           package: at-spi2-core
           stage: 1
-  build_dummyx11:
-    name: dummyx11 (stage 1)
+  build_dummy-x11:
+    name: dummy-x11 (stage 1)
     if: >-
-      ${{ !inputs.package || inputs.package == 'dummyx11' }}
+      ${{ !inputs.package || inputs.package == 'dummy-x11' }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -243,7 +243,7 @@ jobs:
       - name: Build package (cached, reuses unchanged results)
         uses: ./.github/actions/build-deb
         with:
-          package: dummyx11
+          package: dummy-x11
           stage: 1
   build_fdk-aac:
     name: fdk-aac (stage 1)

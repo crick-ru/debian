@@ -1,5 +1,0 @@
-etc/apt/apt.conf.d/dummyx11.hook
-usr/share/dummyx11/check-stubs.py
-usr/share/dummyx11/gen-stubs.py
-usr/share/dummyx11/symbols-*.txt
-usr/lib/*/lib*.so.*

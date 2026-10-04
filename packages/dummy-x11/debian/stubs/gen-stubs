@@ -48,7 +48,7 @@ def gen(soname, outdir):
     so = os.path.join(outdir, soname)
     os.makedirs(os.path.join(outdir, '.src'), exist_ok=True)
     with open(csrc, 'w', encoding='utf-8') as fh:
-        fh.write('/* Заглушки вместо %s. Сгенерировано gen-stubs.py,\n'
+        fh.write('/* Заглушки вместо %s. Сгенерировано gen-stubs,\n'
                  ' * правьте symbols-%s.txt, а не этот файл. */\n'
                  % (soname, soname))
         for sym in symbols:
