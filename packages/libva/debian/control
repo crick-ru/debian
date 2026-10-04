@@ -11,6 +11,12 @@ Standards-Version: 4.7.3
 #     NEEDED только libva, libdrm, libwayland-client и libc. X11-пакеты убраны
 #     из Build-Depends, тесты и документация не собираются;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+#   * Provides: libva-driver-abi-* у libva2 возвращён 1:1 из unstable плюс
+#     сохранены имена, которые объявлял штатный libva2 2.22.0-3 (1.17-1.21):
+#     от них зависят виртуальной зависимостью i965-va-driver,
+#     intel-media-va-driver и intel-media-va-driver-non-free. Без этого поля
+#     установленный VA-драйвер отваливался при apt upgrade нашу сборку.
+#     Разбор - в packages/libva/README.md.
 # Разбор - в packages/libva/README.md.
 Build-Depends: debhelper-compat (= 13),
                meson,
@@ -30,6 +36,23 @@ Depends:
  ${misc:Depends}
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
+# Виртуальные имена драйверного ABI. Их объявляет штатный libva2, и на них
+# завязаны Depends всех va-драйверов (i965-va-driver, intel-media-va-driver,
+# intel-media-va-driver-non-free - все требуют libva-driver-abi-1.22).
+# Потеря этого поля при переработке упаковки ломала установленный драйвер
+# при apt upgrade. Набор 1.0/1.8/1.17-1.21 сохранён от trixie без изменений,
+# чтобы не сломать драйверы и сторонние сборки; 1.22-1.24 добавлены по unstable.
+Provides:
+ libva-driver-abi-1.0,
+ libva-driver-abi-1.8,
+ libva-driver-abi-1.17,
+ libva-driver-abi-1.18,
+ libva-driver-abi-1.19,
+ libva-driver-abi-1.20,
+ libva-driver-abi-1.21,
+ libva-driver-abi-1.22,
+ libva-driver-abi-1.23,
+ libva-driver-abi-1.24
 Description: Video Acceleration API runtime library
  This is the core of the Video Acceleration API, a video acceleration
  interface which provides hardware-accelerated video encoding and decoding.
