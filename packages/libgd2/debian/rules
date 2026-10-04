@@ -35,8 +35,11 @@ override_dh_auto_configure:
 		--with-heif=/usr \
 		--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH)
 
+# --fail-missing здесь не нужен и запрещён: с compat 12 проверку полноты
+# dh_missing делает по умолчанию (правило репозитория опирается именно на неё).
+# Остаются только исключения: .la и gdlib-config в бинарные пакеты не идут.
 override_dh_install:
-	dh_install --fail-missing -Xlibgd.la -Xgdlib-config
+	dh_install -Xlibgd.la -Xgdlib-config
 
 # Тесты не собираются и не запускаются: каталог debian/tests удалён, примеры
 # не публикуются (правило репозитория «документация, примеры и тесты не
