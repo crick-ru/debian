@@ -2807,13 +2807,12 @@ jobs:
           stage: 7
   build_chromium:
     name: chromium (stage 7)
-    if: >-
-      ${{ !inputs.package || inputs.package == 'chromium' }}
+    if: inputs.package == 'chromium'
     needs: [build_cairo, build_gtk_3_0, build_libdrm, build_libglvnd, build_libva, build_libxkbcommon, build_mesa, build_pipewire, build_pixman, build_pulseaudio, build_wayland]
     # Раннер для этого пакета отличается от github-hosted:
     # см. RUNNER_OVERRIDE в tools/gen-workflow.py и README пакета.
-    # continue-on-error, чтобы отсутствие такого раннера не ломало
-    # публикацию репозитория.
+    # Job собирается только по явному выбору пакета: пока
+    # такого раннера нет, обычный прогон не должен висеть.
     continue-on-error: true
     timeout-minutes: 360
     runs-on: [self-hosted, linux, x64, chromium]
@@ -3039,6 +3038,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
