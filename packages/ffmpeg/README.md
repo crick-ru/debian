@@ -119,3 +119,24 @@ GLX и X11, при этом пути DRM и Wayland на месте, так чт
 остаются установленными как посторонние, если что-то ещё их требует, и могут
 быть удалены через `apt autoremove`. SONAME не меняются, символы не удалены:
 у нас сняты VDPAU, диски и X11, а эти возможности не входили в публичный API.
+
+## Ревизия 3: `libavfilter-dev` снова тянет `libavformat-dev`
+
+Прогон CI 37210447979 уронил `wayvnc`: `pkg-config` для `neatvnc` падал с
+`Package libavformat was not found in the pkg-config search path`, потому
+что `libavfilter.pc` требует `libavformat`, а пакета `libavformat-dev` в
+сборочной среде не было.
+
+Причина та же, что у `cairo`: при переработке упаковки из
+`Depends: libavfilter-dev` убрали `libavformat-dev` и `libpostproc-dev`
+(в Debian они есть) и не добавили их в список `.deb` ни одного
+потребителя. Ошибка не проявлялась, пока `libavfilter-dev` не понадобился
+кому-то, кто читает `libavfilter.pc` целиком — то есть скрытая зависимость,
+видная только при сборке.
+
+Возвращены: `libavcodec-dev`, `libavformat-dev`, `libpostproc-dev` — все
+с `= ${binary:Version}`, поэтому тянут за собой и остальные части того же
+набора. `libavfilter.pc` без этого не резолвится, и любой потребитель
+FFmpeg падает на `meson setup`, а не на линковке.
+
+Ревизия поднята со 2 до 3: упаковка изменилась после публикации.

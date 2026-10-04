@@ -85,6 +85,12 @@ Depends:
  libcairo-gobject2 (= ${binary:Version}),
  libcairo-script-interpreter2 (= ${binary:Version}),
  libcairo2 (= ${binary:Version}),
+ libfontconfig-dev,
+ libfreetype-dev (>= 2.13),
+ libglib2.0-dev,
+ libpixman-1-dev,
+ libpng-dev,
+ libsm-dev,
  ${misc:Depends}
 Description: Development files for the Cairo 2D vector graphics library
  Cairo is a 2D vector graphics library with support for multiple backends

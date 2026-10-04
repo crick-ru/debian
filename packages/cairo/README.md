@@ -149,3 +149,34 @@ Pin-Priority: -1
 приложения), этот pin обязателен, иначе после `apt upgrade` приложение
 перестанет запускаться, а откат одного `libcairo2` не поможет — придётся
 снимать и его.
+
+## Ревизия 2: возвращены `-dev`-зависимости
+
+Прогон CI 37210447979 уронил `gstreamer1.0-plugins-good`: плагин `cairo`
+молча выключился (`Run-time dependency cairo-gobject found: NO`), и сборка
+упала на `dh_install: missing files` для `libgstcairo.so`.
+
+Причина оказалась не в плагине, а здесь. При переработке упаковки из
+`Depends: libcairo2-dev` убрали X11-пакеты (`libx11-dev`, `libxcb1-dev`,
+`libxext-dev`, `libxrender-dev`, `libxcb-render0-dev`, `libxcb-shm0-dev`)
+и **заодно** потеряли соседние строки того же списка: `libfontconfig-dev`,
+`libfreetype-dev`, `libpixman-1-dev`, `libpng-dev`, `libglib2.0-dev`,
+`libsm-dev`. Это классический случай правила «зависимость проверяется и по
+включениям при сборке, а не только по `NEEDED`»: `cairo-gobject.pc` требует
+`cairo`, `glib-2.0` и `gobject-2.0`, а те, в свою очередь, тянут
+`freetype2` → `bzip2`, `brotlidec`, `fontconfig` → `expat`. Без
+`libfontconfig-dev` в системе `cairo-gobject` не резолвится — и целый
+плагин исчезает без единого предупреждения.
+
+Возвращено (без X11-пакетов): `libfontconfig-dev`, `libfreetype-dev (>= 2.13)`,
+`libglib2.0-dev`, `libpixman-1-dev`, `libpng-dev`, `libsm-dev`.
+`libpixman-1-dev` берётся из этого же репозитория, остальные — из trixie;
+ни один из них не тянет X11.
+
+Ревизия поднята с 1 до 2: упаковка изменилась после публикации.
+
+Проверить, что зависимость снова резолвится:
+
+```bash
+pkg-config --exists cairo-gobject && echo ok
+```

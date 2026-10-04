@@ -1261,7 +1261,7 @@ jobs:
     name: gstreamer1.0-plugins-good (stage 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'chromium' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm]
+    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_pixman]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1328,6 +1328,8 @@ jobs:
                 ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
                 ./stage2-pool/libcairo-gobject2_*.deb
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
@@ -1634,6 +1636,7 @@ jobs:
                 ./stage3-pool/libavcodec63_*.deb
                 ./stage3-pool/libavfilter-dev_*.deb
                 ./stage3-pool/libavfilter12_*.deb
+                ./stage3-pool/libavformat-dev_*.deb
                 ./stage3-pool/libavformat63_*.deb
                 ./stage3-pool/libavutil-dev_*.deb
                 ./stage3-pool/libavutil61_*.deb
@@ -3038,6 +3041,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
