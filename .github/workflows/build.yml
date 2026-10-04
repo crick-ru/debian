@@ -56,7 +56,7 @@ jobs:
   build_wayland:
     name: wayland (ур. 1)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libxkbcommon' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayland' || inputs.package == 'wayland-protocols' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libxkbcommon' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayland' || inputs.package == 'wayland-protocols' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -320,7 +320,7 @@ jobs:
   build_wayland-protocols:
     name: wayland-protocols (ур. 2)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libxkbcommon' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayland-protocols' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libxkbcommon' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayland-protocols' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     needs: [build_wayland]
     runs-on: ubuntu-latest
     container:
@@ -617,7 +617,7 @@ jobs:
   build_mesa:
     name: mesa (ур. 3)
     if: >-
-      ${{ !inputs.package || inputs.package == 'mesa' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     needs: [build_libdrm, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
@@ -688,11 +688,19 @@ jobs:
         with:
           package: mesa
           stage: 3
+
+  # -------------------------------------------------------------------------
+  # Уровень 4.
+  #
+  # Уровень считается по фактическим спискам .deb ниже: пакет стоит
+  # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
+  # Барьеров стадий нет - job ждёт только тех, от кого зависит.
+  # -------------------------------------------------------------------------
   build_gstreamer1_0-plugins-base:
-    name: gstreamer1.0-plugins-base (ур. 3)
+    name: gstreamer1.0-plugins-base (ур. 4)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wireplumber' }}
-    needs: [build_gstreamer1_0, build_libdrm, build_wayland, build_wayland-protocols]
+    needs: [build_gstreamer1_0, build_libdrm, build_mesa, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -728,6 +736,13 @@ jobs:
         with:
           pattern: deb-stage2-*
           path: stage2-pool
+          merge-multiple: true
+
+      - name: Download level 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -756,6 +771,9 @@ jobs:
                 ./stage1-pool/libwayland-egl1_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -764,12 +782,12 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: gstreamer1.0-plugins-base
-          stage: 3
+          stage: 4
   build_neatvnc:
-    name: neatvnc (ур. 3)
+    name: neatvnc (ур. 4)
     if: >-
       ${{ !inputs.package || inputs.package == 'neatvnc' || inputs.package == 'wayvnc' }}
-    needs: [build_aml, build_ffmpeg, build_libdrm, build_pixman]
+    needs: [build_aml, build_ffmpeg, build_libdrm, build_mesa, build_pixman]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -805,6 +823,13 @@ jobs:
         with:
           pattern: deb-stage2-*
           path: stage2-pool
+          merge-multiple: true
+
+      - name: Download level 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -837,6 +862,9 @@ jobs:
                 ./stage2-pool/libswresample7_*.deb
                 ./stage2-pool/libswscale-dev_*.deb
                 ./stage2-pool/libswscale10_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -845,15 +873,7 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: neatvnc
-          stage: 3
-
-  # -------------------------------------------------------------------------
-  # Уровень 4.
-  #
-  # Уровень считается по фактическим спискам .deb ниже: пакет стоит
-  # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
-  # Барьеров стадий нет - job ждёт только тех, от кого зависит.
-  # -------------------------------------------------------------------------
+          stage: 4
   build_libtsm:
     name: libtsm (ур. 4)
     if: >-
@@ -913,7 +933,7 @@ jobs:
     name: wlroots (ур. 4)
     if: >-
       ${{ !inputs.package || inputs.package == 'labwc' || inputs.package == 'wlroots' }}
-    needs: [build_cairo, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_cairo, build_libdrm, build_libxkbcommon, build_mesa, build_pixman, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -987,10 +1007,13 @@ jobs:
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1000,8 +1023,16 @@ jobs:
         with:
           package: wlroots
           stage: 4
+
+  # -------------------------------------------------------------------------
+  # Уровень 5.
+  #
+  # Уровень считается по фактическим спискам .deb ниже: пакет стоит
+  # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
+  # Барьеров стадий нет - job ждёт только тех, от кого зависит.
+  # -------------------------------------------------------------------------
   build_gstreamer1_0-plugins-good:
-    name: gstreamer1.0-plugins-good (ур. 4)
+    name: gstreamer1.0-plugins-good (ур. 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm]
@@ -1042,11 +1073,11 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
-      - name: Download level 3 packages
+      - name: Download level 4 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage3-*
-          path: stage3-pool
+          pattern: deb-stage4-*
+          path: stage4-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -1071,12 +1102,12 @@ jobs:
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage3-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1085,9 +1116,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: gstreamer1.0-plugins-good
-          stage: 4
+          stage: 5
   build_gstreamer1_0-plugins-bad:
-    name: gstreamer1.0-plugins-bad (ур. 4)
+    name: gstreamer1.0-plugins-bad (ур. 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_wayland, build_wayland-protocols]
@@ -1128,11 +1159,11 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
-      - name: Download level 3 packages
+      - name: Download level 4 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage3-*
-          path: stage3-pool
+          pattern: deb-stage4-*
+          path: stage4-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -1165,12 +1196,12 @@ jobs:
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage3-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1179,9 +1210,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: gstreamer1.0-plugins-bad
-          stage: 4
+          stage: 5
   build_pipewire:
-    name: pipewire (ур. 4)
+    name: pipewire (ур. 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'wireplumber' }}
     needs: [build_fdk-aac, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_pulseaudio]
@@ -1215,11 +1246,11 @@ jobs:
           path: stage1-pool
           merge-multiple: true
 
-      - name: Download level 3 packages
+      - name: Download level 4 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage3-*
-          path: stage3-pool
+          pattern: deb-stage4-*
+          path: stage4-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -1237,12 +1268,12 @@ jobs:
                 ./stage1-pool/libpulse-dev_*.deb
                 ./stage1-pool/libpulse-mainloop-glib0_*.deb
                 ./stage1-pool/libpulse0_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage3-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1251,9 +1282,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: pipewire
-          stage: 4
+          stage: 5
   build_wayvnc:
-    name: wayvnc (ур. 4)
+    name: wayvnc (ур. 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'wayvnc' }}
     needs: [build_aml, build_ffmpeg, build_libdrm, build_libxkbcommon, build_neatvnc, build_pixman, build_wayland, build_wayland-protocols]
@@ -1301,6 +1332,13 @@ jobs:
           path: stage3-pool
           merge-multiple: true
 
+      - name: Download level 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -1339,10 +1377,10 @@ jobs:
                 ./stage2-pool/libswscale-dev_*.deb
                 ./stage2-pool/libswscale10_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
-                ./stage3-pool/libneatvnc-dev_*.deb
-                ./stage3-pool/libneatvnc1_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
+                ./stage4-pool/libneatvnc-dev_*.deb
+                ./stage4-pool/libneatvnc1_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1351,20 +1389,12 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: wayvnc
-          stage: 4
-
-  # -------------------------------------------------------------------------
-  # Уровень 5.
-  #
-  # Уровень считается по фактическим спискам .deb ниже: пакет стоит
-  # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
-  # Барьеров стадий нет - job ждёт только тех, от кого зависит.
-  # -------------------------------------------------------------------------
+          stage: 5
   build_kmscon:
     name: kmscon (ур. 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'kmscon' }}
-    needs: [build_libdrm, build_libtsm, build_libxkbcommon]
+    needs: [build_libdrm, build_libtsm, build_libxkbcommon, build_mesa]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1424,10 +1454,13 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/libtsm-dev_*.deb
                 ./stage4-pool/libtsm4_*.deb
           )
@@ -1539,11 +1572,19 @@ jobs:
         with:
           package: labwc
           stage: 5
+
+  # -------------------------------------------------------------------------
+  # Уровень 6.
+  #
+  # Уровень считается по фактическим спискам .deb ниже: пакет стоит
+  # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
+  # Барьеров стадий нет - job ждёт только тех, от кого зависит.
+  # -------------------------------------------------------------------------
   build_mpv:
-    name: mpv (ур. 5)
+    name: mpv (ур. 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'mpv' }}
-    needs: [build_ffmpeg, build_libdrm, build_libxkbcommon, build_pipewire, build_pulseaudio, build_wayland, build_wayland-protocols]
+    needs: [build_ffmpeg, build_libdrm, build_libxkbcommon, build_mesa, build_pipewire, build_pulseaudio, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1588,11 +1629,11 @@ jobs:
           path: stage3-pool
           merge-multiple: true
 
-      - name: Download level 4 packages
+      - name: Download level 5 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage4-*
-          path: stage4-pool
+          pattern: deb-stage5-*
+          path: stage5-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -1635,16 +1676,19 @@ jobs:
                 ./stage2-pool/libswscale-dev_*.deb
                 ./stage2-pool/libswscale10_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
-                ./stage4-pool/libpipewire-0.3-0t64_*.deb
-                ./stage4-pool/libpipewire-0.3-common_*.deb
-                ./stage4-pool/libpipewire-0.3-dev_*.deb
-                ./stage4-pool/libpipewire-0.3-modules_*.deb
-                ./stage4-pool/libspa-0.2-dev_*.deb
-                ./stage4-pool/libspa-0.2-modules_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
+                ./stage5-pool/libpipewire-0.3-0t64_*.deb
+                ./stage5-pool/libpipewire-0.3-common_*.deb
+                ./stage5-pool/libpipewire-0.3-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-modules_*.deb
+                ./stage5-pool/libspa-0.2-dev_*.deb
+                ./stage5-pool/libspa-0.2-modules_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1653,9 +1697,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: mpv
-          stage: 5
+          stage: 6
   build_gtk_3_0:
-    name: gtk+3.0 (ур. 5)
+    name: gtk+3.0 (ур. 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'gtk+3.0' || inputs.package == 'sfwbar' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
@@ -1710,6 +1754,13 @@ jobs:
           path: stage4-pool
           merge-multiple: true
 
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -1742,21 +1793,21 @@ jobs:
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage3-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-dev_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
-                ./stage4-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-bad_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-good_*.deb
-                ./stage4-pool/libgstreamer-plugins-bad1.0-0_*.deb
-                ./stage4-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1765,9 +1816,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: gtk+3.0
-          stage: 5
+          stage: 6
   build_gtk4:
-    name: gtk4 (ур. 5)
+    name: gtk4 (ур. 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
@@ -1822,6 +1873,13 @@ jobs:
           path: stage4-pool
           merge-multiple: true
 
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
       - name: Install required packages of earlier levels
         run: |
           shopt -s nullglob
@@ -1854,21 +1912,21 @@ jobs:
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage3-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-dev_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
-                ./stage4-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-bad_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-good_*.deb
-                ./stage4-pool/libgstreamer-plugins-bad1.0-0_*.deb
-                ./stage4-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1877,9 +1935,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: gtk4
-          stage: 5
+          stage: 6
   build_gstreamer1_0-libav:
-    name: gstreamer1.0-libav (ур. 5)
+    name: gstreamer1.0-libav (ур. 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'gstreamer1.0-libav' }}
     needs: [build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good]
@@ -1920,18 +1978,18 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
-      - name: Download level 3 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage3-*
-          path: stage3-pool
-          merge-multiple: true
-
       - name: Download level 4 packages
         uses: actions/download-artifact@v8
         with:
           pattern: deb-stage4-*
           path: stage4-pool
+          merge-multiple: true
+
+      - name: Download level 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -1958,13 +2016,13 @@ jobs:
                 ./stage2-pool/libswresample7_*.deb
                 ./stage2-pool/libswscale-dev_*.deb
                 ./stage2-pool/libswscale10_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage3-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -1973,9 +2031,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: gstreamer1.0-libav
-          stage: 5
+          stage: 6
   build_wireplumber:
-    name: wireplumber (ур. 5)
+    name: wireplumber (ур. 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'pwvucontrol' || inputs.package == 'wireplumber' }}
     needs: [build_pipewire]
@@ -2002,11 +2060,11 @@ jobs:
             git \
             python3 \
 
-      - name: Download level 4 packages
+      - name: Download level 5 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage4-*
-          path: stage4-pool
+          pattern: deb-stage5-*
+          path: stage5-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -2016,12 +2074,12 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           debs=(
-                ./stage4-pool/libpipewire-0.3-0t64_*.deb
-                ./stage4-pool/libpipewire-0.3-common_*.deb
-                ./stage4-pool/libpipewire-0.3-dev_*.deb
-                ./stage4-pool/libpipewire-0.3-modules_*.deb
-                ./stage4-pool/libspa-0.2-dev_*.deb
-                ./stage4-pool/libspa-0.2-modules_*.deb
+                ./stage5-pool/libpipewire-0.3-0t64_*.deb
+                ./stage5-pool/libpipewire-0.3-common_*.deb
+                ./stage5-pool/libpipewire-0.3-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-modules_*.deb
+                ./stage5-pool/libspa-0.2-dev_*.deb
+                ./stage5-pool/libspa-0.2-modules_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -2030,17 +2088,17 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: wireplumber
-          stage: 5
+          stage: 6
 
   # -------------------------------------------------------------------------
-  # Уровень 6.
+  # Уровень 7.
   #
   # Уровень считается по фактическим спискам .deb ниже: пакет стоит
   # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
   # Барьеров стадий нет - job ждёт только тех, от кого зависит.
   # -------------------------------------------------------------------------
   build_celluloid:
-    name: celluloid (ур. 6)
+    name: celluloid (ур. 7)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' }}
     needs: [build_cairo, build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_gtk4, build_libdrm, build_mpv, build_pixman, build_wayland, build_wayland-protocols]
@@ -2081,13 +2139,6 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
-      - name: Download level 3 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage3-*
-          path: stage3-pool
-          merge-multiple: true
-
       - name: Download level 4 packages
         uses: actions/download-artifact@v8
         with:
@@ -2100,6 +2151,13 @@ jobs:
         with:
           pattern: deb-stage5-*
           path: stage5-pool
+          merge-multiple: true
+
+      - name: Download level 6 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage6-*
+          path: stage6-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -2141,25 +2199,25 @@ jobs:
                 ./stage2-pool/libswresample7_*.deb
                 ./stage2-pool/libswscale10_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage3-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage4-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-bad_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-good_*.deb
-                ./stage4-pool/libgstreamer-plugins-bad1.0-0_*.deb
-                ./stage4-pool/libgstreamer-plugins-bad1.0-dev_*.deb
-                ./stage5-pool/gir1.2-gtk-4.0_*.deb
-                ./stage5-pool/gtk-update-icon-cache_*.deb
-                ./stage5-pool/libgtk-4-1_*.deb
-                ./stage5-pool/libgtk-4-bin_*.deb
-                ./stage5-pool/libgtk-4-common_*.deb
-                ./stage5-pool/libgtk-4-dev_*.deb
-                ./stage5-pool/libmpv-dev_*.deb
-                ./stage5-pool/libmpv2_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                ./stage6-pool/gir1.2-gtk-4.0_*.deb
+                ./stage6-pool/gtk-update-icon-cache_*.deb
+                ./stage6-pool/libgtk-4-1_*.deb
+                ./stage6-pool/libgtk-4-bin_*.deb
+                ./stage6-pool/libgtk-4-common_*.deb
+                ./stage6-pool/libgtk-4-dev_*.deb
+                ./stage6-pool/libmpv-dev_*.deb
+                ./stage6-pool/libmpv2_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -2168,9 +2226,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: celluloid
-          stage: 6
+          stage: 7
   build_sfwbar:
-    name: sfwbar (ур. 6)
+    name: sfwbar (ур. 7)
     if: >-
       ${{ !inputs.package || inputs.package == 'sfwbar' }}
     needs: [build_cairo, build_gtk_3_0, build_libdrm, build_libxkbcommon, build_pixman, build_pulseaudio, build_wayland, build_wayland-protocols]
@@ -2218,11 +2276,11 @@ jobs:
           path: stage3-pool
           merge-multiple: true
 
-      - name: Download level 5 packages
+      - name: Download level 6 packages
         uses: actions/download-artifact@v8
         with:
-          pattern: deb-stage5-*
-          path: stage5-pool
+          pattern: deb-stage6-*
+          path: stage6-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -2261,13 +2319,13 @@ jobs:
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
-                ./stage5-pool/gir1.2-gtk-3.0_*.deb
-                ./stage5-pool/libgail-3-0t64_*.deb
-                ./stage5-pool/libgail-3-dev_*.deb
-                ./stage5-pool/libgtk-3-0t64_*.deb
-                ./stage5-pool/libgtk-3-bin_*.deb
-                ./stage5-pool/libgtk-3-common_*.deb
-                ./stage5-pool/libgtk-3-dev_*.deb
+                ./stage6-pool/gir1.2-gtk-3.0_*.deb
+                ./stage6-pool/libgail-3-0t64_*.deb
+                ./stage6-pool/libgail-3-dev_*.deb
+                ./stage6-pool/libgtk-3-0t64_*.deb
+                ./stage6-pool/libgtk-3-bin_*.deb
+                ./stage6-pool/libgtk-3-common_*.deb
+                ./stage6-pool/libgtk-3-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -2276,9 +2334,9 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: sfwbar
-          stage: 6
+          stage: 7
   build_pwvucontrol:
-    name: pwvucontrol (ур. 6)
+    name: pwvucontrol (ур. 7)
     if: >-
       ${{ !inputs.package || inputs.package == 'pwvucontrol' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_gtk4, build_libdrm, build_pipewire, build_pixman, build_wayland, build_wayland-protocols, build_wireplumber]
@@ -2319,13 +2377,6 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
-      - name: Download level 3 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage3-*
-          path: stage3-pool
-          merge-multiple: true
-
       - name: Download level 4 packages
         uses: actions/download-artifact@v8
         with:
@@ -2338,6 +2389,13 @@ jobs:
         with:
           pattern: deb-stage5-*
           path: stage5-pool
+          merge-multiple: true
+
+      - name: Download level 6 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage6-*
+          path: stage6-pool
           merge-multiple: true
 
       - name: Install required packages of earlier levels
@@ -2372,31 +2430,31 @@ jobs:
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
-                ./stage3-pool/gir1.2-gst-plugins-base-1.0_*.deb
-                ./stage3-pool/gstreamer1.0-gl_*.deb
-                ./stage3-pool/gstreamer1.0-plugins-base_*.deb
-                ./stage3-pool/libgstreamer-gl1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-0_*.deb
-                ./stage3-pool/libgstreamer-plugins-base1.0-dev_*.deb
-                ./stage4-pool/gir1.2-gst-plugins-bad-1.0_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-bad_*.deb
-                ./stage4-pool/gstreamer1.0-plugins-good_*.deb
-                ./stage4-pool/libgstreamer-plugins-bad1.0-0_*.deb
-                ./stage4-pool/libgstreamer-plugins-bad1.0-dev_*.deb
-                ./stage4-pool/libpipewire-0.3-0t64_*.deb
-                ./stage4-pool/libpipewire-0.3-common_*.deb
-                ./stage4-pool/libpipewire-0.3-dev_*.deb
-                ./stage4-pool/libpipewire-0.3-modules_*.deb
-                ./stage4-pool/libspa-0.2-dev_*.deb
-                ./stage4-pool/libspa-0.2-modules_*.deb
-                ./stage5-pool/gir1.2-gtk-4.0_*.deb
-                ./stage5-pool/gtk-update-icon-cache_*.deb
-                ./stage5-pool/libgtk-4-1_*.deb
-                ./stage5-pool/libgtk-4-bin_*.deb
-                ./stage5-pool/libgtk-4-common_*.deb
-                ./stage5-pool/libgtk-4-dev_*.deb
-                ./stage5-pool/libwireplumber-0.5-0_*.deb
-                ./stage5-pool/libwireplumber-0.5-dev_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-0t64_*.deb
+                ./stage5-pool/libpipewire-0.3-common_*.deb
+                ./stage5-pool/libpipewire-0.3-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-modules_*.deb
+                ./stage5-pool/libspa-0.2-dev_*.deb
+                ./stage5-pool/libspa-0.2-modules_*.deb
+                ./stage6-pool/gir1.2-gtk-4.0_*.deb
+                ./stage6-pool/gtk-update-icon-cache_*.deb
+                ./stage6-pool/libgtk-4-1_*.deb
+                ./stage6-pool/libgtk-4-bin_*.deb
+                ./stage6-pool/libgtk-4-common_*.deb
+                ./stage6-pool/libgtk-4-dev_*.deb
+                ./stage6-pool/libwireplumber-0.5-0_*.deb
+                ./stage6-pool/libwireplumber-0.5-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -2405,7 +2463,7 @@ jobs:
         uses: ./.github/actions/build-deb
         with:
           package: pwvucontrol
-          stage: 6
+          stage: 7
   publish:
     name: Stage 7 · generate APT repository
     needs: [build_wayland, build_libdrm, build_libxkbcommon, build_pixman, build_wayland-protocols, build_libtsm, build_fdk-aac, build_cairo, build_ffmpeg, build_gstreamer1_0, build_pulseaudio, build_aml, build_libheif, build_gstreamer1_0-plugins-base, build_wlroots, build_mpv, build_mesa, build_gstreamer1_0-plugins-good, build_gstreamer1_0-plugins-bad, build_neatvnc, build_gtk_3_0, build_gtk4, build_gstreamer1_0-libav, build_kmscon, build_pipewire, build_labwc, build_celluloid, build_sfwbar, build_wireplumber, build_pwvucontrol, build_imagemagick, build_wayvnc]
@@ -2496,6 +2554,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+
 
 
 

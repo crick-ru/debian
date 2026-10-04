@@ -122,12 +122,23 @@ Description: free implementation of the EGL API -- Mesa vendor library
  .
  This package contains the Mesa vendor library for EGL.
 
+# libgl-dev убран намеренно: GL у нас не собирается вовсе (-Dglx=disabled,
+# -Dplatforms=['wayland']), поэтому заголовки GL не нужны. Проверено, что их
+# не требует ни один файл, который пакет ставит: gbm.pc генерируется с
+# libraries_private = '-ldl' и без поля requires, dri.pc требует только
+# libdrm, а gbm.h включает stddef.h и stdint.h.
+#
+# Зависимость была не безобидна: libgl-dev (пакет glvnd) объявляет
+# Breaks: mesa-common-dev (<< 19.3.0~rc6-1), а наша версия 26.1.6 под это
+# ограничение попадает. Пока mesa-common-dev тянула libgl-dev, установка
+# libegl-dev становилась неразрешимой, и пакеты, которым он нужен по
+# Build-Depends (wlroots, mpv, kmscon, gstreamer1.0-plugins-base), не
+# могли собираться. Обоснование и проверка — в packages/mesa/README.md.
 Package: mesa-common-dev
 Section: libdevel
 Architecture: any
 Depends:
  libdrm-dev (>= 2.4.95) [!hurd-any],
- libgl-dev,
  ${misc:Depends}
 Breaks: libegl1-mesa-dev (<< 18.2.5-2)
 Replaces: libegl1-mesa-dev (<< 18.2.5-2)
