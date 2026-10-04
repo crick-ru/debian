@@ -35,9 +35,12 @@ Homepage: https://wiki.gnome.org/Accessibility
 Package: at-spi2-core
 Architecture: any
 Multi-Arch: foreign
-Depends: ${misc:Depends}, ${shlibs:Depends}, at-spi2-common, gsettings-desktop-schemas,
- libatspi2.0-0t64 (= ${binary:Version})
- Description: Assistive Technology Service Provider Interface (D-Bus core)
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         at-spi2-common,
+         gsettings-desktop-schemas,
+         libatspi2.0-0t64 (= ${binary:Version})
+Description: Assistive Technology Service Provider Interface (D-Bus core)
  This package contains the core components of GNOME Accessibility.
  .
  This build has no X11 support: the accessibility bus and the registry
@@ -114,7 +117,7 @@ Provides: at-spi
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          libatk-bridge2.0-0t64 (= ${binary:Version})
- Description: AT-SPI 2 toolkit bridge
+Description: AT-SPI 2 toolkit bridge
  This package includes a gtk-module that bridges ATK to the new
  D-Bus based AT-SPI.
  .
