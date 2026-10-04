@@ -11,11 +11,16 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 # libGLX.so.0 в бинарниках нет вовсе.
 # GL, OpenGL и OpenGL ES тоже не публикуются: GL у нас не собирается (mesa
 # собрана с -Dglx=disabled), и эти обёртки без него бессмысленны.
+# GLES публикуется: в src/meson.build subdir('GLX') и subdir('GL') стоят под
+# if with_glx, а GLESv1/GLESv2 - под независимыми опциями gles1/gles2. При
+# -Dglx=disabled GLES собирается целиком и не тянет за собой ни X11, ни GL:
+# libGLESv1_CM.so.1 и libGLESv2.so.2 в NEEDED имеют только libGLdispatch.so.0
+# и libc.so.6. Символы против штатных не отличаются (145 и 358, потерь нет).
 conf_flags = \
 	-Dx11=disabled \
 	-Dglx=disabled \
-	-Dgles1=false \
-	-Dgles2=false \
+	-Dgles1=true \
+	-Dgles2=true \
 	-Dentrypoint-patching=disabled \
 	-Dhgl=false
 
@@ -31,16 +36,22 @@ override_dh_auto_test:
 
 override_dh_auto_install:
 	dh_auto_install
-	# Состав установки при наших флагах проверен: остаются libEGL.so*,
-	# libGLdispatch.so*, заголовки EGL/ и glvnd/, KHR/khrplatform.h и два
-	# pkg-config (egl.pc, libglvnd.pc). Лишнее убираем - оно относится к
-	# непубликуемым API, и dh_missing (в compat 13 он по умолчанию
-	# --fail-missing) иначе споткнулся бы о лишние файлы в дереве сборки:
-	rm -f debian/tmp/usr/lib/*/libOpenGL.so*
+	# Состав установки при наших флагах проверен (meson install): остаются
+	# libEGL.so*, libGLdispatch.so*, libGLESv1_CM.so*, libGLESv2.so*,
+	# libOpenGL.so*, заголовки EGL/, GLES/, GLES2/, GLES3/, glvnd/, KHR/ и
+	# пять pkg-config (egl.pc, libglvnd.pc, glesv1_cm.pc, glesv2.pc,
+	# opengl.pc). libOpenGL нужен: GLES линкует его статическую часть
+	# libopengl_main, а сам он - общий доступ к GL/GLES-функциям для
+	# приложений, собранных с opengl.pc.
+	#
+	# Заголовки GL/ - единственное лишнее: они относятся к API, который мы
+	# не публикуем (нет ни GL, ни GLX), поэтому соответствующего пакета
+	# libgl-dev у нас нет. dh_missing в compat 13 по умолчанию работает с
+	# --fail-missing, то есть оставь их - и сборка упадёт на лишних файлах
+	# в дереве:
 	rm -f debian/tmp/usr/include/GL/gl.h
 	rm -f debian/tmp/usr/include/GL/glext.h
 	rm -f debian/tmp/usr/include/GL/glcorearb.h
-	rm -f debian/tmp/usr/lib/*/pkgconfig/opengl.pc
 
 override_dh_missing:
 	dh_missing --list-missing

@@ -15,11 +15,29 @@
 | `libglvnd-core-dev` | `usr/include/glvnd/*.h`, `libglvnd.pc` |
 | `libegl1` | `libEGL.so.1` — runtime |
 | `libegl-dev` | `EGL/egl.h`, `eglext.h`, `eglplatform.h`, `KHR/khrplatform.h`, `egl.pc`, `libEGL.so` |
+| `libgles1` | `libGLESv1_CM.so.1` — OpenGL ES 1.x |
+| `libgles2` | `libGLESv2.so.2` — OpenGL ES 2.x и 3.x |
+| `libgles-dev` | заголовки `GLES/`, `GLES2/`, `GLES3/`, `glesv1_cm.pc`, `glesv2.pc` |
+| `libopengl0` | `libOpenGL.so.0` — OpenGL **без** GLX |
+| `libopengl-dev` | `opengl.pc`, `libOpenGL.so` |
 
-Не публикуются: `libglx0`, `libgl1`, `libopengl0`, `libgles1`, `libgles2`,
-`libgles-dev`, `libgl-dev`, `libglx-dev`, `libopengl-dev`, `libglvnd-dev`.
-Всё это GLX, OpenGL и OpenGL ES — то есть либо X11, либо GL, а в этом
-репозитории нет ни того, ни другого.
+Не публикуются: `libglx0`, `libgl1`, `libgl-dev`, `libglx-dev`,
+`libglvnd-dev` — это GLX и GL. GLX есть X11-протокол, а GL в этом
+репозитории не собирается.
+
+**Почему GLES и OpenGL-без-GLX публикуются, а GLX и GL — нет.** В
+`src/meson.build` три независимых блока:
+
+```meson
+if with_glx            → subdir('GLX'); subdir('GL')   # ← выключено
+if get_option('gles1') → subdir('GLESv1')             # ← включено
+if get_option('gles2') → subdir('GLESv2')             # ← включено
+```
+
+GLES линкует статическую `libopengl_main`, в `libopengl.c` нет ни одного
+упоминания GLX или X11. То есть GLES через EGL — не X11-код, и собирается
+без GLX целиком. Проверено: у всех пяти собранных библиотек в `NEEDED`
+только `libGLdispatch.so.0` и `libc.so.6`.
 
 ## Почему мы его собираем, а не берём из trixie
 
@@ -84,11 +102,29 @@ libgl1-mesa-dev Depends: libgbm1 (= 25.0.7-2+deb13u1)   ← ПИН ВЕРСИИ 
 | строки `libX11.so.6`, `libGLX.so.0` в бинарниках | отсутствуют |
 | символы `libEGL.so.1` против штатного | 44 против 44, потерь нет |
 | символы `libGLdispatch.so.0` против штатного | 18 против 18, потерь нет |
+| символы `libGLESv1_CM.so.1` против штатного | 145 против 145, потерь нет |
+| символы `libGLESv2.so.2` против штатного | 358 против 358, потерь нет |
+| символы `libOpenGL.so.0` против штатного | 1044 против 1044, потерь нет |
 | `egl.pc` | совпадает со штатным |
 | `EGL_EGLEXT_VERSION` | 20211210, `wlroots` требует ≥ 20210604 |
 
 Символы не отличаются от штатных, поэтому ABI совместим: приложения, собранные
 против `libegl-dev` из trixie, работают против нашей `libegl1` без пересборки.
+
+## Что снято у потребителей
+
+Проверено по фактическим `.deb` из зелёного прогона CI, а не по `debian/control`:
+
+| Пакет | Снято | Чем проверено, что не нужно |
+|---|---|---|
+| `wlroots` | `libgles2-mesa-dev` → `libgles-dev` | `libwlroots-0.20.so` в `NEEDED`: `libEGL.so.1`, `libGLESv2.so.2`. Нужен `glesv2.pc`, который даёт наш glvnd; mesa-овский пакет тянет `libglvnd-dev` с пином версии |
+| `wlroots`, `gtk+3.0`, `gtk4` | `libegl1-mesa-dev` | Пакет состоит ровно из двух заголовков — `eglmesaext.h` и `eglext_angle.h` — и оба уже ставит наша `mesa-common-dev`. Сама mesa объявляет `Breaks: libegl1-mesa-dev`, то есть рядом с ней этот пакет не ставится вовсе |
+| `gstreamer1.0-plugins-base` | `libgl-dev` из `Build-Depends` | `libgstgl-1.0.so` в `NEEDED`: только `libEGL.so.1`, ни `libGL.so.1`, ни GLX |
+| `gstreamer1.0-plugins-bad` | `libopengl-dev` | В собранных библиотеках ни одного `NEEDED` на `libGL`/`libGLX`/`libOpenGL`/`libGLES` |
+
+`libopengl-dev` в `Depends` у `libgstreamer-plugins-base1.0-dev` остался:
+`gstreamer-gl-prototypes-1.0.pc` объявляет `Requires: opengl`, и без
+`opengl.pc` pkg-config не разрешит файл.
 
 ## Побочная выгода: X11 ушёл из сборочной среды
 

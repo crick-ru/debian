@@ -50,13 +50,15 @@
 - `-Dbuild-date=false` для воспроизводимости сборки (без временных меток).
 - Отладочные символы (`-dbgsym`) не собираются и не публикуются.
 
-## `libegl-dev` берётся из этого репозитория
+## GL и GLES берутся из этого репозитория
 
-`libegl-dev`, `libegl1`, `libglvnd0` и `libglvnd-core-dev` ставятся из нашей
-сборки `libglvnd` (см. `packages/libglvnd/README.md`).
+`libegl-dev`, `libegl1`, `libgles-dev`, `libgles1`, `libgles2`, `libopengl-dev`,
+`libopengl0`, `libglvnd0`, `libglvnd-core-dev` ставятся из нашей сборки
+`libglvnd` (см. `packages/libglvnd/README.md`).
 
-Раньше здесь было исключение: штатный `libegl-dev` нельзя поставить рядом с
-нашей mesa — он тянет `libgl1-mesa-dev`, а тот пинит `libgbm1` версии trixie.
-Теперь пин снят: наш `libglvnd` собран без X11 и без GL-обвязок, поэтому
-`libegl-dev` ставится рядом с mesa без конфликтов. Исключений в
-`CLOSURE_EXCEPT` сейчас нет.
+Раньше здесь было исключение для `libegl-dev`: штатный пакет нельзя поставить
+рядом с нашей mesa — он тянет `libgl1-mesa-dev`, а тот пинит `libgbm1` версии
+trixie. Теперь пин снят, и заодно сняты GL-зависимости, которые этому пакету
+не нужны: у GLX и GL в нашем репозитории нет, а GLES и OpenGL-без-GLX
+собраны без X11. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+

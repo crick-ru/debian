@@ -111,6 +111,15 @@
   падает на файле, который никто не устанавливает.
 - Отладочные символы (`-dbgsym`) не собираются и не публикуются.
 
+## GL и GLES берутся из этого репозитория
+
+`libegl-dev`, `libegl1`, `libgles-dev`, `libgles1`, `libgles2`, `libopengl-dev`,
+`libopengl0`, `libglvnd0`, `libglvnd-core-dev` ставятся из нашей сборки
+`libglvnd` (см. `packages/libglvnd/README.md`).
+
+Здесь `libopengl-dev` убран из `Build-Depends`: ни одного `NEEDED` на GL в
+собранных библиотеках нет. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+
 ## Изменено
 
 - Версия: `1.28.7-1+crick`.

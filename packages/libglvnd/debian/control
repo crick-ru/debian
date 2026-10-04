@@ -3,17 +3,24 @@ Section: libs
 Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Standards-Version: 4.7.3
 # Упаковка взята из Debian (libglvnd 1.7.0-3) и переработана:
-#   * GLX, OpenGL, OpenGL ES и Haiku не публикуются: это X11- и GL-обвязка,
-#     а у нас ни X11, ни GL нет (см. rules: -Dx11=disabled -Dglx=disabled,
-#     -Dgles1=false -Dgles2=false). Из 14 бинарных пакетов Debian остаются
-#     четыре: libglvnd0, libglvnd-core-dev, libegl1, libegl-dev;
+#   * GLX и GL не публикуются: GLX есть X11-протокол, а GL у нас не
+#     собирается. OpenGL ES 1 и 2 публикуются - они не про X11: в
+#     src/meson.build блоки subdir('GLX')/subdir('GL') стоят под
+#     if with_glx, а GLESv1/GLESv2 под независимыми опциями gles1/gles2.
+#     Проверено сборкой: libGLESv1_CM.so.1 и libGLESv2.so.2 собираются при
+#     -Dglx=disabled, в NEEDED только libGLdispatch.so.0 и libc.so.6, строк
+#     libX11.so.6/libGLX.so.0/libGL.so.1 нет. Из 14 бинарных пакетов Debian
+#     остаются семь: libglvnd0, libglvnd-core-dev, libegl1, libegl-dev,
+#     libgles1, libgles2, libgles-dev;
 #   * X11-пакеты убраны из Build-Depends (libx11-dev, libxext-dev, x11proto-dev,
 #     xauth, xvfb), тесты не собираются;
-#   * в libegl-dev не осталось Depends: libgl-dev, libgles-dev, libglx-dev,
-#     libopengl-dev - их публикует glvnd, а тот тянет libgl1-mesa-dev и
-#     libglx-mesa0, которые пинят libgbm1 версии trixie. Из-за этого
-#     libegl-dev становился неразрешимым рядом с нашей mesa. Разбор -
-#     в packages/libglvnd/README.md;
+#   * из libegl-dev убраны Depends: libgl-dev, libgles-dev, libglx-dev,
+#     libopengl-dev, а из libgles-dev - Depends: libgl-dev. Все они публикует
+#     glvnd, а тот тянет libgl1-mesa-dev и libglx-mesa0, которые пинят libgbm1
+#     версии trixie. Из-за этого libegl-dev становился неразрешимым рядом с
+#     нашей mesa. В libgles-dev зависимость от libgl-dev в Debian и вовсе
+#     надумана: в его .install нет ни одного файла GL, она нужна только ради
+#     GL-заголовков. Разбор - в packages/libglvnd/README.md;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: debhelper-compat (= 13),
                meson,
@@ -77,3 +84,73 @@ Description: GL dispatch library runtime and development files for EGL
  .
  The GL, GLES, GLX and OpenGL variants of this package are not published
  here: they require X11 and GL, neither of which is part of this repository.
+
+Package: libgles1
+Section: libs
+Architecture: any
+Depends:
+ libglvnd0 (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: GL dispatch library runtime for OpenGL ES 1.x
+ This is a runtime package for OpenGL ES 1.x, the vendor-neutral dispatch
+ layer. It needs no window-system library: GLX is not built here.
+
+Package: libgles2
+Section: libs
+Architecture: any
+Depends:
+ libglvnd0 (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: GL dispatch library runtime for OpenGL ES 2.x and 3.x
+ This is a runtime package for OpenGL ES 2.x and 3.x, the vendor-neutral
+ dispatch layer. It needs no window-system library: GLX is not built here.
+
+Package: libgles-dev
+Section: libdevel
+Architecture: any
+Depends:
+ libegl-dev (= ${binary:Version}),
+ libgles1 (= ${binary:Version}),
+ libgles2 (= ${binary:Version}),
+ libopengl-dev,
+ ${misc:Depends}
+Multi-Arch: same
+Description: GL dispatch library runtime and development files for OpenGL ES
+ This package provides the OpenGL ES headers (GLES/, GLES2/, GLES3/), the
+ glesv1_cm.pc and glesv2.pc pkg-config files, and libGLESv1_CM.so and
+ libGLESv2.so needed to build against OpenGL ES.
+ .
+ Unlike Debian's package it does not depend on libgl-dev: that dependency
+ exists only for the GL headers, which this package does not contain. See
+ packages/libglvnd/README.md.
+
+Package: libopengl0
+Section: libs
+Architecture: any
+Depends:
+ libglvnd0 (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: Vendor neutral GL dispatch library -- OpenGL support
+ This is the vendor-neutral dispatch layer for OpenGL without GLX. It needs
+ no window-system library and is what gstreamer1.0-gl-prototypes-1.0.pc
+ resolves its "opengl" requirement against.
+
+Package: libopengl-dev
+Section: libdevel
+Architecture: any
+Depends:
+ libopengl0 (= ${binary:Version}),
+ ${misc:Depends}
+Multi-Arch: same
+Description: Vendor neutral GL dispatch library -- OpenGL development files
+ This package provides the opengl.pc pkg-config file and libOpenGL.so needed
+ to build against OpenGL without GLX.
