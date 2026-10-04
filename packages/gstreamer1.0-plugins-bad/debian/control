@@ -74,6 +74,7 @@ Build-Depends:
  libopus-dev,
  liborc-0.4-dev (>= 1:0.4.34),
  libpango1.0-dev,
+ libpixman-1-dev,
  libpng-dev,
  librtmp-dev,
  libsrtp2-dev,

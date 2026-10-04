@@ -131,6 +131,27 @@ GLX и X11, при этом пути DRM и Wayland на месте, так чт
 Здесь `libopengl-dev` убран из `Build-Depends`: ни одного `NEEDED` на GL в
 собранных библиотеках нет. Исключений в `CLOSURE_EXCEPT` сейчас нет.
 
+## Почему добавлен libpixman-1-dev
+
+Прогон CI `37190873627` упал: `dh_install` не нашёл `libgstanalyticsoverlay.so`
+и `libgstttmlsubs.so`. Плагины молча выключились, потому что не находился
+`pangocairo`:
+
+```
+Run-time dependency pangocairo found: NO
+Run-time dependency cairo found: NO
+```
+
+Причина цепочкой. `pangocairo.pc` требует `pango` и `cairo >= 1.18.0`.
+`cairo.pc` кладёт `pixman-1` в `Requires.private`, а pkgconf в trixie
+`Requires.private` разрешает. В сборочной среде ставился только
+`libpixman-1-0` (runtime), но не `libpixman-1-dev`, то есть `pixman-1.pc`
+отсутствовал — и `cairo.pc` не резолвился.
+
+Существующий комментарий в `control` про это уже предупреждал: «pkg-config
+в trixie (pkgconf) разрешает и Requires.private». Правило было записано, но
+`libpixman-1-dev` в `Build-Depends` не добавлен.
+
 ## Изменено
 
 - Версия: `1.28.7-1+crick`.

@@ -1294,7 +1294,7 @@ jobs:
     name: gstreamer1.0-plugins-bad (ур. 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_libglvnd, build_libva, build_wayland, build_wayland-protocols]
+    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_libglvnd, build_libva, build_pixman, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1351,6 +1351,7 @@ jobs:
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
@@ -1374,6 +1375,8 @@ jobs:
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/libopengl-dev_*.deb
                 ./stage1-pool/libopengl0_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-cursor0_*.deb
@@ -2833,6 +2836,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+
 
 
 
