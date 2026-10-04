@@ -312,7 +312,7 @@ jobs:
   build_libheif:
     name: libheif (stage 1)
     if: >-
-      ${{ !inputs.package || inputs.package == 'imagemagick' || inputs.package == 'libheif' }}
+      ${{ !inputs.package || inputs.package == 'imagemagick' || inputs.package == 'libgd2' || inputs.package == 'libheif' }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -349,6 +349,60 @@ jobs:
   # здесь, если все пакеты, чьи .deb он ставит, собраны раньше.
   # Барьеров стадий нет - job ждёт только тех, от кого зависит.
   # -------------------------------------------------------------------------
+  build_libgd2:
+    name: libgd2 (stage 2)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'libgd2' }}
+    needs: [build_libheif]
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier stages
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          # ci-closure: libheif собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          debs=(
+                ./stage1-pool/libheif-dev_*.deb
+                ./stage1-pool/libheif1_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: libgd2
+          stage: 2
   build_libva:
     name: libva (stage 2)
     if: >-
@@ -2836,6 +2890,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 

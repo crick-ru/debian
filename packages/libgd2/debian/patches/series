@@ -1,0 +1,6 @@
+0001-Fix-error-ISO-C99-requires-at-least-one-argument-for.patch
+0002-Disable-failing-test-that-breaks-some-builds.patch
+0003-tests-make-a-little-change-for-autopkgtest.patch
+0004-Revert-upstream-318-fix-to-fix-the-PHP-5.6-8.0-FTBFS.patch
+0005-Fix-847-enable-back-GD_BICUBIC-interpolation-methods.patch
+0006-libgd-patch-for-CVE-2026-9672.patch

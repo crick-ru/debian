@@ -1,0 +1,24 @@
+From: =?utf-8?b?T25kxZllaiBTdXLDvQ==?= <ondrej@sury.org>
+Date: Mon, 11 Jul 2022 10:20:20 +0200
+Subject: Revert upstream #318 fix to fix the PHP 5.6 - 8.0 FTBFS.
+
+---
+ src/gd.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/gd.h b/src/gd.h
+index 3056039..1ad9e63 100644
+--- a/src/gd.h
++++ b/src/gd.h
+@@ -1604,6 +1604,11 @@ BGD_DECLARE(void) gdImageFlipHorizontal(gdImagePtr im);
+ BGD_DECLARE(void) gdImageFlipVertical(gdImagePtr im);
+ BGD_DECLARE(void) gdImageFlipBoth(gdImagePtr im);
+ 
++#define GD_FLIP_HORINZONTAL 1 /* typo, kept for BC */
++#define GD_FLIP_HORIZONTAL 1
++#define GD_FLIP_VERTICAL 2
++#define GD_FLIP_BOTH 3
++
+ /**
+  * Group: Crop
+  *

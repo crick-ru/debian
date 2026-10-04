@@ -1,0 +1,84 @@
+Source: libgd2
+Section: graphics
+Priority: optional
+Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+# Упаковка взята из Debian (libgd2_2.3.3-14, unstable) и переработана:
+#   * публикуются только libgd3 и libgd-dev. Пакет libgd-tools не публикуется:
+#     это примеры (gddemo, gdtest, testac) плюс man-страница на них, а правило
+#     репозитория запрещает собирать примеры и документацию;
+#   * X11 нет вообще: --without-xpm, из Build-Depends убраны libx11-dev и
+#     libxpm-dev, из Depends libgd-dev убраны те же два пакета. В trixie
+#     libgd3 Depends: libxpm4, то есть штатная сборка тянет libXpm (а через неё
+#     libX11) - это нарушало бы правило "никакого X11". Символ gdImageCreateFromXpm
+#     при этом НЕ исчезает: апстрим оставляет заглушку (src/gdxpm.c, ветка
+#     #ifndef HAVE_LIBXPM), поэтому SONAME libgd.so.3 и набор символов прежние -
+#     именно поэтому php8.4-gd из trixie продолжает работать, см. README;
+#   * тесты не собираются и не запускаются: каталог debian/tests удалён,
+#     override_dh_auto_test пуст, а quilt-патчи, правящие tests/, оставлены
+#     (без них исходники не накладываются, а набор символов не меняется);
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh);
+#     поэтому и override_dh_strip с миграцией libgd-dbg убран.
+# Правила отключения — в правилах проекта.
+Build-Depends:
+ debhelper-compat (= 13),
+ autoconf,
+ automake,
+ libtool,
+ pkgconf,
+ libavif-dev,
+ libfontconfig-dev,
+ libfreetype-dev,
+ libheif-dev,
+ libimagequant-dev,
+ libjpeg-dev,
+ libpng-dev,
+ libtiff-dev,
+ libwebp-dev,
+ libz-dev
+Standards-Version: 3.9.3
+Homepage: https://libgd.github.io/
+Vcs-Git: https://salsa.debian.org/debian/libgd2.git
+Vcs-Browser: https://salsa.debian.org/debian/libgd2
+
+Package: libgd3
+Architecture: any
+Multi-Arch: same
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: GD Graphics Library
+ GD is a graphics library. It allows your code to quickly draw images
+ complete with lines, arcs, text, multiple colours, cut and paste from
+ other images, flood fills, and write out the result as a PNG file.
+ This is particularly useful in World Wide Web applications, where PNG is
+ one of the formats accepted for inline images by most browsers.
+ .
+ This is the runtime package of the library. Unlike Debian's build, it is
+ compiled without Xpm support and so pulls in no X11 library at all.
+
+Package: libgd-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: libavif-dev,
+         libfontconfig-dev,
+         libfreetype-dev,
+         libgd3 (= ${binary:Version}),
+         libheif-dev,
+         libimagequant-dev,
+         libjpeg-dev,
+         libpng-dev,
+         libtiff-dev,
+         libwebp-dev,
+         libz-dev,
+         ${misc:Depends}
+Description: GD Graphics Library (development version)
+ GD is a graphics library. It allows your code to quickly draw images
+ complete with lines, arcs, text, multiple colours, cut and paste from
+ other images, flood fills, and write out the result as a PNG file.
+ This is particularly useful in World Wide Web applications, where PNG is
+ one of the formats accepted for inline images by most browsers.
+ .
+ The full development version of the library. Unlike Debian's build, it is
+ compiled without Xpm support, so libgd.pc does not require xpm.
