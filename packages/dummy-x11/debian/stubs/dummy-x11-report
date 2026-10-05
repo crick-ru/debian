@@ -13,20 +13,23 @@ X11-вызова, которого в списках нет, и не запус�
 
 Что показывает:
 
-1. Версию браузера и его состав - сколько ELF-файлов в поставке.
-2. Зависимости каждого ELF-файла: что лежит в `NEEDED`, какие закрываются
-   заглушками X11, какие приходят из нашего репозитория (в них X11 уже
-   вырезан), а какие ни с чем не связаны.
+1. Версию браузера.
+2. Состояние заглушек: путь, число символов, каких файлов не хватает;
+   у настоящей libxcb это отмечено отдельно.
 3. Символы: сколько X11-вызовов импортирует браузер, сколько покрыто
    заглушками, и - главное - каких не хватает.
-4. Изменения: `--compare` сверяет текущее состояние с эталоном (файл
+4. (`--full`) Зависимости каждого ELF-файла: что лежит в `NEEDED`, какие
+   закрываются пакетом dummy-x11, какие приходят из нашего репозитория
+   (в них X11 уже вырезан), а какие ни с чем не связаны.
+5. Изменения: `--compare` сверяет текущее состояние с эталоном (файл
    `.installed`, который создаётся командой `--snapshot`) и перечисляет
    появившиеся и исчезнувшие символы. Код возврата 1 - появились новые
    X11-символы, то есть пакет пора пересобирать.
 
 Запуск:
-    dummy-x11-report              # полный отчёт
-    dummy-x11-report --brief      # сводка и недостающие символы
+    dummy-x11-report              # сводка и недостающие символы
+    dummy-x11-report --full       # полный отчёт, включая зависимости
+                                  # по каждому файлу поставки
     dummy-x11-report --snapshot   # записать/обновить эталон
     dummy-x11-report --compare    # сравнить с эталоном
 """
@@ -43,12 +46,21 @@ BROWSER_DIRS = ['/opt/yandex/browser']
 STUB_SONAMES = (
     'libX11.so.6',
     'libXext.so.6',
-    'libxcb.so.1',
     'libXcomposite.so.1',
     'libXdamage.so.1',
     'libXfixes.so.3',
     'libXrandr.so.2',
+    # Заглушки внутри dummy-x11.so, нужные настоящей libxcb по NEEDED:
+    'libXau.so.6',
+    'libXdmcp.so.6',
+    # libxcb.so.1 - настоящая (см. REAL_SONAMES), но её список символов
+    # участвует в проверке покрытия импортов браузера:
+    'libxcb.so.1',
 )
+
+# Единственная настоящая библиотека в пакете: файл взят из trixie, а не
+# сгенерирован, поэтому в отчёте помечается отдельно.
+REAL_SONAMES = ('libxcb.so.1',)
 
 # Признак имени X11-символа. `XML_*` исключены явно: это libxml2, а не X11.
 X11_SYMBOL_RE = re.compile(r'^_?[Xx](cb_|(?!ML_)[A-Z_])')
@@ -214,7 +226,7 @@ def is_ours(soname):
     return False
 
 
-def print_report(data, brief):
+def print_report(data, full):
     print('=== Яндекс.Браузер: зависимости и заглушки X11 ===')
     print('версия браузера : %s' % browser_version())
     print('каталог         : %s' % ', '.join(BROWSER_DIRS))
@@ -224,8 +236,10 @@ def print_report(data, brief):
     for s in data['missing_files']:
         print('  ОТСУТСТВУЕТ: %s' % s)
     for soname, path in sorted(data['stubs'].items()):
-        print('  %-22s %s (%d символов)'
-              % (soname, path, len(known_symbols(soname))))
+        note = (' (настоящая, из trixie)' if soname in REAL_SONAMES
+                else '')
+        print('  %-22s %s (%d символов)%s'
+              % (soname, path, len(known_symbols(soname)), note))
     print()
 
     print('--- 2. Символы ---')
@@ -240,19 +254,19 @@ def print_report(data, brief):
             print('    %s' % s)
     print()
 
-    if brief:
+    if not full:
         return
 
     print('--- 3. Зависимости по файлам ---')
-    print('  Разделение: X11 закрывается заглушками, «наши» - пакеты нашего')
-    print('  репозитория (в них X11 уже вырезан), «прочие» - ни с чем не')
-    print('  связаны, их можно ставить без оговорок.')
+    print('  Разделение: X11 закрывается пакетом dummy-x11, «наши» - пакеты')
+    print('  нашего репозитория (в них X11 уже вырезан), «прочие» - ни с чем')
+    print('  не связаны, их можно ставить без оговорок.')
     for e in data['elfs']:
         stubs = [n for n in e['needed'] if n in data['stubs']]
         ours = [n for n in e['needed'] if n not in stubs and is_ours(n)]
         rest = [n for n in e['needed'] if n not in stubs and n not in ours]
         print('\n  %s' % e['name'])
-        print('    X11 (заглушки)      : %s' % (', '.join(stubs) or '-'))
+        print('    X11 (dummy-x11)     : %s' % (', '.join(stubs) or '-'))
         print('    наши из репозитория: %s' % (', '.join(ours) or '-'))
         print('    прочие (не X11)    : %s' % (', '.join(rest) or '-'))
     print()
@@ -309,8 +323,9 @@ def save_snapshot(data):
 def main():
     ap = argparse.ArgumentParser(
         description='Отчёт о зависимостях Яндекс.Браузера и заглушках X11')
-    ap.add_argument('--brief', action='store_true',
-                    help='только сводка и список недостающих символов')
+    ap.add_argument('--full', action='store_true',
+                    help='полный отчёт: сводка плюс зависимости по каждому '
+                         'файлу поставки (по умолчанию печатается сводка)')
     ap.add_argument('--snapshot', action='store_true',
                     help='записать текущее состояние эталоном')
     ap.add_argument('--compare', action='store_true',
@@ -331,7 +346,7 @@ def main():
     if args.compare:
         return 1 if compare(data) else 0
 
-    print_report(data, args.brief)
+    print_report(data, args.full)
     return 0
 
 

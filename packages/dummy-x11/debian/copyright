@@ -6,6 +6,14 @@ Files: *
 Copyright: 2026 crick Debian Backports <backports@users.noreply.github.com>
 License: MIT
 
+Files: usr/lib/*/libxcb.so.1
+Copyright: 2001-2006 Bart Massey, Jamey Sharp, and Josh Triplett
+License: MIT
+Comment: Взят без изменений из пакета libxcb1_1.17.0-2+b1 (Debian trixie),
+ файл /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0, переименован в имя его
+ SONAME. Оригинальное упаковочное право - usr/share/doc/libxcb1/copyright
+ пакета libxcb1.
+
 License: MIT
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the "Software"),

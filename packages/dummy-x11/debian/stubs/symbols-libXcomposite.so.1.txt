@@ -1,4 +1,3 @@
-Name
 XCompositeCreateRegionFromBorderClip
 XCompositeExtensionInfo
 XCompositeExtensionName

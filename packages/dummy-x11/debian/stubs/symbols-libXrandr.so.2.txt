@@ -1,4 +1,3 @@
-Name
 XRRAddOutputMode
 XRRAllocGamma
 XRRAllocModeInfo

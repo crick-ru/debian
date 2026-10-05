@@ -1,4 +1,3 @@
-Name
 XDamageAdd
 XDamageCreate
 XDamageDestroy

@@ -7,7 +7,6 @@ DPMSGetVersion
 DPMSInfo
 DPMSQueryExtension
 DPMSSetTimeouts
-Name
 XGEQueryExtension
 XGEQueryVersion
 XLbxGetEventBase

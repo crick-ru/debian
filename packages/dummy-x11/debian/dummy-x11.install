@@ -1,4 +1,5 @@
 usr/bin/dummy-x11-report
 usr/share/dummy-x11/gen-stubs
 usr/share/dummy-x11/symbols-*.txt
+usr/lib/*/dummy-x11.so
 usr/lib/*/lib*.so.*

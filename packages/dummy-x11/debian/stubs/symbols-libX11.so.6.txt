@@ -1,5 +1,4 @@
 KeySymToUcs4
-Name
 XActivateScreenSaver
 XAddConnectionWatch
 XAddExtension

@@ -1,0 +1,8 @@
+XauDisposeAuth
+XauFileName
+XauGetAuthByAddr
+XauGetBestAuthByAddr
+XauLockAuth
+XauReadAuth
+XauUnlockAuth
+XauWriteAuth

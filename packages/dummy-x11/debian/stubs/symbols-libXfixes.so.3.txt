@@ -1,4 +1,3 @@
-Name
 XFixesChangeCursor
 XFixesChangeCursorByName
 XFixesChangeSaveSet

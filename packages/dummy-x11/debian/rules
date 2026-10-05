@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
-# Сборка dummy-x11: пакет без исходников, состоящий только из заглушек X11
-# и диагностического скрипта. Подробности - в packages/dummy-x11/README.md.
+# Сборка dummy-x11: пакет без исходников, состоящий из единой заглушки X11
+# (dummy-x11.so с симлинками), настоящей libxcb из trixie и диагностического
+# скрипта. Подробности - в packages/dummy-x11/README.md.
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
@@ -15,15 +16,24 @@ LIBDIR   := debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)
 %:
 	dh $@
 
-# Сгенерировать библиотеки-заглушки. Списки символов лежат в debian/stubs/
-# (сняты с настоящих библиотек trixie readelf --dyn-syms), а скрипт
-# генерирует из них .so с теми же SONAME.
+# Сгенерировать библиотеку-заглушку. Один файл dummy-x11.so содержит символы
+# всех заглушек, имена настоящих SONAME (libX11.so.6 и т.д.) - симлинки на
+# него; списки символов лежат в debian/stubs/ (сняты с настоящих библиотек
+# trixie readelf --dyn-syms). Настоящая libxcb.so.1 не генерируется, а
+# копируется из debian/stubs/real/ при установке.
 override_dh_auto_build:
 	python3 $(STUBDIR)/gen-stubs $(BUILDDIR)
 
 override_dh_auto_install:
 	install -d $(LIBDIR)
-	install -m 0644 $(BUILDDIR)/lib*.so.* $(LIBDIR)/
+	install -m 0644 $(BUILDDIR)/dummy-x11.so $(LIBDIR)/
+	# Симлинки libX*.so.* и заглушки libXau/libXdmcp: cp -P сохраняет их
+	# симлинками, install скопировал бы цель под каждым именем (лишние
+	# копии файла вместо ссылок на одну заглушку).
+	cp -P $(BUILDDIR)/lib*.so.* $(LIBDIR)/
+	# Настоящая libxcb.so.1 из trixie: заглушка не давала браузеру
+	# запуститься. Имя файла совпадает с SONAME, файл лежит здесь же.
+	install -m 0644 $(STUBDIR)/real/libxcb.so.1 $(LIBDIR)/
 	# Диагностический скрипт - то, чем пользователь проверяет браузер
 	# после обновления. Ставится в /usr/bin, чтобы вызывался просто
 	# `dummy-x11-report`.
@@ -36,3 +46,10 @@ override_dh_auto_install:
 	# браузера именно с ними и без них ничего не смог бы проверить
 	# (см. known_symbols() в dummy-x11-report).
 	install -m 0644 $(STUBDIR)/symbols-*.txt debian/tmp/usr/share/dummy-x11/
+
+# dpkg-shlibdeps отключён намеренно. Настоящая libxcb.so.1 ссылается по
+# NEEDED на libXau.so.6 и libXdmcp.so.6, но их заглушки поставляет сам
+# dummy-x11, а внешних зависимостей у пакета нет по замыслу (см. README).
+# Без отключения dpkg-shlibdeps потребовал бы в Build-Depends настоящие
+# libxau6/libxdmcp6 из trixie только ради метаданных для своей проверки.
+override_dh_shlibdeps:

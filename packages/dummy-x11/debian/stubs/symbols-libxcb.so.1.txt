@@ -1,4 +1,3 @@
-Name
 xcb_alloc_color
 xcb_alloc_color_cells
 xcb_alloc_color_cells_masks

@@ -1,82 +1,122 @@
 #!/usr/bin/env python3
-"""Собрать библиотеки-заглушки с SONAME настоящих X11-библиотек.
+"""Собрать dummy-x11.so - единую библиотеку-заглушку вместо X11-библиотек.
 
 Зачем. Официальный deb Яндекс.Браузера объявляет `Depends` на `libx11-6`,
 `libxcb1` и ещё пять X11-пакетов, а его бинарник при `BIND_NOW` (Debian
 линкует с `-Wl,-z,now`) резолвит ВСЕ импорты при старте. Поэтому «просто
 убрать NEEDED» невозможно: бинарник падает с `undefined symbol`. Вместо
-удаления подставляется настоящая по SONAME библиотека, экспортирующая все
-символы, но ничего не делающая.
+удаления подставляется библиотека с настоящими именами файлов, экспортирующая
+все символы, но ничего не делающая.
 
-Почему нужен ПОЛНЫЙ список символов, а не только те 123, что зовёт браузер:
-транзитивные X11-библиотеки ссылаются на внутренние символы друг друга
-(`libXrender.so.1` тянет `_XUnlockMutex_fn` из `libX11.so.6`). Заглушка с
-урезанным списком сломала бы их, поэтому берём весь экспорт библиотеки.
+Устройство. Все заглушки собраны в ОДИН файл `dummy-x11.so` (SONAME тоже
+`dummy-x11.so`), а имена настоящих библиотек (`libX11.so.6` и т.д.) - это
+симлинки на него. Линкер ищет файл по имени из NEEDED, находит симлинк и
+грузит dummy-x11.so; glibc не грузит тот же файл повторно под другим именем
+(сверка dev/inode в _dl_map_object_from_fd), поэтому восемь NEEDED дают одну
+загрузку. Проверено на glibc из trixie бинарником, собранным против двух
+разных SONAME.
 
-Вход:  symbols-<SONAME>.txt - по одному имени символа в строке.
-Выход: <SONAME> - разделяемая библиотека с тем же SONAME.
+Почему объединение безопасно. Символы заглушек без версионных тегов и все
+возвращают NULL, поэтому неважно, из чьего списка они пришли: разрешение
+символов идёт по первому загруженному объекту, а у него есть весь набор.
+
+Почему libxcb НЕ входит в объединение. `libxcb.so.1` в пакете настоящая
+(из trixie, debian/stubs/real/) - заглушка не давала браузеру запуститься.
+Если добавить её символы в dummy-x11.so, заглушки `xcb_*` перебьют настоящие
+функции при разрешении символов (объединение грузится первым), и реальная
+libxcb превратится в фиктивную. Поэтому список symbols-libxcb.so.1.txt
+используется только для отчёта, а не для генерации.
+
+Зачем libXau/libXdmcp. Настоящая libxcb.so.1 ссылается по NEEDED на
+libXau.so.6 и libXdmcp.so.6, и без них браузер не загрузится. Свои заглушки
+для них входят в то же объединение: эти функции вызываются только при
+аутентификации подключения к X-серверу, которого в системе нет.
+
+Вход:  symbols-<имя>.txt - по одному имени символа в строке.
+Выход: dummy-x11.so плюс симлинки lib*.so.* -> dummy-x11.so.
 """
 
 import os
 import subprocess
 import sys
 
-# SONAME -> файл со списком символов. Список не выводится из программы:
-# он снят с настоящих библиотек trixie один раз (readelf --dyn-syms) и
-# зафиксирован в репозитории, чтобы сборка не зависела от trixie.
-SONAMES = [
+# Имена, которые собираются в единую заглушку. Списки символов лежат рядом
+# с этим скриптом: symbols-<имя>.txt (сняты с настоящих библиотек trixie
+# readelf --dyn-syms), чтобы сборка не зависела от состава trixie.
+STUB_SONAMES = [
     'libX11.so.6',
     'libXext.so.6',
-    'libxcb.so.1',
     'libXcomposite.so.1',
     'libXdamage.so.1',
     'libXfixes.so.3',
     'libXrandr.so.2',
+    # Нужны настоящей libxcb по NEEDED, входят в объединение (см. докстринг):
+    'libXau.so.6',
+    'libXdmcp.so.6',
 ]
+
+# Единый файл и его SONAME. Имя не начинается с "lib", чтобы dh_makeshlibs
+# не принял его за обычную библиотеку с отдельным SONAME.
+UNION_NAME = 'dummy-x11.so'
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
-def gen(soname, outdir):
+def read_symbols(soname):
     lst = os.path.join(HERE, 'symbols-%s.txt' % soname)
     with open(lst, encoding='utf-8') as fh:
         symbols = [line.strip() for line in fh if line.strip()]
     if not symbols:
         raise SystemExit('Пустой список символов: %s' % lst)
-
-    csrc = os.path.join(outdir, '.src', soname + '.c')
-    so = os.path.join(outdir, soname)
-    os.makedirs(os.path.join(outdir, '.src'), exist_ok=True)
-    with open(csrc, 'w', encoding='utf-8') as fh:
-        fh.write('/* Заглушки вместо %s. Сгенерировано gen-stubs,\n'
-                 ' * правьте symbols-%s.txt, а не этот файл. */\n'
-                 % (soname, soname))
-        for sym in symbols:
-            # Все нужные символы — функции (проверено readelf: тип FUNC),
-            # поэтому заглушка возвращает NULL. Критично, что возвращаемое
-            # значение ОПРЕДЕЛЕНО: браузер проверяет XOpenDisplay() на NULL и
-            # по нему выбирает бэкенд, а мусор в регистре привёл бы к
-            # попытке работать через несуществующий X-сервер.
-            fh.write('void *%s(void) { return (void *) 0; }\n' % sym)
-
-    # -fPIC: заглушка должна быть грузима как обычная .so; SONAME совпадает с
-    # настоящей библиотекой, поэтому поиск по имени её находит.
-    subprocess.run(
-        ['gcc', '-shared', '-fPIC', '-O2', '-o', so, csrc,
-         '-Wl,-soname,' + soname],
-        check=True)
-    return so, len(symbols)
+    return symbols
 
 
 def main():
     outdir = sys.argv[1] if len(sys.argv) > 1 else '.'
     os.makedirs(outdir, exist_ok=True)
-    total = 0
-    for soname in SONAMES:
-        so, n = gen(soname, outdir)
-        total += n
-        print('==> %s: %d символов' % (os.path.basename(so), n))
-    print('==> Заглушек: %d, символов всего: %d' % (len(SONAMES), total))
+
+    # Объединение с сохранением порядка и без дублей: одно имя из двух
+    # списков определяется один раз, иначе gcc откажется компилировать.
+    union = {}
+    for soname in STUB_SONAMES:
+        symbols = read_symbols(soname)
+        for sym in symbols:
+            union.setdefault(sym, None)
+        print('==> %s: %d символов' % (soname, len(symbols)))
+
+    csrc = os.path.join(outdir, '.src', 'dummy-x11.c')
+    so = os.path.join(outdir, UNION_NAME)
+    os.makedirs(os.path.join(outdir, '.src'), exist_ok=True)
+    with open(csrc, 'w', encoding='utf-8') as fh:
+        fh.write('/* Заглушки вместо X11-библиотек. Сгенерировано gen-stubs,\n'
+                 ' * правьте symbols-*.txt, а не этот файл. */\n')
+        for sym in union:
+            # Все символы - функции (проверено readelf: тип FUNC), поэтому
+            # заглушка возвращает NULL. Критично, что возвращаемое значение
+            # ОПРЕДЕЛЕНО: браузер проверяет XOpenDisplay() на NULL и по нему
+            # выбирает бэкенд, а мусор в регистре привёл бы к попытке
+            # работать через несуществующий X-сервер.
+            fh.write('void *%s(void) { return (void *) 0; }\n' % sym)
+
+    # -fPIC: заглушка должна быть грузима как обычная .so. SONAME = имени
+    # файла: имена настоящих библиотек - симлинки на этот файл, линкер
+    # находит их по имени NEEDED и грузит цель симлинка.
+    subprocess.run(
+        ['gcc', '-shared', '-fPIC', '-O2', '-o', so, csrc,
+         '-Wl,-soname,' + UNION_NAME],
+        check=True)
+
+    # Симлинки вместо имен настоящих SONAME. Относительная цель: в пакете
+    # файлы лежат в одном каталоге, симлинк самодостаточен.
+    for soname in STUB_SONAMES:
+        link = os.path.join(outdir, soname)
+        if os.path.lexists(link):
+            os.unlink(link)
+        os.symlink(UNION_NAME, link)
+
+    print('==> %s: %d символов (объединение)' % (UNION_NAME, len(union)))
+    print('==> Симлинков: %d; настоящая libxcb.so.1 не генерируется, '
+          'она лежит в debian/stubs/real/' % len(STUB_SONAMES))
 
 
 if __name__ == '__main__':
