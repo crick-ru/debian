@@ -1042,6 +1042,7 @@ jobs:
                 ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
                 ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
                 ./stage3-pool/mesa-common-dev_*.deb
                 ./stage3-pool/mesa-libgallium_*.deb
           )
@@ -1298,6 +1299,7 @@ jobs:
                 ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
                 ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
@@ -1455,6 +1457,13 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
       - name: Download stage 4 packages
         uses: actions/download-artifact@v8
         with:
@@ -1496,6 +1505,7 @@ jobs:
                 ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
                 ./stage1-pool/libopengl-dev_*.deb
                 ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
@@ -1803,6 +1813,7 @@ jobs:
                 ./stage1-pool/libopengl0_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
                 ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
@@ -2050,6 +2061,7 @@ jobs:
                 ./stage3-pool/libavutil61_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
                 ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
                 ./stage3-pool/libswresample-dev_*.deb
                 ./stage3-pool/libswresample7_*.deb
                 ./stage3-pool/libswscale-dev_*.deb
