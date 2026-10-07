@@ -1526,6 +1526,11 @@ jobs:
                 ./stage2-pool/libva-wayland2_*.deb
                 ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
                 ./stage4-pool/gstreamer1.0-gl_*.deb
                 ./stage4-pool/gstreamer1.0-plugins-base_*.deb
@@ -1811,6 +1816,13 @@ jobs:
                 ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libopengl-dev_*.deb
                 ./stage1-pool/libopengl0_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
                 ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libegl-mesa0_*.deb
