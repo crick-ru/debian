@@ -60,9 +60,10 @@ Package: libegl1
 Section: libs
 Architecture: any
 Depends:
- libglvnd0 (= ${binary:Version}),
- ${misc:Depends},
- ${shlibs:Depends}
+  libglvnd0 (= ${binary:Version}),
+  libegl-mesa0,
+  ${misc:Depends},
+  ${shlibs:Depends}
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Description: GL dispatch library runtime for EGL
