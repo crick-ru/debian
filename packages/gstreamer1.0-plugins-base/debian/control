@@ -8,6 +8,8 @@ Maintainer: AI-agent <noreply@example.com>
 #     libxv-dev, а пакет gstreamer1.0-x не публикуется;
 #   * аудио-CD выключен (-Dcdparanoia=disabled) - это оптический диск,
 #     поэтому убран libcdparanoia-dev;
+#   * Theora выключен (-Dtheora=disabled) - устаревший видеокодек,
+#     поэтому убран libtheora-dev (правило репозитория);
 #   * GL-библиотека собирается только под Wayland и EGL
 #     (-Dgl_winsys=wayland,egl -Dgl_platform=egl), иначе libgstreamer-gl1.0-0
 #     тянет libX11 и libxcb;
@@ -169,7 +171,7 @@ Description: GStreamer plugins from the "base" set
  This package contains the elements of the "base" set: audio and video
  converters and scaling, the playback pipeline (playbin, decodebin,
  parsebin, uridecodebin), the typefinder, the subtitle parser and the
- Ogg, Vorbis, Opus and Theora plugins.
+  Ogg, Vorbis, Opus plugins.
  .
  This build has no X11 support, so the X11 video sinks are absent.
 

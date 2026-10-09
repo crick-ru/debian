@@ -10,8 +10,7 @@
 - `libgstreamer-gl1.0-0` и `gstreamer1.0-gl` — интеграция с OpenGL.
 - `gstreamer1.0-plugins-base` — конвертеры и масштабирование звука и видео,
   конвейер воспроизведения (`playbin`, `decodebin`, `parsebin`,
-  `uridecodebin`), определитель типов, парсер субтитров, Ogg, Vorbis, Opus и
-  Theora.
+  `uridecodebin`), определитель типов, парсер субтитров, Ogg, Vorbis, Opus.
 - `gstreamer1.0-alsa` — вывод и захват звука через ALSA.
 - `gir1.2-gst-plugins-base-1.0` — данные GObject introspection.
 
@@ -23,6 +22,9 @@
   `libxv-dev`. Пакет `gstreamer1.0-x` не публикуется.
 - **Аудио-CD**: `-Dcdparanoia=disabled` — это оптический диск, поэтому
   `libcdparanoia-dev` убран из `Build-Depends` (по правилам проекта).
+- **Theora**: `-Dtheora=disabled` — устаревший видеокодек из `libtheora-dev`,
+  `libtheora-dev` убран из `Build-Depends` (правило репозитория). Плагин
+  `libgsttheora.so` не собирается и не публикуется.
 - **Утилиты для сопровождения**: пакет `gstreamer1.0-plugins-base-apps`
   (`gst-play-1.0`, `gst-discoverer-1.0`, `gst-device-monitor-1.0`) не
   публикуется. В репозитории есть `mpv`, а discoverer и device-monitor —

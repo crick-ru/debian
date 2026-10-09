@@ -18,7 +18,6 @@ usr/lib/*/gstreamer-1.0/libgstplayback.so
 usr/lib/*/gstreamer-1.0/libgstrawparse.so
 usr/lib/*/gstreamer-1.0/libgstsubparse.so
 usr/lib/*/gstreamer-1.0/libgsttcp.so
-usr/lib/*/gstreamer-1.0/libgsttheora.so
 usr/lib/*/gstreamer-1.0/libgsttypefindfunctions.so
 usr/lib/*/gstreamer-1.0/libgstvideoconvertscale.so
 usr/lib/*/gstreamer-1.0/libgstvideorate.so
