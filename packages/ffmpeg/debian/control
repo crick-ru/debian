@@ -25,7 +25,7 @@ Build-Depends:
  nasm,
  pkgconf,
  python3,
-libaom-dev,
+ libaom-dev,
   libass-dev,
   libbs2b-dev,
   libbz2-dev,

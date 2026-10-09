@@ -70,9 +70,9 @@ override_dh_auto_configure:
 		--without-fpx \
 		--with-djvu \
 		--with-heic \
-		--with-openjp2 \
-		--with-webp \
-		--with-wmf \
+		--without-openjp2 \
+		--without-webp \
+		--without-wmf \
 		--with-fftw \
 		--with-security-policy=secure \
 		--enable-reproducible-build \

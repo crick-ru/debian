@@ -68,11 +68,11 @@ CONFIG := \
 	--enable-libfontconfig \
 	--enable-libfreetype \
 	--enable-libfribidi \
-	--enable-libgme \
-	--enable-libgsm \
+	--disable-libgme \
+	--disable-libgsm \
 	--enable-libharfbuzz \
 	--enable-libmp3lame \
-	--enable-libmysofa \
+	--disable-libmysofa \
 	--enable-libopenjpeg \
 	--enable-libopenmpt \
 	--enable-libopus \
@@ -80,10 +80,10 @@ CONFIG := \
 	--enable-libshine \
 	--enable-libsnappy \
 	--enable-libsoxr \
-	--enable-libspeex \
-	--enable-libtheora \
+	--disable-libspeex \
+	--disable-libtheora \
 	--enable-libtwolame \
-	--enable-libvidstab \
+	--disable-libvidstab \
 	--enable-libvorbis \
 	--enable-libvpl \
 	--enable-libvpx \
@@ -92,7 +92,7 @@ CONFIG := \
 	--enable-libxml2 \
 	--enable-libxvid \
 	--enable-libzimg \
-	--enable-openal \
+	--disable-openal \
 	--enable-vaapi \
 	--enable-ffnvcodec \
 	--disable-sndio

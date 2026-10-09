@@ -27,7 +27,7 @@ Maintainer: AI-agent <noreply@example.com>
 Build-Depends: debhelper-compat (= 13),
                chrpath,
                pkgconf,
-libltdl-dev,
+               libltdl-dev,
                 libfftw3-dev,
                 liblcms2-dev,
                 liblqr-1-0-dev,

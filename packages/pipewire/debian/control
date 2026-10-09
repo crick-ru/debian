@@ -11,7 +11,7 @@ Maintainer: AI-agent <noreply@example.com>
 #   * X11, JACK, V4L2, libcamera, ONNX Runtime и Bluetooth-PLC отключены;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: debhelper-compat (= 13),
-libfdk-aac-dev,
+                libfdk-aac-dev,
                 dh-sequence-installsysusers,
                 dpkg-dev (>= 1.22.5),
                 libapparmor-dev [linux-any],

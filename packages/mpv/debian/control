@@ -16,7 +16,9 @@ Maintainer: AI-agent <noreply@example.com>
 #   * JACK выключен (-Djack=disabled), поэтому убран libjack-dev;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 # Правила отключения — в правилах проекта.
-libasound2-dev [linux-any],
+Build-Depends:
+ debhelper-compat (= 13),
+ libasound2-dev [linux-any],
   libass-dev,
   libavcodec-dev (>= 7:7.0),
   libavdevice-dev (>= 7:7.0),

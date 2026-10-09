@@ -30,7 +30,7 @@ Build-Depends:
  python3,
  iso-codes,
  libasound2-dev [linux-any],
-libbrotli-dev,
+ libbrotli-dev,
   libdrm-dev [linux-any],
   libegl-dev,
   libgbm-dev [linux-any],
