@@ -1,6 +1,6 @@
 Source: gtk+3.0
 Section: libs
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Standards-Version: 4.7.4
 # Упаковка взята из Debian (gtk+3.0 3.24.52-2) и переработана:
 #   * удалены udeb, документация и примеры (их файлы — в

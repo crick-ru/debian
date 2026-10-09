@@ -1,7 +1,7 @@
 Source: celluloid
 Section: video
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (celluloid_0.29-1) и переработана:
 #   * тестовые программы не собираются: патч 02_no-tests.patch убирает
 #     subdir('test') из meson.build (опции у celluloid нет);

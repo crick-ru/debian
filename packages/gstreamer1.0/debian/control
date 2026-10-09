@@ -1,7 +1,7 @@
 Source: gstreamer1.0
 Section: libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (gstreamer1.0 1.28.7-1) и упрощена:
 #   * документация не собирается (-Ddoc=disabled), поэтому пакеты
 #     gstreamer1.0-doc и gstreamer1.0-doc-hotdoc не публикуются;

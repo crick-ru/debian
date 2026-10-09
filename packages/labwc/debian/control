@@ -1,6 +1,6 @@
 Source: labwc
 Section: x11
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (labwc_0.20.2-1) и переработана:
 #   * man-страницы не генерируются (-Dman-pages=disabled), поэтому убран scdoc;
 #   * тесты не собираются (-Dtest=disabled);

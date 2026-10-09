@@ -1,7 +1,7 @@
 Source: mesa
 Section: graphics
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (mesa_26.1.6-1~bpo13+1, ветка 26.1) и переработана:
 #   * X11 нет вообще: -Dplatforms=['wayland'] и -Dglx=disabled. Штатная mesa в
 #     trixie (libglx-mesa0, libegl-mesa0, mesa-libgallium) тянет libx11-6,

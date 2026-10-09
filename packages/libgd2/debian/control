@@ -1,7 +1,7 @@
 Source: libgd2
 Section: graphics
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (libgd2_2.3.3-14, unstable) и переработана:
 #   * публикуются только libgd3 и libgd-dev. Пакет libgd-tools не публикуется:
 #     это примеры (gddemo, gdtest, testac) плюс man-страница на них, а правило

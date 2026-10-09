@@ -1,5 +1,5 @@
 Source: kmscon
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Section: utils
 # Упаковка взята из Debian (kmscon_10.0.3-1) и переработана:
 #   * man-страницы не генерируются (-Ddocs=disabled), поэтому убраны

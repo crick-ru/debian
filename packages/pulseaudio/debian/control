@@ -1,7 +1,7 @@
 Source: pulseaudio
 Section: libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (pulseaudio_17.0+dfsg1-2) и переработана: публикуется
 # только клиентская часть.
 #   * демон не собирается (-Ddaemon=false): не публикуются пакеты pulseaudio,

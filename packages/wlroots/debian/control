@@ -1,6 +1,6 @@
 Source: wlroots
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (wlroots_0.20.2-1) и переработана:
 #   * примеры не собираются (-Dexamples=false), пакет
 #     libwlroots-0.20-examples не публикуется, его .install удалён;

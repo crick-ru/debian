@@ -1,7 +1,7 @@
 Source: at-spi2-core
 Section: misc
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (at-spi2-core_2.56.2-1+deb13u2, ветка 13) и переработана:
 #   * X11 отключён (-Dx11=disabled): libatspi.so.0 собирается без libX11/libXi,
 #     файл atspi-device-x11.c не компилируется, весь X11-код вырезан по HAVE_X11;

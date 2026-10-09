@@ -1,6 +1,6 @@
 Source: gtk4
 Section: libs
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Standards-Version: 4.7.4
 # Упаковка взята из Debian (gtk4 4.22.4+ds-1) и переработана под GTK 4.22.5:
 #   * удалены udeb, документация, примеры и тесты (см. packages/gtk4/README.md);

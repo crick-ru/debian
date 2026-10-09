@@ -1,7 +1,7 @@
 Source: libheif
 Section: libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (libheif_1.23.4, ветка 1.23) и переработана:
 #   * публикуется только минимальный набор пакетов для зависимости
 #     imagemagick: libheif1 и libheif-dev. Отдельные пакеты плагинов

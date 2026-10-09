@@ -1,7 +1,7 @@
 Source: libxkbcommon
 Section: x11
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (libxkbcommon_1.13.1-1) и переработана:
 #   * X11-часть не собирается (-Denable-x11=false), поэтому убраны
 #     libxcb-xkb-dev, x11-xkb-utils, x11proto-dev и пакеты

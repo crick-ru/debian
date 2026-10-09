@@ -1,7 +1,7 @@
 Source: dummy-x11
 Section: misc
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка написана с нуля для этого репозитория: исходников нет и не будет,
 # пакет по определению состоит только из заглушек, которые генерируются из
 # списков символов (debian/stubs/). Подробности - в packages/dummy-x11/README.md.

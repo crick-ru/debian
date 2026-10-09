@@ -1,7 +1,7 @@
 Source: neatvnc
 Priority: optional
 Section: libs
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (neatvnc_1.0.1+dfsg-1) и переработана:
 #   * тесты не собираются и не запускаются (-Dtests=false вместо Debian-ных
 #     -Dtests=true; в rules убираются override_dh_auto_test и вывод testlog),

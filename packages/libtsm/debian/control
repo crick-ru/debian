@@ -1,5 +1,5 @@
 Source: libtsm
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Section: libs
 Priority: optional
 # Упаковка взята из Debian и переработана:

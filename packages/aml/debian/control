@@ -1,7 +1,7 @@
 Source: aml
 Priority: optional
 Section: libs
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (aml_1.0.0-1) и переработана:
 #   * примеры не собираются (-Dexamples=false, это же значение по умолчанию) и
 #     не публикуются, README не ставится в /usr/share/doc;

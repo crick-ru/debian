@@ -1,7 +1,7 @@
 Source: pwvucontrol
 Section: sound
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # В Debian pwvucontrol отсутствует (нет ни в trixie, ни в sid, ни в
 # bookworm), поэтому упаковка написана с нуля по upstream-исходникам:
 #   * документация не собирается (в tar-боле её нет вовсе, а man-страница

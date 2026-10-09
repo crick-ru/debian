@@ -1,7 +1,7 @@
 Source: wireplumber
 Section: libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (wireplumber_0.5.17-1) и переработана:
 #   * документация и man-страницы не собираются (-Ddoc=disabled), поэтому пакет
 #     wireplumber-doc и файлы wireplumber-doc.* удалены, из Build-Depends

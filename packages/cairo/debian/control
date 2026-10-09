@@ -1,7 +1,7 @@
 Source: cairo
 Section: libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Standards-Version: 4.7.0
 # Упаковка написана с нуля для этого репозитория:
 #   * X11 не собирается (-Dxlib=disabled -Dxcb=disabled -Dxlib-xcb=disabled):

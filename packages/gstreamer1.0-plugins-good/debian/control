@@ -1,7 +1,7 @@
 Source: gstreamer1.0-plugins-good
 Section: libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (gst-plugins-good1.0 1.28.7-1) и упрощена:
 #   * видеосинки Qt выключены (-Dqt5=disabled -Dqt6=disabled): это QML,
 #     то есть X11-ориентированный API, а в репозитории нет ни Qt, ни

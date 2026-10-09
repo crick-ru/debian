@@ -1,7 +1,7 @@
 Source: sfwbar
 Section: x11
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (sfwbar_1.0~beta17-1) и переработана:
 #   * man-страница не генерируется из doc/*.rst (шаг с rst2man удалён), поэтому
 #     убран python3-docutils; готовые файлы справки в поставку не входят;

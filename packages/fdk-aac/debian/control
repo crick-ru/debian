@@ -1,7 +1,7 @@
 Source: fdk-aac
 Section: non-free/libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Homepage: https://github.com/mstorsjo/fdk-aac
 Standards-Version: 4.7.1
 Build-Depends: debhelper-compat (= 13)

@@ -1,7 +1,7 @@
 Source: gstreamer1.0-plugins-bad
 Section: libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (gst-plugins-bad1.0 1.28.7-2) и упрощена:
 #   * X11 выключен (-Dx11=disabled, окно Vulkan только Wayland). В GStreamer
 #     1.28.7 libxkbcommon встречается ровно в двух местах - в плагине wpe и

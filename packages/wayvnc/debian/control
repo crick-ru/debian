@@ -1,7 +1,7 @@
 Source: wayvnc
 Priority: optional
 Section: admin
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (wayvnc_0.10.1-1) и переработана:
 #   * man-страницы не генерируются (-Dman-pages=disabled), поэтому scdoc убран
 #     из Build-Depends;

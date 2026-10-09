@@ -1,7 +1,7 @@
 Source: imagemagick
 Section: graphics
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (imagemagick_8:7.1.1.43+dfsg1-1) и переработана:
 #   * X11 выключен (--without-x): Debian собирает ImageMagick с
 #     --x-includes/--x-libraries, здесь X11-делегат не собирается вовсе,
@@ -27,29 +27,24 @@ Maintainer: crick Debian Backports <backports@users.noreply.github.com>
 Build-Depends: debhelper-compat (= 13),
                chrpath,
                pkgconf,
-               libltdl-dev,
-               libfftw3-dev,
-               liblcms2-dev,
-               liblqr-1-0-dev,
-               libfreetype-dev,
-               libfontconfig-dev,
-               zlib1g-dev,
-               liblzma-dev,
-               libbz2-dev,
-               ghostscript,
-               libdjvulibre-dev,
-               libexif-dev,
-               libheif-dev,
-               libjpeg-dev,
-               libopenjp2-7-dev,
-               libopenexr-dev,
-               libpng-dev,
-               libtiff-dev,
-               libwmf-dev,
-               libwebp-dev,
-               libpango1.0-dev,
-               libxml2-dev,
-               libraw-dev
+libltdl-dev,
+                libfftw3-dev,
+                liblcms2-dev,
+                liblqr-1-0-dev,
+                libfreetype-dev,
+                libfontconfig-dev,
+                zlib1g-dev,
+                liblzma-dev,
+                libbz2-dev,
+                ghostscript,
+                libdjvulibre-dev,
+                libexif-dev,
+                libheif-dev,
+                libjpeg-dev,
+                libpng-dev,
+                libpango1.0-dev,
+                libxml2-dev,
+                libraw-dev
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Homepage: https://www.imagemagick.org/

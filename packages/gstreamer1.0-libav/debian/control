@@ -1,7 +1,7 @@
 Source: gstreamer1.0-libav
 Section: libs
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (gst-libav1.0 1.28.7-1) и упрощена:
 #   * документация не собирается (-Ddoc=disabled), man-страницы не
 #     публикуются;

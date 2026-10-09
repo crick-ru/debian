@@ -1,7 +1,7 @@
 Source: wayland-protocols
 Section: x11
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Build-Depends: debhelper-compat (= 13),
                libwayland-dev (>= 1.23.0),
                meson (>= 0.58.0),

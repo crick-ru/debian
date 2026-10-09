@@ -1,6 +1,6 @@
 Source: libdrm
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (libdrm_2.4.134-3) и переработана:
 #   * пакет libdrm-tests не собирается (-Dinstall-test-programs=false), его
 #     .install удалён, тестовый сьют не запускается;

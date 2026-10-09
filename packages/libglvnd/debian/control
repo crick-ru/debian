@@ -1,6 +1,6 @@
 Source: libglvnd
 Section: libs
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Standards-Version: 4.7.3
 # Упаковка взята из Debian (libglvnd 1.7.0-3) и переработана:
 #   * GLX и GL не публикуются: GLX есть X11-протокол, а GL у нас не

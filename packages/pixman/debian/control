@@ -1,7 +1,7 @@
 Source: pixman
 Section: devel
 Priority: optional
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Build-Depends:
  debhelper-compat (= 13),
  meson,

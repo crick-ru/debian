@@ -1,6 +1,6 @@
 Source: wayland
 Section: x11
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 # Упаковка взята из Debian (wayland_1.26.0-1) и переработана:
 #   * пакет libwayland-doc не публикуется: документация не собирается
 #     (-Ddocumentation=false), поэтому удалён весь Build-Depends-Indep

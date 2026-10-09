@@ -1,6 +1,6 @@
 Source: libva
 Section: libs
-Maintainer: crick Debian Backports <backports@users.noreply.github.com>
+Maintainer: AI-agent <noreply@example.com>
 Standards-Version: 4.7.3
 # Упаковка взята из Debian unstable (libva_2.24.1-2) и переработана:
 #   * X11-путь VA-API не публикуется: -Dwith_x11=no убирает не только X11,
