@@ -70,8 +70,8 @@ override_dh_auto_configure:
 		--without-fpx \
 		--with-djvu \
 		--with-heic \
-		--without-openjp2 \
-		--without-webp \
+		--with-openjp2 \
+		--with-webp \
 		--without-wmf \
 		--with-fftw \
 		--with-security-policy=secure \

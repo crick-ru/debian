@@ -41,8 +41,10 @@ Build-Depends: debhelper-compat (= 13),
                 libexif-dev,
                 libheif-dev,
                 libjpeg-dev,
+                libopenjp2-7-dev,
                 libpng-dev,
                 libpango1.0-dev,
+                libwebp-dev,
                 libxml2-dev,
                 libraw-dev
 Standards-Version: 4.7.0

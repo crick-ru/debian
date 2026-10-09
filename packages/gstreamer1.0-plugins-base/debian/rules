@@ -28,6 +28,7 @@ conf_flags = \
 	-Dinstall_plugins_helper=/usr/bin/gstreamer-codec-install \
 	-Dauto_features=enabled \
 	-Dtremor=disabled \
+	-Dtheora=disabled \
 	-Ddoc=disabled \
 	-Dexamples=disabled \
 	-Dtests=disabled \
