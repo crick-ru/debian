@@ -3,6 +3,8 @@
 Сборка `wireplumber` 0.5.17 для Debian 13 (trixie) — сессионный менеджер
 (session/policy manager) для PipeWire и GObject-обёртка над его API.
 
+Упаковка взята из Debian (`wireplumber_0.5.17-1`, ветка unstable) и переработана.
+
 ## Зачем он нужен в этом репозитории
 
 Главная причина — **`pwvucontrol`**. Наш pwvucontrol 0.5.3 требует
@@ -18,7 +20,7 @@ dependency('wireplumber-0.5', version: '>= 0.5.11')
 `pipewire` из этого репозитория не запускает пользовательские сессии.
 
 В trixie это `8:0.5.8` → здесь `0.5.17-1+crick`, то есть новее на девять
-минорных релизов. ABI не менялся: SONAME остался `libwireplumber-0.5.so.0`.
+минорных релизов. ABI не меняется: SONAME остаётся `libwireplumber-0.5.so.0`.
 
 ## Включено
 
@@ -74,7 +76,7 @@ dependency('wireplumber-0.5', version: '>= 0.5.11')
     зависимость `gir1.2-wp-0.5 (= ${binary:Version})` в
     `libwireplumber-0.5-dev`; в списке установки `pwvucontrol` в
     `.github/workflows/build.yml` вернуть `./stage5-pool/gir1.2-wp-0.5_*.deb`.
-    Поскольку пакет ещё не публиковался, ревизию поднимать не нужно.
+    Поскольку пакет ещё не опубликован, ревизию поднимать не нужно.
 
 - **Тесты** (`-Dtests=false -Ddbus-tests=false`): каталог `debian/tests`
   (autopkgtest) удалён, `override_dh_auto_test` пуст. Тестовое дерево
@@ -98,7 +100,7 @@ dependency('wireplumber-0.5', version: '>= 0.5.11')
 
 - Версия: `0.5.17-1+crick` (ревизия 1 — первая публикация пакета в
   этом репозитории).
-- Патч `Remove-privacy-breach-documentation.patch` перенесён из Debian:
+- Патч `Remove-privacy-breach-documentation.patch` взят из Debian:
   убирает из `README.rst` бейджи, которые при рендеринге в HTML
   показывают внутренние адреса инфраструктуры проекта.
 - Отладочные символы (`-dbgsym`) не собираются и не публикуются.

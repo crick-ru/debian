@@ -182,21 +182,19 @@ Debian собирает с X11 и получает обе цели, мы — т�
 `libva` (см. `packages/libva/README.md`).
 
 VA-API у mesa включается опцией `-Dgallium-va=enabled` и требует пакет
-`libva-dev` по `Build-Depends`. Штатный `libva-dev` был неразрешим рядом с
+`libva-dev` по `Build-Depends`. Штатный `libva-dev` несовместим с
 нашим `libglvnd0`: он тянет `libva-glx2`, а тот `Depends: libgl1`, который
-пинит `libglvnd0` версии trixie. Именно на этом падала mesa —
-`cannot resolve build-dependency 'libva-dev'`, прогон CI `37168394656`.
-
-Теперь пин снят: наш `libva` собран без GLX и X11, пути DRM и Wayland на
-месте, то есть VA-API работает полностью. По правилу репозитория VA-API не
+пинит `libglvnd0` версии trixie — сборка падает с
+`cannot resolve build-dependency 'libva-dev'` (прогон CI `37168394656`).
+Наш `libva` решает это: он собран без GLX и X11, пути DRM и Wayland на
+месте, VA-API работает полностью. По правилу репозитория VA-API не
 отключается — это единственный оставшийся ускоритель.
 
 ## Почему из `mesa-common-dev` убран `libgl-dev`
 
-`mesa-common-dev` больше не зависит от `libgl-dev`. Зависимость была
-унаследована от упаковки Debian, где GL-заголовки действительно нужны; у нас
-GL не собирается вовсе (`-Dglx=disabled`, `-Dplatforms=['wayland']`), и
-заголовки никем не используются. Проверено по исходникам 26.1.6:
+`mesa-common-dev` не зависит от `libgl-dev`: GL не собирается
+(`-Dglx=disabled`, `-Dplatforms=['wayland']`), заголовки не используются.
+Проверено по исходникам 26.1.6:
 
 | Файл пакета | Что требует |
 |---|---|
@@ -204,18 +202,17 @@ GL не собирается вовсе (`-Dglx=disabled`, `-Dplatforms=['waylan
 | `dri.pc` | `requires_private = ['libdrm >= ...']` |
 | `gbm.h`, `gbm_backend_abi.h` | `stddef.h`, `stdint.h`, свой собственный заголовок |
 
-Убрана зависимость была не косметической. `libgl-dev` — это пакет glvnd, и
-он объявляет:
+`libgl-dev` — это пакет glvnd, который объявляет:
 
 ```
 Breaks: mesa-common-dev (<< 19.3.0~rc6-1)
 ```
 
-Наша версия 26.1.6 под это ограничение попадает, поэтому пока
-`mesa-common-dev` тянула `libgl-dev`, установка `libegl-dev` становилась
-неразрешимой. А `libegl-dev` нужен по `Build-Depends` сразу пяти пакетам —
-`wlroots`, `mpv`, `kmscon`, `gstreamer1.0-plugins-base`, `neatvnc`. Из-за
-этого они собирались против штатного `libgbm-dev`, а тот тянет X11 через
+Наша версия 26.1.6 попадает в это ограничение: если `mesa-common-dev`
+зависит от `libgl-dev`, установка `libegl-dev` становится неразрешимой. А
+`libegl-dev` нужен по `Build-Depends` сразу пяти пакетам — `wlroots`, `mpv`,
+`kmscon`, `gstreamer1.0-plugins-base`, `neatvnc`. Такие пакеты вынуждены
+использовать штатный `libgbm-dev`, а тот тянет X11 через
 `mesa-libgallium`.
 
 Побочная выгода: `libegl-dev` в trixie объявляет `Depends: libx11-dev`, то

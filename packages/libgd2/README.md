@@ -75,7 +75,7 @@ php -r '$i=imagecreatetruecolor(8,8); var_dump(imagepng($i));'  # png работ
 - примеры и man-страницы не публикуются;
 - dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`),
   поэтому `override_dh_strip` с миграцией `libgd-dbg` убран;
-- quill-патчи Debian оставлены все шесть, включая правящие `tests/`
+- quilt-патчи Debian оставлены все шесть, включая правящие `tests/`
   (`0002`, `0003`): без них дерево не накладывается, а на символы они не
   влияют.
 

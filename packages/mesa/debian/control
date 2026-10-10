@@ -128,12 +128,12 @@ Description: free implementation of the EGL API -- Mesa vendor library
 # libraries_private = '-ldl' и без поля requires, dri.pc требует только
 # libdrm, а gbm.h включает stddef.h и stdint.h.
 #
-# Зависимость была не безобидна: libgl-dev (пакет glvnd) объявляет
+# Зависимость от libgl-dev не безобидна: libgl-dev (пакет glvnd) объявляет
 # Breaks: mesa-common-dev (<< 19.3.0~rc6-1), а наша версия 26.1.6 под это
-# ограничение попадает. Пока mesa-common-dev тянула libgl-dev, установка
-# libegl-dev становилась неразрешимой, и пакеты, которым он нужен по
+# ограничение попадает. Если mesa-common-dev зависит от libgl-dev, установка
+# libegl-dev становится неразрешимой, и пакеты, которым он нужен по
 # Build-Depends (wlroots, mpv, kmscon, gstreamer1.0-plugins-base), не
-# могли собираться. Обоснование и проверка — в packages/mesa/README.md.
+# могут собираться. Обоснование и проверка — в packages/mesa/README.md.
 Package: mesa-common-dev
 Section: libdevel
 Architecture: any

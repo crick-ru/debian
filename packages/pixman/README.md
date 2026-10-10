@@ -1,7 +1,7 @@
 # pixman (crick Debian backports)
 
 Сборка `pixman` 0.46.4 для Debian 13 (trixie, amd64). Упаковка взята из
-Debian (`pixman_0.46.4-1`).
+Debian (`pixman_0.46.4-1`, ветка unstable) и переработана.
 
 ## Включено
 
@@ -25,7 +25,7 @@ Debian (`pixman_0.46.4-1`).
   переработки упаковки).
 - Формат исходников: в Debian он `1.0`, а `scripts/build-package.sh`
   принудительно ставит `3.0 (quilt)`, поэтому из `debian/rules` убран
-  add-on `--with quilt` — иначе патчи применились бы дважды.
+  add-on `--with quilt` — иначе патчи применяются дважды.
   Патч `debian/patches/test-increase-timeout.diff` накладывает `dpkg-source`.
 
 ## Влияние на другие пакеты

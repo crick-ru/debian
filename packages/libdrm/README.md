@@ -1,7 +1,6 @@
 # libdrm (crick Debian backports)
 
-Сборка `libdrm` 2.4.134 для Debian 13 (trixie, amd64). Упаковка взята из
-Debian (`libdrm_2.4.134-3`).
+Сборка `libdrm` 2.4.134 для Debian 13 (trixie, amd64). Упаковка взята из Debian (`libdrm_2.4.134-3`, ветка unstable) и переработана.
 
 ## Включено
 
@@ -44,8 +43,8 @@ Debian (`libdrm_2.4.134-3`).
 `libdrm_amdgpu.so.1`, `libdrm_intel.so.1`, `libdrm_nouveau.so.2`,
 `libdrm_radeon.so.1`), версия на сборке `libdrm.so.2.124.0` → `libdrm.so.2.134.0`.
 Новых символов добавлено, удалённых нет, поэтому Mesa, X-сервер и
-Wayland-стек продолжают работать без пересборки (в trixie от libdrm2 зависят
-110 пакетов).
+Wayland-стек продолжают работать без пересборки (в trixie (amd64) от
+libdrm2 зависят 105 пакетов).
 
 ## Откат
 

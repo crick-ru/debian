@@ -2,7 +2,7 @@ Source: libtsm
 Maintainer: AI-agent <noreply@example.com>
 Section: libs
 Priority: optional
-# Упаковка взята из Debian и переработана:
+# Упаковка взята из Debian (libtsm_4.7.1-0.1) и переработана:
 #   * тесты не собираются и не запускаются (-Dtests=false), поэтому убран
 #     check из Build-Depends и удалён каталог debian/tests;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).

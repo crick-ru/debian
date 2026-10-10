@@ -1,7 +1,7 @@
 # gstreamer1.0-plugins-bad (crick Debian backports)
 
 Сборка GStreamer Bad Plugins 1.28.7 для Debian 13 (trixie, amd64). Упаковка
-взята из Debian (`gst-plugins-bad1.0 1.28.7-2`) и сильно упрощена.
+взята из Debian (`gst-plugins-bad1.0_1.28.7-2`, ветка unstable) и переработана.
 
 ## Включено
 
@@ -26,7 +26,7 @@
   `libxkbcommon` встречается ровно в двух местах — в плагине `wpe` и в окне
   XCB плагина `vulkan`. Оба выключены, поэтому наш
   `libgstreamer-plugins-bad1.0-0` **не зависит ни от `libxkbcommon-x11-0`, ни
-  от `libxkbcommon0`**. Это и было целью: устаревшая версия из trixie
+  от `libxkbcommon0`**. Эта цель достигается: устаревшая версия из trixie
   (1.7.0-2, жёстко запинена `libxkbcommon-x11-0`) не должна попадать в
   систему, а наша `libxkbcommon0` 1.13.1 должна быть пригодна для GTK и
   pipewire. Проверка: `dpkg -s libgstreamer-plugins-bad1.0-0 | grep xkbcommon`
@@ -57,7 +57,7 @@
   Опция VNC-источника называется `librfb` (`gst/librfb`), имени `rfb` в
   `meson.options` нет. Строка `libgstrfbsrc.so` убрана из
   `gstreamer1.0-plugins-bad.install`.
-- **Платформенное и тяжёлое**: `-Dladspa=disabled -Dlv2=disabled
+- **Платформенное и тяжёлое**: `-Dladspa=disabled -Dlv2=disabled -Dsbc=disabled
   -Dopenni2=disabled -Dwebrtc=disabled -Dsctp=disabled -Dmicrodns=disabled
   -Dopensles=disabled -Dtinyalsa=disabled -Dmagicleap=disabled
   -Ddirectfb=disabled -Damfcodec=disabled -Dandroidmedia=disabled
@@ -74,9 +74,8 @@
   не публикуются: ни один пакет репозитория их не использует, а SDK
   BlackMagic/AJA — проприетарные и отсутствуют. Из `Build-Depends` убраны
   `libopenal-dev`, `libopenexr-dev` и `libgme-dev`; из `.install` —
-  `libgstdecklink.so`, `libgstgme.so`, `libgstopenal.so`, `libgstopenexr.so`
-  (`libgstaja.so` в `.install` не попадал — плагин либо не собирался, либо
-  не публиковался ранее).
+  `libgstdecklink.so`, `libgstgme.so`, `libgstopenal.so`, `libgstopenexr.so`.
+  `libgstaja.so` в `.install` не попадает: плагин не публикуется.
 - **Vulkan Video**: `-Dvulkan-video=disabled`. Кодирование и декодирование
   через Vulkan Video Extensions выключено: в trixie нет заголовков
   `vulkan_video_codec_*.h` (их даёт `libvulkan-dev` в более новых версиях
@@ -123,14 +122,12 @@
 
 ## VA-API берётся из этого репозитория
 
-`libva-dev`, `libva2`, `libva-drm2`, `libva-wayland2` ставятся из нашей сборки
-`libva` (см. `packages/libva/README.md`).
-
-Раньше здесь было исключение: штатный `libva-dev` нельзя поставить рядом с
-нашим `libglvnd0` — он тянет `libva-glx2`, а тот `Depends: libgl1`, который
-пинит `libglvnd0` версии trixie. Теперь пин снят: наш `libva` собран без
-GLX и X11, при этом пути DRM и Wayland на месте, так что VA-API работает
-полностью. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+`libva-dev`, `libva2`, `libva-drm2`, `libva-wayland2` ставятся из сборки
+`libva` (см. `packages/libva/README.md`). Штатный `libva-dev` не ставится
+рядом с нашим `libglvnd0`: он тянет `libva-glx2`, а тот зависит от `libgl1`,
+пинящий `libglvnd0` версии trixie. Пин снят, потому что наш `libva` собран без
+GLX и X11: пути DRM и Wayland на месте, VA-API работает полностью.
+Исключений в `CLOSURE_EXCEPT` нет.
 
 ## GL и GLES берутся из этого репозитория
 
@@ -158,9 +155,9 @@ Run-time dependency cairo found: NO
 `libpixman-1-0` (runtime), но не `libpixman-1-dev`, то есть `pixman-1.pc`
 отсутствовал — и `cairo.pc` не резолвился.
 
-Существующий комментарий в `control` про это уже предупреждал: «pkg-config
-в trixie (pkgconf) разрешает и Requires.private». Правило было записано, но
-`libpixman-1-dev` в `Build-Depends` не добавлен.
+  Существующий комментарий в `control` про это предупреждал: «pkg-config в
+  trixie (pkgconf) разрешает и Requires.private», и `libpixman-1-dev` добавлен
+  в `Build-Depends`.
 
 ## Изменено
 

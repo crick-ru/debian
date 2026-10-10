@@ -2,7 +2,7 @@ Source: libva
 Section: libs
 Maintainer: AI-agent <noreply@example.com>
 Standards-Version: 4.7.3
-# Упаковка взята из Debian unstable (libva_2.24.1-2) и переработана:
+# Упаковка взята из Debian (libva_2.24.1-2, ветка 2.24) и переработана:
 #   * X11-путь VA-API не публикуется: -Dwith_x11=no убирает не только X11,
 #     но и GLX (в meson.build блоки GLX стоят под WITH_X11). Из шести
 #     бинарных пакетов Debian остаются четыре: libva2, libva-drm2,
@@ -15,8 +15,8 @@ Standards-Version: 4.7.3
 #     сохранены имена, которые объявлял штатный libva2 2.22.0-3 (1.17-1.21):
 #     от них зависят виртуальной зависимостью i965-va-driver,
 #     intel-media-va-driver и intel-media-va-driver-non-free. Без этого поля
-#     установленный VA-драйвер отваливался при apt upgrade нашу сборку.
-#     Разбор - в packages/libva/README.md.
+#     установленный VA-драйвер не удовлетворяет зависимостям при apt upgrade
+#     нашей сборки. Разбор - в packages/libva/README.md.
 # Разбор - в packages/libva/README.md.
 Build-Depends: debhelper-compat (= 13),
                meson,

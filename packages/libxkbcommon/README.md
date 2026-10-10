@@ -19,8 +19,7 @@
   `xkbcli-dump-keymap-x11` и `xkbcli-interactive-x11`. Пакеты
   `libxkbcommon-x11-0` и `libxkbcommon-x11-dev` не публикуются, из
   `Build-Depends` убраны `libxcb-xkb-dev`, `x11-xkb-utils`, `x11proto-dev`.
-  Исключение «X11 не трогаем ради libxkb», которое действовало в репозитории
-  до 2026 года, снято: X11-библиотек в репозитории не осталось совсем.
+  X11-библиотек в репозитории не осталось — X11 отключено повсюду.
 - `libxkbcommon-doc` — документация не собирается
   (`-Denable-docs=false`), `doxygen` и `graphviz` убраны из `Build-Depends`.
 - Тесты не собираются и не запускаются: каталог `debian/tests` удалён, из

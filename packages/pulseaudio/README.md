@@ -5,7 +5,7 @@
 
 Версия: `17.0+dfsg1-2+crick`.
 
-Упаковка взята из Debian (`pulseaudio_17.0+dfsg1-2`) и переработана.
+Упаковка взята из Debian (`pulseaudio_17.0+dfsg1-2`, trixie) и переработана.
 
 ## Почему свой PulseAudio
 

@@ -2,7 +2,7 @@ Source: mpv
 Section: video
 Priority: optional
 Maintainer: AI-agent <noreply@example.com>
-# Упаковка взята из Debian (mpv_0.41.0-1) и переработана:
+# Упаковка взята из Debian (mpv_0.41.0-2) и переработана:
 #   * man/HTML/PDF не генерируются (-Dmanpage-build=false), поэтому убран
 #     python3-docutils (rst2man);
 #   * тесты не собираются (-Dtests=false);

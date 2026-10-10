@@ -1,7 +1,7 @@
 # gstreamer1.0-plugins-base (crick Debian backports)
 
 Сборка GStreamer Base Plugins 1.28.7 для Debian 13 (trixie, amd64). Упаковка
-взята из Debian (`gst-plugins-base1.0 1.28.7-1`) и упрощена.
+взята из Debian (`gst-plugins-base1.0_1.28.7-1`, ветка unstable) и переработана.
 
 ## Включено
 
@@ -85,10 +85,9 @@ apt install gstreamer1.0-plugins-base/trixie gstreamer1.0-plugins-base-apps/trix
 `libopengl0`, `libglvnd0`, `libglvnd-core-dev` ставятся из нашей сборки
 `libglvnd` (см. `packages/libglvnd/README.md`).
 
-Раньше здесь было исключение для `libegl-dev`: штатный пакет нельзя поставить
-рядом с нашей mesa — он тянет `libgl1-mesa-dev`, а тот пинит `libgbm1` версии
-trixie. Теперь пин снят, и заодно сняты GL-зависимости, которые этому пакету
-не нужны: у GLX и GL в нашем репозитории нет, а GLES и OpenGL-без-GLX
-собраны без X11. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+`libegl-dev` ставится из этого репозитория: штатный пакет из trixie тянет
+`libgl1-mesa-dev` и пинит `libgbm1` версии trixie. В нашем репозитории GLX
+и GL отсутствуют, а GLES и OpenGL-без-GLX собраны без X11, поэтому
+исключений в `CLOSURE_EXCEPT` нет.
 
 Здесь же `libgl-dev` убран из `Build-Depends`: фактически `libgstgl-1.0.so` линкуется только с `libEGL.so.1`.

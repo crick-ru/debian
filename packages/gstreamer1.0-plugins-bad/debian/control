@@ -10,7 +10,7 @@ Maintainer: AI-agent <noreply@example.com>
 #     libxkbcommon-x11-0, ни от libxkbcommon0: устаревшая версия из trixie
 #     (1.7.0-2, жёстко запинена libxkbcommon-x11-0) в систему не попадёт;
 #   * DVB-тюнеры выключены (-Ddvb=disabled);
-#   * DVD навигация выключена (-Ddvdnav=disabled) - это оптический диск,
+#   * DVD навигация выключена (-Dresindvd=disabled) - это оптический диск,
 #     поэтому убран libdvdnav-dev;
 #   * wpe выключен (-Dwpe=disabled -Dwpe2=disabled): libwpewebkit-2.0-1 из
 #     trixie сам Depends на libgstreamer-plugins-bad1.0-0, то есть плагин

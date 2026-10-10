@@ -1,5 +1,6 @@
 # mpv (crick Debian backports)
 
+Упаковка взята из Debian (`mpv_0.41.0-2`, ветка 0.41) и переработана.
 Сборка `mpv` 0.41.0 для Debian 13 (trixie), собранная как чисто Wayland-проигрыватель.
 Пакеты не содержат библиотек X11 — этим сборка отличается от пакетного дистрибутива.
 
@@ -18,12 +19,11 @@
   и из `Depends` пакета `libmpv-dev` убраны `libcdio-dev`,
   `libcdio-paranoia-dev`, `libdvdnav-dev`, `libbluray-dev` и `libarchive-dev`
   (по правилам проекта).
-- **DVB-тюнеры**: `-Ddvbin=disabled`. У этой опции не было внешних библиотек
-  (только заголовок `linux/dvb/frontend.h`), и она была единственной,
-  требовавшей блок `ARCH_CONFIGURE` в `debian/rules`; блок удалён вместе с
-  ней, как и `include /usr/share/dpkg/architecture.mk`.
-- **VDPAU**: `-Dvdpau=disabled`, `-Dvdpau-gl-x11=disabled`. Вторая опция и так
-  была выключена из-за `-Dx11=disabled`, но задана явно (по правилам проекта).
+- **DVB-тюнеры**: `-Ddvbin=disabled`. У этой опции нет внешних библиотек
+  (только заголовок `linux/dvb/frontend.h`); блок `ARCH_CONFIGURE` удалён
+  вместе с ней, как и `include /usr/share/dpkg/architecture.mk`.
+- **VDPAU**: `-Dvdpau=disabled`, `-Dvdpau-gl-x11=disabled`. Вторая опция
+  выключена из-за `-Dx11=disabled`, но задана явно (по правилам проекта).
 - **JACK**: `-Djack=disabled`. Аудио выводится через pipewire (ALSA, Pulse и
   sndio остаются); JACK-клиент собирать нечего без JACK-сервера, поэтому
   `libjack-dev` убран и из `Build-Depends`, и из `Depends` пакета `libmpv-dev`
@@ -34,7 +34,7 @@
   объявляют зависимостей `libx11*`, поэтому библиотеки вроде `libxpresent1`
   не ставятся.
 - Man-страница, HTML и PDF не генерируются из `DOCS/man/mpv.rst`
-  (`-Dmanpage-build=false`), поэтому убран `python3-docutils` (нужен был для
+  (`-Dmanpage-build=false`), поэтому убран `python3-docutils` (нужен только для
   `rst2man`). Готовых man-страниц в tar-боле нет, так что `man mpv`
   не документирован — это осознанная плата за правило «документация не
   собирается».
@@ -53,23 +53,19 @@
 ## VA-API берётся из этого репозитория
 
 `libva-dev`, `libva2`, `libva-drm2`, `libva-wayland2` ставятся из нашей сборки
-`libva` (см. `packages/libva/README.md`).
-
-Раньше здесь было исключение: штатный `libva-dev` нельзя поставить рядом с
-нашим `libglvnd0` — он тянет `libva-glx2`, а тот `Depends: libgl1`, который
-пинит `libglvnd0` версии trixie. Теперь пин снят: наш `libva` собран без
-GLX и X11, при этом пути DRM и Wayland на месте, так что VA-API работает
-полностью. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+`libva` (см. `packages/libva/README.md`). Штатный `libva-dev` несовместим с
+нашим `libglvnd0`: он тянет `libva-glx2`, а тот `Depends: libgl1`, который
+пинит `libglvnd0` версии trixie. Наш `libva` собран без GLX и X11, при этом
+пути DRM и Wayland на месте, так что VA-API работает полностью. Исключений в
+`CLOSURE_EXCEPT` нет.
 
 ## GL и GLES берутся из этого репозитория
 
 `libegl-dev`, `libegl1`, `libgles-dev`, `libgles1`, `libgles2`, `libopengl-dev`,
 `libopengl0`, `libglvnd0`, `libglvnd-core-dev` ставятся из нашей сборки
-`libglvnd` (см. `packages/libglvnd/README.md`).
-
-Раньше здесь было исключение для `libegl-dev`: штатный пакет нельзя поставить
-рядом с нашей mesa — он тянет `libgl1-mesa-dev`, а тот пинит `libgbm1` версии
-trixie. Теперь пин снят, и заодно сняты GL-зависимости, которые этому пакету
+`libglvnd` (см. `packages/libglvnd/README.md`). Штатный `libegl-dev`
+несовместим с нашей mesa: он тянет `libgl1-mesa-dev`, а тот пинит `libgbm1`
+версии trixie. Пин снят, и заодно сняты GL-зависимости, которые этому пакету
 не нужны: у GLX и GL в нашем репозитории нет, а GLES и OpenGL-без-GLX
-собраны без X11. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+собраны без X11. Исключений в `CLOSURE_EXCEPT` нет.
 

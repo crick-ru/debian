@@ -12,9 +12,10 @@ GStreamer и FFmpeg.
 - Кодеки: AOM, AV1 (через libaom и libdav1d), Opus, Vorbis, FLAC, MP3 (lame),
   MP2/3 (mpg123), LAME, Ogg, BS2B, OpenJPEG, WebP, XZ и Brotli, libzimg,
    libxml2, libvorbis, libtwolame, libshine. Speex, Theora, GSM, GME,
-   OpenAL, libmysofa, libvidstab и sndio — выключены (см. «Отключено»), как и
-   родные кодеки DNxHD и ProRes (см. «Отключено»). (WavPack и AMR в ffmpeg не включаются
-   configure по умолчанию — отсутствуют в сборке, их не перечисляем.)
+   OpenAL, libmysofa, libvidstab и sndio — выключены (см. «Отключено»). Родные
+   кодеки DNxHD и ProRes остаются включёнными: их нельзя отключить отдельными
+   флагами (см. «Отключено»). (WavPack и AMR в ffmpeg не включаются configure по
+   умолчанию — отсутствуют в сборке, их не перечисляем.)
 - Субтитры: `--enable-libass` (это то, чем `celluloid` и `mpv` показывают
   `.srt`/`.ass`).
 - Аппаратное ускорение: `--enable-vaapi` (VA-API) и `--enable-ffnvcodec`
@@ -32,9 +33,8 @@ GStreamer и FFmpeg.
 - **VDPAU**: `--disable-vdpau`, `libvdpau-dev` убран из `Build-Depends`
   (по правилам проекта).
 - **JACK**: `--disable-libjack`. В `configure` он и так по умолчанию `[no]`
-  (то есть включается только `--enable-libjack`), а `libjack-dev` у нас и не
-  было в `Build-Depends`; опция задана явно, чтобы правило было видно в
-  `debian/rules` (по правилам проекта).
+  (включается только `--enable-libjack`), а `libjack-dev` отсутствует в
+  `Build-Depends`; опция задана явно, чтобы правило было видно в `debian/rules`.
 - **X11**: `--disable-libxcb --disable-libxcb-shm --disable-libxcb-xfixes
   --disable-libxcb-shape`. Из `Build-Depends` убраны `libx11-xcb-dev`,
   `libxcb-shape0-dev`, `libxcb-shm0-dev`, `libxcb-xfixes0-dev` и `libxv-dev`.
@@ -49,17 +49,15 @@ GStreamer и FFmpeg.
   означает, что пакеты `libav*-extra*` не публикуются.
 - **libplacebo**: `--disable-libplacebo` (тянет Vulkan, а задача вывода видео
   решается `mpv`).
-- **Родные кодеки DNxHD и ProRes, не нужные клиентам**: эти профессиональные
-  кодеки NLE встроены в `libavcodec` и **не отключаются** — FFmpeg не имеет
-  флагов `--disable-dnxhd`/`--disable-prores` (они выдают `Unknown option`);
-  `--disable-libgme`, `--disable-libgsm`, `--disable-libmysofa`,
-  `--disable-libspeex`, `--disable-libtheora`, `--disable-libvidstab`,
-  `--disable-openal` и `--disable-sndio` (игровая/аудио- и научная/прочая
-  редкость: GME, GSM, libmysofa, Speex, Theora, libvidstab, OpenAL, sndio).
-  Аудио идёт через Opus/Vorbis/FLAC, видео — через AOM/libvpx/x265; ни один
-  пакет репозитория не использует перечисленное, поэтому из `Build-Depends`
-  убраны `libgme-dev`, `libgsm-dev`, `libmysofa-dev`, `libspeex-dev`,
-  `libtheora-dev`, `libvidstab-dev`, `libopenal-dev` и `libsndio-dev`.
+- **Редкие аудио/видео-кодеки**: `--disable-libgme --disable-libgsm
+  --disable-libmysofa --disable-libspeex --disable-libtheora
+  --disable-libvidstab --disable-openal --disable-sndio` (GME, GSM, libmysofa,
+  Speex, Theora, libvidstab, OpenAL, sndio). Аудио — через Opus/Vorbis/FLAC,
+  видео — через AOM/libvpx/x265. Из `Build-Depends` убраны `libgme-dev`,
+  `libgsm-dev`, `libmysofa-dev`, `libspeex-dev`, `libtheora-dev`,
+  `libvidstab-dev`, `libopenal-dev` и `libsndio-dev`. Родные DNxHD и ProRes
+  остаются включёнными: `--disable-dnxhd`/`--disable-prores` нет, а
+  `--disable-everything` выключил бы весь `libavcodec`.
 - **Документация и man-страницы**: `--disable-doc --disable-manpages`, поэтому
   `Build-Depends-Indep` (doxygen, node-less, cleancss, tree) и `texinfo`
   удалены, пакет `ffmpeg-doc` не публикуется, а `debian/ffmpeg.manpages`
@@ -75,14 +73,12 @@ GStreamer и FFmpeg.
 
 ## VA-API берётся из этого репозитория
 
-`libva-dev`, `libva2`, `libva-drm2`, `libva-wayland2` ставятся из нашей сборки
-`libva` (см. `packages/libva/README.md`).
-
-Раньше здесь было исключение: штатный `libva-dev` нельзя поставить рядом с
-нашим `libglvnd0` — он тянет `libva-glx2`, а тот `Depends: libgl1`, который
-пинит `libglvnd0` версии trixie. Теперь пин снят: наш `libva` собран без
-GLX и X11, при этом пути DRM и Wayland на месте, так что VA-API работает
-полностью. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+`libva-dev`, `libva2`, `libva-drm2`, `libva-wayland2` ставятся из сборки
+`libva` (см. `packages/libva/README.md`). Штатный `libva-dev` не ставится
+рядом с нашим `libglvnd0`: он тянет `libva-glx2`, а тот зависит от `libgl1`,
+пинящий `libglvnd0` версии trixie. Пин снят, потому что наш `libva` собран без
+GLX и X11: пути DRM и Wayland на месте, VA-API работает полностью.
+Исключений в `CLOSURE_EXCEPT` нет.
 
 ## Изменено
 
@@ -133,48 +129,20 @@ GLX и X11, при этом пути DRM и Wayland на месте, так чт
 быть удалены через `apt autoremove`. SONAME не меняются, символы не удалены:
 у нас сняты VDPAU, диски и X11, а эти возможности не входили в публичный API.
 
-## Ревизия 3: `libavfilter-dev` снова тянет `libavformat-dev`
+## Ревизия 3 → 4
 
-Прогон CI 37210447979 уронил `wayvnc`: `pkg-config` для `neatvnc` падал с
-`Package libavformat was not found in the pkg-config search path`, потому
-что `libavfilter.pc` требует `libavformat`, а пакета `libavformat-dev` в
-сборочной среде не было.
+Ревизия поднята с 1 до 4 (обоснование — в `scripts/upstream/ffmpeg.conf`).
 
-Причина та же, что у `cairo`: при переработке упаковки из
-`Depends: libavfilter-dev` убрали `libavformat-dev` и `libpostproc-dev`
-(в Debian они есть) и не добавили их в список `.deb` ни одного
-потребителя. Ошибка не проявлялась, пока `libavfilter-dev` не понадобился
-кому-то, кто читает `libavfilter.pc` целиком — то есть скрытая зависимость,
-видная только при сборке.
-
-Возвращены: `libavcodec-dev` и `libavformat-dev` — оба публикуются этим
-репозиторием, оба с `= ${binary:Version}`, поэтому тянут за собой и
-остальные части набора. `libavfilter.pc` без `libavformat` не резолвится,
-и любой потребитель FFmpeg падает на `meson setup`, а не на линковке.
-
-`libpostproc-dev` в Debian тоже есть в этом списке, но **его здесь нет и
-добавлять нельзя**: публикация нового пакета решается пользователем, а не
-пакетом-исполнителем. С пином `= ${binary:Version}` такая зависимость делает
-установку неразрешимой (в прогоне 37215006977 ровно это и случилось:
-`libavfilter-dev : Depends: libpostproc-dev (= 7:9.0.2-3+crick) but it is not
-going to be installed`). На сборку это не влияет: `libpostproc` нужен только
-для статической линковки, а `.pc`-файлы его не требуют.
-
-## Ревизия 4: родные кодеки FFmpeg, не нужные клиентам
-
-Выключены родные кодеки FFmpeg, которыми ни один пакет репозитория не
-пользуется, чтобы не тянуть в `Build-Depends` редкие аудио/видеобиблиотеки:
-
-- `--disable-libgme --disable-libgsm --disable-libmysofa --disable-libspeex
-  --disable-libtheora --disable-libvidstab --disable-openal --disable-sndio` —
-  GME, GSM, libmysofa, Speex, Theora, libvidstab, OpenAL, sndio.
-  (DNxHD и ProRes намеренно остаются включёнными — см. «Отключено».)
-
-Аудио-стек клиентов покрывается Opus/Vorbis/FLAC, видео — AOM/libvpx/x265, поэтому
-перечисленное избыточно. Из `Build-Depends` убраны `libgme-dev`, `libgsm-dev`,
-`libmysofa-dev`, `libspeex-dev`, `libtheora-dev`, `libvidstab-dev`,
-`libopenal-dev` и `libsndio-dev`. Откат: вернуть флаги в `debian/rules` и
-`-dev`-пакеты в `Build-Depends` — символы кодеков находятся в `libavcodec`,
-они не удаляются из бинарных пакетов, а просто не линкуются.
-
-Ревизия поднята со 2 до 4: упаковка менялась после публикации дважды.
+- **Ревизия 3**: в `Depends libavfilter-dev` возвращены `libavcodec-dev` и
+  `libavformat-dev` — оба публикуются этим репозиторием с пином
+  `= ${binary:Version}`, так что тянут за собой остальные части набора.
+  `libavfilter.pc` без `libavformat` не резолвится: любой потребитель FFmpeg
+  падает на `meson setup`, а не на линковке. `libpostproc-dev` не добавляется:
+  публикация нового пакета решается пользователем, а пин `= ${binary:Version}`
+  делает установку неразрешимой, если пакета нет. На сборку это не влияет:
+  `libpostproc` нужен только для статической линковки, `.pc`-файлы его не требуют.
+- **Ревизия 4**: выключены редкие аудио/видео-кодеки (gme, gsm, mysofa, speex,
+  theora, vidstab, openal, sndio), чтобы не тянуть их `-dev`. Родные DNxHD и
+  ProRes остаются включёнными: их нельзя отключить отдельными флагами. Откат:
+  вернуть `--disable-lib*` в `debian/rules` и `-dev` в `Build-Depends` — кодеки
+  лежат в `libavcodec`, удалить их нельзя.

@@ -1,4 +1,4 @@
-pulseaudio (17.0+dfsg1-2) unstable; urgency=medium
+pulseaudio (17.0+dfsg1-2) trixie; urgency=medium
 
   * Team upload
   * Bump minimum webrtc-audio-processing

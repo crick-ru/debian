@@ -1,7 +1,7 @@
 # wayland (crick Debian backports)
 
 Сборка `wayland` 1.26.0 для Debian 13 (trixie, amd64). Упаковка взята из
-Debian (`wayland_1.26.0-1`).
+Debian (`wayland_1.26.0-1`, ветка unstable) и переработана.
 
 ## Включено
 

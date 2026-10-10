@@ -29,7 +29,6 @@ Build-Depends:
  libturbojpeg0-dev,
  libxxhash-dev,
  meson,
- openssl <!nocheck>,
  pkgconf,
  zlib1g-dev,
 Homepage: https://github.com/any1/neatvnc/

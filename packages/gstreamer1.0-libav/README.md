@@ -1,7 +1,6 @@
 # gstreamer1.0-libav (crick Debian backports)
 
-Сборка GStreamer libav 1.28.7 для Debian 13 (trixie, amd64). Упаковка взята из
-Debian (`gst-libav1.0 1.28.7-1`) и упрощена. Это мост между GStreamer и
+Сборка GStreamer libav 1.28.7 для Debian 13 (trixie, amd64). Упаковка взята из Debian (`gst-libav1.0_1.28.7-1`, ветка unstable) и переработана. Это мост между GStreamer и
 FFmpeg: плагин оборачивает кодировщики и декодировщики `libavcodec`,
 фильтры `libavfilter` и масштабирование `libswscale` в элементы GStreamer.
 

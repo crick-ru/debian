@@ -36,7 +36,7 @@ Debian разбивает плагины по отдельным пакетам 
 | dav1d | `libheif-plugin-dav1d` | AV1, декодирование (быстрее libaom) |
 
 Выключены: ffmpeg, jpeg, openjpeg (J2K), kvazaar, rav1e, SVT-AV1, x264,
-OpenH264, VVC (uvg266, vvdec, vvenc), WebP. Также выключены сжатие заголовков
+OpenH264, VVC (uvg266, vvdec, vvenc). Также выключены сжатие заголовков
 (`-DWITH_HEADER_COMPRESSION=OFF`, иначе нужен libbrotli) и `libsharpyuv`
 (`-DWITH_LIBSHARPYUV=OFF`, иначе нужен libwebp). Внутренний кодек
 `uncompressed` (ISO/IEC 23001-17) оставлен включённым: он не тянет внешних
@@ -53,7 +53,7 @@ OpenH264, VVC (uvg266, vvdec, vvenc), WebP. Также выключены сжа
 - тесты (`-DBUILD_TESTING=OFF`, `override_dh_auto_test` пуст);
 - dbgsym-пакеты (общее правило `scripts/build-package.sh`).
 
-Правило репозитория «ничего лишнего не собирается» — в `.clinerules/`.
+Правило репозитория «ничего лишнего не собирается» — в `rules/`.
 
 ## Что произойдёт при `apt upgrade`
 

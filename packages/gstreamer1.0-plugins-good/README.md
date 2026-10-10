@@ -1,14 +1,14 @@
 # gstreamer1.0-plugins-good (crick Debian backports)
 
 Сборка GStreamer Good Plugins 1.28.7 для Debian 13 (trixie, amd64). Упаковка
-взята из Debian (`gst-plugins-good1.0 1.28.7-1`) и упрощена.
+взята из Debian (`gst-plugins-good1.0_1.28.7-1`, ветка unstable) и переработана.
 
 ## Включено
 
 - `gstreamer1.0-plugins-good` — элементы набора: демультиплексоры Matroska, FLV и
   RTP, кодеки VP8 и VP9, FLAC, MP3, AAC, видеофильтры, а также
   `libgstadaptivedemux2.so` — адаптивный демультиплексор (его `-dev`-зависимость
-  `libxml2-dev` уже была в `Build-Depends`).
+  `libxml2-dev` уже есть в `Build-Depends`).
 
 Отдельных пакетов с библиотеками у этого набора нет: в апстриме 1.28.7
 каталог `gst-libs/gst` содержит только один заголовок, то есть общих

@@ -1,8 +1,6 @@
 # wayland-protocols (crick Debian backports)
 
-Сборка `wayland-protocols` 1.47 для Debian 13 (trixie, arch: all). Упаковка
-взята из Debian (`wayland-protocols_1.47-1~bpo13+1`, тот же бэкпорт, что
-Debian публикует в `trixie-backports`).
+Сборка `wayland-protocols` 1.47 для Debian 13 (trixie, arch: all). Упаковка взята из Debian (`wayland-protocols_1.47-1~bpo13+1`, trixie-backports) и переработана.
 
 ## Включено
 

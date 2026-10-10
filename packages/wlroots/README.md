@@ -1,5 +1,7 @@
 # wlroots (crick Debian backports)
 
+Упаковка взята из Debian (`wlroots_0.20.2-1`, ветка unstable) и переработана.
+
 Сборка `wlroots` 0.20.2 для Debian 13 (trixie, amd64), ограниченная только теми
 бэкендами, которые нужны в чистом Wayland.
 
@@ -51,8 +53,7 @@
 | wayland-protocols | 1.44 | 1.47 | color-management-v1 версии 2: `send_ready2`, `send_preferred_changed2`, `TRANSFER_FUNCTION_COMPOUND_POWER_2_4`, `ERROR_CHROMA_LOCATION` |
 
 Ослаблять эти требования патчем нельзя: макросов `DRM_FORMAT_*` в libdrm
-2.4.124 нет, `PIXMAN_a16b16g16r16` в pixman 0.44 не существует (до 0.46 у
-pixman не было 64-битных форматов вовсе), а color-management-v1 в 1.44 ещё
+2.4.124 нет, `PIXMAN_a16b16g16r16` в pixman 0.44 не существует (64-битных форматов в 0.44 нет), а color-management-v1 в 1.44 ещё
 без событий второй версии — сборка падала бы.
 
 Влияние на систему: SONAME всех библиотек не меняются, удалённых символов
@@ -65,10 +66,9 @@ pixman не было 64-битных форматов вовсе), а color-mana
 `libopengl0`, `libglvnd0`, `libglvnd-core-dev` ставятся из нашей сборки
 `libglvnd` (см. `packages/libglvnd/README.md`).
 
-Раньше здесь было исключение для `libegl-dev`: штатный пакет нельзя поставить
-рядом с нашей mesa — он тянет `libgl1-mesa-dev`, а тот пинит `libgbm1` версии
-trixie. Теперь пин снят, и заодно сняты GL-зависимости, которые этому пакету
-не нужны: у GLX и GL в нашем репозитории нет, а GLES и OpenGL-без-GLX
-собраны без X11. Исключений в `CLOSURE_EXCEPT` сейчас нет.
+Исключений для `libegl-dev` нет: штатный пакет нельзя поставить рядом с нашей
+mesa — он тянет `libgl1-mesa-dev`, пинящий `libgbm1` trixie. Пин снят и
+удалены GL-зависимости, не нужные пакету: GLX и GL в репозитории нет, а GLES
+и OpenGL-без-GLX собраны без X11. В `CLOSURE_EXCEPT` нет исключений.
 
 Здесь же `libgles2-mesa-dev` заменён на `libgles-dev`, а `libegl1-mesa-dev` убран: наша `mesa-common-dev` уже содержит оба его заголовка, а сама mesa объявляет `Breaks: libegl1-mesa-dev`.

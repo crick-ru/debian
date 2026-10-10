@@ -13,7 +13,7 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #   -Dtests=disabled тестовая система не собирается и не запускается.
 # Опции examples у gst-libav нет вовсе — апстрим объявляет только
 # package-name, package-origin, doc и tests, примеров в tar-боле тоже нет,
-# поэтому передавать -Dexamples было бы ошибкой: meson падает на неизвестной
+# поэтому передавать -Dexamples — ошибка: meson падает на неизвестной
 # опции с «ERROR: Unknown options».
 # Ничего больше выключать не нужно: сам плагин не обращается ни к X11, ни к
 # оптическим дискам, ни к VDPAU. Видеосинки лежат в наборах base и good, а
