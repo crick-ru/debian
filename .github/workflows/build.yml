@@ -64,6 +64,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -96,6 +99,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -128,6 +134,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -160,6 +169,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -192,6 +204,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -224,6 +239,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -256,6 +274,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -288,6 +309,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -320,6 +344,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -352,6 +379,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -384,6 +414,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -425,6 +458,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -479,6 +515,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -547,6 +586,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -606,6 +648,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -660,6 +705,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -722,6 +770,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -794,6 +845,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -862,6 +916,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -954,6 +1011,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1042,6 +1102,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1146,6 +1209,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1240,6 +1306,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1296,6 +1365,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1416,6 +1488,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1508,6 +1583,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1638,6 +1716,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1714,6 +1795,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1830,6 +1914,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -1935,6 +2022,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -2048,6 +2138,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -2191,6 +2284,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -2324,6 +2420,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -2450,6 +2549,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -2561,6 +2663,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -2627,6 +2732,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -2766,6 +2874,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -2877,6 +2988,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -3091,6 +3205,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
