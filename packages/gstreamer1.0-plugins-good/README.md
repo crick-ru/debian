@@ -6,7 +6,7 @@
 ## Включено
 
 - `gstreamer1.0-plugins-good` — элементы набора: демультиплексоры Matroska, FLV и
-  RTP, кодеки VP8 и VP9, FLAC, MP3, AAC, Shout, видеофильтры, а также
+  RTP, кодеки VP8 и VP9, FLAC, MP3, AAC, видеофильтры, а также
   `libgstadaptivedemux2.so` — адаптивный демультиплексор (его `-dev`-зависимость
   `libxml2-dev` уже была в `Build-Depends`).
 
@@ -64,6 +64,10 @@
 - **OSSv4**: `-Doss4=disabled`. Плагин `libgstoss4.so` — устаревший аудио-API;
   звук идёт через ALSA и `pipewire`. Отключается опцией, потому что
   `libgstoss4.so` собирается по одним стандартным заголовкам.
+- **Icecast/Shout**: `-Dshout2=disabled`. Плагин `libgstshout2.so` (icecastsink)
+  не публикуется — это отправка потока на Icecast-сервер, а серверов в
+  репозитории нет. `libshout-dev` убран из `Build-Depends`, `libgstshout2.so` —
+  из `.install`.
 - **AMR, Speex, WavPack и audiofx**: `-Damrnb=disabled -Damrwbdec=disabled
   -Dspeex=disabled -Dwavpack=disabled -Daudiofx=disabled`. AMR (NB/WB),
   Speex и WavPack не публикуются — аудио в репозитории идёт через Opus,
@@ -101,16 +105,19 @@
 
 ## Изменено
 
-- Версия: `1.28.7-2+crick` (ревизия поднята с 1 до 2: переработка набора
-  плагинов — удалены AMR, Speex, WavPack и audiofx, требуют пересборки).
+- Версия: `1.28.7-3+crick` (ревизия поднята с 2 до 3: переработка набора
+  плагинов — удалены AMR, Speex, WavPack, audiofx и Icecast/Shout, требуют
+  пересборки).
 - Состав пакета: из `gstreamer1.0-plugins-good.install` и `Build-Depends`
-  удалены плагины AMR (NB/WB), `audiofx`, Speex и WavPack — кодеки не
-  используются клиентами (аудио идёт через Opus/Vorbis/FLAC), а `audiofx` —
-  чистый плагин без внешних зависимостей, исключённый по списку репозитория.
-  Из `Build-Depends` убраны `libopencore-amrnb-dev`,
-  `libopencore-amrwb-dev`, `libspeex-dev` и `libwavpack-dev`; из `.install` —
-  `libgstamrnb.so`, `libgstamrwbdec.so`, `libgstaudiofx.so`, `libgstspeex.so`
-  и `libgstwavpack.so`. Стало 60 плагинов вместо 69 в исходной сборке Debian.
+  удалены плагины AMR (NB/WB), `audiofx`, Speex, WavPack и Icecast/Shout —
+  кодеки не используются клиентами (аудио идёт через Opus/Vorbis/FLAC), а
+  `audiofx` — чистый плагин без внешних зависимостей, исключённый по списку
+  репозитория. Icecast/Shout (icecastsink) удалён: в репозитории нет
+  Icecast-серверов. Из `Build-Depends` убраны `libopencore-amrnb-dev`,
+  `libopencore-amrwb-dev`, `libspeex-dev`, `libwavpack-dev` и `libshout-dev`;
+  из `.install` убраны `libgstamrnb.so`, `libgstamrwbdec.so`,
+  `libgstaudiofx.so`, `libgstspeex.so`, `libgstwavpack.so` и `libgstshout2.so`.
+  Стало 60 плагинов вместо 69 в исходной сборке Debian.
 
 ## Влияние на систему и откат
 

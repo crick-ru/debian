@@ -61,6 +61,9 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #   -Dwavpack=disabled  WavPack выключен, libwavpack-dev убран.
 #   -Doss4=disabled       устаревший аудио-API OSSv4; звук идёт через
 #                         ALSA и pipewire;
+#   -Dshout2=disabled     плагин libgstshout2.so (icecastsink) не публикуется:
+#                         это отправка потока на Icecast-сервер, серверов
+#                         в репозитории нет. libshout-dev убран из Build-Depends;
 #   -Ddoc=disabled        документация не собирается;
 #   -Dtests=disabled      тестовая система не собирается и не запускается.
 conf_flags = \
@@ -83,7 +86,8 @@ conf_flags = \
 	-Damrwbdec=disabled \
 	-Dspeex=disabled \
 	-Dwavpack=disabled \
-	-Doss4=disabled
+	-Doss4=disabled \
+	-Dshout2=disabled
 
 %:
 	dh $@

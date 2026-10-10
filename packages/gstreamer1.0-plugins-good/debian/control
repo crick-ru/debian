@@ -22,6 +22,10 @@ Maintainer: AI-agent <noreply@example.com>
 #     libcaca-dev, libaa1-dev, libopencore-amrnb-dev, libopencore-amrwb-dev,
 #     libspeex-dev и libwavpack-dev. Опция для aa1 называется aalib (не aa1):
 #     проверка идёт по aalib.h и -laa, и именно их даёт libaa1-dev;
+#   * Icecast/Shout (libshout2/libshout3) выключен (-Dshout2=disabled):
+#     плагин libgstshout2.so (icecastsink) не публикуется — это отправка
+#     потока на Icecast-сервер, серверов в репозитории нет. libshout-dev
+#     убран из Build-Depends, libgstshout2.so — из .install;
 #   * -Dauto_features=enabled не используется: опция превращает все
 #     'auto'-опции в обязательные, и сборка падала на отсутствующих
 #     nasm, libraw1394/libavc1394/libiec61883 и libgudev/libv4l2;
@@ -55,7 +59,6 @@ Build-Depends:
   liborc-0.4-dev (>= 1:0.4.34),
   libpng-dev,
   libsoup-3.0-dev,
-  libshout-dev,
   libtag1-dev,
  libtwolame-dev,
   libvpx-dev (>= 1.7),
@@ -80,7 +83,7 @@ Description: GStreamer plugins from the "good" set
  .
  This package contains the elements of the "good" set: the Matroska,
  FLV and RTP demuxers, the VP8 and VP9 codecs, the FLAC, Speex, WavPack,
- AMR, MP3, AAC and Shout elements.
+ AMR, MP3, AAC elements.
  .
  This build has no Qt and no GTK video sinks: video is played by mpv
  and by labwc. It also has no PulseAudio, V4L2 and OSSv4 elements.
