@@ -80,7 +80,7 @@ sudo apt remove libneatvnc1 libneatvnc-dev
 ## `libgbm-dev` берётся из этого репозитория
 
 `libgbm-dev`, `libgbm1` и `mesa-libgallium` ставятся из нашей `mesa`
-(см. `CLOSURE_EXCEPT` в `tools/gen-workflow.py` — исключений нет). Зависимость
+(см. `CLOSURE_EXCEPT` в `scripts/gen-workflow.py` — исключений нет). Зависимость
 `mesa-common-dev` от `libgl-dev` (который объявляет `Breaks: mesa-common-dev`)
 убрана: GL не собирается, заголовки не требуются, `libegl-dev` ставится без
 конфликтов. Подробности — в `packages/mesa/README.md`.

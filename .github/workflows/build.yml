@@ -134,32 +134,6 @@ jobs:
             git \
             python3 \
 
-      - name: Download stage 1 packages
-        uses: actions/download-artifact@v8
-        with:
-          pattern: deb-stage1-*
-          path: stage1-pool
-          merge-multiple: true
-
-      - name: Install required packages of earlier stages
-        run: |
-          shopt -s nullglob
-          # apt-get трактует аргументы без разделителя пути как
-          # имена пакетов, поэтому скачанные .deb передаются как
-          # ./stageN-pool/<файл>.deb
-          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
-          debs=(
-                ./stage1-pool/libwayland-bin_*.deb
-                ./stage1-pool/libwayland-client0_*.deb
-                ./stage1-pool/libwayland-cursor0_*.deb
-                ./stage1-pool/libwayland-dev_*.deb
-                ./stage1-pool/libwayland-egl-backend-dev_*.deb
-                ./stage1-pool/libwayland-egl1_*.deb
-                ./stage1-pool/libwayland-server0_*.deb
-          )
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
-
       - name: Build package (cached, reuses unchanged results)
         uses: ./.github/actions/build-deb
         with:
@@ -3931,7 +3905,7 @@ jobs:
           stage: 7
   publish:
     name: Generate APT repository
-    needs: [build_wayland, build_libdrm, build_libxkbcommon, build_pixman, build_wayland-protocols, build_libtsm, build_fdk-aac, build_cairo, build_ffmpeg, build_gstreamer1_0, build_pulseaudio, build_aml, build_libheif, build_gstreamer1_0-plugins-base, build_wlroots, build_mpv, build_mesa, build_gstreamer1_0-plugins-good, build_gstreamer1_0-plugins-bad, build_neatvnc, build_gtk_3_0, build_gtk4, build_gstreamer1_0-libav, build_kmscon, build_pipewire, build_labwc, build_celluloid, build_sfwbar, build_wireplumber, build_pwvucontrol, build_imagemagick, build_wayvnc]
+    needs: [build_libglvnd, build_wayland, build_libdrm, build_pixman, build_at-spi2-core, build_dummy-x11, build_fdk-aac, build_gstreamer1_0, build_pulseaudio, build_aml, build_libheif, build_libgd2, build_libva, build_wayland-protocols, build_cairo, build_imagemagick, build_ffmpeg, build_libxkbcommon, build_mesa, build_libva-utils, build_gstreamer1_0-plugins-base, build_neatvnc, build_libtsm, build_wlroots, build_gstreamer1_0-plugins-good, build_gstreamer1_0-plugins-bad, build_pipewire, build_wayvnc, build_kmscon, build_labwc, build_mpv, build_gtk_3_0, build_gtk4, build_gstreamer1_0-libav, build_wireplumber, build_celluloid, build_sfwbar, build_pwvucontrol]
     if: github.event_name != 'pull_request' && !inputs.package
     runs-on: ubuntu-latest
     container:
@@ -4022,61 +3996,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
