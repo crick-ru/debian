@@ -10,21 +10,19 @@ on:
       - main
     paths:
       - 'packages/**'
+      - '!packages/**/README.md'
       - 'scripts/**'
       - '.github/workflows/build.yml'
       - '.github/actions/**'
-    paths-ignore:
-      - 'packages/**/README.md'
   pull_request:
     branches:
       - main
     paths:
       - 'packages/**'
+      - '!packages/**/README.md'
       - 'scripts/**'
       - '.github/workflows/build.yml'
       - '.github/actions/**'
-    paths-ignore:
-      - 'packages/**/README.md'
   workflow_dispatch:
     inputs:
       package:
