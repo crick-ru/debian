@@ -120,6 +120,32 @@ jobs:
             git \
             python3 \
 
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier stages
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          debs=(
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
       - name: Build package (cached, reuses unchanged results)
         uses: ./.github/actions/build-deb
         with:
@@ -813,6 +839,7 @@ jobs:
           # ./stageN-pool/<файл>.deb
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
@@ -822,6 +849,13 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
                 ./stage2-pool/libva-dev_*.deb
                 ./stage2-pool/libva-drm2_*.deb
                 ./stage2-pool/libva-wayland2_*.deb
@@ -1153,6 +1187,7 @@ jobs:
           # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
@@ -1184,6 +1219,10 @@ jobs:
                 ./stage1-pool/libwayland-egl-backend-dev_*.deb
                 ./stage1-pool/libwayland-egl1_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libegl-mesa0_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
@@ -1237,6 +1276,13 @@ jobs:
           path: stage1-pool
           merge-multiple: true
 
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
       - name: Download stage 3 packages
         uses: actions/download-artifact@v8
         with:
@@ -1253,8 +1299,12 @@ jobs:
           # ci-closure: aml собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: ffmpeg собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/libaml-dev_*.deb
                 ./stage1-pool/libaml1_*.deb
@@ -1266,8 +1316,29 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libavcodec-dev_*.deb
                 ./stage3-pool/libavcodec63_*.deb
                 ./stage3-pool/libavdevice-dev_*.deb
@@ -1327,6 +1398,20 @@ jobs:
             git \
             python3 \
 
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
       - name: Download stage 3 packages
         uses: actions/download-artifact@v8
         with:
@@ -1341,7 +1426,17 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
@@ -1415,6 +1510,7 @@ jobs:
           # ./stageN-pool/<файл>.deb
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
@@ -1451,6 +1547,10 @@ jobs:
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libegl-mesa0_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
@@ -1548,7 +1648,9 @@ jobs:
           # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
@@ -1585,6 +1687,10 @@ jobs:
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libegl-mesa0_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
@@ -1778,6 +1884,20 @@ jobs:
           path: stage1-pool
           merge-multiple: true
 
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
       - name: Download stage 4 packages
         uses: actions/download-artifact@v8
         with:
@@ -1794,16 +1914,56 @@ jobs:
           # ci-closure: fdk-aac собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pulseaudio собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
                 ./stage1-pool/libfdk-aac-dev_*.deb
                 ./stage1-pool/libfdk-aac2t64_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpulse-dev_*.deb
                 ./stage1-pool/libpulse-mainloop-glib0_*.deb
                 ./stage1-pool/libpulse0_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
                 ./stage4-pool/gstreamer1.0-gl_*.deb
                 ./stage4-pool/gstreamer1.0-plugins-base_*.deb
@@ -1885,11 +2045,16 @@ jobs:
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
           # ci-closure: aml собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: ffmpeg собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: neatvnc собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/libaml-dev_*.deb
                 ./stage1-pool/libaml1_*.deb
@@ -1901,6 +2066,15 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
@@ -1910,15 +2084,24 @@ jobs:
                 ./stage1-pool/libwayland-egl-backend-dev_*.deb
                 ./stage1-pool/libwayland-egl1_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libavcodec-dev_*.deb
                 ./stage3-pool/libavcodec63_*.deb
+                ./stage3-pool/libavdevice-dev_*.deb
+                ./stage3-pool/libavdevice63_*.deb
                 ./stage3-pool/libavfilter-dev_*.deb
                 ./stage3-pool/libavfilter12_*.deb
                 ./stage3-pool/libavformat-dev_*.deb
                 ./stage3-pool/libavformat63_*.deb
                 ./stage3-pool/libavutil-dev_*.deb
                 ./stage3-pool/libavutil61_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libswresample-dev_*.deb
                 ./stage3-pool/libswresample7_*.deb
                 ./stage3-pool/libswscale-dev_*.deb
@@ -1927,6 +2110,8 @@ jobs:
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/libneatvnc-dev_*.deb
                 ./stage4-pool/libneatvnc1_*.deb
           )
@@ -1976,6 +2161,13 @@ jobs:
           path: stage1-pool
           merge-multiple: true
 
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
       - name: Download stage 3 packages
         uses: actions/download-artifact@v8
         with:
@@ -1999,8 +2191,11 @@ jobs:
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libtsm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
@@ -2026,6 +2221,11 @@ jobs:
                 ./stage1-pool/libwayland-egl-backend-dev_*.deb
                 ./stage1-pool/libwayland-egl1_*.deb
                 ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libegl-mesa0_*.deb
                 ./stage3-pool/libgbm-dev_*.deb
                 ./stage3-pool/libgbm1_*.deb
@@ -2113,7 +2313,11 @@ jobs:
           # ./stageN-pool/<файл>.deb
           # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wlroots собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
@@ -2126,6 +2330,15 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
@@ -2139,11 +2352,20 @@ jobs:
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/libwlroots-0.20_*.deb
                 ./stage4-pool/libwlroots-0.20-dev_*.deb
           )
@@ -2215,6 +2437,13 @@ jobs:
           path: stage3-pool
           merge-multiple: true
 
+      - name: Download stage 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
       - name: Download stage 5 packages
         uses: actions/download-artifact@v8
         with:
@@ -2228,7 +2457,10 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
+          # ci-closure: fdk-aac собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: ffmpeg собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
@@ -2239,6 +2471,7 @@ jobs:
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
@@ -2249,11 +2482,15 @@ jobs:
                 ./stage1-pool/libdrm2_*.deb
                 ./stage1-pool/libegl-dev_*.deb
                 ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libfdk-aac-dev_*.deb
+                ./stage1-pool/libfdk-aac2t64_*.deb
                 ./stage1-pool/libgles-dev_*.deb
                 ./stage1-pool/libgles1_*.deb
                 ./stage1-pool/libgles2_*.deb
                 ./stage1-pool/libglvnd-core-dev_*.deb
                 ./stage1-pool/libglvnd0_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/libopengl-dev_*.deb
                 ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpulse-dev_*.deb
@@ -2294,6 +2531,12 @@ jobs:
                 ./stage3-pool/libxkbregistry0_*.deb
                 ./stage3-pool/mesa-common-dev_*.deb
                 ./stage3-pool/mesa-libgallium_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
                 ./stage5-pool/libpipewire-0.3-0t64_*.deb
                 ./stage5-pool/libpipewire-0.3-common_*.deb
                 ./stage5-pool/libpipewire-0.3-dev_*.deb
@@ -2384,6 +2627,7 @@ jobs:
           # ci-closure: at-spi2-core собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
@@ -2521,7 +2765,12 @@ jobs:
           # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-bad собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
@@ -2534,8 +2783,17 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
@@ -2549,11 +2807,20 @@ jobs:
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libxkbcommon-dev_*.deb
                 ./stage3-pool/libxkbcommon0_*.deb
                 ./stage3-pool/libxkbregistry-dev_*.deb
                 ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
                 ./stage4-pool/gstreamer1.0-gl_*.deb
                 ./stage4-pool/gstreamer1.0-plugins-base_*.deb
@@ -2653,7 +2920,9 @@ jobs:
           # ci-closure: gstreamer1.0-plugins-good собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
@@ -2677,6 +2946,8 @@ jobs:
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
                 ./stage1-pool/libopengl-dev_*.deb
                 ./stage1-pool/libopengl0_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-cursor0_*.deb
@@ -2688,6 +2959,10 @@ jobs:
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libavcodec-dev_*.deb
                 ./stage3-pool/libavcodec63_*.deb
@@ -2755,6 +3030,34 @@ jobs:
             git \
             python3 \
 
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download stage 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
       - name: Download stage 5 packages
         uses: actions/download-artifact@v8
         with:
@@ -2768,8 +3071,66 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
+          # ci-closure: fdk-aac собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pipewire собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pulseaudio собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libfdk-aac-dev_*.deb
+                ./stage1-pool/libfdk-aac2t64_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
+                ./stage1-pool/libpulse-dev_*.deb
+                ./stage1-pool/libpulse-mainloop-glib0_*.deb
+                ./stage1-pool/libpulse0_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
                 ./stage5-pool/libpipewire-0.3-0t64_*.deb
                 ./stage5-pool/libpipewire-0.3-common_*.deb
                 ./stage5-pool/libpipewire-0.3-dev_*.deb
@@ -2872,8 +3233,24 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
+          # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: fdk-aac собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: ffmpeg собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0-plugins-bad собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gtk4 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: mpv собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pipewire собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pulseaudio собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
@@ -2884,10 +3261,24 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libfdk-aac-dev_*.deb
+                ./stage1-pool/libfdk-aac2t64_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libpulse-dev_*.deb
+                ./stage1-pool/libpulse-mainloop-glib0_*.deb
+                ./stage1-pool/libpulse0_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-cursor0_*.deb
@@ -2899,14 +3290,34 @@ jobs:
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libavcodec-dev_*.deb
                 ./stage3-pool/libavcodec63_*.deb
+                ./stage3-pool/libavdevice-dev_*.deb
                 ./stage3-pool/libavdevice63_*.deb
+                ./stage3-pool/libavfilter-dev_*.deb
                 ./stage3-pool/libavfilter12_*.deb
+                ./stage3-pool/libavformat-dev_*.deb
                 ./stage3-pool/libavformat63_*.deb
+                ./stage3-pool/libavutil-dev_*.deb
                 ./stage3-pool/libavutil61_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libswresample-dev_*.deb
                 ./stage3-pool/libswresample7_*.deb
+                ./stage3-pool/libswscale-dev_*.deb
                 ./stage3-pool/libswscale10_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
                 ./stage4-pool/gstreamer1.0-gl_*.deb
                 ./stage4-pool/gstreamer1.0-plugins-base_*.deb
@@ -2918,6 +3329,12 @@ jobs:
                 ./stage5-pool/gstreamer1.0-plugins-good_*.deb
                 ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
                 ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-0t64_*.deb
+                ./stage5-pool/libpipewire-0.3-common_*.deb
+                ./stage5-pool/libpipewire-0.3-dev_*.deb
+                ./stage5-pool/libpipewire-0.3-modules_*.deb
+                ./stage5-pool/libspa-0.2-dev_*.deb
+                ./stage5-pool/libspa-0.2-modules_*.deb
                 ./stage6-pool/gir1.2-gtk-4.0_*.deb
                 ./stage6-pool/gtk-update-icon-cache_*.deb
                 ./stage6-pool/libgtk-4-1_*.deb
@@ -3000,10 +3417,24 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
+          # ci-closure: at-spi2-core собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gtk+3.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pulseaudio собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
+                ./stage1-pool/at-spi2-common_*.deb
+                ./stage1-pool/gir1.2-atk-1.0_*.deb
+                ./stage1-pool/gir1.2-atspi-2.0_*.deb
+                ./stage1-pool/libatk-bridge2.0-0t64_*.deb
+                ./stage1-pool/libatk-bridge2.0-dev_*.deb
+                ./stage1-pool/libatk1.0-0t64_*.deb
+                ./stage1-pool/libatk1.0-dev_*.deb
+                ./stage1-pool/libatspi2.0-0t64_*.deb
+                ./stage1-pool/libatspi2.0-dev_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
                 ./stage1-pool/libdrm-common_*.deb
                 ./stage1-pool/libdrm-dev_*.deb
@@ -3094,6 +3525,13 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
       - name: Download stage 4 packages
         uses: actions/download-artifact@v8
         with:
@@ -3121,8 +3559,22 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
+          # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: fdk-aac собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0-plugins-bad собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gtk4 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pipewire собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pulseaudio собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wireplumber собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
@@ -3134,10 +3586,24 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libfdk-aac-dev_*.deb
+                ./stage1-pool/libfdk-aac2t64_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libpulse-dev_*.deb
+                ./stage1-pool/libpulse-mainloop-glib0_*.deb
+                ./stage1-pool/libpulse0_*.deb
                 ./stage1-pool/libwayland-bin_*.deb
                 ./stage1-pool/libwayland-client0_*.deb
                 ./stage1-pool/libwayland-cursor0_*.deb
@@ -3149,7 +3615,20 @@ jobs:
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
                 ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
                 ./stage4-pool/gstreamer1.0-gl_*.deb
                 ./stage4-pool/gstreamer1.0-plugins-base_*.deb
@@ -3277,6 +3756,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
