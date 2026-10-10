@@ -13,7 +13,7 @@ GStreamer и FFmpeg.
   MP2/3 (mpg123), LAME, Ogg, BS2B, OpenJPEG, WebP, XZ и Brotli, libzimg,
    libxml2, libvorbis, libtwolame, libshine. Speex, Theora, GSM, GME,
    OpenAL, libmysofa, libvidstab и sndio — выключены (см. «Отключено»), как и
-   родные кодеки DNxHD и ProRes. (WavPack и AMR в ffmpeg не включаются
+   родные кодеки DNxHD и ProRes (см. «Отключено»). (WavPack и AMR в ffmpeg не включаются
    configure по умолчанию — отсутствуют в сборке, их не перечисляем.)
 - Субтитры: `--enable-libass` (это то, чем `celluloid` и `mpv` показывают
   `.srt`/`.ass`).
@@ -49,8 +49,9 @@ GStreamer и FFmpeg.
   означает, что пакеты `libav*-extra*` не публикуются.
 - **libplacebo**: `--disable-libplacebo` (тянет Vulkan, а задача вывода видео
   решается `mpv`).
-- **Родные кодеки и аудио/видеоплагины, не нужные клиентам**: `--disable-dnxhd`
-  и `--disable-prores` (DNxHD и ProRes — профессиональные кодеки NLE);
+- **Родные кодеки DNxHD и ProRes, не нужные клиентам**: эти профессиональные
+  кодеки NLE встроены в `libavcodec` и **не отключаются** — FFmpeg не имеет
+  флагов `--disable-dnxhd`/`--disable-prores` (они выдают `Unknown option`);
   `--disable-libgme`, `--disable-libgsm`, `--disable-libmysofa`,
   `--disable-libspeex`, `--disable-libtheora`, `--disable-libvidstab`,
   `--disable-openal` и `--disable-sndio` (игровая/аудио- и научная/прочая
@@ -164,11 +165,10 @@ going to be installed`). На сборку это не влияет: `libpostpro
 Выключены родные кодеки FFmpeg, которыми ни один пакет репозитория не
 пользуется, чтобы не тянуть в `Build-Depends` редкие аудио/видеобиблиотеки:
 
-- `--disable-dnxhd --disable-prores` — DNxHD и ProRes (профессиональные кодеки
-  NLE);
 - `--disable-libgme --disable-libgsm --disable-libmysofa --disable-libspeex
   --disable-libtheora --disable-libvidstab --disable-openal --disable-sndio` —
   GME, GSM, libmysofa, Speex, Theora, libvidstab, OpenAL, sndio.
+  (DNxHD и ProRes намеренно остаются включёнными — см. «Отключено».)
 
 Аудио-стек клиентов покрывается Opus/Vorbis/FLAC, видео — AOM/libvpx/x265, поэтому
 перечисленное избыточно. Из `Build-Depends` убраны `libgme-dev`, `libgsm-dev`,

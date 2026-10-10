@@ -5,6 +5,7 @@ usr/lib/*/gstreamer-1.0/libgstalphacolor.so
 usr/lib/*/gstreamer-1.0/libgstalpha.so
 usr/lib/*/gstreamer-1.0/libgstapetag.so
 usr/lib/*/gstreamer-1.0/libgstaudioparsers.so
+usr/lib/*/gstreamer-1.0/libgstauparse.so
 usr/lib/*/gstreamer-1.0/libgstautodetect.so
 usr/lib/*/gstreamer-1.0/libgstavi.so
 usr/lib/*/gstreamer-1.0/libgstcairo.so

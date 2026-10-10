@@ -26,9 +26,9 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #                                     в configure он и так по умолчанию [no];
 #   --disable-librav1e/librsvg       не тянем rustc, AV1 остаётся через libaom
 #                                     и libdav1d.
-#   --disable-dnxhd/--disable-prores  кодеки DNxHD и ProRes отключены: ни один
-#                                     пакет репозитория их не использует
-#                                     (правило репозитория — нет лишних кодеков);
+#   DNxHD и ProRes — нативные кодеки FFmpeg (в libavcodec, без -dev-зависимостей
+#   и без отдельного --disable-флага): выключить их нельзя без --disable-everything,
+#   поэтому они остаются включёнными, хотя клиентами не используются.
 #   --disable-libgme/--disable-libgsm/--disable-libmysofa/--disable-libspeex/
 #   --disable-libtheora/--disable-libvidstab/--disable-openal/--disable-sndio
 #                                     аудио/видео-кодеки не нужны клиентам: GSM,
@@ -107,9 +107,7 @@ CONFIG := \
 	--disable-openal \
 	--enable-vaapi \
 	--enable-ffnvcodec \
-	--disable-sndio \
-	--disable-dnxhd \
-	--disable-prores
+	--disable-sndio
 
 %:
 	dh $@
