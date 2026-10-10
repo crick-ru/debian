@@ -15,11 +15,13 @@ Maintainer: AI-agent <noreply@example.com>
 #     выключены опциями сборки, иначе dh_missing --fail-missing (в
 #     compat 13 это поведение по умолчанию) роняет сборку на файлах,
 #     не указанных в .install;
-#   * JACK, libcaca и libaa1 выключены (-Djack=disabled
-#     -Dlibcaca=disabled -Daalib=disabled), поэтому убраны
-#     libjack-jackd2-dev, libcaca-dev и libaa1-dev. Опция для aa1
-#     называется aalib, а не aa1: проверка идёт по aalib.h и -laa,
-#     и именно их даёт libaa1-dev;
+#   * JACK, libcaca, libaa1, AMR, Speex, WavPack и audiofx выключены
+#     (-Djack=disabled -Dlibcaca=disabled -Daalib=disabled
+#     -Daudiofx=disabled -Damrnb=disabled -Damrwbdec=disabled
+#     -Dspeex=disabled -Dwavpack=disabled), поэтому убраны libjack-jackd2-dev,
+#     libcaca-dev, libaa1-dev, libopencore-amrnb-dev, libopencore-amrwb-dev,
+#     libspeex-dev и libwavpack-dev. Опция для aa1 называется aalib (не aa1):
+#     проверка идёт по aalib.h и -laa, и именно их даёт libaa1-dev;
 #   * -Dauto_features=enabled не используется: опция превращает все
 #     'auto'-опции в обязательные, и сборка падала на отсутствующих
 #     nasm, libraw1394/libavc1394/libiec61883 и libgudev/libv4l2;
@@ -49,19 +51,15 @@ Build-Depends:
  gstreamer1.0-plugins-base (>= 1.28.0),
  libjpeg-dev,
  libmp3lame-dev,
- libmpg123-dev (>= 1.13),
- libopencore-amrnb-dev,
- libopencore-amrwb-dev,
- liborc-0.4-dev (>= 1:0.4.34),
- libpng-dev,
- libsoup-3.0-dev,
- libshout-dev,
- libspeex-dev (>= 1.1.6),
- libtag1-dev,
+  libmpg123-dev (>= 1.13),
+  liborc-0.4-dev (>= 1:0.4.34),
+  libpng-dev,
+  libsoup-3.0-dev,
+  libshout-dev,
+  libtag1-dev,
  libtwolame-dev,
- libvpx-dev (>= 1.7),
- libwavpack-dev (>= 4.60),
- libxml2-dev,
+  libvpx-dev (>= 1.7),
+  libxml2-dev,
  zlib1g-dev (>= 1:1.1.4),
 Standards-Version: 4.7.3
 Homepage: https://gstreamer.freedesktop.org/

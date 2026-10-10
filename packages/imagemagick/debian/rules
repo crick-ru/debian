@@ -22,6 +22,13 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # cannot work without an X11 delegate; they are dropped from the staging tree
 # in override_dh_auto_install below.
 #
+# WMF и OpenEXR выключены (--without-wmf --without-openexr): ни один пакет
+# репозитория не использует кодировщики WMF (libwmf) и OpenEXR, поэтому
+# libwmf-dev и libopenexr-dev убраны из Depends libmagickcore-7.q16-dev.
+# Без libopenexr-dev configure молча отключает coder exr, а --without-openexr
+# задаёт это явно — правило репозитория требует, чтобы слово делегата
+# встречалось в debian/rules.
+#
 # The HEIC delegate is switched on: --with-heic runs the
 # PKG_CHECK_MODULES([HEIF],[libheif >= 1.7.0]) check, HEIC_DELEGATE is defined
 # and coders/heic.c is compiled; no patch is needed for that. That one coder
@@ -73,6 +80,7 @@ override_dh_auto_configure:
 		--with-openjp2 \
 		--with-webp \
 		--without-wmf \
+		--without-openexr \
 		--with-fftw \
 		--with-security-policy=secure \
 		--enable-reproducible-build \

@@ -8,7 +8,7 @@ Wayland-окружение без компонентов, не нужных на
 - Bluetooth-кодеки: **AAC** (через `libfdk-aac` из этого репозитория), aptX,
   LC3, LDAC, Opus, SBC.
 - ALSA-мост: `pipewire-alsa`, `-Davahi=disabled` (без Avahi-обнаружения).
-- Поддержка `libffado`, `libmysofa`, LV2.
+- Поддержка `libffado` и LV2. `libmysofa` выключена — см. «Отключено».
 - Пользовательские **и** системные службы WirePlumber (`pipewire-system-services`).
 - Документация и справочные страницы man.
 
@@ -29,6 +29,10 @@ Wayland-окружение без компонентов, не нужных на
 - **ROC** (`-Droc=disabled`): удалённый аудиопоток. Не собираются модули
   `libpipewire-module-roc-sink.so` и `libpipewire-module-roc-source.so`,
   `libroc-dev` убран из `Build-Depends`.
+- **libmysofa** (`-Dlibmysofa=disabled`): HRTF-пространство звучания. Плагин
+  spa `mysofa` не публикуется, `libmysofa-dev` убран из `Build-Depends`.
+  libmysofa ранее был включён, но ни один клиент репозитория (mpv, labwc,
+  sfwbar) его не использует.
 - **V4L2** (`-Dv4l2=disabled`): пакет `pipewire-v4l2` и spa-плагин `v4l2` не
   собираются.
 - **libcamera** (`-Dlibcamera=disabled`): в Debian trixie поставляется
@@ -72,7 +76,7 @@ Wayland-окружение без компонентов, не нужных на
 
 ## Изменено
 
-- Версия: `1.6.9-2+crick` (ревизия 2 — из-за переработки упаковки).
+- Версия: `1.6.9-3+crick` (ревизия 3 — libmysofa выключена, пересборка).
 - Патч `0001-CVE-2026-14330.patch` переносит апстрим-исправление уязвимости
   CVE-2026-14330 (`spa_alloca` с проверками переполнения и лимитов).
 - `pipewire-audio-client-libraries` оставлен только как переходный метапакет

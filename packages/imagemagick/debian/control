@@ -17,6 +17,10 @@ Maintainer: AI-agent <noreply@example.com>
 #     libmagickcore-7.q16-10 (через coders/heic.so, не через саму
 #     libMagickCore). libheif поставляется этим репозиторием как libheif1 +
 #     libheif-dev - см. packages/libheif/README.md;
+#   * делегаты WMF и OpenEXR выключены (--without-wmf --without-openexr):
+#     libwmf-dev и libopenexr-dev убраны из Depends libmagickcore-7.q16-dev,
+#     кодировщики WMF и EXR не собираются — ни один пакет репозитория их не
+#     использует;
 #   * документация и man-страницы не собираются, пакет imagemagick-7-doc не
 #     публикуется, каталог /usr/share/doc удаляется из дерева установки;
 #   * тесты не собираются и не запускаются (make check не вызывается,
@@ -147,13 +151,11 @@ Depends: ${misc:Depends},
          libjpeg-dev,
          liblcms2-dev,
          liblqr-1-0-dev,
-         libltdl-dev,
-         libopenexr-dev,
-         libopenjp2-7-dev,
-         libpng-dev,
-         libtiff-dev,
-         libwmf-dev,
-         libwebp-dev,
+          libltdl-dev,
+          libopenjp2-7-dev,
+          libpng-dev,
+          libtiff-dev,
+          libwebp-dev,
          libxml2-dev,
          libfftw3-dev,
          zlib1g-dev,

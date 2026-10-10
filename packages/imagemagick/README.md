@@ -3,10 +3,10 @@
 Сборка `ImageMagick` 7.1.2-32 для Debian 13 (trixie) **без X11**, с
 делегатом HEIF/AVIF, только в квантовой глубине Q16.
 
-Версия: `8:7.1.2-32-3+crick` (ревизия 3 — HEIF включён обратно против
-`libheif` этого репозитория; ревизия 2, `8:7.1.2-32-2+crick`, была с
-выключенным делегатом, ревизия 1, `8:7.1.2-32-1+crick`, — с включённым, но
-на `libheif` из trixie).
+Версия: `8:7.1.2-32-4+crick` (ревизия 4 — WMF и OpenEXR выключены); ревизия 3,
+`8:7.1.2-32-3+crick`, включила обратно HEIF против `libheif` этого репозитория;
+ревизия 2, `8:7.1.2-32-2+crick`, была с выключенным делегатом, ревизия 1,
+`8:7.1.2-32-1+crick`, — с включённым, но на `libheif` из trixie).
 
 ## Почему epoch 8 — обязателен
 
@@ -34,12 +34,13 @@ apt сравнивает epoch первым, поэтому наша сборк�
 - Динамически загружаемые модули: `--with-modules`. Все кодировщики
   (coders) и фильтры едут **внутри** `libmagickcore-7.q16-10`, а не отдельным
   пакетом `-extra` (см. ниже).
-- Делегаты: DjVu, OpenJPEG, WebP, WMF, FFTW, `zlib`/`bzip2`/`lzma`,
-  JPEG, PNG, TIFF, Raw, OpenEXR, liblqr, LCMS, Fontconfig/FreeType, pango,
+- Делегаты: DjVu, OpenJPEG, WebP, FFTW, `zlib`/`bzip2`/`lzma`,
+  JPEG, PNG, TIFF, Raw, liblqr, LCMS, Fontconfig/FreeType, pango,
   XML. librsvg выключен (`--without-rsvg`), как и в Debian: вместо него
   работает встроенный рендерер MSVG, а зависимость от cairo/pango в
-  `libmagickcore` не появляется. `libheif` включён (`--with-heic`) —
-  см. `packages/libheif`.
+  `libmagickcore` не появляется. WMF и OpenEXR выключены
+  (`--without-wmf --without-openexr`) — см. «Отключено». `libheif` включён
+  (`--with-heic`) — см. `packages/libheif`.
 - `policy.xml` — `--with-security-policy=secure`, самый строгий из вариантов,
   которые принимает штатный `configure` апстрима (`open`, `limited`, `secure`,
   `websafe`). Значение `debian`, которое передаёт Debian, работает только с их
@@ -86,6 +87,14 @@ apt сравнивает epoch первым, поэтому наша сборк�
     на чистом Wayland им нечего делать;
   - проверка: `grep -rniE 'libx(11|ext|render)|libxcb|x11proto|x11-xkb|xvfb|xwayland' packages/*/debian/control`
     даёт пустой результат.
+- **WMF и OpenEXR** (`--without-wmf --without-openexr`): кодировщики
+  `coders/wmf.so` (WMF) и `coders/exr.so` (OpenEXR) не собираются. Ни один
+  пакет репозитория не использует форматы WMF и EXR, поэтому `libwmf-dev` и
+  `libopenexr-dev` убраны из `Depends` пакета `libmagickcore-7.q16-dev` (они
+  там были как транзитивные dev-зависимости, а coder не собирается: `-dev` в
+  `Build-Depends` нет). Без `--without-openexr` configure молча отключил бы
+  coder (заголовков нет), но опция задаёт это явно — правило репозитория
+  требует, чтобы слово делегата встречалось в `debian/rules`.
 - **HEIF/AVIF — делегат включён.** В ревизии 2 он был выключен
   (`--without-heic`), теперь в `debian/rules` стоит `--with-heic`, а
   `libheif-dev` снова в `Build-Depends` и в `Depends` пакета

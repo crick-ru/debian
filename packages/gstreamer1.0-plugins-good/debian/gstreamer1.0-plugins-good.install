@@ -3,12 +3,8 @@ usr/lib/*/gstreamer-1.0/libgstadaptivedemux2.so
 usr/lib/*/gstreamer-1.0/libgstalaw.so
 usr/lib/*/gstreamer-1.0/libgstalphacolor.so
 usr/lib/*/gstreamer-1.0/libgstalpha.so
-usr/lib/*/gstreamer-1.0/libgstamrnb.so
-usr/lib/*/gstreamer-1.0/libgstamrwbdec.so
 usr/lib/*/gstreamer-1.0/libgstapetag.so
-usr/lib/*/gstreamer-1.0/libgstaudiofx.so
 usr/lib/*/gstreamer-1.0/libgstaudioparsers.so
-usr/lib/*/gstreamer-1.0/libgstauparse.so
 usr/lib/*/gstreamer-1.0/libgstautodetect.so
 usr/lib/*/gstreamer-1.0/libgstavi.so
 usr/lib/*/gstreamer-1.0/libgstcairo.so
@@ -51,7 +47,6 @@ usr/lib/*/gstreamer-1.0/libgstshout2.so
 usr/lib/*/gstreamer-1.0/libgstsmpte.so
 usr/lib/*/gstreamer-1.0/libgstsoup.so
 usr/lib/*/gstreamer-1.0/libgstspectrum.so
-usr/lib/*/gstreamer-1.0/libgstspeex.so
 usr/lib/*/gstreamer-1.0/libgsttaglib.so
 usr/lib/*/gstreamer-1.0/libgsttwolame.so
 usr/lib/*/gstreamer-1.0/libgstudp.so
@@ -61,7 +56,6 @@ usr/lib/*/gstreamer-1.0/libgstvideofilter.so
 usr/lib/*/gstreamer-1.0/libgstvideomixer.so
 usr/lib/*/gstreamer-1.0/libgstvpx.so
 usr/lib/*/gstreamer-1.0/libgstwavenc.so
-usr/lib/*/gstreamer-1.0/libgstwavpack.so
 usr/lib/*/gstreamer-1.0/libgstwavparse.so
 usr/lib/*/gstreamer-1.0/libgstxingmux.so
 usr/lib/*/gstreamer-1.0/libgsty4m.so

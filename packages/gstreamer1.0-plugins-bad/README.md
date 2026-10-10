@@ -15,9 +15,9 @@
   (VA-API, oneVPL, NVDEC/NVENC через библиотеку FFmpeg, Vulkan), аудиокодеки
   вне набора «good», элементы RTP/RTCP, субтитры и видеоконвертеры. Сюда же
   попадают плагины, собираемые без внешних SDK: `kms`, `qsv`, `uvcgadget`,
-  `decklink`, `hip` (драйверы и библиотеки вроде ROCm, Intel MFX, Blackmagic
-  и AJA они загружают в рантайме, поэтому в `Build-Depends` их нет, а в
-  состав пакетов они не попадают).
+  `hip` (драйверы и библиотеки вроде ROCm, Intel MFX и AMD они загружают
+  в рантайме, поэтому в `Build-Depends` их нет). Плагины BlackMagic
+  (`libgstdecklink.so`) и AJA (`libgstaja.so`) выключены — см. «Отключено».
 - `gir1.2-gst-plugins-bad-1.0` — данные GObject introspection.
 
 ## Отключено
@@ -67,6 +67,16 @@
   -Dnvdswrapper=disabled -Dmpeghdec=disabled -Dvmaf=disabled -Dfdkaac=disabled
   -Dfaad=disabled` — тот же список, что и в Debian, только без вариантов для
   не-Linux.
+- **DeckLink, AJA, gme, OpenAL и OpenEXR**: `-Ddecklink=disabled
+  -Daja=disabled -Dgme=disabled -Dopenal=disabled -Dopenexr=disabled`. Плагины
+  `libgstdecklink.so` (BlackMagic), `libgstaja.so` (AJA), `libgstgme.so`
+  (игровая музыка), `libgstopenal.so` (OpenAL) и `libgstopenexr.so` (OpenEXR)
+  не публикуются: ни один пакет репозитория их не использует, а SDK
+  BlackMagic/AJA — проприетарные и отсутствуют. Из `Build-Depends` убраны
+  `libopenal-dev`, `libopenexr-dev` и `libgme-dev`; из `.install` —
+  `libgstdecklink.so`, `libgstgme.so`, `libgstopenal.so`, `libgstopenexr.so`
+  (`libgstaja.so` в `.install` не попадал — плагин либо не собирался, либо
+  не публиковался ранее).
 - **Vulkan Video**: `-Dvulkan-video=disabled`. Кодирование и декодирование
   через Vulkan Video Extensions выключено: в trixie нет заголовков
   `vulkan_video_codec_*.h` (их даёт `libvulkan-dev` в более новых версиях
@@ -154,7 +164,8 @@ Run-time dependency cairo found: NO
 
 ## Изменено
 
-- Версия: `1.28.7-1+crick`.
+- Версия: `1.28.7-4+crick` (ревизия поднята с 3 до 4: выключены DeckLink, AJA,
+  gme, OpenAL и OpenEXR — требует пересборки).
 - Пакет `gstreamer1.0-plugins-bad` в Debian объявляет `Breaks` и `Replaces`
   на `gstreamer1.0-plugins-base` и `gstreamer1.0-plugins-good` версий
   ancient (`<< 0.11.94`, `<< 1.1.2`) — они не перенесены, они относятся к

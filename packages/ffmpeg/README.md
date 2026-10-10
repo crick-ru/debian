@@ -9,10 +9,12 @@ GStreamer и FFmpeg.
 
 - Общие библиотеки: `libavcodec`, `libavdevice`, `libavfilter`, `libavformat`,
   `libavutil`, `libswresample`, `libswscale` — все `Multi-Arch: same`.
-- Кодеки: AOM, AV1 (через libaom и libdav1d), Opus, Vorbis, Theora, FLAC,
-  Speex, WavPack, AMR, MP3 (lame), MP2/3 (mpg123), Opus, LAME, Ogg, FLAC,
-  Speex, WavPack, BS2B, libmysofa, OpenJPEG, WebP, XZ и Brotli, GSM, GME,
-  OpenAL, libzimg, libxml2, libvorbis, libtwolame, libshine, libvidstab.
+- Кодеки: AOM, AV1 (через libaom и libdav1d), Opus, Vorbis, FLAC, MP3 (lame),
+  MP2/3 (mpg123), LAME, Ogg, BS2B, OpenJPEG, WebP, XZ и Brotli, libzimg,
+   libxml2, libvorbis, libtwolame, libshine. Speex, Theora, GSM, GME,
+   OpenAL, libmysofa, libvidstab и sndio — выключены (см. «Отключено»), как и
+   родные кодеки DNxHD и ProRes. (WavPack и AMR в ffmpeg не включаются
+   configure по умолчанию — отсутствуют в сборке, их не перечисляем.)
 - Субтитры: `--enable-libass` (это то, чем `celluloid` и `mpv` показывают
   `.srt`/`.ass`).
 - Аппаратное ускорение: `--enable-vaapi` (VA-API) и `--enable-ffnvcodec`
@@ -47,6 +49,16 @@ GStreamer и FFmpeg.
   означает, что пакеты `libav*-extra*` не публикуются.
 - **libplacebo**: `--disable-libplacebo` (тянет Vulkan, а задача вывода видео
   решается `mpv`).
+- **Родные кодеки и аудио/видеоплагины, не нужные клиентам**: `--disable-dnxhd`
+  и `--disable-prores` (DNxHD и ProRes — профессиональные кодеки NLE);
+  `--disable-libgme`, `--disable-libgsm`, `--disable-libmysofa`,
+  `--disable-libspeex`, `--disable-libtheora`, `--disable-libvidstab`,
+  `--disable-openal` и `--disable-sndio` (игровая/аудио- и научная/прочая
+  редкость: GME, GSM, libmysofa, Speex, Theora, libvidstab, OpenAL, sndio).
+  Аудио идёт через Opus/Vorbis/FLAC, видео — через AOM/libvpx/x265; ни один
+  пакет репозитория не использует перечисленное, поэтому из `Build-Depends`
+  убраны `libgme-dev`, `libgsm-dev`, `libmysofa-dev`, `libspeex-dev`,
+  `libtheora-dev`, `libvidstab-dev`, `libopenal-dev` и `libsndio-dev`.
 - **Документация и man-страницы**: `--disable-doc --disable-manpages`, поэтому
   `Build-Depends-Indep` (doxygen, node-less, cleancss, tree) и `texinfo`
   удалены, пакет `ffmpeg-doc` не публикуется, а `debian/ffmpeg.manpages`
@@ -73,8 +85,8 @@ GLX и X11, при этом пути DRM и Wayland на месте, так чт
 
 ## Изменено
 
-- Версия: `7:9.0.2-2+crick`. **Epoch 7 обязателен** — историческое значение
-  Debian. Без него наша `9.0.2-2+crick` оказалась бы *старее* штатной
+- Версия: `7:9.0.2-4+crick`. **Epoch 7 обязателен** — историческое значение
+  Debian. Без него наша `9.0.2-4+crick` оказалась бы *старее* штатной
   `7:7.1.5-0+deb13u1`, потому что apt сравнивает epoch первым, и `apt upgrade`
   новую сборку не подхватил бы. Карта epoch живёт в
   `scripts/upstream/<pkg>.conf` (поле `EPOCH`).
@@ -146,5 +158,23 @@ GLX и X11, при этом пути DRM и Wayland на месте, так чт
 `libavfilter-dev : Depends: libpostproc-dev (= 7:9.0.2-3+crick) but it is not
 going to be installed`). На сборку это не влияет: `libpostproc` нужен только
 для статической линковки, а `.pc`-файлы его не требуют.
+
+## Ревизия 4: родные кодеки FFmpeg, не нужные клиентам
+
+Выключены родные кодеки FFmpeg, которыми ни один пакет репозитория не
+пользуется, чтобы не тянуть в `Build-Depends` редкие аудио/видеобиблиотеки:
+
+- `--disable-dnxhd --disable-prores` — DNxHD и ProRes (профессиональные кодеки
+  NLE);
+- `--disable-libgme --disable-libgsm --disable-libmysofa --disable-libspeex
+  --disable-libtheora --disable-libvidstab --disable-openal --disable-sndio` —
+  GME, GSM, libmysofa, Speex, Theora, libvidstab, OpenAL, sndio.
+
+Аудио-стек клиентов покрывается Opus/Vorbis/FLAC, видео — AOM/libvpx/x265, поэтому
+перечисленное избыточно. Из `Build-Depends` убраны `libgme-dev`, `libgsm-dev`,
+`libmysofa-dev`, `libspeex-dev`, `libtheora-dev`, `libvidstab-dev`,
+`libopenal-dev` и `libsndio-dev`. Откат: вернуть флаги в `debian/rules` и
+`-dev`-пакеты в `Build-Depends` — символы кодеков находятся в `libavcodec`,
+они не удаляются из бинарных пакетов, а просто не линкуются.
 
 Ревизия поднята со 2 до 4: упаковка менялась после публикации дважды.

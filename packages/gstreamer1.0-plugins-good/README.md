@@ -6,10 +6,9 @@
 ## Включено
 
 - `gstreamer1.0-plugins-good` — элементы набора: демультиплексоры Matroska, FLV и
-  RTP, кодеки VP8 и VP9, FLAC, Speex, WavPack, AMR (NB и WB), MP3, AAC,
-  Shout, аудио-эффекты, видеофильтры, а также `libgstadaptivedemux2.so` —
-  адаптивный демультиплексор (его `-dev`-зависимость `libxml2-dev` уже была в
-  `Build-Depends`).
+  RTP, кодеки VP8 и VP9, FLAC, MP3, AAC, Shout, видеофильтры, а также
+  `libgstadaptivedemux2.so` — адаптивный демультиплексор (его `-dev`-зависимость
+  `libxml2-dev` уже была в `Build-Depends`).
 
 Отдельных пакетов с библиотеками у этого набора нет: в апстриме 1.28.7
 каталог `gst-libs/gst` содержит только один заголовок, то есть общих
@@ -65,6 +64,15 @@
 - **OSSv4**: `-Doss4=disabled`. Плагин `libgstoss4.so` — устаревший аудио-API;
   звук идёт через ALSA и `pipewire`. Отключается опцией, потому что
   `libgstoss4.so` собирается по одним стандартным заголовкам.
+- **AMR, Speex, WavPack и audiofx**: `-Damrnb=disabled -Damrwbdec=disabled
+  -Dspeex=disabled -Dwavpack=disabled -Daudiofx=disabled`. AMR (NB/WB),
+  Speex и WavPack не публикуются — аудио в репозитории идёт через Opus,
+  Vorbis и FLAC, а AMR/Speex/WavPack-клиентов нет. Плагин `libgstaudiofx.so`
+  (чистый плагин без внешних зависимостей, аудио-эффекты) исключён по списку
+  репозитория. Из `Build-Depends` убраны `libopencore-amrnb-dev`,
+  `libopencore-amrwb-dev`, `libspeex-dev` и `libwavpack-dev`; из `.install`
+  убраны `libgstamrnb.so`, `libgstamrwbdec.so`, `libgstaudiofx.so`,
+  `libgstspeex.so` и `libgstwavpack.so`.
 - **Опции, которые нельзя включать все сразу**: `-Dauto_features` намеренно не
   задаётся. Эта встроенная опция meson превращает все опции `auto` в
   `enabled`, то есть необязательные зависимости становятся обязательными, и
@@ -86,19 +94,23 @@
 ## Синхронизация .install
 
 `gstreamer1.0-plugins-good.install` перечисляет ровно те плагины, которые
-фактически собираются при флагах из `debian/rules` (66 плагинов, проверено
+фактически собираются при флагах из `debian/rules` (60 плагинов, проверено
 `meson setup`). Это обязательно: в compat 13 `dh_missing` работает с
 `--fail-missing` по умолчанию, и любое расхождение — лишний файл в
 `debian/tmp` или отсутствующая строка — останавливает сборку.
 
 ## Изменено
 
-- Версия: `1.28.7-1+crick`.
-- Состав пакета: в `gstreamer1.0-plugins-good.install` добавлены
-  `libgstadaptivedemux2.so`, `libgstamrnb.so` и `libgstamrwbdec.so` (их
-  `-dev`-зависимости уже были в `Build-Depends`), и убраны
-  `libgstaasink.so`, `libgstcacasink.so` и `libgstjack.so` (JACK, libcaca и
-  libaa1 отключены — см. «Отключено»). Стало 66 плагинов вместо 69.
+- Версия: `1.28.7-2+crick` (ревизия поднята с 1 до 2: переработка набора
+  плагинов — удалены AMR, Speex, WavPack и audiofx, требуют пересборки).
+- Состав пакета: из `gstreamer1.0-plugins-good.install` и `Build-Depends`
+  удалены плагины AMR (NB/WB), `audiofx`, Speex и WavPack — кодеки не
+  используются клиентами (аудио идёт через Opus/Vorbis/FLAC), а `audiofx` —
+  чистый плагин без внешних зависимостей, исключённый по списку репозитория.
+  Из `Build-Depends` убраны `libopencore-amrnb-dev`,
+  `libopencore-amrwb-dev`, `libspeex-dev` и `libwavpack-dev`; из `.install` —
+  `libgstamrnb.so`, `libgstamrwbdec.so`, `libgstaudiofx.so`, `libgstspeex.so`
+  и `libgstwavpack.so`. Стало 60 плагинов вместо 69 в исходной сборке Debian.
 
 ## Влияние на систему и откат
 

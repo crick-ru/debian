@@ -8,8 +8,10 @@ Maintainer: AI-agent <noreply@example.com>
 #     python3-docutils;
 #   * тестовое дерево не собирается (-Dtest=disabled), каталог debian/tests
 #     удалён;
-#   * X11, JACK, V4L2, libcamera, ONNX Runtime, Bluetooth-PLC, avahi и roc
-#     отключены;
+#   * X11, JACK, V4L2, libcamera, ONNX Runtime, Bluetooth-PLC, avahi, roc и
+#     libmysofa отключены (libmysofa — HRTF-пространство, не нужное клиентам),
+#     поэтому libmysofa-dev убран из Build-Depends и -Dlibmysofa=disabled
+#     выставлен в debian/rules;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: debhelper-compat (= 13),
                 libfdk-aac-dev,
@@ -29,9 +31,8 @@ Build-Depends: debhelper-compat (= 13),
                 libgstreamer1.0-dev,
                 libldacbt-abr-dev [!s390x !hppa !m68k !powerpc !ppc64 !sparc64],
                 libldacbt-enc-dev [!s390x !hppa !m68k !powerpc !ppc64 !sparc64],
-                liblilv-dev,
-                libmysofa-dev,
-                libncurses-dev,
+                 liblilv-dev,
+                 libncurses-dev,
                 libopus-dev,
                 libpulse-dev,
                 libreadline-dev,

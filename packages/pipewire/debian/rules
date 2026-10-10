@@ -90,7 +90,7 @@ override_dh_auto_configure:
 		-Dv4l2=disabled \
 		-Dlibcamera=$(LIBCAMERA) \
 		-Dlibffado=enabled \
-		-Dlibmysofa=enabled \
+		-Dlibmysofa=disabled \
 		-Ddocs=$(DOCS) \
 		-Dffmpeg=disabled \
 		-Dlv2=enabled \

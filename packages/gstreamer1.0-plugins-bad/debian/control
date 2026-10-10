@@ -35,6 +35,12 @@ Maintainer: AI-agent <noreply@example.com>
 #     "Neither a subproject directory nor a gst-plugins-base.wrap file";
 #   * документация не собирается (-Ddoc=disabled), man-страницы не
 #     публикуются, тесты не собираются и не запускаются;
+#   * AJA, DeckLink, gme, OpenAL и OpenEXR выключены (-Daja=disabled
+#     -Ddecklink=disabled -Dgme=disabled -Dopenal=disabled
+#     -Dopenexr=disabled), поэтому убраны libopenal-dev, libopenexr-dev и
+#     libgme-dev из Build-Depends, а libgstdecklink.so, libgstgme.so,
+#     libgstopenal.so и libgstopenexr.so — из .install. libgstaja.so в
+#     .install не попадал (плагин AJA не публикуется);
 #   * пакеты gstreamer1.0-wpe, gstreamer1.0-opencv и
 #     gstreamer1.0-plugins-bad-apps не публикуются;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
@@ -55,9 +61,8 @@ Build-Depends:
  libbz2-dev,
  libcairo2-dev,
  libdrm-dev,
- libegl-dev,
- libgme-dev,
- libgles-dev,
+  libegl-dev,
+  libgles-dev,
  libglib2.0-dev (>= 2.62),
  libgnutls28-dev,
  libgmp-dev,
@@ -65,17 +70,15 @@ Build-Depends:
  libgstreamer-plugins-base1.0-dev (>= 1.28.0),
  libgudev-1.0-dev [linux-any],
  libjson-glib-dev,
- libmpcdec-dev,
- libopenal-dev,
- libopenexr-dev,
- libopenh264-dev,
+  libmpcdec-dev,
+  libopenh264-dev,
  libopenjp2-7-dev,
  libopenmpt-dev,
- libopus-dev,
- liborc-0.4-dev (>= 1:0.4.34),
- libpango1.0-dev,
- libpixman-1-dev,
- libpng-dev,
+  libopus-dev,
+  liborc-0.4-dev (>= 1:0.4.34),
+  libpango1.0-dev,
+  libpixman-1-dev,
+  libpng-dev,
  librtmp-dev,
  libsrtp2-dev,
  libssl-dev,

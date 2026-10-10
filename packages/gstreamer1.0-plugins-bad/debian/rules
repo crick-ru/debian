@@ -57,6 +57,19 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #                            вместе с зависимостями;
 #   -Ddoc=disabled            документация не собирается;
 #   -Dtests=disabled          тестовая система не собирается и не запускается.
+#   -Dgme=disabled -Dopenal=disabled -Dopenexr=disabled
+#                            игровые/аудио-кодеки (gme, openal) и OpenEXR:
+#                            libopenexr-dev, libgme-dev, libopenal-dev убраны
+#                            из Build-Depends, плагины libgstgme.so,
+#                            libgstopenal.so и libgstopenexr.so не
+#                            публикуются — клиенты этих кодеков нет;
+#   -Ddecklink=disabled -Daja=disabled
+#                            плагины BlackMagic (libgstdecklink.so) и AJA
+#                            (libgstaja.so): требуют проприетарных SDK, которых
+#                            в Build-Depends нет (они dlopen-ятся в рантайме),
+#                            но сами плагины не нужны без тюнеров/видеомагнитофонов;
+#                            libgstdecklink.so убран из .install, libgstaja.so
+#                            туда не попадал.
 conf_flags = \
 	-Dpackage-name=GStreamer \
 	-Dpackage-origin=https://gstreamer.freedesktop.org \
@@ -110,7 +123,12 @@ conf_flags = \
 	-Dmpeghdec=disabled \
 	-Dvmaf=disabled \
 	-Dfdkaac=disabled \
-	-Dfaad=disabled
+	-Dfaad=disabled \
+	-Daja=disabled \
+	-Ddecklink=disabled \
+	-Dgme=disabled \
+	-Dopenal=disabled \
+	-Dopenexr=disabled
 
 %:
 	dh $@

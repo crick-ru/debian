@@ -26,6 +26,18 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #                                     в configure он и так по умолчанию [no];
 #   --disable-librav1e/librsvg       не тянем rustc, AV1 остаётся через libaom
 #                                     и libdav1d.
+#   --disable-dnxhd/--disable-prores  кодеки DNxHD и ProRes отключены: ни один
+#                                     пакет репозитория их не использует
+#                                     (правило репозитория — нет лишних кодеков);
+#   --disable-libgme/--disable-libgsm/--disable-libmysofa/--disable-libspeex/
+#   --disable-libtheora/--disable-libvidstab/--disable-openal/--disable-sndio
+#                                     аудио/видео-кодеки не нужны клиентам: GSM,
+#                                     Speex, Theora, GME, OpenAL, libmysofa,
+#                                     libvidstab, sndio — выключены,
+#                                     соответствующие -dev убраны из Build-Depends.
+#   WavPack и AMR в ffmpeg не включаются configure по умолчанию (флагов
+#   --disable-libwavpack/--disable-libopencore_amr* нет), поэтому они просто
+#   отсутствуют в сборке — их исключаю из списков Включено/Отключено.
 # Аппаратное ускорение оставлено там, где оно не устарело: VA-API
 # (--enable-vaapi) и NVDEC/NVENC (--enable-ffnvcodec), оба доступны в trixie.
 CONFIG := \
@@ -95,7 +107,9 @@ CONFIG := \
 	--disable-openal \
 	--enable-vaapi \
 	--enable-ffnvcodec \
-	--disable-sndio
+	--disable-sndio \
+	--disable-dnxhd \
+	--disable-prores
 
 %:
 	dh $@

@@ -51,6 +51,14 @@ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
 #                         пакет Debian называется libaa1-dev: проверка в
 #                         ext/aalib/meson.build идёт по заголовку aalib.h и
 #                         по -laa, и именно их даёт libaa1-dev;
+#   -Daudiofx=disabled  плагин libgstaudiofx.so не публикуется: чистый плагин
+#                       без внешних зависимостей, исключён по списку
+#                       репозитория (аудио-эффекты не нужны клиентам);
+#   -Damrnb/amrwbdec    AMR (NB/WB) выключены: кодеки не используются, поэтому
+#                       libopencore-amrnb-dev и libopencore-amrwb-dev убраны;
+#   -Dspeex=disabled    Speex выключен — аудио идёт через Opus/Vorbis, libspeex-dev
+#                       убран;
+#   -Dwavpack=disabled  WavPack выключен, libwavpack-dev убран.
 #   -Doss4=disabled       устаревший аудио-API OSSv4; звук идёт через
 #                         ALSA и pipewire;
 #   -Ddoc=disabled        документация не собирается;
@@ -70,6 +78,11 @@ conf_flags = \
 	-Djack=disabled \
 	-Dlibcaca=disabled \
 	-Daalib=disabled \
+	-Daudiofx=disabled \
+	-Damrnb=disabled \
+	-Damrwbdec=disabled \
+	-Dspeex=disabled \
+	-Dwavpack=disabled \
 	-Doss4=disabled
 
 %:
