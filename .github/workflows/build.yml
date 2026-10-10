@@ -1359,7 +1359,7 @@ jobs:
     name: wlroots (stage 4)
     if: >-
       ${{ !inputs.package || inputs.package == 'labwc' || inputs.package == 'wlroots' }}
-    needs: [build_cairo, build_libdrm, build_libglvnd, build_libxkbcommon, build_mesa, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_libdrm, build_libglvnd, build_libxkbcommon, build_mesa, build_pixman, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1482,7 +1482,7 @@ jobs:
     name: gstreamer1.0-plugins-good (stage 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_pixman]
+    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1523,6 +1523,13 @@ jobs:
           path: stage2-pool
           merge-multiple: true
 
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
       - name: Download stage 4 packages
         uses: actions/download-artifact@v8
         with:
@@ -1540,6 +1547,10 @@ jobs:
           # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
                 ./stage1-pool/libdrm-amdgpu1_*.deb
@@ -1550,14 +1561,36 @@ jobs:
                 ./stage1-pool/libdrm-nouveau2_*.deb
                 ./stage1-pool/libdrm-radeon1_*.deb
                 ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
                 ./stage1-pool/libpixman-1-0_*.deb
                 ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
                 ./stage2-pool/libcairo-gobject2_*.deb
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
                 ./stage4-pool/gstreamer1.0-gl_*.deb
                 ./stage4-pool/gstreamer1.0-plugins-base_*.deb
@@ -1577,7 +1610,7 @@ jobs:
     name: gstreamer1.0-plugins-bad (stage 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_libglvnd, build_libva, build_mesa, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_libglvnd, build_libva, build_pixman, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1644,6 +1677,7 @@ jobs:
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
@@ -1789,7 +1823,7 @@ jobs:
     name: wayvnc (stage 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'wayvnc' }}
-    needs: [build_aml, build_ffmpeg, build_libdrm, build_libxkbcommon, build_neatvnc, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_aml, build_libdrm, build_libxkbcommon, build_neatvnc, build_pixman, build_wayland]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -1908,7 +1942,7 @@ jobs:
     name: kmscon (stage 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'kmscon' }}
-    needs: [build_libdrm, build_libglvnd, build_libtsm, build_libxkbcommon, build_mesa, build_wayland]
+    needs: [build_libdrm, build_libglvnd, build_libtsm, build_libxkbcommon, build_mesa]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2016,7 +2050,7 @@ jobs:
     name: labwc (stage 5)
     if: >-
       ${{ !inputs.package || inputs.package == 'labwc' }}
-    needs: [build_cairo, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols, build_wlroots]
+    needs: [build_cairo, build_libdrm, build_libxkbcommon, build_wayland-protocols, build_wlroots]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2080,6 +2114,7 @@ jobs:
           # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: wlroots собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
@@ -2278,7 +2313,7 @@ jobs:
     name: gtk+3.0 (stage 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'gtk+3.0' || inputs.package == 'sfwbar' }}
-    needs: [build_at-spi2-core, build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_at-spi2-core, build_cairo, build_libxkbcommon, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2414,7 +2449,7 @@ jobs:
     name: gtk4 (stage 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_libdrm, build_libxkbcommon, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_libxkbcommon, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2543,7 +2578,7 @@ jobs:
     name: gstreamer1.0-libav (stage 6)
     if: >-
       ${{ !inputs.package || inputs.package == 'gstreamer1.0-libav' }}
-    needs: [build_cairo, build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good]
+    needs: [build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2611,18 +2646,49 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
+          # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: ffmpeg собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-good собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           debs=(
                 ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
                 ./stage1-pool/libgstreamer1.0-0_*.deb
                 ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
                 ./stage2-pool/libcairo-gobject2_*.deb
                 ./stage2-pool/libcairo-script-interpreter2_*.deb
                 ./stage2-pool/libcairo2_*.deb
                 ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
                 ./stage3-pool/libavcodec-dev_*.deb
                 ./stage3-pool/libavcodec63_*.deb
                 ./stage3-pool/libavdevice-dev_*.deb
@@ -2633,10 +2699,15 @@ jobs:
                 ./stage3-pool/libavformat63_*.deb
                 ./stage3-pool/libavutil-dev_*.deb
                 ./stage3-pool/libavutil61_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
                 ./stage3-pool/libswresample-dev_*.deb
                 ./stage3-pool/libswresample7_*.deb
                 ./stage3-pool/libswscale-dev_*.deb
                 ./stage3-pool/libswscale10_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
                 ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
                 ./stage4-pool/gstreamer1.0-gl_*.deb
                 ./stage4-pool/gstreamer1.0-plugins-base_*.deb
@@ -2726,7 +2797,7 @@ jobs:
     name: celluloid (stage 7)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' }}
-    needs: [build_cairo, build_ffmpeg, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_gtk4, build_libdrm, build_mpv, build_pixman, build_wayland, build_wayland-protocols]
+    needs: [build_gtk4, build_mpv]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2868,7 +2939,7 @@ jobs:
     name: sfwbar (stage 7)
     if: >-
       ${{ !inputs.package || inputs.package == 'sfwbar' }}
-    needs: [build_cairo, build_gtk_3_0, build_libdrm, build_libxkbcommon, build_pixman, build_pulseaudio, build_wayland, build_wayland-protocols]
+    needs: [build_gtk_3_0, build_libxkbcommon, build_pulseaudio]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -2982,7 +3053,7 @@ jobs:
     name: pwvucontrol (stage 7)
     if: >-
       ${{ !inputs.package || inputs.package == 'pwvucontrol' }}
-    needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_gstreamer1_0-plugins-good, build_gtk4, build_libdrm, build_pipewire, build_pixman, build_wayland, build_wayland-protocols, build_wireplumber]
+    needs: [build_gtk4, build_pipewire, build_wireplumber]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -3206,6 +3277,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
