@@ -7,8 +7,8 @@ Wayland-окружение без компонентов, не нужных на
 
 - Bluetooth-кодеки: **AAC** (через `libfdk-aac` из этого репозитория), aptX,
   LC3, LDAC, Opus, SBC.
-- ALSA-мост и сетевое обнаружение: `pipewire-alsa`, `-Davahi=enabled`.
-- Поддержка `libffado`, `libmysofa`, ROC, LV2.
+- ALSA-мост: `pipewire-alsa`, `-Davahi=disabled` (без Avahi-обнаружения).
+- Поддержка `libffado`, `libmysofa`, LV2.
 - Пользовательские **и** системные службы WirePlumber (`pipewire-system-services`).
 - Документация и справочные страницы man.
 
@@ -20,6 +20,15 @@ Wayland-окружение без компонентов, не нужных на
   собираются; модули моста `jack-tunnel`, `jackdbus-detect` и `netjack2`
   исключены из `libpipewire-0.3-modules`. Приложениям JACK требуется реальный
   JACK-сервер (например, `jackd2` из дистрибутива).
+- **Avahi** (`-Davahi=disabled`): устаревший zeroconf-стек. Не собираются
+  модули `libpipewire-module-raop-discover.so`,
+  `libpipewire-module-rtp-session.so`, `libpipewire-module-snapcast-discover.so`,
+  `libpipewire-module-zeroconf-discover.so`, и `libavahi-client-dev` убран
+  из `Build-Depends`. Модуль RAOP-приёма (`libpipewire-module-raop-sink.so`)
+  остаётся — он работает через OpenSSL, а не Avahi.
+- **ROC** (`-Droc=disabled`): удалённый аудиопоток. Не собираются модули
+  `libpipewire-module-roc-sink.so` и `libpipewire-module-roc-source.so`,
+  `libroc-dev` убран из `Build-Depends`.
 - **V4L2** (`-Dv4l2=disabled`): пакет `pipewire-v4l2` и spa-плагин `v4l2` не
   собираются.
 - **libcamera** (`-Dlibcamera=disabled`): в Debian trixie поставляется

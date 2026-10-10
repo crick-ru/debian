@@ -8,7 +8,8 @@ Maintainer: AI-agent <noreply@example.com>
 #     python3-docutils;
 #   * тестовое дерево не собирается (-Dtest=disabled), каталог debian/tests
 #     удалён;
-#   * X11, JACK, V4L2, libcamera, ONNX Runtime и Bluetooth-PLC отключены;
+#   * X11, JACK, V4L2, libcamera, ONNX Runtime, Bluetooth-PLC, avahi и roc
+#     отключены;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: debhelper-compat (= 13),
                 libfdk-aac-dev,
