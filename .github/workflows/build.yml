@@ -71,22 +71,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -120,22 +113,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -195,22 +181,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -244,22 +223,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -293,22 +265,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -342,22 +307,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -391,22 +349,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -440,22 +391,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -489,22 +433,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -538,22 +475,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -587,22 +517,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -645,22 +568,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -716,22 +632,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -801,22 +710,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -877,22 +779,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -948,22 +843,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1027,22 +915,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1124,22 +1005,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1209,22 +1083,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1318,22 +1185,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1423,22 +1283,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1549,22 +1402,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1692,22 +1538,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1789,22 +1628,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -1931,22 +1763,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -2079,22 +1904,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -2227,22 +2045,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -2374,22 +2185,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -2532,22 +2336,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -2669,22 +2466,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -2822,22 +2612,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -3003,22 +2786,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -3154,22 +2930,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -3320,22 +3089,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -3492,22 +3254,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -3661,22 +3416,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -3873,22 +3621,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -4015,22 +3756,15 @@ jobs:
 
       - name: Configure APT sources and install build toolchain
         run: |
-          # Ensure Debian trixie repositories are configured (deb822 or legacy)
-          if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
-            # Match with optional leading whitespace and ensure main is present
-            sed -i -E 's/^(\s*)Components: main(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-            # Also handle case where Components line has multiple values but missing some
-            sed -i -E 's/^(\s*)Components: main( contrib)?( non-free)?( non-free-firmware)?(\s*)$/\1Components: main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
-          elif [ -f /etc/apt/sources.list ]; then
-            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
-              /etc/apt/sources.list 2>/dev/null || true
-          else
-            # Fallback: create minimal sources.list for trixie
-            echo 'deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list
-          fi
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential \
@@ -4288,6 +4022,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
