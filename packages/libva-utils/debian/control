@@ -1,0 +1,38 @@
+Source: libva-utils
+Section: utils
+Maintainer: AI-agent <noreply@example.com>
+# Упаковка взята из Debian (libva-utils_2.23.0-1, ветка 2.23) и переработана:
+#   * X11-путь отключён (-Dx11=false в debian/rules): в репозитории нет X11,
+#     поэтому libx11-dev убран из Build-Depends;
+#   * DRM и Wayland пути сохранены: vainfo работает через libva-drm2 и
+#     libva-wayland2 (наши сборки без X11 и GLX);
+#   * тесты не собираются (-Dtests=false), документация не генерируется;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+# Правила отключения — в правилах проекта.
+Build-Depends: debhelper-compat (= 13),
+               libdrm-dev,
+               libva-dev (>= 2.6),
+               libwayland-dev [linux-any],
+               meson,
+               pkgconf
+Standards-Version: 4.7.4
+Homepage: https://github.com/intel/libva-utils
+Vcs-Git: https://salsa.debian.org/multimedia-team/libva-utils.git
+Vcs-Browser: https://salsa.debian.org/multimedia-team/libva-utils
+
+Package: vainfo
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends}
+Description: Video Acceleration (VA) API for Linux -- info program
+ Video Acceleration API (VA API) is a library ("libVA") and API specification
+ which enables and provides access to graphics hardware (GPU) acceleration for
+ video processing on Linux and UNIX based operating systems. Accelerated
+ processing includes video decoding, video encoding, subpicture blending and
+ rendering. The specification was originally designed by Intel for its GMA
+ (Graphics Media Accelerator) series of GPU hardware, the API is however not
+ limited to GPUs or Intel specific hardware, as other hardware and manufacturers
+ can also freely use this API for hardware accelerated video decoding.
+ .
+ This package provides the vainfo program.

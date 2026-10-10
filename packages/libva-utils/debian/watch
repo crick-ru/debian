@@ -1,0 +1,9 @@
+Version: 5
+
+Template: GitHub
+Owner: intel
+Project: libva-utils
+
+Repack: yes
+Repacksuffix: +ds1
+Dversion-Mangle: s/\+ds\d*$//
