@@ -3122,6 +3122,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     permissions:
       contents: read
       # deleting old artifacts needs actions: write
