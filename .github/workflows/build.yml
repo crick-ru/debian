@@ -73,10 +73,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -117,10 +121,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -187,10 +195,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -231,10 +243,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -275,10 +291,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -319,10 +339,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -363,10 +387,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -407,10 +435,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -451,10 +483,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -495,10 +531,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -539,10 +579,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -592,10 +636,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -658,10 +706,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -738,10 +790,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -809,10 +865,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -875,10 +935,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -949,10 +1013,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1041,10 +1109,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1121,10 +1193,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1225,10 +1301,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1325,10 +1405,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1446,10 +1530,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1584,10 +1672,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1676,10 +1768,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1813,10 +1909,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -1956,10 +2056,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -2099,10 +2203,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -2241,10 +2349,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -2394,10 +2506,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -2526,10 +2642,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -2674,10 +2794,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -2850,10 +2974,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -2996,10 +3124,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -3157,10 +3289,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -3324,10 +3460,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -3488,10 +3628,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -3695,10 +3839,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -3832,10 +3980,14 @@ jobs:
         run: |
           # Ensure Debian trixie repositories are configured (deb822 or legacy)
           if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-            sed -i 's/^Components: main$/Components: main contrib non-free non-free-firmware/' \
+            # Handle deb822 format: Components: main [contrib non-free non-free-firmware]
+            sed -i -E 's/^Components: main(\s*)$/Components: main contrib non-free non-free-firmware/' \
+              /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+            # Also handle case where Components line has multiple values
+            sed -i -E 's/^Components: main( contrib)?( non-free)?( non-free-firmware)?$/Components: main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
           elif [ -f /etc/apt/sources.list ]; then
-            sed -i 's/^deb \(http:\/\/.*\) main$/deb \1 main contrib non-free non-free-firmware/' \
+            sed -i -E 's/^deb (http:\/\/[^ ]+) main$/deb \1 main contrib non-free non-free-firmware/' \
               /etc/apt/sources.list 2>/dev/null || true
           else
             # Fallback: create minimal sources.list for trixie
@@ -4098,6 +4250,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
 
 
 
