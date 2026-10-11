@@ -9,7 +9,7 @@
 а уже glvnd решает, какому драйверу передать вызов.
 
 Собирается **только EGL-часть**. Из четырнадцати бинарных пакетов Debian
-публикуются четыре:
+публикуются пять:
 
 | Пакет | Что внутри |
 |---|---|
@@ -22,8 +22,9 @@
 | `libgles-dev` | заголовки `GLES/`, `GLES2/`, `GLES3/`, `glesv1_cm.pc`, `glesv2.pc` |
 | `libopengl0` | `libOpenGL.so.0` — OpenGL **без** GLX |
 | `libopengl-dev` | `GL/gl.h`, `GL/glext.h`, `GL/glcorearb.h`, `opengl.pc`, `libOpenGL.so` |
+| `libgl-dev` | `gl.pc`, `libGL.so` (симлинк → `libOpenGL.so`); зависит на `libopengl-dev` за заголовками |
 
-Не публикуются: `libglx0`, `libgl1`, `libgl-dev`, `libglx-dev`,
+Не публикуются: `libglx0`, `libgl1`, `libglx-dev`,
 `libglvnd-dev` — это GLX и GL. GLX есть X11-протокол, а GL в этом
 репозитории не собирается.
 
@@ -129,7 +130,7 @@ wlroots: EGL/eglplatform.h:18: fatal error: KHR/khrplatform.h
 публикуются: `KHR/` в `libegl-dev`, `GL/` в `libopengl-dev`. `opengl.pc` в
  описании прямо говорит «library and headers», так что это ожидаемо.
 
-Не публикуются по-прежнему: `libGL.so`, `gl.pc`, `libGLX.so` и пакеты
+Не публикуются по-прежнему: `libGL.so.1`, `libGLX.so` и пакеты
 `libgl1`/`libglx0` — они и есть GLX.
 
 ## Что снято у потребителей
@@ -142,6 +143,7 @@ wlroots: EGL/eglplatform.h:18: fatal error: KHR/khrplatform.h
 | `wlroots`, `gtk+3.0`, `gtk4` | `libegl1-mesa-dev` | Пакет состоит ровно из двух заголовков — `eglmesaext.h` и `eglext_angle.h` — и оба уже ставит наша `mesa-common-dev`. Сама mesa объявляет `Breaks: libegl1-mesa-dev`, то есть рядом с ней этот пакет не ставится вовсе |
 | `gstreamer1.0-plugins-base` | `libgl-dev` из `Build-Depends` | `libgstgl-1.0.so` в `NEEDED`: только `libEGL.so.1`, ни `libGL.so.1`, ни GLX |
 | `gstreamer1.0-plugins-bad` | `libopengl-dev` | В собранных библиотеках ни одного `NEEDED` на `libGL`/`libGLX`/`libOpenGL`/`libGLES` |
+| `gtk4` (через `libepoxy-dev` из trixie) | `libgl-dev` из trixie заменяется нашим | trixie's `libgl-dev` pulls `libglvnd0` (= 1.7.0-1+b2), конфликтует с нашей `libglvnd0` 1.7.0-4+crick. Наш `libgl-dev` зависит на наш `libglvnd0` и `libopengl-dev` — конфликта нет. `libepoxy` использует `gl.h` только для заголовков, `libGL.so` не нужен для линковки 
 
 `libopengl-dev` в `Depends` у `libgstreamer-plugins-base1.0-dev` остался:
 `gstreamer-gl-prototypes-1.0.pc` объявляет `Requires: opengl`, и без
@@ -167,11 +169,33 @@ MIT, с оговоркой: изменения в исходниках долж�
 Наша переработка меняет только `debian/` — исходники патчатся в дереве сборки и
 в опубликованные `.deb` не входят. Правка отмечена в `debian/copyright` и здесь.
 
-## Откат
+## Почему теперь публикуется libgl-dev
+
+Раньше `libgl-dev` не публиковался: в нём GLX и GL, а GL у нас не собирается.
+Но `gtk4` зависит на `libepoxy-dev` (из trixie), который в свою очередь
+зависит на `libgl-dev` (из trixie). trixie's `libgl-dev` 1.7.0-1+b2 требует
+`libglvnd0` = 1.7.0-1+b2, а наш `libglvnd0` — 1.7.0-4+crick: версии не
+совпадают, и `apt install` падает с `cannot resolve build-dependency`.
+
+Наш `libgl-dev` 1.7.0-4+crick зависит на наш `libglvnd0` (= 1.7.0-4+crick) и
+`libopengl-dev` (= 1.7.0-4+crick) — обе версии уже установлены из stage1.
+`libepoxy` использует `GL/gl.h` только для компиляции (ему не нужен
+`libGL.so.1` для линковки — epoxy имеет свой dispatch через dlopen), поэтому
+заголовки из `libopengl-dev` и симлинк `libGL.so` → `libOpenGL.so` достаточны.
+
+`libgl-dev` добавлен в `DEB_SETS` в `scripts/gen-workflow.py`, так что он
+автоматически попадает в stage1-установку любого пакета, зависящего от
+`libglvnd` (через zamыкание по Build-Depends).
 
 Вернуть пакеты `libglx0`, `libgl1`, `libopengl0`, `libgles1`, `libgles2`,
-`libgles-dev`, `libgl-dev`, `libglx-dev`, `libopengl-dev`, `libglvnd-dev` и
+`libgles-dev`, `libglx-dev`, `libopengl-dev`, `libglvnd-dev` и
 снять `-Dx11=disabled -Dglx=disabled` с `-Dgles1/-Dgles2=false`, подняв
 ревизию на 2. Тогда пять пакетов снова придётся собирать против штатного
 `libgbm-dev`, и нарушение правила X11 вернётся — это фиксируется исключением в
 `CLOSURE_EXCEPT` генератора.
+
+`libgl-dev` в этом списке не значится, потому что он **новый синтетический
+пакет**: его `libGL.so` — симлинк на `libOpenGL.so` (созданный в `debian/rules`),
+а `gl.pc` — написанный вручную. Он не существует в Debian без GLX, поэтому
+откатить его просто удалив из `debian/control` и убрав из `DEB_SETS` в
+`gen-workflow.py` — больше ничего не требуется.

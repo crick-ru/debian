@@ -145,6 +145,12 @@ def continue_on_error_for(package):
 # одного неудачного прогона CI).
 DEB_SETS = {
     'mesa': ((2, 'libgbm1'), (2, 'libgbm-dev'), (2, 'mesa-libgallium')),
+    # libgl-dev is added to the closure manually: it is a synthetic package
+    # created in override_dh_auto_install (not produced by meson), so it is
+    # absent from the workflow's debs lists until the libglvnd job itself
+    # publishes it. Without this entry, packages like gtk4 that need
+    # libgl-dev (via libepoxy-dev) cannot resolve it from our repo.
+    'libglvnd': ((1, 'libgl-dev'),),
 }
 
 
@@ -178,8 +184,15 @@ def close(packages, order, transitive_wanted):
     равно брать из trixie» перестаёт быть молчаливым: если набор не
     найден, замыкание падает с понятным сообщением.
     """
-    sets = dict(DEB_SETS)
-    sets.update(deb_sets(FULL))
+    # Merge hardcoded DEB_SETS with sets discovered from the workflow file.
+    # dict.update() would replace a key entirely, so we merge manually to
+    # keep, e.g., libgl-dev from DEB_SETS alongside the other libglvnd
+    # packages found in deb_sets(FULL).
+    sets = {}
+    for name, debs in DEB_SETS.items():
+        sets[name] = set(debs)
+    for name, debs in deb_sets(FULL).items():
+        sets.setdefault(name, set()).update(debs)
     # transitive_wanted maps source package -> set of source packages
     # We need to convert source packages to their binary packages using DEB_SETS
     added = 0

@@ -155,3 +155,20 @@ Multi-Arch: same
 Description: Vendor neutral GL dispatch library -- OpenGL development files
  This package provides the opengl.pc pkg-config file and libOpenGL.so needed
  to build against OpenGL without GLX.
+
+Package: libgl-dev
+Section: libdevel
+Architecture: any
+Depends:
+ libglvnd0 (= ${binary:Version}),
+ libopengl-dev (= ${binary:Version}),
+ ${misc:Depends}
+Multi-Arch: same
+Description: Vendor neutral GL dispatch library -- GL development files
+ This is an implementation of the vendor-neutral dispatch layer for arbitrating
+ OpenGL API calls between multiple vendors on a per-screen basis.
+ .
+ This package provides the OpenGL headers (via libopengl-dev), the libGL.so
+ linker symlink (to libOpenGL.so), and the gl.pc pkg-config file. Unlike
+ Debian's libgl-dev it does not depend on libgl1 or libglx-dev because GLX
+ is not built (no X11). See packages/libglvnd/README.md for details.
