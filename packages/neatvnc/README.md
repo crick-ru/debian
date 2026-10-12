@@ -1,86 +1,69 @@
-# neatvnc (crick Debian backports)
+# neatvnc
 
-`neatvnc` 1.0.1 — библиотека VNC-сервера для Debian 13 (trixie, amd64).
+Библиотека VNC-сервера: `libneatvnc.so.1`.
 
-Версия: `1.0.1+dfsg-1+crick`.
+## Источник упаковки
 
-Упаковка взята из Debian (`neatvnc_1.0.1+dfsg-1`) и переработана.
+Упаковка взята из Debian (`neatvnc_1.0.1+dfsg-1`, ветка unstable) и
+перерабатывается. Tarball побайтово совпадает с Debian-овским
+`neatvnc_1.0.1+dfsg.orig.tar.xz` (Debian перепаковывает как `+dfsg`, версия
+с сохраняет суффикс).
 
-## Зачем он здесь
+## Версии
 
-`wayvnc` 0.10.1 собирается против `libneatvnc-dev`, и требует версию
-**не ниже 1.0.0**. В trixie только 0.9.1, и к тому же он называется
-`libneatvnc0`, а не `libneatvnc1`. Поэтому neatvnc 1.0.1 собирается здесь.
+- **В trixie:** 0.9.1+dfsg-1 (`libneatvnc0`)
+- **В исходной упаковке:** 1.0.1+dfsg-1
+- **В нашем репозитории:** 1.0.1+dfsg-1+crick (ревизия 1)
 
-Сам по себе neatvnc тоже ничему в репозитории не нужен: это сборочная
-зависимость wayvnc, как `aml`.
+## Содержимое
 
-## Что публикуется
-
-| Пакет | Что внутри |
+| Пакет | Содержимое |
 |---|---|
 | `libneatvnc1` | `libneatvnc.so.1` |
 | `libneatvnc-dev` | заголовки, `libneatvnc.so`, `neatvnc.pc` |
 
-## Почему стадия 3
+Набор закрытый: `libneatvnc-dev` требует ровно `libneatvnc1 (= ${binary:Version})`.
 
-`neatvnc` собирается против двух наборов пакетов этого репозитория:
+## Что изменено
 
-- **нашего FFmpeg** (`libavcodec-dev`, `libavfilter-dev`, `libavutil-dev`) —
-  `libavfilter-dev` пинит `libavfilter12`, а тот `libavformat63`, поэтому
-  в список установки стадии входит вся нужная часть набора FFmpeg;
-- **нашей mesa** (`libgbm-dev`) — без неё `libneatvnc1` линковался бы с
-  `libgbm1` из trixie, а тот тянет X11 через
-  `mesa-libgallium → libgl1-mesa-dri → libx11-6`.
+### Отключено
 
-FFmpeg собран в стадии 1, mesa — в стадии 2, поэтому neatvnc стоит в стадии 3.
+- **Тесты:** `-Dtests=false` (Debian использует `-Dtests=true` и `meson test`).
+  `override_dh_auto_test` пуст. Из `Build-Depends` удалены `openssl <!nocheck>`,
+  `dbus-daemon`, `pipewire` (были нужны ровно для тестов).
+- **Документация и примеры:** README не ставится в `/usr/share/doc`, примеры
+  не публикуются.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
 
-## Что изменено по сравнению с Debian
+## Патчи
 
-| Что | Debian | Здесь | Зачем |
-|---|---|---|---|
-| тесты | `-Dtests=true`, гоняет `meson test` | `-Dtests=false`, `override_dh_auto_test` убран | правило «тесты не собираются» |
-| `openssl` | `Build-Depends: openssl <!nocheck>` | убран | это сборочная зависимость тестов |
-| TLS-зависимость | `gnutls-dev` (виртуальный пакет) | `libgnutls28-dev` | реальное имя пакета |
-| примеры | `libheif-dev.examples`-подобный файл | удалён | правило «примеры не публикуются» |
-| README | ставится в `/usr/share/doc` | удалён | правило «документация не публикуется» |
-| dbgsym | — | не собираются | общее правило `scripts/build-package.sh` |
+Нет: `debian/patches/series` отсутствует.
 
-## Что не собирается
+## Изменения ABI
 
-- примеры и бенчмарки (`-Dexamples=false`, `-Dbenchmarks=false` — это же
-  значение по умолчанию в апстриме);
-- dbgsym-пакеты.
+`libneatvnc.so.1` — SONAME не меняется, файл меняется с `libneatvnc.so.0.9.1`
+на `libneatvnc.so.1.0.1`. Удалённых символов нет.
 
-X11, оптические диски, DVB и VDPAU в neatvnc не применяются: библиотека
-работает только с DRM/GBM, Wayland-протоколами и сжатием FFmpeg. JACK,
-libcaca, libaa1 и at-spi2-core тоже не встречаются — у neatvnc таких
-возможностей нет.
+## Важные нюансы
 
-## Что произойдёт при `apt upgrade`
+### Зачем нужен
 
-`libneatvnc0` от trixie **останется установленным** (другое имя пакета).
-`libaml0t64` — тоже. Они просто перестанут использоваться: их заменят
-`libneatvnc1` и `libaml1`. Штатный `wayvnc` от trixie при этом продолжает
-работать — он линкуется к `libneatvnc.so.1` любой версии, а SONAME не
-изменился.
+`wayvnc 0.10.1` требует `libneatvnc-dev (>= 1.0.0)`, а в trixie только 0.9.1
+(упаковка `libneatvnc0`). `libneatvnc0` и `libneatvnc1` — разные имена пакетов,
+поэтому оба могут быть установлены одновременно, но `wayvnc 0.10.1` требует
+именно `libneatvnc1`.
 
-Очистить лишнее:
+### Стадия сборки
 
-```bash
-sudo apt autoremove
-```
+`neatvnc` собирается в стадии 3 CI: против нашего FFmpeg (`libavcodec-dev`,
+`libavfilter-dev`, `libavutil-dev`) и нашей mesa (`libgbm-dev`). Оба
+собираются раньше.
 
-## Откат
+### apt upgrade
 
-```bash
-sudo apt remove libneatvnc1 libneatvnc-dev
-```
+Штатный `libneatvnc0` остаётся установленным (другое имя пакета). `libaml0t64`
+из trixie тоже остаётся. Их заменят `libneatvnc1` и `libaml1` от нашей сборки.
+Очистить: `apt autoremove`.
 
-## `libgbm-dev` берётся из этого репозитория
-
-`libgbm-dev`, `libgbm1` и `mesa-libgallium` ставятся из нашей `mesa`
-(см. `CLOSURE_EXCEPT` в `scripts/gen-workflow.py` — исключений нет). Зависимость
-`mesa-common-dev` от `libgl-dev` (который объявляет `Breaks: mesa-common-dev`)
-убрана: GL не собирается, заголовки не требуются, `libegl-dev` ставится без
-конфликтов. Подробности — в `packages/mesa/README.md`.
+Штатный `wayvnc 0.9.1` из trixie продолжает работать — он линкуется к
+`libneatvnc.so.1` любой версии, а SONAME не менялся.

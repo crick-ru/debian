@@ -1,201 +1,88 @@
-# libglvnd — зачем он здесь
+# libglvnd
 
-Упаковка взята из Debian (`libglvnd_1.7.0-3`, unstable) и переработана.
+Посредник (dispatch layer) между приложением и драйверами OpenGL/EGL.
 
-## Что это
+## Источник упаковки
 
-`libglvnd` — посредник (dispatch layer) между приложением и драйверами OpenGL.
-Он даёт `libEGL.so.1` и `libGLdispatch.so.0`: приложение вызывает `eglGetDisplay`,
-а уже glvnd решает, какому драйверу передать вызов.
+Упаковка взята из Debian (`libglvnd_1.7.0-3`, ветка unstable) и переработана.
+Tarball побайтово совпадает с Debian-овским `libglvnd_1.7.0.orig.tar.xz`.
 
-Собирается **только EGL-часть**. Из четырнадцати бинарных пакетов Debian
-публикуются пять:
+## Версии
 
-| Пакет | Что внутри |
+- **В trixie:** 1.7.0-1+b2
+- **В исходной упаковке:** 1.7.0-3
+- **В нашем репозитории:** 1.7.0-4+crick (ревизия 4)
+
+## Содержимое
+
+| Пакет | Содержимое |
 |---|---|
-| `libglvnd0` | `libGLdispatch.so.0` — сама диспетчеризация |
+| `libglvnd0` | `libGLdispatch.so.0` — диспетчеризация |
 | `libglvnd-core-dev` | `usr/include/glvnd/*.h`, `libglvnd.pc` |
-| `libegl1` | `libEGL.so.1` — runtime |
-| `libegl-dev` | `EGL/egl.h`, `eglext.h`, `eglplatform.h`, `KHR/khrplatform.h`, `egl.pc`, `libEGL.so` |
+| `libegl1` | `libEGL.so.1` — EGL runtime |
+| `libegl-dev` | заголовки `EGL/`, `KHR/`, `egl.pc`, `libEGL.so` |
 | `libgles1` | `libGLESv1_CM.so.1` — OpenGL ES 1.x |
 | `libgles2` | `libGLESv2.so.2` — OpenGL ES 2.x и 3.x |
-| `libgles-dev` | заголовки `GLES/`, `GLES2/`, `GLES3/`, `glesv1_cm.pc`, `glesv2.pc` |
-| `libopengl0` | `libOpenGL.so.0` — OpenGL **без** GLX |
-| `libopengl-dev` | `GL/gl.h`, `GL/glext.h`, `GL/glcorearb.h`, `opengl.pc`, `libOpenGL.so` |
-| `libgl-dev` | `gl.pc`, `libGL.so` (симлинк → `libOpenGL.so`); зависит на `libopengl-dev` за заголовками |
+| `libgles-dev` | заголовки `GLES/`, `glesv1_cm.pc`, `glesv2.pc` |
+| `libopengl0` | `libOpenGL.so.0` — OpenGL без GLX |
+| `libopengl-dev` | `GL/gl.h`, `opengl.pc`, `libOpenGL.so` |
+| `libgl-dev` | `gl.pc`, `libGL.so` (симлинк → `libOpenGL.so`) |
 
-Не публикуются: `libglx0`, `libgl1`, `libglx-dev`,
-`libglvnd-dev` — это GLX и GL. GLX есть X11-протокол, а GL в этом
-репозитории не собирается.
+Не публикуются: `libglx0`, `libgl1`, `libglx-dev`, `libglvnd-dev` — это GLX
+(X11-протокол) и GL (не собирается).
 
-**Почему GLES и OpenGL-без-GLX публикуются, а GLX и GL — нет.** В
-`src/meson.build` три независимых блока:
+Из 14 бинарных пакетов Debian остается 7 (9 пакетов выше + `libgl-dev`).
 
-```meson
-if with_glx            → subdir('GLX'); subdir('GL')   # ← выключено
-if get_option('gles1') → subdir('GLESv1')             # ← включено
-if get_option('gles2') → subdir('GLESv2')             # ← включено
-```
+## Что изменено
 
-GLES линкует статическую `libopengl_main`, в `libopengl.c` нет ни одного
-упоминания GLX или X11. То есть GLES через EGL — не X11-код, и собирается
-без GLX целиком. Проверено: у всех пяти собранных библиотек в `NEEDED`
-только `libGLdispatch.so.0` и `libc.so.6`.
+### Отключено
 
-## Почему мы его собираем, а не берём из trixie
+- **X11** (правило репозитория): `-Dx11=disabled`. Платформа X11 в EGL не
+  собирается. Из `Build-Depends` убраны `libx11-dev`, `libxext-dev`,
+  `x11proto-dev`, `xauth`, `xvfb`. Тесты не собираются (они проверяют GLX).
+- **GLX:** `-Dglx=disabled`. GLX не собирается и не публикуется.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
 
-Штатный `libegl-dev` несовместим с нашей mesa: причина оказывалась не той,
-что ожидалось, и разбор требовал трижды вмешательства.
+### Включено
 
-Цепочка ровно такая:
+- EGL (`-Dx11=disabled` убирает только X11-платформу, EGL остаётся).
+- OpenGL ES 1 и 2 (`-Dgles1=true -Dgles2=true`).
+- OpenGL без GLX (`-Dgl` не выключен отдельно).
+- `entrypoint-patching=disabled`, `-Dhgl=false`.
 
-```
-libegl-dev (glvnd) → libgl-dev → libgl1-mesa-dev
-libgl1-mesa-dev Depends: libgbm1 (= 25.0.7-2+deb13u1)   ← ПИН ВЕРСИИ TRIXIE
-                                  ↓
-наша mesa: libgbm1 = 26.1.6-3+crick                     ← НЕ СОВПАДАЕТ
-```
+## Патчи
 
-`libegl-dev` нужен по `Build-Depends` пяти пакетам: `wlroots`, `mpv`, `kmscon`,
-`gstreamer1.0-plugins-base`, `neatvnc`. Пока ставился штатный `libegl-dev`,
-`apt` не мог его разрешить — прогон CI `37161161444` падал с
-`cannot resolve build-dependency 'libegl-dev'`.
+Нет: `debian/patches/series` отсутствует.
 
-Два ложных объяснения, которые пришлось отбросить, полезно помнить:
+## Важные нюансы
 
-- **`Breaks: mesa-common-dev`** у `libgl-dev` не при чём: `mesa-common-dev` в
-  список потребителей не входит и не ставится. Проверено по логу CI — наша mesa
-  устанавливалась успешно, сбой происходил на следующем шаге.
-- **Зависимость `libgl-dev` в `mesa-common-dev`** тоже не при чём. Её убрали
-  (это само по себе верно: GL-заголовки у нас не нужны, `gbm.pc` и `dri.pc` их
-  не требуют, `gbm.h` включает только `stddef.h` и `stdint.h`) — но на
-  разрешимость `libegl-dev` это не повлияло. Пин `libgbm1` остался.
+### Почему собираем
 
-Вывод, который стоит запомнить: проверять надо `Depends` с пинами версий, а не
-`Breaks`/`Replaces`. Пин версии не снимается заменой пакета — его снимает
-только пересборка того, что пришпинено.
+Штатный `libegl-dev` из trixie несовместим с нашей mesa: `libegl-dev` →
+`libgl-dev` → `libgl1-mesa-dev`, который пинит `libgbm1` на версию trixie
+(25.0.7), а наша mesa даёт `libgbm1` 26.1.6. Результат: `apt` не может
+разрешить `libegl-dev` для пяти пакетов (`wlroots`, `mpv`, `kmscon`,
+`gstreamer1.0-plugins-base`, `neatvnc`).
 
-## Сборка без X11
+Наш `libglvnd` не содержит X11 и GL-обёрток, поэтому пинов нет. Исключений
+в `CLOSURE_EXCEPT` нет.
 
-```
--Dx11=disabled          платформа X11 в EGL не собирается
--Dglx=disabled          GLX не собирается
--Dgles1=false           OpenGL ES 1 не собирается
--Dgles2=false           OpenGL ES 2/3 не собирается
--Dentrypoint-patching=disabled
--Dhgl=false
-```
+### libgl-dev — синтетический пакет
 
-Механизм `-Dx11=disabled` такой: `meson.build` ставит `-DENABLE_EGL_X11` только
-если нашёл зависимость `x11`. Без этого макроса `IsX11Display()` в
-`src/EGL/libegl.c` компилируется в `return EGL_FALSE;`, а весь X11-код вместе с
-`dlopen("libX11.so.6", ...)` отбрасывается препроцессором.
+`libgl-dev` создан вручную в `debian/rules`: `libGL.so` — симлинк на
+`libOpenGL.so`, `gl.pc` — написанный вручную. Его нет в Debian без GLX.
+Добавлен в `DEB_SETS` в `scripts/gen-workflow.py`, чтобы автоматически
+попадать в stage1-установку пакетов, зависящих от `libglvnd`.
 
-Апстрим прямо пишет в README, что для сборки нужен `libx11` и `libxext` — то
-есть штатно X11 в сборочных зависимостях обязателен. Здесь он убран: без X11
-собирается и работает, проверено.
+### Заголовки
 
-## Проверка результата
+`KHR/khrplatform.h` и `GL/gl.h` публикуются: без них сборка падает
+(`gstreamer1.0-plugins-base` включает `GL/gl.h`, `wlroots` включает
+`KHR/khrplatform.h`). Заголовки сами по себе не тянут GLX и X11.
 
-| Проверка | Результат |
-|---|---|
-| `readelf -d libEGL.so.1.1.0` | `NEEDED`: только `libGLdispatch.so.0`, `libc.so.6` |
-| `readelf -d libGLdispatch.so.0.0.0` | `NEEDED`: только `libc.so.6` |
-| строки `libX11.so.6`, `libGLX.so.0` в бинарниках | отсутствуют |
-| символы `libEGL.so.1` против штатного | 44 против 44, потерь нет |
-| символы `libGLdispatch.so.0` против штатного | 18 против 18, потерь нет |
-| символы `libGLESv1_CM.so.1` против штатного | 145 против 145, потерь нет |
-| символы `libGLESv2.so.2` против штатного | 358 против 358, потерь нет |
-| символы `libOpenGL.so.0` против штатного | 1044 против 1044, потерь нет |
-| `egl.pc` | совпадает со штатным |
-| `EGL_EGLEXT_VERSION` | 20211210, `wlroots` требует ≥ 20210604 |
+### Проверка ABI
 
-Символы не отличаются от штатных, поэтому ABI совместим: приложения, собранные
-против `libegl-dev` из trixie, работают против нашей `libegl1` без пересборки.
-
-## Заголовки KHR и GL публикуются — иначе сборка падает
-
-В первой версии заголовки `GL/` удалялись из дерева сборки.
-к API, который мы не публикуем, а пакета `libgl-dev` у нас нет. Это
-оказалось неверным, и прогон CI `37190102272` упал на двух пакетах:
-
-```
-gstreamer1.0-plugins-base: gst-libs/gst/gl/gstglfuncs.h:71: fatal error: GL/gl.h
-wlroots: EGL/eglplatform.h:18: fatal error: KHR/khrplatform.h
-```
-
-`KHR/khrplatform.h` включает сам `eglplatform.h`, а `GL/gl.h` нужен gstreamer
-при сборке `libgstgl` — то есть заголовки нужны не только в готовом бинарнике,
-но и при компиляции. Заголовки сами по себе не тянут ни GLX, ни X11, поэтому
-публикуются: `KHR/` в `libegl-dev`, `GL/` в `libopengl-dev`. `opengl.pc` в
- описании прямо говорит «library and headers», так что это ожидаемо.
-
-Не публикуются по-прежнему: `libGL.so.1`, `libGLX.so` и пакеты
-`libgl1`/`libglx0` — они и есть GLX.
-
-## Что снято у потребителей
-
-Проверено по фактическим `.deb` из зелёного прогона CI, а не по `debian/control`:
-
-| Пакет | Снято | Чем проверено, что не нужно |
-|---|---|---|
-| `wlroots` | `libgles2-mesa-dev` → `libgles-dev` | `libwlroots-0.20.so` в `NEEDED`: `libEGL.so.1`, `libGLESv2.so.2`. Нужен `glesv2.pc`, который даёт наш glvnd; mesa-овский пакет тянет `libglvnd-dev` с пином версии |
-| `wlroots`, `gtk+3.0`, `gtk4` | `libegl1-mesa-dev` | Пакет состоит ровно из двух заголовков — `eglmesaext.h` и `eglext_angle.h` — и оба уже ставит наша `mesa-common-dev`. Сама mesa объявляет `Breaks: libegl1-mesa-dev`, то есть рядом с ней этот пакет не ставится вовсе |
-| `gstreamer1.0-plugins-base` | `libgl-dev` из `Build-Depends` | `libgstgl-1.0.so` в `NEEDED`: только `libEGL.so.1`, ни `libGL.so.1`, ни GLX |
-| `gstreamer1.0-plugins-bad` | `libopengl-dev` | В собранных библиотеках ни одного `NEEDED` на `libGL`/`libGLX`/`libOpenGL`/`libGLES` |
-| `gtk4` (через `libepoxy-dev` из trixie) | `libgl-dev` из trixie заменяется нашим | trixie's `libgl-dev` pulls `libglvnd0` (= 1.7.0-1+b2), конфликтует с нашей `libglvnd0` 1.7.0-4+crick. Наш `libgl-dev` зависит на наш `libglvnd0` и `libopengl-dev` — конфликта нет. `libepoxy` использует `gl.h` только для заголовков, `libGL.so` не нужен для линковки 
-
-`libopengl-dev` в `Depends` у `libgstreamer-plugins-base1.0-dev` остался:
-`gstreamer-gl-prototypes-1.0.pc` объявляет `Requires: opengl`, и без
-`opengl.pc` pkg-config не разрешит файл.
-
-## Побочная выгода: X11 ушёл из сборочной среды
-
-`libegl-dev` из trixie объявляет `Depends: libx11-dev`, то есть EGL-заголовки
-формально тянут X11 в сборочную среду. На практике заголовков для этого не
-нужно: ветка `#include <X11/Xlib.h>` в `EGL/eglplatform.h` включается только
-под `USE_X11`, а для Linux есть `#elif defined(__unix__)`. Это проверено
-компиляцией — `eglGetDisplay` собирается и линкуется с `-lEGL` без единого
-X11-заголовка. Теперь и в нашем `libegl-dev` такой зависимости нет.
-
-## Лицензия
-
-MIT, с оговоркой: изменения в исходниках должны быть явно отмечены в
-сопроводительной документации. Заголовки Khronos — Apache-2.0. GPL-3+ есть
-только в двух `m4`-макросах (`ax_check_link_flag.m4`, `ax_pthread.m4`), они в
-сборочную систему, в бинарник не попадают, и у `ax_pthread` в README апстрима
-есть явное исключение для генерируемых скриптов.
-
-Наша переработка меняет только `debian/` — исходники патчатся в дереве сборки и
-в опубликованные `.deb` не входят. Правка отмечена в `debian/copyright` и здесь.
-
-## Почему теперь публикуется libgl-dev
-
-Раньше `libgl-dev` не публиковался: в нём GLX и GL, а GL у нас не собирается.
-Но `gtk4` зависит на `libepoxy-dev` (из trixie), который в свою очередь
-зависит на `libgl-dev` (из trixie). trixie's `libgl-dev` 1.7.0-1+b2 требует
-`libglvnd0` = 1.7.0-1+b2, а наш `libglvnd0` — 1.7.0-4+crick: версии не
-совпадают, и `apt install` падает с `cannot resolve build-dependency`.
-
-Наш `libgl-dev` 1.7.0-4+crick зависит на наш `libglvnd0` (= 1.7.0-4+crick) и
-`libopengl-dev` (= 1.7.0-4+crick) — обе версии уже установлены из stage1.
-`libepoxy` использует `GL/gl.h` только для компиляции (ему не нужен
-`libGL.so.1` для линковки — epoxy имеет свой dispatch через dlopen), поэтому
-заголовки из `libopengl-dev` и симлинк `libGL.so` → `libOpenGL.so` достаточны.
-
-`libgl-dev` добавлен в `DEB_SETS` в `scripts/gen-workflow.py`, так что он
-автоматически попадает в stage1-установку любого пакета, зависящего от
-`libglvnd` (через zamыкание по Build-Depends).
-
-Вернуть пакеты `libglx0`, `libgl1`, `libopengl0`, `libgles1`, `libgles2`,
-`libgles-dev`, `libglx-dev`, `libopengl-dev`, `libglvnd-dev` и
-снять `-Dx11=disabled -Dglx=disabled` с `-Dgles1/-Dgles2=false`, подняв
-ревизию на 2. Тогда пять пакетов снова придётся собирать против штатного
-`libgbm-dev`, и нарушение правила X11 вернётся — это фиксируется исключением в
-`CLOSURE_EXCEPT` генератора.
-
-`libgl-dev` в этом списке не значится, потому что он **новый синтетический
-пакет**: его `libGL.so` — симлинк на `libOpenGL.so` (созданный в `debian/rules`),
-а `gl.pc` — написанный вручную. Он не существует в Debian без GLX, поэтому
-откатить его просто удалив из `debian/control` и убрав из `DEB_SETS` в
-`gen-workflow.py` — больше ничего не требуется.
+Символы совпадают с штатными: `libEGL.so.1` — 44/44, `libGLdispatch.so.0` —
+18/18, `libGLESv1_CM.so.1` — 145/145, `libGLESv2.so.2` — 358/358,
+`libOpenGL.so.0` — 1044/1044. Приложения, собранные против `libegl-dev`
+из trixie, работают против нашей `libegl1` без пересборки.

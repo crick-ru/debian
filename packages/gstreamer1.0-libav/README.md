@@ -1,48 +1,54 @@
-# gstreamer1.0-libav (crick Debian backports)
+# gstreamer1.0-libav
 
-Сборка GStreamer libav 1.28.7 для Debian 13 (trixie, amd64). Упаковка взята из Debian (`gst-libav1.0_1.28.7-1`, ветка unstable) и переработана. Это мост между GStreamer и
-FFmpeg: плагин оборачивает кодировщики и декодировщики `libavcodec`,
-фильтры `libavfilter` и масштабирование `libswscale` в элементы GStreamer.
+Мост между GStreamer и FFmpeg: плагин `libgstlibav.so`, оборачивающий
+кодеки `libavcodec`, фильтры `libavfilter` и масштабирование `libswscale`
+в элементы GStreamer (`avdec_*`, `avenc_*`, конвертеры, субтитры).
 
-## Включено
+## Источник упаковки
 
-- `gstreamer1.0-libav` — один пакет с плагином `libgstlibav.so`: элементы
-  `avdec_*` (декодирование), `avenc_*` (кодирование), `avmux`, `avdemux`,
-  конвертеры звука и видео на libavfilter, субтитры.
+Упаковка взята из Debian (`gst-libav1.0_1.28.7-1`, ветка unstable) и
+переработана. Tarball побайтово совпадает с Debian-овским
+`gst-libav-1.28.7.orig.tar.xz`.
 
-## Отключено
+## Версии
 
-- Документация: `-Ddoc=disabled`; man-страниц нет.
-- Тесты: `-Dtests=disabled`, `xvfb` и `xauth` убраны из `Build-Depends`.
-- Опции `examples` у gst-libav нет вовсе: апстрим объявляет только
-  `package-name`, `package-origin`, `doc` и `tests`, примеров в tar-боле тоже
-  нет, поэтому `-Dexamples=disabled` был бы неизвестной опцией, а meson на
-  такие падает (`ERROR: Unknown options`).
+- **В trixie:** 1.26.2-1+deb13u1
+- **В исходной упаковке:** 1.28.7-1
+- **В нашем репозитории:** 1.28.7-1+crick
 
-Больше ничего выключать не нужно: сам плагин не обращается ни к X11, ни к
-оптическим дискам, ни к VDPAU. Видеосинки лежат в наборах «base» и «good»,
-а они собраны без X11.
+Все пять пакетов GStreamer носят одну строку версии `1.28.7-1+crick`.
 
-## Изменено
+## Содержимое
 
-- Версия: `1.28.7-1+crick`.
-- `libav*-dev` в `Build-Depends` имеют нижнюю границу `(>= 7:9.0)`: она
-  закрывается только сборкой с epoch 7 из этого репозитория, и в CI плагин
-  собирается именно против неё (стадии 1–3 в `build.yml`), а не против
-  версии из trixie.
-- Единственный бинарный пакет и единственный `*.install` — значит
-  `dh_auto_install` вызывается с `--destdir=debian/tmp`. Без этого debhelper
-  (одиночный пакет) ставит файлы прямо в `debian/gstreamer1.0-libav` — так
-  делает и Debian, у которой для gst-libav нет ни одного `*.install`, — а
-  `dh_install` искал бы их в `debian/tmp` и падал с «Cannot find (any matches
-  for) "usr/lib/*/gstreamer-1.0/libgstlibav.so"». С явным destdir работает и
-  список `.install`, и проверка `dh_missing --fail-missing`.
+- `gstreamer1.0-libav` — единственный пакет с плагином `libgstlibav.so`.
 
-## Влияние на систему и откат
+## Что изменено
+
+### Отключено
+
+- **Документация:** `-Ddoc=disabled`.
+- **Тесты:** `-Dtests=disabled`, `xvfb` и `xauth` убраны из `Build-Depends`.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
+
+### Включено
+
+- Авто-фичи: `-Dauto_features=enabled`.
+
+## Патчи
+
+Нет: `debian/patches/series` отсутствует.
+
+## Важные нюансы
+
+Плагин собирается против **FFmpeg этого репозитория** (9.0.2, epoch 7), а не
+против версии из trixie. `libav*-dev` в `Build-Depends` имеют нижнюю границу
+`(>= 7:9.0)` — она закрывается только сборкой с epoch 7 из этого репозитория.
+В CI плагин собирается на стадиях 1–3 (`build.yml`), где `-dev`-пакеты
+FFmpeg уже установлены из stage6-*, а не из trixie.
+
+Опции `examples` у gst-libav нет вовсе — апстрим объявляет только
+`package-name`, `package-origin`, `doc` и `tests`. Передача
+`-Dexamples=disabled` привела бы к `ERROR: Unknown options`.
 
 Пакет снимает из `Depends` `libavcodec61`/`libavutil59` trixie и ставит
-`libavcodec63`/`libavutil61` нашего FFmpeg. Если нужен trixie-плагин:
-
-```
-apt install gstreamer1.0-libav/trixie
-```
+`libavcodec63`/`libavutil61` из нашего FFmpeg.

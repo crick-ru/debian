@@ -1,44 +1,55 @@
-# labwc (crick Debian backports)
+# labwc
 
-Сборка `labwc` 0.20.2 для Debian 13 (trixie, amd64): компактный скриптуемый
-Wayland-композитор.
+Компактный скриптуемый Wayland-композитор на базе wlroots (window-stacking,
+вдохновлённый Openbox).
 
-Упаковка взята из Debian (`labwc_0.20.2-1`, ветка unstable) и переработана;
-исходники накладываются скриптом `scripts/build-package.sh`.
+## Источник упаковки
 
-## Включено
+Упаковка взята из Debian (`labwc_0.20.2-1`, ветка unstable) и переработана.
+Tarball побайтово совпадает с Debian-овским `labwc_0.20.2.orig.tar.xz`.
 
-- Библиотека композитора `wlroots` 0.20.2 из этого репозитория: бэкенды
-  DRM/libinput без Xwayland (см. `packages/wlroots/README.md`).
-- `libwayland`, `libdrm`, `libxkbcommon` и `pixman` также берутся из этого
-  репозитория — labwc собирается в стадии 3 CI сразу после wlroots и
-  библиотек из стадии 1.
+## Версии
 
-## Отключено
+- **В trixie:** 0.8.3-1
+- **В исходной упаковке:** 0.20.2-1
+- **В нашем репозитории:** 0.20.2-2+crick (ревизия 2 — из-за переработки)
 
-- **Xwayland**: `-Dxwayland=disabled`. X11-клиентам потребуется XWayland из
-  другого источника либо вложенный Wayland-композитор.
-- Man-страницы не генерируются (`-Dman-pages=disabled`), поэтому убран
-  `scdoc`, а `labwc.1`, `labwc-actions.5`, `labwc-config.5`, `labwc-menu.5`,
-  `labwc-theme.5` и `labnag.1` в поставку не входят.
-- Тесты не собираются и не запускаются (`-Dtest=disabled`).
-- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+## Содержимое
 
-## Изменено
+- `labwc` — единственный бинарный пакет: композитор + правила оконного
+  менеджера.
 
-- Версия: `0.20.2-2+crick` (ревизия 2 — из-за переработки упаковки).
-- Дополнительных правок поверх апстрим-упаковки Debian нет; исходники
-  накладываются скриптом `scripts/build-package.sh`.
-- Требования к версиям зависимостей не понижались: из этого репозитория берутся
-  `wlroots` 0.20.2, `wayland` 1.26.0, `wayland-protocols` 1.47, `libxkbcommon`,
-  `pixman` и `libdrm` (trixie имеет только wayland 1.23.1 — младше 1.26.0,
-  требуемого wlroots); `libinput` 1.28.1 и `libsfdo` 0.1.3 поступают из trixie —
-  в них нужных версий хватает.
-- `cairo` берётся из trixie при сборке labwc: `dependency('cairo')` в meson
-  не имеет нижней границы версии, поэтому 1.18.4 из trixie подходит. labwc
-  использует только `cairo_image_surface_*` и `cairo_create` — ни одного
-  вызова `cairo_xlib_*`/`cairo_xcb_*` в исходниках 0.20.2 нет, поэтому и
-  сборка против `libcairo2` этого репозитория без X11-бэкендов, и сборка
-  против штатного trixie одинаково корректны (см.
-  `packages/cairo/README.md`).
+## Что изменено
 
+### Отключено
+
+- **Xwayland** (правило репозитория): `-Dxwayland=disabled`. X11-клиентам
+  потребуется XWayland из другого источника либо вложенный Wayland-композитор.
+- **Man-страницы:** `-Dman-pages=disabled`. Убран `scdoc`, файлы `.1`/`.5`
+  не публикуются.
+- **Тесты:** `-Dtest=disabled` (опция по умолчанию `true` в апструпе, выставлена
+  явно для видимости). `override_dh_auto_test` пуст.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
+
+### Включено
+
+- Библиотека `wlroots` 0.20.2 из этого репозитория: бэкенды DRM/libinput
+  без Xwayland.
+- `libwayland`, `libdrm`, `libxkbcommon`, `pixman` и `wayland-protocols` из
+  этого репозитория.
+
+## Патчи
+
+Нет: `debian/patches/series` отсутствует.
+
+## Важные нюансы
+
+- `labwc` собирается в стадии 3 CI сразу после `wlroots` и библиотек из стадии 1.
+- `libinput` 1.28.1 и `libsfdo` 0.1.3 поступают из trixie — в них нужно́й
+  версии хватает.
+- `cairo` берётся из trixie (1.18.4): `dependency('cairo')` в meson не имеет
+  нижней границы версии, и labwc использует только `cairo_image_surface_*` и
+  `cairo_create` — ни одного вызова `cairo_xlib_*`/`cairo_xcb_*` в исходниках
+  0.20.2 нет.
+- `libwayland-dev (>= 1.24.0)` требуется `gtk4`, который тоже берёт wayland
+  из этого репозитория.

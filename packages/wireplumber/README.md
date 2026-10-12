@@ -1,106 +1,104 @@
-# wireplumber (crick Debian backports)
+# wireplumber
 
-Сборка `wireplumber` 0.5.17 для Debian 13 (trixie) — сессионный менеджер
-(session/policy manager) для PipeWire и GObject-обёртка над его API.
+Модульный session/policy manager для PipeWire: управление устройствами,
+маршрутизация аудио/видео, политика доступа.
 
-Упаковка взята из Debian (`wireplumber_0.5.17-1`, ветка unstable) и переработана.
+## Источник упаковки
 
-## Зачем он нужен в этом репозитории
+Упаковка взята из Debian (`wireplumber_0.5.17-1`, ветка unstable) и
+перерабатывается. Tarball побайтово совпадает с официальным релизом GitLab:
+`wireplumber_0.5.17.orig.tar.xz`.
 
-Главная причина — **`pwvucontrol`**. Наш pwvucontrol 0.5.3 требует
-`wireplumber-0.5 >= 0.5.11`, а в trixie только 0.5.8, то есть без этого
-пакета pwvucontrol не собирается в принципе. Проверка версии стоит в
-`meson.build` апстрима:
+## Версии
 
-```
-dependency('wireplumber-0.5', version: '>= 0.5.11')
-```
+- **В trixie:** 0.5.8-1
+- **В исходной упаковке:** 0.5.17-1
+- **В нашем репозитории:** 0.5.17-1+crick (ревизия 1)
 
-Дополнительно wireplumber — сам session manager системы: без него
-`pipewire` из этого репозитория не запускает пользовательские сессии.
+## Содержимое
 
-В trixie это `8:0.5.8` → здесь `0.5.17-1+crick`, то есть новее на девять
-минорных релизов. ABI не меняется: SONAME остаётся `libwireplumber-0.5.so.0`.
+| Пакет | Содержимое |
+|---|---|
+| `libwireplumber-0.5-0` | `libwireplumber-0.5.so.0` — обёртка над PipeWire API |
+| `libwireplumber-0.5-dev` | заголовки, `.pc` |
+| `wireplumber` | демон и CLI-утилиты (`wpctl`, `wpexec`) |
+| `wireplumber-system-services` | системные systemd-юниты |
 
-## Включено
+## Что изменено
 
-- Демон, модули и утилиты (`-Dmodules=true -Ddaemon=true -Dtools=true`).
-- Lua из системы: `-Dsystem-lua=true` (в trixie есть `liblua5.4-dev`).
-- systemd-интеграция и logind: `-Dsystemd=enabled`, пользовательские
-  службы; системные службы — отдельным пакетом
-  `wireplumber-system-services` (с `--no-enable --no-start`, как в Debian).
+### Отключено
 
-## Отключено
-
-- **Документация и man-страницы** (`-Ddoc=disabled`): пакет
-  `wireplumber-doc` не публикуется, удалены `wireplumber-doc.doc-base`,
-  `wireplumber-doc.install`, `wireplumber-doc.manpages` и
-  `wireplumber-doc.lintian-overrides`, из `Build-Depends` убраны
+- **Документация и man-страницы:** `-Ddoc=disabled`. Пакет `wireplumber-doc`
+  не публикуется, удалены `wireplumber-doc.*`. Из `Build-Depends` удалены
   `doxygen`, `python3-breathe`, `python3-sphinx`,
-  `python3-sphinx-rtd-theme`. В пакетах не остаётся страниц `wpctl.1`
-  и man7 для модулей. `lintian-overrides` для `wireplumber` тоже удалён:
-  он подавлял именно жалобу на отсутствие man-страницы у `wpctl`.
-- **GObject-интроспекция** (`-Dintrospection=disabled`): пакет
-  `gir1.2-wp-0.5` не публикуется, удалён `gir1.2-wp-0.5.install` и строка
-  `/usr/share/gir-1.0/*.gir` из `libwireplumber-0.5-dev.install`, из
-  `Build-Depends` убраны `dh-sequence-gir`, `gobject-introspection`,
-  `gir1.2-gio-2.0-dev`, `gir1.2-gobject-2.0-dev`, а из `Depends` пакета
-  `libwireplumber-0.5-dev` — `gir1.2-wp-0.5 (= ${binary:Version})`.
-  - **Почему:** апстрим подключает `docs/meson.build` безусловно, и именно
-    включённая интроспекция делает две вещи жёсткими: `python3` с модулем
-    `lxml` (`required: get_option('introspection')`) и `doxygen`
-    (`required: true`, если `doc` или `introspection` включены). В trixie это
-    9 дополнительных пакетов — `libllvm19`, `libclang-cpp19`, `libclang1-19`,
-    `libz3-4`, `libxslt1.1`, `libxapian30`, `libfmt10`, ~150 МБ — ради одного
-    типилиба. Это ровно тот toolchain, который правило репозитория («документация
-    и её зависимости не собираются») запрещает тянуть в CI.
-  - **Что теряется:** типилиб `Wp-0.5.typelib`, то есть GObject-API
-    WirePlumber для приложений на языках с биндингами gir (python3-gi и
-    подобные). Ни один пакет этого репозитория его не использует:
-    `pwvucontrol` работает через Rust-FFI (`libwireplumber-0.5-dev` даёт
-    заголовки и `pkgconfig`), сборка и запуск не требуют типилиба.
-  - **Масштаб для пользователя:** в trixie от `gir1.2-wp-0.5` зависит
-    только `libwireplumber-0.5-dev`, а он у нас свой и этой зависимости
-    больше не содержит; `waybar` и `wireplumber` из trixie зависят от
-    `libwireplumber-0.5-0`, который публикуется по-прежнему. Пакет
-    `gir1.2-wp-0.5` ещё никогда не публиковался в этом репозитории (в
-    опубликованном индексе его нет), поэтому `apt upgrade` ни у кого ничего
-    не удалит; убрать его можно только у того, кто поставил его вручную:
-    `apt-get purge gir1.2-wp-0.5`.
-  - **Как вернуть:** в `debian/rules` заменить `-Dintrospection=disabled` на
-    `enabled`, вернуть в `Build-Depends` `dh-sequence-gir`,
-    `gobject-introspection (>= 1.80)`, `gir1.2-gio-2.0-dev`,
-    `gir1.2-gobject-2.0-dev`, восстановить stanza `gir1.2-wp-0.5` и файл
-    `gir1.2-wp-0.5.install` с `/usr/lib/*/girepository-1.0`, вернуть строку
-    `/usr/share/gir-1.0/*.gir` в `libwireplumber-0.5-dev.install` и
-    зависимость `gir1.2-wp-0.5 (= ${binary:Version})` в
-    `libwireplumber-0.5-dev`; в списке установки `pwvucontrol` в
-    `.github/workflows/build.yml` вернуть `./stage5-pool/gir1.2-wp-0.5_*.deb`.
-    Поскольку пакет ещё не опубликован, ревизию поднимать не нужно.
+  `python3-sphinx-rtd-theme`.
+- **GObject-интроспекция:** `-Dintrospection=disabled`. Пакет `gir1.2-wp-0.5`
+  не публикуется, удалён `gir1.2-wp-0.5.install`. Из `Build-Depends` удалены
+  `dh-sequence-gir`, `gobject-introspection`, `gir1.2-gio-2.0-dev`,
+  `gir1.2-gobject-2.0-dev`. Из `Depends` `libwireplumber-0.5-dev` удалена
+  `gir1.2-wp-0.5`.
+- **Тесты:** `-Dtests=false -Ddbus-tests=false`. Каталог `debian/tests` удалён,
+  `override_dh_auto_test` пуст. Из `Build-Depends` удалены `dbus-daemon`,
+  `pipewire`.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
 
-- **Тесты** (`-Dtests=false -Ddbus-tests=false`): каталог `debian/tests`
-  (autopkgtest) удалён, `override_dh_auto_test` пуст. Тестовое дерево
-  `tests/` и вспомогательные программы не собираются. Из `Build-Depends`
-  убраны `dbus-daemon` и `pipewire` — они были нужны ровно для тестов.
-- **Примеры конфигураций** (сохраняются): апстрим ставит каталог
-  `wireplumber.conf.d.examples` как файлы данных в
-  `/usr/share/doc/wireplumber/examples/wireplumber.conf.d`
-  (`src/config/meson.build`, `install_subdir`), отключить это опцией нельзя.
-  Это примеры конфигурационных файлов, поэтому они остаются — разрешённое
-  исключение из правила «примеры не публикуются»; путь перечислен в
-  `debian/wireplumber.install`. Рабочие конфиги лежат отдельно, в
-  `/usr/share/wireplumber/wireplumber.conf.d`.
-- X11 в апстриме **отсутствует как таковой**: ни `libx11`/`libxcb` в
-  `Build-Depends`, ни X11-кода в `lib/`, `modules/`, `src/` (проверено
-  `grep -rniE 'libx(11|ext|render)|libxcb'` по исходникам — пусто).
-  Правило «X11 нет нигде» соблюдается автоматически, ничего отключать
-  не пришлось.
+### Включено
 
-## Изменено
+- **Демон, модули и утилиты:** `-Dmodules=true -Ddaemon=true -Dtools=true`.
+- **Lua из системы:** `-Dsystem-lua=true`.
+- **systemd:** `-Dsystemd=enabled`, пользовательские и системные службы.
 
-- Версия: `0.5.17-1+crick` (ревизия 1 — первая публикация пакета в
-  этом репозитории).
-- Патч `Remove-privacy-breach-documentation.patch` взят из Debian:
-  убирает из `README.rst` бейджи, которые при рендеринге в HTML
-  показывают внутренние адреса инфраструктуры проекта.
-- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+## Патчи
+
+Один патч Debian: `Remove-privacy-breach-documentation.patch` — убирает из
+`README.rst` бейджи, которые при рендеринге в HTML показывают внутренние
+адреса инфраструктуры проекта.
+
+## Изменения ABI
+
+`libwireplumber-0.5.so.0` — SONAME не меняется, удалённых символов нет.
+
+## Важные нюансы
+
+### Зачем нужен
+
+`pwvucontrol 0.5.3` требует `wireplumber-0.5 >= 0.5.11` (проверка в
+`meson.build` апстрима). В trixie только 0.5.8 — pwvucontrol не собирается.
+Дополнительно wireplumber — session manager системы: без него `pipewire`
+из этого репозитория не запускает пользовательские сессии.
+
+### Почему выключена интроспекция
+
+Апстрим подключает `docs/meson.build` безусловно, и именно включённая
+интроспекция делает две вещи жёсткими: `python3` с модулем `lxml`
+(`required: get_option('introspection')`) и `doxygen`
+(`required: true`, если `doc` или `introspection` включены). В trixie это
+9 дополнительных пакетов (~150 МБ `libllvm19`, `libclang-cpp19`, …) ради одного
+типилиба.
+
+**Что теряется:** типилиб `Wp-0.5.typelib` — GObject-API для приложений на
+языках с биндингами gir (python3-gi и подобные). Ни один пакет этого
+репозитория его не использует: `pwvucontrol` работает через Rust-FFI
+(заголовки и `pkgconfig` из `libwireplumber-0.5-dev`, сборка и запуск не
+требуют типилиба).
+
+### Примеры конфигураций сохраняются
+
+Апстрим устанавливает каталог `wireplumber.conf.d.examples` как файлы данных
+в `/usr/share/doc/wireplumber/examples/`. Отключить нельзя (нет опции), поэтому
+они сохраняются — разрешённое исключение из правила «примеры не публикуются»
+(это конфигурационные файлы, а не код/документация). Путь перечислен в
+`debian/wireplumber.install`.
+
+### X11
+
+В апстриме отсутствует как таковой: ни `libx11`/`libxcb` в `Build-Depends`,
+ни X11-кода в `lib/`/`modules/`/`src/` (проверено grep — пусто). Правило
+«X11 нет нигде» соблюдается автоматически.
+
+### apt upgrade
+
+В trixie от `libwireplumber-0.5-0` зависят только `libwireplumber-0.5-dev`
+(наш, без зависимости от `gir1.2-wp-0.5`) и `wireplumber`/`waybar`. Пакет
+`gir1.2-wp-0.5` никогда не публиковался в этом репозитории — его можно удалить
+вручную: `apt-get purge gir1.2-wp-0.5`.

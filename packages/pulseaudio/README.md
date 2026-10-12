@@ -1,91 +1,102 @@
-# pulseaudio (crick Debian backports)
+# pulseaudio
 
-Клиентская часть `PulseAudio` 17.0 для Debian 13 (trixie, amd64).
-**Демон не собирается и не публикуется.**
+Клиентская библиотека PulseAudio (`libpulse0`, `libpulse-mainloop-glib0`,
+`libpulse-dev`).
 
-Версия: `17.0+dfsg1-2+crick`.
+## Источник упаковки
 
-Упаковка взята из Debian (`pulseaudio_17.0+dfsg1-2`, trixie) и переработана.
+Упаковка взята из Debian (`pulseaudio_17.0+dfsg1-2`, trixie) и перерабатывается.
+Tarball побайтово совпадает с Debian-овским `pulseaudio_17.0+dfsg1.orig.tar.xz`
+(перепаковка `+dfsg1` сохранена — Debian удаляет не-DFSG биты из апстрима).
 
-## Почему свой PulseAudio
+## Версии
 
-`mpv` (звуковой выход `ao_pulse`) и `sfwbar` (модуль `pulsectl.c`) собираются
-против `libpulse-dev`. Штатный `libpulse0` в trixie тянет X11:
+- **В trixie:** 17.0+dfsg1-2+b1
+- **В исходной упаковке:** 17.0+dfsg1-2
+- **В нашем репозитории:** 17.0+dfsg1-2+crick (ревизия 2)
 
-```
-libpulse0  Depends: libx11-6, libx11-xcb1, libxcb1
-```
+Ревизия 2 важна: штатная версия trixie `17.0+dfsg1-2+b1`, а наша `17.0+dfsg1-1+crick`
+была бы старее (`-1 < -2`). Суффикс `+crick` сравнивается с `+b1` как большей.
 
-Это прямо нарушает правило репозитория «X11 нет нигде». Наш клиент собран
-с `-Dx11=disabled` и в runtime-зависимостях этих трёх пакетов не имеет.
+## Содержимое
 
-## Что публикуется
-
-| Пакет | Что внутри |
+| Пакет | Содержимое |
 |---|---|
-| `libpulse0` | `libpulse.so.0`, `libpulse-simple.so.0`, `libpulsecommon-17.0.so`, `etc/pulse/client.conf`, переводы |
+| `libpulse0` | `libpulse.so.0`, `libpulse-simple.so.0`, `libpulsecommon-17.0.so`, `client.conf`, переводы |
 | `libpulse-mainloop-glib0` | `libpulse-mainloop-glib.so.0` |
 | `libpulse-dev` | заголовки, `.pc`, CMake, Vala VAPI |
 
 Не публикуются: `pulseaudio` (демон), `pulseaudio-utils` (`pactl`, `pacat`,
-`paplay`, …), `pulseaudio-equalizer`, `pulseaudio-module-*`,
-`libpulsedsp`/`padsp`.
+`paplay` и т.д.), `pulseaudio-equalizer`, `pulseaudio-module-*`, `libpulsedsp`/`padsp`.
 
-Клиентские утилиты **собираются** апстримом (`-Dclient=true`), но удаляются
-из дерева установки в `override_dh_auto_install` вместе с автодополнением
-bash/zsh: нужны библиотеки, а не утилиты. Если понадобится `pactl`, проще
-поставить его из trixie — он работает и с нашим `libpulse0`, поскольку
-SONAME `libpulse.so.0` не менялся, а удалённых символов нет.
+## Что изменено
 
-## Почему ревизия 2, а не 1
+### Отключено
 
-Штатная версия в trixie — `17.0+dfsg1-2+b1`. Наша `17.0+dfsg1-1+crick` была
-бы **старее** неё (ревизия 1 < 2), и `apt upgrade` её просто не подхватил бы.
-`17.0+dfsg1-2+crick` новее: сравнение доходит до локальной части и `+crick` >
-`+b1`. Карта ревизий живёт в `scripts/upstream/<pkg>.conf` (поле `REVISION`).
+- **Демон:** `-Ddaemon=false`. Не собираются пакеты `pulseaudio`,
+  `pulseaudio-utils`, `pulseaudio-equalizer`, `pulseaudio-module-*`,
+  `libpulsedsp`. Из `Build-Depends` удалены ALSA, Bluetooth, GStreamer, LIRC,
+  RAOP/OpenSSL, ресемплеры (soxr/speex), FFTW, orc, avahi, udev, tcpwrap,
+  WebRTC/adrian AEC, GSettings.
+- **X11:** `-Dx11=disabled`. Штатный `libpulse0` из trixie зависит от
+  `libx11-6`, `libx11-xcb1`, `libxcb1` — это нарушает правило репозитория
+  «X11 нет нигде». Ни один экспортируемый символ не удаляется:
+  `pa_client_conf_from_x11()` нужен только для автозапуска `pax11publish`.
+- **JACK:** `-Djack=disabled`.
+- **libpulsedsp:** `-Doss-output=disabled` (OSS-обёртка для устаревших программ).
+- **Man-страницы:** `-Dman=false`. **doxygen:** `-Ddoxygen=false`.
+- **Тесты:** `-Dtests=false`.
+- **GTK:** `-Dgtk=disabled`.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
 
-## Почему `-Ddaemon=false`
+### Включено
 
-Демон тянет ALSA, Bluetooth, GStreamer, LIRC, RAOP/OpenSSL, ресемплеры
-(soxr/speex), FFTW, orc, avahi, udev, tcpwrap, WebRTC/adrian AEC, GSettings,
-libltdl, tdb, systemd-юниты — больше половины `Build-Depends` Debian и
-большинство модулей `pulseaudio-module-*`. Клиенту всё это не нужно: он только
-соединяется с сервером по протоколу. `-Ddaemon=false` оставляет в сборке
-только клиентскую часть; из `Build-Depends` остаются `libasyncns-dev`,
-`libdbus-1-dev`, `libglib2.0-dev`, `libsndfile1-dev`, `libsystemd-dev`
-(`sndfile` и `systemd` в upstream запрашиваются безусловно).
+- **Клиент:** `-Dclient=true`. `libpulse0` использует `libasyncns`, `libdbus`,
+  `libglib`, `libsndfile`, `libsystemd`.
+- **GLib-поддержка:** `-Dglib=enabled` (`libpulse-mainloop-glib0`).
+- **D-Bus:** `-Ddbus=enabled`.
+- **systemd:** `-Dsystemd=enabled`.
+- **ASи:** `-Dasyncns=enabled`.
+- **IPv6:** `-Dipv6=true`.
 
-Остальные возможности выключены **явно**, чтобы правило было видно в `rules`,
-а не зависело от того, нашлась ли зависимость: `-Dx11=disabled`,
-`-Djack=disabled` (правило репозитория), `-Dgtk`, `-Dfftw`, `-Dalsa`,
-`-Davahi`, `-Dbluez5`, `-Dgstreamer`, `-Dgsettings`, `-Dlirc`, `-Dopenssl`,
-`-Dorc`, `-Dsoxr`, `-Dspeex`, `-Dudev`, `-Dtcpwrap`, `-Doss-output` (из-за
-него не строится libpulsedsp) и другие.
+## Патчи
 
-## Что изменится в поведении клиента
+Пять патчей Debian: `disable-autospawn.patch`,
+`selectively-disable-libpulsedsp.patch`, `git_tests_alignment.patch`,
+`ucm-check-verb-for-device-status.patch`,
+`ucm-replace-context-assertion-with-error.patch`,
+`ucm-fix-infinite-recursion.patch`.
 
-Единственная X11-функция внутри самой библиотеки —
-`pa_client_conf_from_x11()`, которая нужна для автозапуска `pax11publish`
-(публикации `PULSE_SERVER` в свойствах окна). Её нет, поэтому клиент не
-поднимет `pax11publish` автоматически. На системе без X11 это и не требуется.
-`pa_client_conf_load()` сохраняет сигнатуру, поэтому **ни один экспортируемый
-символ не исчезает** — `libpulse0.symbols` и
+## Изменения ABI
+
+`libpulse.so.0` — SONAME не меняется. `libpulse0.symbols` и
 `libpulse-mainloop-glib0.symbols` из Debian используются как есть.
+Удалённых символов нет: `pa_client_conf_from_x11()` есть в таблице символов,
+но не линкуется (отсутствует в `NEEDED`).
 
-## Что не собирается
+## Важные нюансы
 
-- man-страницы (`-Dman=false`), doxygen (`-Ddoxygen=false`), тесты
-  (`-Dtests=false`);
-- dbgsym-пакеты (общее правило `scripts/build-package.sh`).
+### Зачем нужен
 
-## Откат
+`mpv` (звуковой вывод `ao_pulse`) и `sfwbar` (модуль `pulsectl.c`) собираются
+против `libpulse-dev`. Это единственные потребители в репозитории.
 
-```bash
-sudo apt install libpulse0=17.0+dfsg1-2+b1 \
-                 libpulse-dev=17.0+dfsg1-2+b1 \
-                 libpulse-mainloop-glib0=17.0+dfsg1-2+b1
-```
+### Как работает звук
 
-Настоящий звуковой сервер в этом репозитории — `pipewire` (+ `wireplumber`,
-`pwvucontrol`). Демон PulseAudio не публикуется, и правило
-«PulseAudio — только зависимость клиентских библиотек» сохраняется.
+Настоящий звуковой сервер — `pipewire` + `wireplumber` (см.
+`packages/pipewire/`, `packages/wireplumber/`). PulseAudio здесь — только
+клиентские библиотеки для приложений, которые используют PulseAudio-интерфейс
+(mpv, sfwbar). `pipewire-pulse` предоставляет совместимость на стороне сервера.
+
+### Клиентские утилиты
+
+Утилиты (`pactl`, `pacat`, `paplay` и т.д.) собираются апстримом
+(`-Dclient=true`), но удаляются из дерева установки в `override_dh_auto_install`
+вместе с автодополнением bash/zsh: нужны библиотеки, а не утилиты. Если
+нужен `pactl` — ставьте его из trixie: он работает с нашим `libpulse0`,
+поскольку SONAME не менялся.
+
+### apt upgrade
+
+Штатный `libpulse0` из trixie снимается: он зависит от X11-библиотек, которые
+в этом репозитории не публикуются. Проверить: `apt-get -s upgrade`.

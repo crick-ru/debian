@@ -1,88 +1,93 @@
-# libheif (crick Debian backports)
+# libheif
 
-Сборка `libheif` 1.23.4 для Debian 13 (trixie, amd64).
+HEIF и AVIF: декодер и кодер файловых форматов изображений (ISO/IEC 23008-12).
 
-Версия: `1.23.4-1+crick`.
+## Источник упаковки
 
-Упаковка взята из Debian (`libheif_1.23.4`, ветка 1.23) и переработана.
+Упаковка взята из Debian (`libheif_1.23.4-1~deb13u1`, trixie-security,
+ветка 1.23) и переработана: публикуется только `libheif1` и `libheif-dev`.
+Tarball побайтово совпадает с Debian-овским
+`libheif_1.23.4.orig.tar.gz` — Debian не использует repack-суффикс, версия
+остаётся чистой `1.23.4` (без `+dfsg`/`+ds`).
 
-## Почему минимальный набор
+## Версии
 
-`imagemagick` — единственный пакет этого репозитория, которому нужен libheif:
-он требует `libheif-dev` для кодировщика `coders/heic.so`, который даёт форматы
-HEIC, HEIF, AVCI и AVIF. Поэтому публикуются ровно два пакета:
+- **В trixie:** 1.19.8-1 (`libheif1` 1.19.8-1, SONAME `libheif.so.1`)
+- **В исходной упаковке:** 1.23.4-1~deb13u1
+- **В нашем репозитории:** 1.23.4-1+crick (ревизия 1)
 
-| Пакет | Что внутри |
+`1+crick` сравнивается с `1~deb13u1` как большая: `~` в Debian-сортировке
+меньше всего, поэтому `1+crick > 1~deb13u1` и наша версия выигрывает.
+
+## Содержимое
+
+| Пакет | Содержимое |
 |---|---|
-| `libheif1` | `libheif.so.1` **и плагины кодеков внутри него** |
+| `libheif1` | `libheif.so.1` и **все плагины кодеков внутри него** |
 | `libheif-dev` | заголовки, `libheif.pc`, файлы CMake |
 
-Debian разбивает плагины по отдельным пакетам (`libheif-plugin-libde265`,
-`libheif-plugin-dav1d`, `libheif-plugin-x265`, …) — 13 штук, плюс метапакет
-`libheif-plugins-all`. Здесь они едут внутри `libheif1`: ровно так же, как
-модули кодировщиков ImageMagick едут внутри `libmagickcore-7.q16-10` вместо
-пакета `-extra`. Путь установки (`/usr/lib/<triplet>/libheif/plugins/`) не
-изменён, поэтому `dlopen` находит плагины без всяких патчей.
+В отличие от Debian, где плагины разбиты по 13 отдельным пакетам
+(`libheif-plugin-libde265`, `libheif-plugin-dav1d`, …) и метапакету
+`libheif-plugins-all`, здесь все плагины едут внутри `libheif1` — ровно так же,
+как модули кодеков ImageMagick едут внутри `libmagickcore-7.q16-10`.
 
-## Какие кодеки включены
+## Что изменено
 
-Ровно те, что нужны для HEIC и AVIF:
+### Отключено
 
-| Кодек | Пакет | Зачем |
-|---|---|---|
-| libde265 | `libheif-plugin-libde265` | декодирование HEVC → чтение HEIC/HEIF |
-| x265 | `libheif-plugin-x265` | кодирование HEVC → запись HEIC |
-| aom | `libheif-plugin-aomdec`, `-aomenc` | AV1 → AVIF |
-| dav1d | `libheif-plugin-dav1d` | AV1, декодирование (быстрее libaom) |
+- **Все плагины, кроме HEIC/AVIF:** `-DWITH_X264=OFF`, `-DWITH_OpenH264_DECODER=OFF`,
+  `-DWITH_OpenJPEG_ENCODER/DECODER=OFF`, `-DWITH_OPENJPH_ENCODER=OFF`,
+  `-DWITH_JPEG_ENCODER/DECODER=OFF`, `-DWITH_FFMPEG_DECODER=OFF`,
+  `-DWITH_KVAZAAR=OFF`, `-DWITH_UVG266=OFF`, `-DWITH_VVDEC=OFF`,
+  `-DWITH_VVENC=OFF`, `-DWITH_SvtEnc=OFF`, `-DWITH_RAV1E=OFF`.
+  Пакеты `ffmpeg`, `jpeg`, `openjpeg` (J2K), `kvazaar`, `rav1e`, SVT-AV1,
+  `x264`, OpenH264, VVC — не нужны для репозитория.
+- **Сжатие заголовков** `-DWITH_HEADER_COMPRESSION=OFF` — иначе нужен `libbrotli-dev`.
+- **libsharpyuv** `-DWITH_LIBSHARPYUV=OFF` — иначе нужен `libwebp-dev`.
+- **Документация, примеры, thumbnailer, gdk-pixbuf-плагин:** `-DBUILD_DOCUMENTATION=OFF
+  -DWITH_EXAMPLES=OFF -DWITH_EXAMPLE_HEIF_THUMB=OFF -DWITH_EXAMPLE_HEIF_VIEW=OFF
+  -DWITH_EXAMPLE_HEIF_VIEW=OFF -DWITH_GDK_PIXBUF=OFF`.
+- **Тесты:** `-DBUILD_TESTING=OFF`, `override_dh_auto_test` пуст.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
 
-Выключены: ffmpeg, jpeg, openjpeg (J2K), kvazaar, rav1e, SVT-AV1, x264,
-OpenH264, VVC (uvg266, vvdec, vvenc). Также выключены сжатие заголовков
-(`-DWITH_HEADER_COMPRESSION=OFF`, иначе нужен libbrotli) и `libsharpyuv`
-(`-DWITH_LIBSHARPYUV=OFF`, иначе нужен libwebp). Внутренний кодек
-`uncompressed` (ISO/IEC 23001-17) оставлен включённым: он не тянет внешних
-зависимостей, кроме zlib, и его символы есть в `libheif1.symbols`.
+### Включено
 
-Символьный файл `libheif1.symbols` взят из Debian без изменений: плагины
-собираются как отдельные модули, поэтому `libheif.so.1` содержит тот же набор
-символов, что и в Debian.
+- **HEIC/HEIF:** libde265 (декодер), x265 (кодер).
+- **AVIF:** aom (декодер+кодер), dav1d (декодер).
+- **Встроенный uncompressed-кодек** (`-DWITH_UNCOMPRESSED_CODEC=ON`) — не
+  тянет внешних зависимостей, только `zlib`.
 
-## Что не собирается
+## Патчи
 
-- документация (doxygen), примеры (`heif-info`, `heif-dec`, `heif-enc`,
-  `heif-convert`, `heif-view`), `heif-thumbnailer` и плагин gdk-pixbuf;
-- тесты (`-DBUILD_TESTING=OFF`, `override_dh_auto_test` пуст);
-- dbgsym-пакеты (общее правило `scripts/build-package.sh`).
+Нет: `debian/patches/series` отсутствует.
 
-Правило репозитория «ничего лишнего не собирается» — в `rules/`.
+## Изменения ABI
 
-## Что произойдёт при `apt upgrade`
+`libheif1.symbols` взят из Debian без изменений: плагины собираются как
+отдельные модули, поэтому `libheif.so.1` содержит тот же набор экспортируемых
+символов, что и в Debian. SONAME `libheif.so.1` не меняется, удалённых символов
+нет.
 
-Наша версия выше и в trixie, и в trixie-security (`1.23.4-1~deb13u1`):
-`1+crick` сравнивается с `1~deb13u1` как большая (`~` в Debian-сортировке
-меньше всего, даже конца строки).
+## Важные нюансы
 
-Плагины trixie (`libheif-plugin-*-1.23.4-1~deb13u1`) зависят от
-`libheif1 (= 1.23.4-1~deb13u1)` — точной версии, которой у нас нет, поэтому
-apt **снимет** их: их функцию выполняют плагины внутри нашего `libheif1`.
-Ничего не сломается, но перечень установленных пакетов изменится. Проверить
-заранее:
+### Зачем нужен
 
-```bash
-apt-get -s upgrade
-```
+`imagemagick` требует `libheif-dev` для кодировщика `coders/heic.so`, который
+даёт форматы HEIC, HEIF, AVCI и AVIF. Без libheif этот кодировщик отключается.
+
+### Плагины внутри библиотеки
+
+Путь загрузки `/usr/lib/<triplet>/libheif/plugins/` не изменён, `dlopen`
+находит плагины без патчей. Debian-овские пакеты `libheif-plugin-*` приходятся
+снять: они зависят от `libheif1` с точной версией Debian (`1.23.4-1~deb13u1`),
+которая у нас отсутствует. Их функцию выполняют плагины внутри нашего `libheif1`.
+
+### apt upgrade
 
 Пакеты `libheif-examples`, `heif-thumbnailer`, `heif-gdk-pixbuf` и
-`libheif-plugins-all` из репозитория не приходят — если они стояли из
-trixie, они останутся на своей версии и будут работать со старым API
-(`libheif1` с SONAME `libheif.so.1` не изменился, удалённых символов нет).
+`libheif-plugins-all` из trixie остаются на своей версии — они работают со
+старым API (`libheif.so.1` не изменён, удалённых символов нет). Очистить:
 
-## Откат
-
-Вернуться на штатный libheif trixie:
-
-```bash
-sudo apt install libheif1=1.19.8-1+deb13u1 libheif-dev=1.19.8-1+deb13u1
 ```
-
-Или убрать из `debian/control` imagemagick зависимость и вернуть
-`--without-heic` (см. `packages/imagemagick/README.md`).
+apt-get -s upgrade
+```

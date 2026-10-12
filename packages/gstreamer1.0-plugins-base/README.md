@@ -1,93 +1,83 @@
-# gstreamer1.0-plugins-base (crick Debian backports)
+# gstreamer1.0-plugins-base
 
-Сборка GStreamer Base Plugins 1.28.7 для Debian 13 (trixie, amd64). Упаковка
-взята из Debian (`gst-plugins-base1.0_1.28.7-1`, ветка unstable) и переработана.
+Базовый набор плагинов GStreamer 1.28: библиотеки `libgstreamer-plugins-base1.0-0`,
+`libgstreamer-gl1.0-0`, GL-плагины, ALSA-плагин, Ogg/Vorbis/Theora/Opus,
+RTP/RTSP/SDP, конвертеры, playbin/decodebin.
 
-## Включено
+## Источник упаковки
 
-- `libgstreamer-plugins-base1.0-0` и `-dev` — библиотеки audio, video, app,
-  RTP/RTSP/SDP, FFT, tag.
-- `libgstreamer-gl1.0-0` и `gstreamer1.0-gl` — интеграция с OpenGL.
-- `gstreamer1.0-plugins-base` — конвертеры и масштабирование звука и видео,
-  конвейер воспроизведения (`playbin`, `decodebin`, `parsebin`,
-  `uridecodebin`), определитель типов, парсер субтитров, Ogg, Vorbis, Opus.
-- `gstreamer1.0-alsa` — вывод и захват звука через ALSA.
-- `gir1.2-gst-plugins-base-1.0` — данные GObject introspection.
+Упаковка взята из Debian (`gst-plugins-base1.0_1.28.7-1`, ветка unstable) и
+переработана. Tarball побайтово совпадает с Debian-овским
+`gst-plugins-base-1.28.7.orig.tar.xz`.
 
-## Отключено
+## Версии
 
-- **X11**: `-Dx11=disabled -Dxshm=disabled -Dxvideo=disabled -Dxi=disabled`.
-  Исчезают `ximagesink` и `xvimagesink`, а также X11 внутри библиотек. Из
-  `Build-Depends` убраны `libx11-xcb-dev`, `libxi-dev`, `libxt-dev` и
-  `libxv-dev`. Пакет `gstreamer1.0-x` не публикуется.
-- **Аудио-CD**: `-Dcdparanoia=disabled` — это оптический диск, поэтому
-  `libcdparanoia-dev` убран из `Build-Depends` (по правилам проекта).
-- **Theora**: `-Dtheora=disabled` — устаревший видеокодек из `libtheora-dev`,
-  `libtheora-dev` убран из `Build-Depends` (правило репозитория). Плагин
-  `libgsttheora.so` не собирается и не публикуется.
-- **Утилиты для сопровождения**: пакет `gstreamer1.0-plugins-base-apps`
+- **В trixie:** 1.26.2-1+deb13u2
+- **В исходной упаковке:** 1.28.7-1
+- **В нашем репозитории:** 1.28.7-2+crick (ревизия 2 — из-за правок)
+
+Все пять пакетов GStreamer носят одну строку версии: их `-dev`-пакеты пинят
+sibling-пакеты `= ${binary:Version}`.
+
+## Содержимое
+
+- `libgstreamer-plugins-base1.0-0` — библиотеки audio, video, app, RTP/RTSP/SDP, FFT, tag
+- `libgstreamer-plugins-base1.0-dev` — заголовки, GIR
+- `libgstreamer-gl1.0-0` — GL-интеграция (Wayland/EGL)
+- `gstreamer1.0-gl` — GL-плагины
+- `gstreamer1.0-plugins-base` — конвертеры, playbin, decodebin, typefinder, парсер субтитров, Ogg, Vorbis, Opus
+- `gstreamer1.0-alsa` — ALSA audio source/sink
+- `gir1.2-gst-plugins-base-1.0` — GIR
+
+## Что изменено
+
+### Отключено
+
+- **X11** (правило репозитория): `-Dx11=disabled -Dxshm=disabled
+  -Dxvideo=disabled -Dxi=disabled`. Исчезают `ximagesink` и `xvimagesink`,
+  а также X11 внутри библиотек. Из `Build-Depends` убраны `libx11-xcb-dev`,
+  `libxi-dev`, `libxt-dev`, `libxv-dev`. Пакет `gstreamer1.0-x` не публикуется.
+- **Аудио-CD** (правило репозитория): `-Dcdparanoia=disabled`. `libcdparanoia-dev`
+  убран из `Build-Depends`.
+- **Theora** (устаревший кодек): `-Dtheora=disabled`. `libtheora-dev`
+  убран из `Build-Depends`. Плагин `libgsttheora.so` не публикуется.
+- **Утилиты для сопровождения:** пакет `gstreamer1.0-plugins-base-apps`
   (`gst-play-1.0`, `gst-discoverer-1.0`, `gst-device-monitor-1.0`) не
-  публикуется. В репозитории есть `mpv`, а discoverer и device-monitor —
-  инструменты сопровождения, а не то, что нужно пользователю.
-- Документация и примеры: `-Ddoc=disabled -Dexamples=disabled`; man-страниц
-  нет.
-- Тесты: `-Dtests=disabled`, `xvfb` и `xauth` убраны из `Build-Depends`.
-- Отладочные символы (`-dbgsym`) не собираются и не публикуются.
+  публикуется. Утилиты и man-страницы удаляются из staging-дерева в
+  `override_dh_auto_install`.
+- **Документация:** `-Ddoc=disabled`. **Примеры:** `-Dexamples=disabled`.
+- **Тесты:** `-Dtests=disabled`, `xvfb` и `xauth` убраны из `Build-Depends`.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
 
-## Изменено
+### Включено
 
-- Версия: `1.28.7-1+crick`. Все пять пакетов GStreamer несут одну строку
-  версии: их `-dev`-пакеты пинят sibling-пакеты `= ${binary:Version}`.
-- **GL только под Wayland и EGL**: `-Dgl_winsys=wayland,egl
-  -Dgl_platform=egl`. Это ключевое изменение: при `-Dauto_features=enabled`
-  и дефолтном `gl_winsys=auto` meson подхватывает и X11, и Wayland, и
-  `libgstreamer-gl1.0-0` получает зависимости `libx11-6` и `libxcb1`. С
-  явным списком остаётся только Wayland, то есть EGL и `libwayland-client0`.
-- Плагин `pango` (текстовые наложения, субтитры) остаётся: он использует
+- GL только под Wayland и EGL: `-Dgl_winsys=wayland,egl -Dgl_platform=egl`.
+  Без этого `libgstreamer-gl1.0-0` получил бы зависимости `libx11-6` и
+  `libxcb1`.
+- Плагин `pango` (текстовые наложения, субтитры) остаётся: использует
   `pangocairo`, а не X11.
+- `libvorbis` и `libopus` включены.
 
-## Влияние на систему и откат
+## Патчи
 
-SONAME библиотек не менялись. Символы тоже почти не тронуты: X11-видеосинки
-(`ximagesink`, `xvimagesink`) — это отдельные плагины, а не часть ABI.
+Нет: `debian/patches/series` отсутствует.
 
-**Исключение — `libgstreamer-gl1.0-0`.** Из неё удалены три символа:
+## Изменения ABI
 
-```
-gst_gl_display_x11_get_type
-gst_gl_display_x11_new
-gst_gl_display_x11_new_with_display
-```
+SONAME библиотек не менялись. X11-видеосинки (`ximagesink`, `xvimagesink`) —
+это отдельные плагины, а не часть ABI.
 
-Они исчезли вместе с X11 (тот же случай, что и `gdk_x11_*` в `gtk+3.0` и
-`gtk4`): SONAME `libgstgl-1.0.so.0` прежний, символы пропали, и
-`debian/libgstreamer-gl1.0-0.symbols` перегенерирован без них, иначе
-`dpkg-gensymbols` роняет сборку на «symbols disappeared». Программы,
-вызывающие `gst_gl_display_x11_*` напрямую, после `apt upgrade` не
-запустятся; проверка конкретной программы:
+**Исключение — `libgstreamer-gl1.0-0`:** при выключении X11 удалены три
+символа (`gst_gl_display_x11_get_type`, `gst_gl_display_x11_new`,
+`gst_gl_display_x11_new_with_display`). SONAME `libgstgl-1.0.so.0` прежний,
+символы пропали — `debian/libgstreamer-gl1.0-0.symbols` перегенерирован.
+Программы, вызывающие `gst_gl_display_x11_*` напрямую, не запустятся.
+`mpv`, `celluloid` и `sfwbar` из этого репозитория таких вызовов не делают.
 
-```
-readelf -Ws /usr/lib/x86_64-linux-gnu/libmpv.so.2 | grep gst_gl_display_x11
-```
+## Важные нюансы
 
-Ни `mpv`, ни `celluloid`, ни `sfwbar` этого репозитория таких вызовов не
-делают: GL-библиотека собирается только под Wayland и EGL.
-
-Возврат к пакетам trixie безопасен:
-
-```
-apt install gstreamer1.0-plugins-base/trixie gstreamer1.0-plugins-base-apps/trixie
-```
-
-## GL и GLES берутся из этого репозитория
-
-`libegl-dev`, `libegl1`, `libgles-dev`, `libgles1`, `libgles2`, `libopengl-dev`,
-`libopengl0`, `libglvnd0`, `libglvnd-core-dev` ставятся из нашей сборки
-`libglvnd` (см. `packages/libglvnd/README.md`).
-
-`libegl-dev` ставится из этого репозитория: штатный пакет из trixie тянет
-`libgl1-mesa-dev` и пинит `libgbm1` версии trixie. В нашем репозитории GLX
-и GL отсутствуют, а GLES и OpenGL-без-GLX собраны без X11, поэтому
-исключений в `CLOSURE_EXCEPT` нет.
-
-Здесь же `libgl-dev` убран из `Build-Depends`: фактически `libgstgl-1.0.so` линкуется только с `libEGL.so.1`.
+- GL и GLES берутся из этого репозитория: `libegl-dev`, `libegl1`,
+  `libgles-dev`, `libgles1`, `libgles2`, `libopengl-dev`, `libopengl0`,
+  `libglvnd0` ставятся из сборки `libglvnd` (см. `packages/libglvnd/README.md`).
+- `libgl-dev` убран из `Build-Depends`: `libgstgl-1.0.so` линкуется только с
+  `libEGL.so.1`.

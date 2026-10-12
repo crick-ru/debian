@@ -1,86 +1,85 @@
-# pwvucontrol (crick Debian backports)
+# pwvucontrol
 
-Сборка `pwvucontrol` 0.5.3 для Debian 13 (trixie) — графический регулятор
-громкости для PipeWire. Приложение написано на Rust, сборка ведётся meson,
-который вызывает `cargo`.
+Графический регулятор громкости для PipeWire на базе GTK4 и Rust.
 
-Упаковка написана с нуля для этого репозитория: пакет `pwvucontrol`
-отсутствует в Debian (ни в trixie, ни в sid, ни в bookworm).
+## Источник упаковки
 
-## Почему пакет написан с нуля
+**Упаковка написана с нуля** для этого репозитория: `pwvucontrol` отсутствует
+в Debian (ни в trixie, ни в sid, ни в bookworm — проверено по `Packages`
+и `Sources` на `deb.debian.org`, `sources.debian.org/api`,
+`tracker.debian.org`). Нет ни исходного, ни двоичного пакета для переработки.
 
-**В Debian pwvucontrol отсутствует.** Проверено по официальным индексам
-`deb.debian.org` (bookworm, trixie, sid — и по `Packages`, и по `Sources`),
-а также по `sources.debian.org/api` и `tracker.debian.org`: ни исходного, ни
-двоичного пакета с таким именем нет. Готовой Debian-упаковки для переработки не существует, поэтому `debian/` написан с нуля по
-апстрим-исходникам.
+Tarball взят из GitHub release 0.5.3 (git tag). Исходный код идентичен
+апстриму.
 
-Побочный эффект: у пакета в Debian нет версии для сравнения, поэтому
-  конфликта версий не возникает.
+## Версии
 
-## Включено
+- **В trixie:** (пакет не существует)
+- **В исходной упаковке:** (написано с нуля)
+- **В нашем репозитории:** 0.5.3-1+crick (ревизия 1)
 
-- GTK4 и libadwaita — штатные зависимости апстрима.
-- PipeWire и WirePlumber: `libpipewire-0.3-dev (>= 0.3.83)` и
-  `libwireplumber-0.5-dev (>= 0.5.11)`.
-- Переводы (`po/`), GResource-ресурсы, иконки, desktop-файл, AppStream
-  metainfo, GSchema — всё это обычные файлы данных приложения, они
-  приходят готовыми в tar-боле и ставятся, ничего не собирается.
-- Release-профиль сборки (`-Dprofile=default`): оптимизированный бинарник
-  без суффикса `-devel`.
-- Сборочные инструменты, которые требует апстрим и которые поэтому есть в
-  `Build-Depends`: `blueprint-compiler` (`.ui`-файлы через
-  `blueprint-compiler batch-compile`; без него meson уходит в wrap-подпроект,
-  а `dh_meson_configure` запрещает его скачивать), `desktop-file-utils`
-  (`gnome.post_install(update_desktop_database: true)` → `update-desktop-database`),
-  `libclang-dev` (crate `pipewire` генерирует биндинги к нашим
-  `libpipewire`/`libspa` через `bindgen`, которому нужен `libclang.so`),
-  `gettext` (`msgfmt` и прочее), `cargo`/`rustc`.
+## Содержимое
 
-## Отключено
+| Пакет | Содержимое |
+|---|---|
+| `pwvucontrol` | `usr/bin/pwvucontrol`, desktop-файл, AppStream metainfo, GSchema, иконки hicolor (scalable и symbolic), GResource, переводы |
 
-- **Тесты не собираются и не запускаются:** `override_dh_auto_test` пуст,
-  каталог `debian/tests` не создан. Апстрим регистрирует три meson-теста
-  (`validate-desktop`, `validate-appdata`, `validate-gschema`) — это
-  проверки валидности файлов, а не тестовая система; ни один не
-  выполняется (по правилам проекта).
+Один бинарный пакет.
+
+## Что изменено
+
+### Отключено
+
+- **Тесты:** `override_dh_auto_test` пуст, каталог `debian/tests` не создан.
+  Апстрим регистрирует три meson-теста (`validate-desktop`,
+  `validate-appdata`, `validate-gschema`) — это проверки валидности файлов,
+  а не тестовая система; ни один не выполняется.
 - **Документация:** в tar-боле её нет, man-страница не генерируется,
-  пакетов `*-doc` нет. Ничего дополнительно отключать не пришлось.
+  пакетов `*-doc` нет.
 - **X11:** приложение GTK4, X11-специфичного кода в `src/` нет. Ключевое —
   сборка идёт **против GTK 4 этого репозитория** (стадия CI 4), где
   X11-бэкенда нет вообще: в публикуемой `libgtk-4.so.1` отсутствуют
-  символы `gdk_x11_*`, поэтому бинарник, собранный с X11, вообще не
-  запустился бы (см. `packages/gtk4/README.md`). Патчей для pwvucontrol
-  это не потребовало: `libpipewire`, `libadwaita` и GTK-биндинги Rust
-  обращаются только к общему API GTK4.
-- **dbgsym** не собираются (общее правило `scripts/build-package.sh`).
+  символы `gdk_x11_*`, поэтому бинарник, собранный с X11, не запустился бы.
+  Патчей для pwvucontrol это не потребовало: `libpipewire`, `libadwaita`
+  и GTK-биндинги Rust обращаются только к общему API GTK4.
+- dbgsym-пакеты не собираются (общее правило `scripts/build-package.sh`).
 
-## Изменено
+### Включено
 
-- Версия: `0.5.3-1+crick` (ревизия 1 — первая публикация).
-- Патч `01_locked_cargo_build.patch` добавляет cargo `--locked`, чтобы
-  сборка использовала версии crate-ов, зафиксированные в `Cargo.lock` из
-  tar-бола, а не разрешала дерево зависимостей заново.
-- `RUST_LOG=off` — убрать шум прогресса cargo из лога сборки.
-- Состав пакета: бинарник `usr/bin/pwvucontrol`, desktop-файл в
-  `usr/share/applications`, AppStream metainfo в `usr/share/metainfo`,
-  GSchema в `usr/share/glib-2.0/schemas`, иконки hicolor (scalable и
-  symbolic), GResource в `usr/share/pwvucontrol` и переводы в
-  `usr/share/locale`. Всё это перечислено в `debian/pwvucontrol.install`.
-  Скомпилированного `gschemas.compiled` в пакете нет и быть не должно: его
-  собирает триггер dpkg, а `gnome.post_install` при установке в `DESTDIR`
-  вообще не запускается (в meson у этих шагов `skip_if_destdir`).
-- Пакет единственный, поэтому `dh_auto_install` вызывается с
-  `--destdir=debian/tmp`: по умолчанию debhelper для одиночного пакета
-  ставит файлы прямо в `debian/pwvucontrol`, и тогда `dh_install` не нашёл бы
-  их в `debian/tmp`.
+- GTK4 и libadwaita — штатные зависимости апстрима.
+- PipeWire и WirePlumber: `libpipewire-0.3-dev (>= 0.3.83)`,
+  `libwireplumber-0.5-dev (>= 0.5.11)`.
+- Переводы (`po/`), GResource-ресурсы, иконки, desktop-файл, AppStream
+  metainfo, GSchema — файлы данных, приходят готовыми в тарболе.
+- Release-профиль сборки (`-Dprofile=default`).
 
-## Требования к сети при сборке
+## Патчи
 
-**Сборка ходит в сеть.** `cargo build` скачивает crate-ы с crates.io и
-одну зависимость из git (`wireplumber.rs`, ветка
-`wp-0.5-glib-0.21-pipewire-0.9`, зафиксированная по коммиту в
-`Cargo.lock`). Исходники crate-ов в tar-боле не поставляются, поэтому
-офлайн-сборка невозможна. Версии при этом зафиксированы, так что результат
-воспроизводим по составу зависимостей; недоступность сети во время CI
-приведёт к падению сборки этого пакета.
+Один патч: `01_locked_cargo_build.patch` — добавляет cargo `--locked`, чтобы
+сборка использовала версии crate-ов из `Cargo.lock` из тарболла, а не
+разрешала дерево зависимостей заново.
+
+## Изменения ABI
+
+Приложение, а не библиотека. Нет символьных файлов.
+
+## Важные нюансы
+
+### Требования к сети при сборке
+
+**Сборка ходит в сеть.** `cargo build` скачивает crate-ы с crates.io и одну
+зависимость из git (`wireplumber.rs`, ветка
+`wp-0.5-glib-0.21-pipewire-0.9`, зафиксированная по коммиту в `Cargo.lock`).
+Исходники crate-ов в тарболе не поставляются, поэтому офлайн-сборка невозможна.
+Версии при этом зафиксированы, результат воспроизводим по составу.
+
+### RUST_LOG=off
+
+Устанавливается в `debian/rules` для подавления вывода прогресса cargo в лог
+сборки. Предупреждения компилятора всё равно проходят.
+
+### --destdir=debian/tmp
+
+`dh_auto_install` вызывается с `--destdir=debian/tmp`: для единственного
+пакета debhelper по умолчанию ставит файлы прямо в `debian/pwvucontrol`, и тогда
+`dh_install` не находит их в `debian/tmp` (падение с «Cannot find …»).
