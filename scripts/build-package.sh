@@ -78,7 +78,7 @@ $PACKAGE ($DEB_VERSION) $TARGET_RELEASE; urgency=medium
 
   * Build for the crick Debian backports repository (Debian trixie, amd64).
 
- -- crick Debian Backports <backports@users.noreply.github.com>  $CHANGELOG_DATE
+  -- AI-agent <noreply@example.com>  $CHANGELOG_DATE
 
 CHLOG
 
@@ -89,7 +89,7 @@ mv debian/changelog.new debian/changelog
 
 # Build the package. Debug symbol packages (-dbgsym) are not published in this
 # repository: debhelper generates them automatically, so the generation is
-# disabled via DEB_BUILD_OPTIONS. The rule is stated in the repository rules.
+# disabled via DEB_BUILD_OPTIONS. The rule is stated in rules/project.md §dbgsym.
 export DEB_BUILD_OPTIONS="${DEB_BUILD_OPTIONS:+$DEB_BUILD_OPTIONS }noautodbgsym"
 if (( SOURCE_ONLY )); then
   echo "==> Running dpkg-buildpackage -S for $PACKAGE (source-only, no compilation, DEB_BUILD_OPTIONS=$DEB_BUILD_OPTIONS)..."
