@@ -9,7 +9,8 @@ Maintainer: AI-agent <noreply@example.com>
 #     GTK4 (WITH_APPINDICATOR — «GTK+ 3 only»);
 #   * libgtest-dev убран, USE_SYSTEM_GTEST удалён: тесты отключены
 #     (-DENABLE_TESTS=OFF);
-#   * INSTALL_DOC=OFF — документация не собирается;
+#   * INSTALL_DOC=OFF — документация не ставится (правило проекта); готовые
+#     man-страницы из tarball ставятся вручную в debian/rules (исключение);
 #   * GTK-клиент отключён (-DENABLE_GTK=OFF): libgtkmm-4.0-dev, libgtk-4-dev,
 #     libglibmm-2.68-dev, libnotify-dev убраны из Build-Depends, пакет
 #     transmission-gtk не собирается;

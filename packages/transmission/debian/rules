@@ -14,7 +14,7 @@ override_dh_auto_configure:
 		-DENABLE_QT=OFF				\
 		-DWITH_APPINDICATOR=OFF			\
 		-DENABLE_TESTS=OFF			\
-		-DINSTALL_DOC=ON			\
+		-DINSTALL_DOC=OFF			\
 		-DCMAKE_BUILD_TYPE=RelWithDebInfo
 	# silence blhc false positive on missing flags for compiler test
 	echo "blhc: ignore-line-regexp: .*CMakeCXXCompilerABI\.cpp.*"
@@ -42,9 +42,24 @@ webui: web/assets/css/transmission-app.css $(WEBUI_SOURCES)
 
 execute_before_dh_auto_build: webui
 
+# INSTALL_DOC=OFF keeps cmake from installing usr/share/doc/transmission and the
+# man pages; the doc dir is not needed at all (rule: docs are not built/installed,
+# dh_installdocs still provides copyright/changelog). The man pages, however, are
+# shipped ready-made in the upstream tarball and thus kept per the rule's
+# exception -- they are installed manually below.
 execute_after_dh_auto_install:
-	@echo "remove extra license file"
-	-rm --verbose debian/tmp/usr/share/doc/transmission/COPYING
+	install -D -m 644 cli/transmission-cli.1 \
+		debian/tmp/usr/share/man/man1/transmission-cli.1
+	install -D -m 644 daemon/transmission-daemon.1 \
+		debian/tmp/usr/share/man/man1/transmission-daemon.1
+	install -D -m 644 utils/transmission-create.1 \
+		debian/tmp/usr/share/man/man1/transmission-create.1
+	install -D -m 644 utils/transmission-edit.1 \
+		debian/tmp/usr/share/man/man1/transmission-edit.1
+	install -D -m 644 utils/transmission-remote.1 \
+		debian/tmp/usr/share/man/man1/transmission-remote.1
+	install -D -m 644 utils/transmission-show.1 \
+		debian/tmp/usr/share/man/man1/transmission-show.1
 
 override_dh_installdocs:
 	dh_installdocs --link-doc=transmission-common
