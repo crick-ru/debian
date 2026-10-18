@@ -1,0 +1,62 @@
+Source: gtkmm4.0
+Section: libs
+Maintainer: AI-agent <noreply@example.com>
+# Упаковка взята из Debian (gtkmm4.0_4.22.0-1, ветка debian/sid) и
+# переработана:
+#   * debhelper-compat с 14 на 13 (соответствует общему правилу репозитория);
+#   * doxygen, graphviz, xsltproc удалены (документация не собирается);
+#   * -Dbuild-documentation=false (документация отключена);
+#   * xauth, xvfb удалены (X11 не используется, тесты не запускаются
+#     в xvfb — override_dh_auto_test пустой);
+#   * libgtkmm-4.0-doc stanza удалён (документация);
+#   * libgtk-4-dev (>= 4.24) → (>= 4.22): сборка против GTK 4.22.x
+#     этого репозитория, а не GTK 4.24 из sid;
+#   * libglibmm-2.68-dev (>= 2.89.0) → (>= 2.75.0): требование
+#     соответствует апстриму gtkmm 4.22.0, а не Debian-пакету 4.24.0;
+#   * libgtkmm-4.0-0.docs удалён;
+#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
+Build-Depends:
+ debhelper-compat (= 13),
+ libgdk-pixbuf-2.0-dev,
+ libglibmm-2.68-dev (>= 2.75.0),
+ libgtk-4-dev (>= 4.22),
+ libpangomm-2.48-dev,
+ libxml-parser-perl,
+ meson,
+ mm-common,
+Vcs-Browser: https://salsa.debian.org/gnome-team/gtkmm4.0
+Vcs-Git: https://salsa.debian.org/gnome-team/gtkmm4.0.git
+Homepage: https://www.gtkmm.org/
+
+Package: libgtkmm-4.0-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends:
+ libgdk-pixbuf-2.0-dev,
+ libglibmm-2.68-dev (>= 2.75.0),
+ libgtk-4-dev (>= 4.22),
+ libgtkmm-4.0-0 (= ${binary:Version}),
+ libpangomm-2.48-dev,
+Description: C++ wrappers for GTK4 (development files)
+ Gtkmm is a C++ interface for the popular GUI library GTK 4, API version 4.0.
+ Gtkmm provides a convenient interface for C++ programmers to create
+ graphical user interfaces with GTK's flexible OO framework. Highlights
+ include type safe callbacks, widgets extensible using inheritance and
+ over 180 classes that can be freely combined to quickly create complex
+ user interfaces.
+ .
+ This package contains development files.
+
+Package: libgtkmm-4.0-0
+Architecture: any
+Multi-Arch: same
+Description: C++ wrappers for GTK4 (shared libraries)
+ Gtkmm is a C++ interface for the popular GUI library GTK 4, API version 4.0.
+ Gtkmm provides a convenient interface for C++ programmers to create
+ graphical user interfaces with GTK's flexible OO framework. Highlights
+ include type safe callbacks, widgets extensible using inheritance and
+ over 180 classes that can be freely combined to quickly create complex
+ user interfaces.
+ .
+ This package contains shared libraries.

@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all optimize=+lto
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,-z,defs
+
+# Only do strict symbols checking on 64-bit architectures except riscv64
+ifneq (,$(filter $(DEB_HOST_ARCH),riscv64))
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 0
+else ifeq ($(DEB_HOST_ARCH_BITS),64)
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+else
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 0
+endif
+
+%:
+	dh $@ --buildsystem=meson --without autoreconf
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Dbuild-documentation=false \
+		-Dmaintainer-mode=true \
+		-Dwarnings=max
+
+override_dh_auto_test:

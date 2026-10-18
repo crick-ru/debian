@@ -1,0 +1,4 @@
+usr/include
+usr/lib/*/gtkmm-4.0
+usr/lib/*/lib*.so
+usr/lib/*/pkgconfig
