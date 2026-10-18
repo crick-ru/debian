@@ -6,19 +6,15 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@
 
-# On ENABLE_DEPRECATED=ON:
-#      build system makes deprecations failures if $CI is not empty:
-#      force enable of deprecations (e.g. GTK)
 override_dh_auto_configure:
 	dh_auto_configure --				\
 		-DINSTALL_LIB=ON			\
 		-DENABLE_CLI=ON				\
-		-DENABLE_GTK=ON				\
+		-DENABLE_GTK=OFF				\
 		-DENABLE_QT=OFF				\
 		-DWITH_APPINDICATOR=OFF			\
 		-DENABLE_TESTS=OFF			\
 		-DINSTALL_DOC=OFF			\
-		-DENABLE_DEPRECATED=ON \
 		-DCMAKE_BUILD_TYPE=RelWithDebInfo
 	# silence blhc false positive on missing flags for compiler test
 	echo "blhc: ignore-line-regexp: .*CMakeCXXCompilerABI\.cpp.*"

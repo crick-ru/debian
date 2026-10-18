@@ -1,6 +1,6 @@
 # transmission
 
-Легкий BitTorrent-клиент с демоном, CLI и GTK-интерфейсом.
+Легкий BitTorrent-клиент с демоном и CLI. GTK-клиент временно отключён.
 
 ## Источник упаковки
 
@@ -30,10 +30,9 @@ libnatpmp, libpsl, utfcpp, miniupnp, rapidjson) и предсобранный we
 
 | Пакет | Содержимое |
 |---|---|
-| `transmission` | метапакет: зависит от `transmission-common` + `transmission-gtk` или `transmission-cli` |
+| `transmission` | метапакет: зависит от `transmission-common` + `transmission-cli` |
 | `transmission-common` | общие файлы: web UI (`public_html`), иконки, справка |
 | `transmission-cli` | `transmission-cli`, `transmission-create`, `transmission-edit`, `transmission-remote`, `transmission-show` |
-| `transmission-gtk` | GTK4-клиент `transmission-gtk` |
 | `transmission-daemon` | `transmission-daemon` + systemd-юнит + настройки по умолчанию |
 | `libtransmission-dev` | статическая библиотека `libtransmission.a` и заголовки |
 
@@ -41,6 +40,10 @@ libnatpmp, libpsl, utfcpp, miniupnp, rapidjson) и предсобранный we
 
 ### Отключено
 
+- **GTK-клиент:** `-DENABLE_GTK=OFF`. `libgtkmm-4.0-dev`, `libgtk-4-dev`,
+  `libglibmm-2.68-dev`, `libnotify-dev` удалены из `Build-Depends`,
+  пакет `transmission-gtk` не собирается. Метапакет `transmission` больше не
+  ссылается на `transmission-gtk`.
 - **Qt-клиент:** `-DENABLE_QT=OFF`. Qt6-стек не входит в репозиторий, поэтому
   `qt6-base-dev`, `qt6-tools-dev`, `qt6-tools-dev-tools`, `qt6-svg-dev` удалены
   из `Build-Depends`, а пакет `transmission-qt` не собирается. Метапакет
@@ -58,9 +61,6 @@ libnatpmp, libpsl, utfcpp, miniupnp, rapidjson) и предсобранный we
 
 ### Включено
 
-- **GTK4:** сборка GTK-клиента против `libgtk-4-dev` **этого репозитория** (без X11),
-  а не GTK из trixie. `libgtk-4-dev` добавлен в `Build-Depends` для замыкания
-  CI-зависимостей на gtk4 (как в `celluloid`).
 - **Web UI:** сборка web-интерфейса через `esbuild` (esbuild, rsass,
   node-fast-deep-equal в `Build-Depends`). Предкомпилированный CSS
   (`transmission-app.css`) поставляется из tarball (патч `web-easier-build.patch`
@@ -88,10 +88,6 @@ libnatpmp, libpsl, utfcpp, miniupnp, rapidjson) и предсобранный we
 
 ## Важные нюансы
 
-- Сборка GTK-клиента против нашей GTK4 (без X11) требует, чтобы `libgtk-4-dev`
-  из stage 6 был установлен до сборки. Это обеспечивается добавлением
-  `libgtk-4-dev` в `Build-Depends` — `gen-workflow.py` автоматически замыкает
-  gtk4 и добавляет его `.deb` в список установки.
 - `transmission-daemon` использует `libsystemd-dev` для systemd-уведомлений
   (`WITH_SYSTEMD` в CMake). Это не X11 и не at-spi2-core — это systemd.
 - Веб-интерфейс daemon пересобирается из исходников (esbuild), предсобранный JS

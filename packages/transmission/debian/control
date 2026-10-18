@@ -10,8 +10,9 @@ Maintainer: AI-agent <noreply@example.com>
 #   * libgtest-dev убран, USE_SYSTEM_GTEST удалён: тесты отключены
 #     (-DENABLE_TESTS=OFF);
 #   * INSTALL_DOC=OFF — документация не собирается;
-#   * libgtk-4-dev добавлен в Build-Depends: сборка GTK-клиента против
-#     libgtk-4-dev этого репозитория (без X11), а не GTK из trixie;
+#   * GTK-клиент отключён (-DENABLE_GTK=OFF): libgtkmm-4.0-dev, libgtk-4-dev,
+#     libglibmm-2.68-dev, libnotify-dev убраны из Build-Depends, пакет
+#     transmission-gtk не собирается;
 #   * transmission-common.docs удалён (правило «документация не собирается»);
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends: cmake,
@@ -19,12 +20,8 @@ Build-Depends: cmake,
                dh-sequence-installsysusers,
                libcurl4-openssl-dev | libcurl4-dev | libcurl-dev,
                libevent-dev,
-               libgtkmm-4.0-dev (>= 4.22),
-               libgtk-4-dev,
-               libglibmm-2.68-dev,
                libminiupnpc-dev,
                libnatpmp-dev,
-               libnotify-dev,
                libssl-dev,
                libfast-float-dev,
                libfmt-dev,
@@ -47,7 +44,7 @@ Package: transmission
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: transmission-common (>= ${binary:Version}),
-         transmission-gtk (>= ${binary:Version}) | transmission-cli (>= ${binary:Version}),
+         transmission-cli (>= ${binary:Version}),
          ${misc:Depends}
 Description: lightweight BitTorrent client
  Transmission is a set of lightweight BitTorrent clients (in GUI, CLI
@@ -75,8 +72,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Depends: transmission-common (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
-Suggests: transmission-daemon (= ${binary:Version}),
-          transmission-gtk (= ${binary:Version})
+Suggests: transmission-daemon (= ${binary:Version})
 Description: lightweight BitTorrent client (command line programs)
  Transmission is a set of lightweight BitTorrent clients (in GUI, CLI
  and daemon form). All its incarnations feature a very simple, intuitive
@@ -85,20 +81,6 @@ Description: lightweight BitTorrent client (command line programs)
  This package contains transmission-remote to interface with
  transmission-daemon, tools to create/edit/inspect torrent files
  and a deprecated stand-alone command-line client.
-
-Package: transmission-gtk
-Architecture: any
-Pre-Depends: ${misc:Pre-Depends}
-Depends: transmission-common (= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
-Recommends: xdg-utils
-Description: lightweight BitTorrent client (GTK+ interface)
- Transmission is a set of lightweight BitTorrent clients (in GUI, CLI
- and daemon form). All its incarnations feature a very simple, intuitive
- interface on top on an efficient, cross-platform back-end.
- .
-  This package contains the GTK+ stand-alone client.
 
 Package: transmission-daemon
 Architecture: any
