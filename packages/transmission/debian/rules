@@ -14,7 +14,7 @@ override_dh_auto_configure:
 		-DENABLE_QT=OFF				\
 		-DWITH_APPINDICATOR=OFF			\
 		-DENABLE_TESTS=OFF			\
-		-DINSTALL_DOC=OFF			\
+		-DINSTALL_DOC=ON			\
 		-DCMAKE_BUILD_TYPE=RelWithDebInfo
 	# silence blhc false positive on missing flags for compiler test
 	echo "blhc: ignore-line-regexp: .*CMakeCXXCompilerABI\.cpp.*"
