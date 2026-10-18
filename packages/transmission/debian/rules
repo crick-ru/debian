@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE=1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+# On ENABLE_DEPRECATED=ON:
+#      build system makes deprecations failures if $CI is not empty:
+#      force enable of deprecations (e.g. GTK)
+override_dh_auto_configure:
+	dh_auto_configure --				\
+		-DINSTALL_LIB=ON			\
+		-DENABLE_CLI=ON				\
+		-DENABLE_GTK=ON				\
+		-DENABLE_QT=OFF				\
+		-DWITH_APPINDICATOR=OFF			\
+		-DENABLE_TESTS=OFF			\
+		-DINSTALL_DOC=OFF			\
+		-DENABLE_DEPRECATED=ON \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo
+	# silence blhc false positive on missing flags for compiler test
+	echo "blhc: ignore-line-regexp: .*CMakeCXXCompilerABI\.cpp.*"
+
+%.css: %.scss
+	rsass $< > $@
+
+WEBUI_SOURCES := $(wildcard web/src/*.js)
+
+.PHONY: webui
+
+webui: web/assets/css/transmission-app.css $(WEBUI_SOURCES)
+	mkdir -p web/node_modules
+	ln -sf /usr/share/nodejs/fast-deep-equal web/node_modules/
+	cd web && esbuild \
+		--allow-overwrite \
+		--bundle \
+		--legal-comments=external \
+		--loader:.png=dataurl \
+		--loader:.svg=dataurl \
+		--minify \
+		--sourcemap \
+		--outfile=public_html/transmission-app.js \
+		src/main.js
+
+execute_before_dh_auto_build: webui
+
+execute_after_dh_auto_install:
+	@echo "remove extra license file"
+	-rm --verbose debian/tmp/usr/share/doc/transmission/COPYING
+
+override_dh_installdocs:
+	dh_installdocs --link-doc=transmission-common

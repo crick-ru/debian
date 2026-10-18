@@ -1,0 +1,61 @@
+From: Daniel Fox <dan.fox@tigera.io>
+Date: Fri, 15 Aug 2025 11:02:46 -0700
+Subject: [PATCH] fix: Use static application ID for GTK
+
+From 242f32c3830a640ecfd2ef05193c71f1a0fd757d Mon Sep 17 00:00:00 2001
+Forwarded: https://github.com/transmission/transmission/pull/7669
+---
+ gtk/Application.cc              | 23 +++++++++++++++++++++++
+ gtk/transmission-gtk.desktop.in |  1 +
+ 2 files changed, 24 insertions(+)
+
+diff --git a/gtk/Application.cc b/gtk/Application.cc
+index a45bdaf..606f121 100644
+--- a/gtk/Application.cc
++++ b/gtk/Application.cc
+@@ -706,10 +706,33 @@ void Application::on_open(std::vector<Glib::RefPtr<Gio::File>> const& files, Gli
+ namespace
+ {
+ 
++/* The application ID in GTK is used to identify "application uniqueness",
++ * to prevent things like inadvertently launching multiple instances of an
++ * application. We use the device and inode of the configuration directory
++ * to uniquely identify an instance of transmission-gtk, so that multiple
++ * instances are allowed as long as they're all using unique configuration
++ * directories.
++ * 
++ * Unfortunately, this ID is also used in e.g. GNOME to identify which .desktop
++ * file an application is associated with, and thus which icon to show in the
++ * dock, which means that, at least on GNOME Wayland, no icon will appear.
++ * 
++ * To work around this, solve for the common case of a user using the default
++ * configuration directory by returning a static string, while any other config
++ * directory results in the previous unique string.
++ */
+ std::string get_application_id(std::string const& config_dir)
+ {
+     struct stat sb = {};
+     (void)::stat(config_dir.c_str(), &sb);
++
++    std::string default_config_dir = tr_getDefaultConfigDir("transmission");
++
++    if (config_dir == default_config_dir)
++    {
++        return "com.transmissionbt.transmission";
++    }
++
+     return fmt::format("com.transmissionbt.transmission_{}_{}", sb.st_dev, sb.st_ino);
+ }
+ 
+diff --git a/gtk/transmission-gtk.desktop.in b/gtk/transmission-gtk.desktop.in
+index 1b0c349..5f562b1 100644
+--- a/gtk/transmission-gtk.desktop.in
++++ b/gtk/transmission-gtk.desktop.in
+@@ -10,6 +10,7 @@ Terminal=false
+ TryExec=transmission-gtk
+ Type=Application
+ StartupNotify=true
++StartupWMClass=com.transmissionbt.transmission
+ MimeType=application/x-bittorrent;x-scheme-handler/magnet;
+ Categories=Network;FileTransfer;P2P;GTK;
+ X-Ubuntu-Gettext-Domain=transmission

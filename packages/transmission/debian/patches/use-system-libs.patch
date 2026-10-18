@@ -1,0 +1,2657 @@
+From: Yat Ho <lagoho7@gmail.com>
+Date: Tue, 6 Jan 2026 20:30:47 +0000
+Subject: support building with (almost) all system 3rd-party libraries
+
+Forwarded: https://github.com/transmission/transmission/pull/7554
+---
+ CMakeLists.txt                                 | 149 +++++++++++++++++++------
+ cmake/FindB64.cmake                            |  39 -------
+ cmake/FindCRC32C.cmake                         |  30 -----
+ cmake/FindDEFLATE.cmake                        |  49 --------
+ cmake/FindDHT.cmake                            |  37 ------
+ cmake/FindEVENT2.cmake                         |  52 ---------
+ cmake/FindFastFloat.cmake                      |   5 -
+ cmake/FindFmt.cmake                            |  26 -----
+ cmake/FindLibevent.cmake                       |  89 +++++++++++++++
+ cmake/FindMINIUPNPC.cmake                      |  39 -------
+ cmake/FindNATPMP.cmake                         |  37 ------
+ cmake/FindPSL.cmake                            |  37 ------
+ cmake/FindRapidJSON.cmake                      |  42 +++++--
+ cmake/FindSmall.cmake                          |   9 --
+ cmake/FindUTP.cmake                            |  84 --------------
+ cmake/FindUtfCpp.cmake                         |   5 -
+ cmake/FindWideInteger.cmake                    |  21 ----
+ cmake/Finddht.cmake                            |  39 +++++++
+ cmake/Findfmt.cmake                            |  71 ++++++++++++
+ cmake/Findlibb64.cmake                         |  51 +++++++++
+ cmake/Findlibdeflate.cmake                     |  73 ++++++++++++
+ cmake/Findlibnatpmp.cmake                      |  39 +++++++
+ cmake/Findlibpsl.cmake                         |  49 ++++++++
+ cmake/Findlibutp.cmake                         |  94 ++++++++++++++++
+ cmake/Findminiupnpc.cmake                      |  68 +++++++++++
+ cmake/Findutf8cpp.cmake                        |  34 ++++++
+ cmake/TrGTest.cmake                            |  16 +++
+ cmake/TrMacros.cmake                           | 100 +++++++++++------
+ daemon/CMakeLists.txt                          |   2 +-
+ libtransmission/CMakeLists.txt                 |  11 +-
+ libtransmission/port-forwarding-upnp.cc        |   2 +-
+ tests/CMakeLists.txt                           |   3 +-
+ tests/gtest/CMakeLists.txt                     |  26 -----
+ tests/libtransmission/CMakeLists.txt           |  23 +++-
+ tests/libtransmission/announce-list-test.cc    |   2 +
+ tests/libtransmission/announcer-udp-test.cc    |   2 +
+ tests/libtransmission/api-compat-test.cc       |   3 +-
+ tests/libtransmission/bitfield-test.cc         |   4 +-
+ tests/libtransmission/blocklist-test.cc        |   3 +-
+ tests/libtransmission/clients-test.cc          |   4 +-
+ tests/libtransmission/copy-test.cc             |   3 +-
+ tests/libtransmission/crypto-test.cc           |   4 +-
+ tests/libtransmission/dht-test.cc              |   3 +-
+ tests/libtransmission/error-test.cc            |   4 +-
+ tests/libtransmission/file-test.cc             |   3 +-
+ tests/libtransmission/handshake-test.cc        |   3 +-
+ tests/libtransmission/history-test.cc          |   4 +-
+ tests/libtransmission/json-test.cc             |   4 +-
+ tests/libtransmission/lpd-test.cc              |   3 +-
+ tests/libtransmission/makemeta-test.cc         |   3 +-
+ tests/libtransmission/move-test.cc             |   3 +-
+ tests/libtransmission/open-files-test.cc       |   3 +-
+ tests/libtransmission/peer-msgs-test.cc        |   2 +-
+ tests/libtransmission/platform-test.cc         |   3 +-
+ tests/libtransmission/remove-test.cc           |   3 +-
+ tests/libtransmission/rename-test.cc           |   3 +-
+ tests/libtransmission/rpc-test.cc              |   5 +-
+ tests/libtransmission/session-test.cc          |   3 +-
+ tests/libtransmission/subprocess-test.cc       |   2 +
+ tests/libtransmission/test-fixtures.h          |   4 +-
+ tests/libtransmission/timer-test.cc            |   2 +
+ tests/libtransmission/torrent-files-test.cc    |   3 +-
+ tests/libtransmission/torrent-magnet-test.cc   |   3 +-
+ tests/libtransmission/torrent-metainfo-test.cc |   3 +-
+ tests/libtransmission/torrent-queue-test.cc    |   3 +-
+ tests/libtransmission/torrents-test.cc         |   2 +
+ tests/libtransmission/utils-test.cc            |   3 +-
+ tests/libtransmission/variant-test.cc          |   2 +
+ tests/libtransmission/watchdir-test.cc         |   2 +
+ third-party/small/cmake/small/variables.cmake  |   2 +-
+ third-party/wide-integer/CMakeLists.txt        |  10 ++
+ utils/CMakeLists.txt                           |   2 +-
+ 72 files changed, 955 insertions(+), 616 deletions(-)
+ delete mode 100644 cmake/FindB64.cmake
+ delete mode 100644 cmake/FindCRC32C.cmake
+ delete mode 100644 cmake/FindDEFLATE.cmake
+ delete mode 100644 cmake/FindDHT.cmake
+ delete mode 100644 cmake/FindEVENT2.cmake
+ delete mode 100644 cmake/FindFastFloat.cmake
+ delete mode 100644 cmake/FindFmt.cmake
+ create mode 100644 cmake/FindLibevent.cmake
+ delete mode 100644 cmake/FindMINIUPNPC.cmake
+ delete mode 100644 cmake/FindNATPMP.cmake
+ delete mode 100644 cmake/FindPSL.cmake
+ delete mode 100644 cmake/FindSmall.cmake
+ delete mode 100644 cmake/FindUTP.cmake
+ delete mode 100644 cmake/FindUtfCpp.cmake
+ delete mode 100644 cmake/FindWideInteger.cmake
+ create mode 100644 cmake/Finddht.cmake
+ create mode 100644 cmake/Findfmt.cmake
+ create mode 100644 cmake/Findlibb64.cmake
+ create mode 100644 cmake/Findlibdeflate.cmake
+ create mode 100644 cmake/Findlibnatpmp.cmake
+ create mode 100644 cmake/Findlibpsl.cmake
+ create mode 100644 cmake/Findlibutp.cmake
+ create mode 100644 cmake/Findminiupnpc.cmake
+ create mode 100644 cmake/Findutf8cpp.cmake
+ create mode 100644 cmake/TrGTest.cmake
+ delete mode 100644 tests/gtest/CMakeLists.txt
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b9cb3dd..83062ad 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -24,8 +24,8 @@ endif()
+ project(transmission)
+ 
+ set(TR_THIRD_PARTY_DIR_NAME third-party)
+-set(TR_THIRD_PARTY_SOURCE_DIR ${PROJECT_SOURCE_DIR}/${TR_THIRD_PARTY_DIR_NAME})
+-set(TR_THIRD_PARTY_BINARY_DIR ${PROJECT_BINARY_DIR}/${TR_THIRD_PARTY_DIR_NAME})
++set(TR_THIRD_PARTY_SOURCE_DIR "${PROJECT_SOURCE_DIR}/${TR_THIRD_PARTY_DIR_NAME}")
++set(TR_THIRD_PARTY_BINARY_DIR "${PROJECT_BINARY_DIR}/${TR_THIRD_PARTY_DIR_NAME}")
+ 
+ list(APPEND CMAKE_MODULE_PATH
+     "${PROJECT_SOURCE_DIR}/cmake"
+@@ -43,17 +43,28 @@ include(TrMacros)
+ 
+ set(CURL_MINIMUM 7.28.0)
+ set(WOLFSSL_MINIMUM 3.4)
++set(CRC32C_MINIMUM 1.1.0)
+ set(DEFLATE_MINIMUM 1.7)
+ set(EVENT2_MINIMUM 2.1.0)
++set(FMT_MINIMUM 8.0.1)
++# fast_float's version file is configured with `COMPATIBILITY SameMajorVersion`
++# The version range currently distributed varies greatly (e.g. Debian Trixie -> 8.0.0, Ubuntu 24.04 -> 3.9.0)
++# set(FAST_FLOAT_MINIMUM 3...8)
+ set(GIOMM_MINIMUM 2.26.0)
+ set(GLIBMM_MINIMUM 2.60.0)
+ set(GTKMM3_MINIMUM 3.24.0)
+ set(GTKMM4_MINIMUM 4.11.1)
+ set(OPENSSL_MINIMUM 1.1.0)
+ set(MBEDTLS_MINIMUM 2.7)
++set(MINIUPNPC_MINIMUM 2.2.1)
+ set(NPM_MINIMUM 10.2.3) # Node.js 20.10 (eslint-plugin-unicorn)
+-set(PSL_MINIMUM 0.21.1)
++set(PSL_MINIMUM 0.21.0)
+ set(QT_MINIMUM 5.15)
++set(RAPIDJSON_MINIMUM 1.1.0)
++set(SMALL_MINIMUM 0.2.2)
++# utf8cpp v4's version file is configured with `COMPATIBILITY SameMajorVersion`
++# and does not support version range.
++# set(UTF8CPP_MINIMUM 3.1...4)
+ 
+ option(ENABLE_DAEMON "Build daemon" ON)
+ tr_auto_option(ENABLE_GTK "Build GTK client" AUTO)
+@@ -71,14 +82,21 @@ option(INSTALL_DOC "Build/install documentation" ON)
+ option(INSTALL_LIB "Install the library" OFF)
+ tr_auto_option(ENABLE_DEPRECATED "Allow deprecated API use of upstream packages, e.g. GTK" AUTO)
+ tr_auto_option(RUN_CLANG_TIDY "Run clang-tidy on the code" AUTO)
+-tr_auto_option(USE_SYSTEM_EVENT2 "Use system event2 library" AUTO)
+-tr_auto_option(USE_SYSTEM_DEFLATE "Use system deflate library" AUTO)
+-tr_auto_option(USE_SYSTEM_DHT "Use system dht library" AUTO)
+-tr_auto_option(USE_SYSTEM_MINIUPNPC "Use system miniupnpc library" AUTO)
+-tr_auto_option(USE_SYSTEM_NATPMP "Use system natpmp library" AUTO)
+-tr_auto_option(USE_SYSTEM_UTP "Use system utp library" AUTO)
+-tr_auto_option(USE_SYSTEM_B64 "Use system b64 library" AUTO)
+-tr_auto_option(USE_SYSTEM_PSL "Use system psl library" AUTO)
++tr_auto_option(USE_SYSTEM_DEFAULT "Default value for USE_SYSTEM_* options" AUTO)
++tr_auto_option(USE_SYSTEM_EVENT2 "Use system event2 library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_DEFLATE "Use system deflate library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_DHT "Use system dht library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_FAST_FLOAT "Use system fast_float library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_FMT "Use system fmt library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_MINIUPNPC "Use system miniupnpc library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_NATPMP "Use system natpmp library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_RAPIDJSON "Use system RapidJSON library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_SMALL "Use system small library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_UTF8CPP "Use system uft8cpp library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_WIDE_INTEGER "Use system WideInteger library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_UTP "Use system utp library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_B64 "Use system b64 library" ${USE_SYSTEM_DEFAULT})
++tr_auto_option(USE_SYSTEM_PSL "Use system psl library" ${USE_SYSTEM_DEFAULT})
+ tr_list_option(USE_GTK_VERSION "Use specific GTK version" AUTO 3 4)
+ tr_list_option(USE_QT_VERSION "Use specific Qt version" AUTO 5 6)
+ tr_list_option(WITH_CRYPTO "Use specified crypto library" AUTO ccrypto mbedtls openssl wolfssl)
+@@ -239,13 +257,6 @@ set(CMAKE_FOLDER "${TR_THIRD_PARTY_DIR_NAME}")
+ 
+ set(SOURCE_ICONS_DIR "${PROJECT_SOURCE_DIR}/icons")
+ 
+-find_package(FastFloat)
+-find_package(Fmt)
+-find_package(RapidJSON)
+-find_package(Small)
+-find_package(UtfCpp)
+-find_package(WideInteger)
+-
+ find_package(Threads)
+ find_package(PkgConfig QUIET)
+ 
+@@ -493,19 +504,24 @@ if(ENABLE_MAC)
+     tr_fixup_auto_option(ENABLE_MAC MAC_FOUND MAC_IS_REQUIRED)
+ endif()
+ 
++# Don't build libdeflate as subdirectory as its CMakeLists.txt
++# messes with global CMAKE_* variables and global compiler options
+ if(WIN32 AND NOT MINGW)
+     set(DEFLATE_LIB_NAME deflatestatic)
+ else()
+     set(DEFLATE_LIB_NAME deflate)
+ endif()
+-tr_add_external_auto_library(DEFLATE libdeflate ${DEFLATE_LIB_NAME}
+-    TARGET deflate::deflate
++tr_add_external_auto_library(DEFLATE libdeflate
++    LIBNAME ${DEFLATE_LIB_NAME}
++    TARGET libdeflate::libdeflate
+     CMAKE_ARGS
+         -DLIBDEFLATE_BUILD_SHARED_LIB=OFF
+         -DLIBDEFLATE_BUILD_GZIP=OFF)
+ 
+-tr_add_external_auto_library(EVENT2 libevent event
+-    TARGET libevent::event
++tr_add_external_auto_library(EVENT2 Libevent
++    SUBPROJECT
++    SOURCE_DIR libevent
++    COMPONENTS core extra
+     CMAKE_ARGS
+         -DEVENT__DISABLE_OPENSSL:BOOL=ON
+         -DEVENT__DISABLE_BENCHMARK:BOOL=ON
+@@ -513,8 +529,14 @@ tr_add_external_auto_library(EVENT2 libevent event
+         -DEVENT__DISABLE_REGRESS:BOOL=ON
+         -DEVENT__DISABLE_SAMPLES:BOOL=ON
+         -DEVENT__LIBRARY_TYPE:STRING=STATIC)
++# Workaround, perm fix: https://github.com/libevent/libevent/pull/1791
++if(NOT TARGET libevent::core)
++    add_library(libevent::core ALIAS event_core)
++    add_library(libevent::extra ALIAS event_extra)
++endif()
+ 
+-tr_add_external_auto_library(NATPMP libnatpmp natpmp
++tr_add_external_auto_library(NATPMP libnatpmp
++    LIBNAME natpmp
+     TARGET natpmp::natpmp
+     CMAKE_ARGS
+         -DBUILD_SHARED_LIBS=OFF)
+@@ -530,14 +552,16 @@ if(WIN32)
+ else()
+     set(TR_MINIUPNPC_LIBNAME miniupnpc)
+ endif()
+-tr_add_external_auto_library(MINIUPNPC miniupnp/miniupnpc ${TR_MINIUPNPC_LIBNAME}
+-    TARGET miniupnpc::libminiupnpc
++tr_add_external_auto_library(MINIUPNPC miniupnpc
++    LIBNAME ${TR_MINIUPNPC_LIBNAME}
++    SOURCE_DIR miniupnp/miniupnpc
++    TARGET miniupnpc::miniupnpc
+     CMAKE_ARGS
+         -DUPNPC_BUILD_STATIC=ON
+         -DUPNPC_BUILD_SHARED=OFF
+         -DUPNPC_BUILD_TESTS=OFF)
+ if(NOT USE_SYSTEM_MINIUPNPC)
+-    target_compile_definitions(miniupnpc::libminiupnpc
++    target_compile_definitions(miniupnpc::miniupnpc
+         INTERFACE
+             MINIUPNP_STATICLIB)
+ endif()
+@@ -546,26 +570,87 @@ unset(TR_MINIUPNPC_LIBNAME)
+ add_subdirectory(${TR_THIRD_PARTY_SOURCE_DIR}/madler-crcany)
+ add_subdirectory(${TR_THIRD_PARTY_SOURCE_DIR}/wildmat)
+ 
+-tr_add_external_auto_library(DHT dht dht
++tr_add_external_auto_library(DHT dht
++    LIBNAME dht
+     TARGET dht::dht)
+ 
+-tr_add_external_auto_library(PSL libpsl psl
++tr_add_external_auto_library(PSL libpsl
++    LIBNAME psl
+     TARGET psl::psl)
+ 
+ if(ENABLE_UTP)
+-    tr_add_external_auto_library(UTP libutp utp
++    tr_add_external_auto_library(UTP libutp
+         SUBPROJECT
+-        TARGET libutp::libutp
+         CMAKE_ARGS
+             -DLIBUTP_SHARED:BOOL=OFF)
+ endif()
+ 
+-tr_add_external_auto_library(B64 libb64 b64
++tr_add_external_auto_library(B64 libb64
+     SUBPROJECT
+-    TARGET libb64::libb64
+     CMAKE_ARGS
+         -DLIBB64_SHARED:BOOL=OFF)
+ 
++tr_add_external_auto_library(FAST_FLOAT FastFloat
++    SUBPROJECT
++    SOURCE_DIR fast_float
++    CMAKE_ARGS
++        -DFASTFLOAT_INSTALL=OFF
++        -DFASTFLOAT_TEST=OFF
++        -DFASTFLOAT_SANITIZE=OFF
++        -DFASTFLOAT_CXX_STANDARD=${CMAKE_CXX_STANDARD})
++
++tr_add_external_auto_library(FMT fmt
++    SUBPROJECT
++    CMAKE_ARGS
++        -DFMT_INSTALL=OFF
++        -DFMT_SYSTEM_HEADERS=ON)
++
++# RapidJSON's CMakeLists.txt messes with global
++# CMAKE_* variables, so don't build as subproject
++tr_add_external_auto_library(RAPIDJSON RapidJSON
++    LIBNAME RapidJSON
++    SOURCE_DIR rapidjson
++    TARGET RapidJSON
++    HEADER_ONLY
++    CMAKE_ARGS
++        -DRAPIDJSON_BUILD_DOC=OFF
++        -DRAPIDJSON_BUILD_EXAMPLES=OFF
++        -DRAPIDJSON_BUILD_TESTS=OFF
++        -DRAPIDJSON_BUILD_CXX11=OFF
++        -DRAPIDJSON_BUILD_CXX17=OFF
++        -DCMAKE_INSTALL_DIR=OFF)
++
++tr_add_external_auto_library(SMALL small
++    SUBPROJECT
++    CMAKE_ARGS
++        -DSMALL_BUILD_WITH_EXCEPTIONS=OFF)
++
++tr_add_external_auto_library(UTF8CPP utf8cpp
++    SUBPROJECT
++    SOURCE_DIR utfcpp)
++if (NOT TARGET utf8::cpp)
++    add_library(utf8::cpp ALIAS utf8cpp)
++endif()
++
++tr_add_external_auto_library(WIDE_INTEGER WideInteger
++    SUBPROJECT
++    SOURCE_DIR wide-integer)
++add_library(transmission::WideInteger INTERFACE IMPORTED)
++target_link_libraries(transmission::WideInteger
++    INTERFACE
++        WideInteger::WideInteger)
++include(CheckCXXSourceCompiles)
++check_cxx_source_compiles(
++"int main()
++{
++    unsigned __int128 u;
++    signed __int128 i;
++    return 0;
++}" TR_HAVE_INT128)
++target_compile_definitions(transmission::WideInteger
++    INTERFACE
++        $<$<BOOL:${TR_HAVE_INT128}>:WIDE_INTEGER_HAS_LIMB_TYPE_UINT64>)
++
+ set(TR_WEB_ASSETS ${PROJECT_SOURCE_DIR}/web/public_html)
+ if(REBUILD_WEB)
+     tr_get_required_flag(REBUILD_WEB NPM_IS_REQUIRED)
+diff --git a/cmake/FindB64.cmake b/cmake/FindB64.cmake
+deleted file mode 100644
+index e015e76..0000000
+--- a/cmake/FindB64.cmake
++++ /dev/null
+@@ -1,39 +0,0 @@
+-if(B64_PREFER_STATIC_LIB)
+-    set(B64_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-if(UNIX)
+-    find_package(PkgConfig QUIET)
+-    pkg_check_modules(_B64 QUIET libb64)
+-endif()
+-
+-find_path(B64_INCLUDE_DIR
+-    NAMES
+-        b64/cdecode.h
+-        b64/cencode.h
+-    HINTS ${_B64_INCLUDEDIR})
+-find_library(B64_LIBRARY
+-    NAMES b64
+-    HINTS ${_B64_LIBDIR})
+-
+-set(B64_INCLUDE_DIRS ${B64_INCLUDE_DIR})
+-set(B64_LIBRARIES ${B64_LIBRARY})
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(B64
+-    REQUIRED_VARS
+-        B64_LIBRARY
+-        B64_INCLUDE_DIR)
+-
+-mark_as_advanced(B64_INCLUDE_DIR B64_LIBRARY)
+-
+-if(B64_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${B64_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(B64_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindCRC32C.cmake b/cmake/FindCRC32C.cmake
+deleted file mode 100644
+index 7dbe24d..0000000
+--- a/cmake/FindCRC32C.cmake
++++ /dev/null
+@@ -1,30 +0,0 @@
+-if(CRC32C_PREFER_STATIC_LIB)
+-    set(CRC32C_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-find_path(CRC32C_INCLUDE_DIR
+-    NAMES crc32c/crc32c.h)
+-find_library(CRC32C_LIBRARY
+-    NAMES crc32c)
+-
+-set(CRC32C_INCLUDE_DIRS ${CRC32C_INCLUDE_DIR})
+-set(CRC32C_LIBRARIES ${CRC32C_LIBRARY})
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(CRC32C
+-    REQUIRED_VARS
+-        CRC32C_INCLUDE_DIR
+-        CRC32C_LIBRARY)
+-
+-mark_as_advanced(CRC32C_INCLUDE_DIR CRC32C_LIBRARY)
+-
+-if(CRC32C_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CRC32C_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(CRC32C_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindDEFLATE.cmake b/cmake/FindDEFLATE.cmake
+deleted file mode 100644
+index e57d84b..0000000
+--- a/cmake/FindDEFLATE.cmake
++++ /dev/null
+@@ -1,49 +0,0 @@
+-if(DEFLATE_PREFER_STATIC_LIB)
+-    set(DEFLATE_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-if(UNIX)
+-    find_package(PkgConfig QUIET)
+-    # pkg-config support added in libdeflate v1.9
+-    pkg_check_modules(_DEFLATE QUIET libdeflate)
+-endif()
+-
+-find_path(DEFLATE_INCLUDE_DIR
+-    NAMES libdeflate.h
+-    HINTS ${_DEFLATE_INCLUDEDIR})
+-find_library(DEFLATE_LIBRARY
+-    NAMES deflate
+-    HINTS ${_DEFLATE_LIBDIR})
+-
+-set(DEFLATE_INCLUDE_DIRS ${DEFLATE_INCLUDE_DIR})
+-set(DEFLATE_LIBRARIES ${DEFLATE_LIBRARY})
+-
+-if(_DEFLATE_VERSION)
+-    set(DEFLATE_VERSION ${_DEFLATE_VERSION})
+-elseif(DEFLATE_INCLUDE_DIR)
+-    file(STRINGS "${DEFLATE_INCLUDE_DIR}/libdeflate.h" DEFLATE_VERSION_STR
+-        REGEX "^#define[\t ]+LIBDEFLATE_VERSION_STRING[\t ]+\"[^\"]+\"")
+-    if(DEFLATE_VERSION_STR MATCHES "\"([^\"]+)\"")
+-        set(DEFLATE_VERSION "${CMAKE_MATCH_1}")
+-    endif()
+-endif()
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(DEFLATE
+-    REQUIRED_VARS
+-        DEFLATE_INCLUDE_DIR
+-        DEFLATE_LIBRARY
+-    VERSION_VAR DEFLATE_VERSION)
+-
+-mark_as_advanced(DEFLATE_INCLUDE_DIR DEFLATE_LIBRARY)
+-
+-if(DEFLATE_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${DEFLATE_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(DEFLATE_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindDHT.cmake b/cmake/FindDHT.cmake
+deleted file mode 100644
+index 23bb44c..0000000
+--- a/cmake/FindDHT.cmake
++++ /dev/null
+@@ -1,37 +0,0 @@
+-if(DHT_PREFER_STATIC_LIB)
+-    set(DHT_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-if(UNIX)
+-    find_package(PkgConfig QUIET)
+-    pkg_check_modules(_DHT QUIET libdht)
+-endif()
+-
+-find_path(DHT_INCLUDE_DIR
+-    NAMES dht/dht.h
+-    HINTS ${_DHT_INCLUDEDIR})
+-find_library(DHT_LIBRARY
+-    NAMES dht
+-    HINTS ${_DHT_LIBDIR})
+-
+-set(DHT_INCLUDE_DIRS ${DHT_INCLUDE_DIR})
+-set(DHT_LIBRARIES ${DHT_LIBRARY})
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(DHT
+-    REQUIRED_VARS
+-        DHT_LIBRARY
+-        DHT_INCLUDE_DIR)
+-
+-mark_as_advanced(DHT_INCLUDE_DIR DHT_LIBRARY)
+-
+-if(DHT_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${DHT_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(DHT_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindEVENT2.cmake b/cmake/FindEVENT2.cmake
+deleted file mode 100644
+index 22a160a..0000000
+--- a/cmake/FindEVENT2.cmake
++++ /dev/null
+@@ -1,52 +0,0 @@
+-if(EVENT2_PREFER_STATIC_LIB)
+-    set(EVENT2_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-if(UNIX)
+-    find_package(PkgConfig QUIET)
+-    pkg_check_modules(_EVENT2 QUIET libevent)
+-endif()
+-
+-find_path(EVENT2_INCLUDE_DIR
+-    NAMES event2/event.h
+-    HINTS ${_EVENT2_INCLUDEDIR})
+-find_library(EVENT2_LIBRARY
+-    NAMES
+-        event-2.1
+-        event
+-    HINTS ${_EVENT2_LIBDIR})
+-
+-if(EVENT2_INCLUDE_DIR)
+-    if(_EVENT2_VERSION)
+-        set(EVENT2_VERSION ${_EVENT2_VERSION})
+-    else()
+-        file(STRINGS "${EVENT2_INCLUDE_DIR}/event2/event-config.h" EVENT2_VERSION_STR
+-            REGEX "^#define[\t ]+_EVENT_VERSION[\t ]+\"[^\"]+\"")
+-        if(EVENT2_VERSION_STR MATCHES "\"([^\"]+)\"")
+-            set(EVENT2_VERSION "${CMAKE_MATCH_1}")
+-        endif()
+-    endif()
+-endif()
+-
+-set(EVENT2_INCLUDE_DIRS ${EVENT2_INCLUDE_DIR})
+-set(EVENT2_LIBRARIES ${EVENT2_LIBRARY})
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(EVENT2
+-    REQUIRED_VARS
+-        EVENT2_LIBRARY
+-        EVENT2_INCLUDE_DIR
+-    VERSION_VAR EVENT2_VERSION)
+-
+-mark_as_advanced(EVENT2_INCLUDE_DIR EVENT2_LIBRARY)
+-
+-if(EVENT2_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${EVENT2_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(EVENT2_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindFastFloat.cmake b/cmake/FindFastFloat.cmake
+deleted file mode 100644
+index a3cea4a..0000000
+--- a/cmake/FindFastFloat.cmake
++++ /dev/null
+@@ -1,5 +0,0 @@
+-add_library(FastFloat::fast_float INTERFACE IMPORTED)
+-
+-target_include_directories(FastFloat::fast_float
+-    INTERFACE
+-        ${TR_THIRD_PARTY_SOURCE_DIR}/fast_float/include)
+diff --git a/cmake/FindFmt.cmake b/cmake/FindFmt.cmake
+deleted file mode 100644
+index 8b531e8..0000000
+--- a/cmake/FindFmt.cmake
++++ /dev/null
+@@ -1,26 +0,0 @@
+-add_library(fmt::fmt-header-only INTERFACE IMPORTED)
+-
+-set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE "${TR_THIRD_PARTY_SOURCE_DIR}/fmt/include")
+-
+-target_include_directories(fmt::fmt-header-only
+-    INTERFACE
+-        ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE})
+-
+-set(_FMT_VERSION_H_PATH "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE}/fmt/base.h")
+-if(NOT EXISTS "${_FMT_VERSION_H_PATH}")
+-    # fmt < 11
+-    set(_FMT_VERSION_H_PATH "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE}/fmt/core.h")
+-endif()
+-file(READ "${_FMT_VERSION_H_PATH}" _FMT_VERSION_H)
+-if(_FMT_VERSION_H MATCHES "FMT_VERSION ([0-9]+)([0-9][0-9])([0-9][0-9])")
+-    # Use math to skip leading zeros if any.
+-    math(EXPR _FMT_VERSION_MAJOR ${CMAKE_MATCH_1})
+-    math(EXPR _FMT_VERSION_MINOR ${CMAKE_MATCH_2})
+-    math(EXPR _FMT_VERSION_PATCH ${CMAKE_MATCH_3})
+-    set(${CMAKE_FIND_PACKAGE_NAME}_VERSION "${_FMT_VERSION_MAJOR}.${_FMT_VERSION_MINOR}.${_FMT_VERSION_PATCH}")
+-endif()
+-
+-target_compile_definitions(fmt::fmt-header-only
+-    INTERFACE
+-        $<IF:$<VERSION_GREATER_EQUAL:${${CMAKE_FIND_PACKAGE_NAME}_VERSION},11.2.0>,FMT_USE_EXCEPTIONS,FMT_EXCEPTIONS>=0
+-        FMT_HEADER_ONLY=1)
+diff --git a/cmake/FindLibevent.cmake b/cmake/FindLibevent.cmake
+new file mode 100644
+index 0000000..41bc696
+--- /dev/null
++++ b/cmake/FindLibevent.cmake
+@@ -0,0 +1,89 @@
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(LIBEVENT_STATIC_LINK TRUE)
++endif()
++find_package(${CMAKE_FIND_PACKAGE_NAME} QUIET NO_MODULE)
++
++include(FindPackageHandleStandardArgs)
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME} CONFIG_MODE HANDLE_COMPONENTS)
++    return()
++endif()
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++endif()
++
++foreach(_comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
++    if(UNIX)
++        pkg_check_modules(_EVENT2_${_comp} QUIET libevent-${_comp})
++
++        if(_EVENT2_${_comp}_VERSION AND NOT ${CMAKE_FIND_PACKAGE_NAME}_VERSION)
++            set(${CMAKE_FIND_PACKAGE_NAME}_VERSION ${_EVENT2_${_comp}_VERSION})
++        endif()
++    endif()
++
++    # All components share the same include directory
++    find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++        NAMES event2/event.h
++        HINTS ${_EVENT2_${_comp}_INCLUDEDIR})
++
++    find_library(${CMAKE_FIND_PACKAGE_NAME}_${_comp}_LIBRARY
++        NAMES "event_${_comp}"
++        HINTS ${_EVENT2_${_comp}_LIBDIR})
++
++    mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_${_comp}_LIBRARY)
++
++    set(${CMAKE_FIND_PACKAGE_NAME}_${_comp}_FOUND FALSE)
++    if(${CMAKE_FIND_PACKAGE_NAME}_${_comp}_LIBRARY)
++        set(${CMAKE_FIND_PACKAGE_NAME}_${_comp}_FOUND TRUE)
++    endif()
++endforeach()
++
++if(NOT ${CMAKE_FIND_PACKAGE_NAME}_VERSION AND ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++    file(STRINGS "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}/event2/event-config.h" _EVENT_VERSION_STR
++        REGEX "^#define[\t ]+EVENT__VERSION[\t ]+\"[^\"]+\"")
++    if(_EVENT_VERSION_STR MATCHES "\"([^\"]+)\"")
++        set(${CMAKE_FIND_PACKAGE_NAME}_VERSION "${CMAKE_MATCH_1}")
++    endif()
++endif()
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    HANDLE_COMPONENTS
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    VERSION_VAR ${CMAKE_FIND_PACKAGE_NAME}_VERSION)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++
++    set(${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES)
++    foreach(_comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
++        if(NOT TARGET libevent::${_comp})
++            add_library(libevent::${_comp} INTERFACE IMPORTED)
++            target_include_directories(libevent::${_comp}
++                INTERFACE
++                    ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++            target_link_libraries(libevent::${_comp}
++                INTERFACE
++                    ${${CMAKE_FIND_PACKAGE_NAME}_${_comp}_LIBRARY})
++        endif()
++
++        list(APPEND ${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES libevent::${_comp})
++    endforeach()
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/FindMINIUPNPC.cmake b/cmake/FindMINIUPNPC.cmake
+deleted file mode 100644
+index e15af67..0000000
+--- a/cmake/FindMINIUPNPC.cmake
++++ /dev/null
+@@ -1,39 +0,0 @@
+-if(MINIUPNPC_PREFER_STATIC_LIB)
+-    set(MINIUPNPC_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-if(UNIX)
+-    find_package(PkgConfig QUIET)
+-    pkg_check_modules(_MINIUPNPC QUIET libminiupnpc)
+-endif()
+-
+-find_path(MINIUPNPC_INCLUDE_DIR
+-    NAMES miniupnpc/miniupnpc.h
+-    HINTS ${_MINIUPNPC_INCLUDEDIR})
+-find_library(MINIUPNPC_LIBRARY
+-    NAMES
+-        miniupnpc
+-        libminiupnpc
+-    HINTS ${_MINIUPNPC_LIBDIR})
+-
+-set(MINIUPNPC_INCLUDE_DIRS ${MINIUPNPC_INCLUDE_DIR})
+-set(MINIUPNPC_LIBRARIES ${MINIUPNPC_LIBRARY})
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(MINIUPNPC
+-    REQUIRED_VARS
+-        MINIUPNPC_LIBRARY
+-        MINIUPNPC_INCLUDE_DIR)
+-
+-mark_as_advanced(MINIUPNPC_INCLUDE_DIR MINIUPNPC_LIBRARY)
+-
+-if(MINIUPNPC_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${MINIUPNPC_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(MINIUPNPC_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindNATPMP.cmake b/cmake/FindNATPMP.cmake
+deleted file mode 100644
+index 3fdaec9..0000000
+--- a/cmake/FindNATPMP.cmake
++++ /dev/null
+@@ -1,37 +0,0 @@
+-if(NATPMP_PREFER_STATIC_LIB)
+-    set(NATPMP_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-if(UNIX)
+-    find_package(PkgConfig QUIET)
+-    pkg_check_modules(_NATPMP QUIET libnatpmp)
+-endif()
+-
+-find_path(NATPMP_INCLUDE_DIR
+-    NAMES natpmp.h
+-    HINTS ${_NATPMP_INCLUDEDIR})
+-find_library(NATPMP_LIBRARY
+-    NAMES natpmp
+-    HINTS ${_NATPMP_LIBDIR})
+-
+-set(NATPMP_INCLUDE_DIRS ${NATPMP_INCLUDE_DIR})
+-set(NATPMP_LIBRARIES ${NATPMP_LIBRARY})
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(NATPMP
+-    REQUIRED_VARS
+-        NATPMP_LIBRARY
+-        NATPMP_INCLUDE_DIR)
+-
+-mark_as_advanced(NATPMP_INCLUDE_DIR NATPMP_LIBRARY)
+-
+-if(NATPMP_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${NATPMP_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(NATPMP_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindPSL.cmake b/cmake/FindPSL.cmake
+deleted file mode 100644
+index b0a6ceb..0000000
+--- a/cmake/FindPSL.cmake
++++ /dev/null
+@@ -1,37 +0,0 @@
+-if(PSL_PREFER_STATIC_LIB)
+-    set(PSL_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-if(UNIX)
+-    find_package(PkgConfig QUIET)
+-    pkg_check_modules(_PSL QUIET libpsl)
+-endif()
+-
+-find_path(PSL_INCLUDE_DIR
+-    NAMES libpsl.h
+-    HINTS ${_PSL_INCLUDEDIR})
+-find_library(PSL_LIBRARY
+-    NAMES psl
+-    HINTS ${_PSL_LIBDIR})
+-
+-set(PSL_INCLUDE_DIRS ${PSL_INCLUDE_DIR})
+-set(PSL_LIBRARIES ${PSL_LIBRARY})
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(PSL
+-    REQUIRED_VARS
+-        PSL_LIBRARY
+-        PSL_INCLUDE_DIR)
+-
+-mark_as_advanced(PSL_INCLUDE_DIR PSL_LIBRARY)
+-
+-if(PSL_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${PSL_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(PSL_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindRapidJSON.cmake b/cmake/FindRapidJSON.cmake
+index aec9374..f434365 100644
+--- a/cmake/FindRapidJSON.cmake
++++ b/cmake/FindRapidJSON.cmake
+@@ -1,9 +1,37 @@
+-add_library(RapidJSON INTERFACE IMPORTED)
++find_package(${CMAKE_FIND_PACKAGE_NAME} QUIET NO_MODULE)
+ 
+-target_include_directories(RapidJSON
+-    INTERFACE
+-        ${TR_THIRD_PARTY_SOURCE_DIR}/rapidjson/include)
++include(FindPackageHandleStandardArgs)
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME} CONFIG_MODE)
++    return()
++endif()
+ 
+-target_compile_definitions(RapidJSON
+-    INTERFACE
+-        RAPIDJSON_HAS_STDSTRING=1)
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    pkg_check_modules(_RAPIDJSON QUIET RapidJSON)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES rapidjson/rapidjson.h
++    HINTS ${_RAPIDJSON_INCLUDEDIR})
++
++if(_RAPIDJSON_VERSION)
++    set(${CMAKE_FIND_PACKAGE_NAME}_VERSION ${_RAPIDJSON_VERSION})
++endif()
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    VERSION_VAR ${CMAKE_FIND_PACKAGE_NAME}_VERSION)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++
++    if(NOT TARGET RapidJSON)
++        add_library(RapidJSON INTERFACE IMPORTED)
++        target_include_directories(RapidJSON
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    endif()
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
+diff --git a/cmake/FindSmall.cmake b/cmake/FindSmall.cmake
+deleted file mode 100644
+index 0a1f3b9..0000000
+--- a/cmake/FindSmall.cmake
++++ /dev/null
+@@ -1,9 +0,0 @@
+-add_library(small::small INTERFACE IMPORTED)
+-
+-target_include_directories(small::small
+-    INTERFACE
+-        ${TR_THIRD_PARTY_SOURCE_DIR}/small/include)
+-
+-target_compile_definitions(small::small
+-    INTERFACE
+-        SMALL_DISABLE_EXCEPTIONS=1)
+diff --git a/cmake/FindUTP.cmake b/cmake/FindUTP.cmake
+deleted file mode 100644
+index d86e455..0000000
+--- a/cmake/FindUTP.cmake
++++ /dev/null
+@@ -1,84 +0,0 @@
+-if(UTP_PREFER_STATIC_LIB)
+-    set(UTP_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    if(WIN32)
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    else()
+-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+-    endif()
+-endif()
+-
+-if(UNIX)
+-    find_package(PkgConfig QUIET)
+-    pkg_check_modules(_UTP QUIET libutp)
+-endif()
+-
+-find_path(UTP_INCLUDE_DIR
+-    NAMES libutp/utp.h
+-    HINTS ${_UTP_INCLUDEDIR})
+-find_library(UTP_LIBRARY
+-    NAMES utp
+-    HINTS ${_UTP_LIBDIR})
+-
+-if(UTP_INCLUDE_DIR AND UTP_LIBRARY)
+-    include(CheckCXXSymbolExists)
+-
+-    set(_UTP_FUNCS
+-        utp_check_timeouts
+-        utp_close
+-        utp_connect
+-        utp_context_get_userdata
+-        utp_context_set_option
+-        utp_context_set_userdata
+-        utp_create_socket
+-        utp_destroy
+-        utp_getpeername
+-        utp_get_userdata
+-        utp_init
+-        utp_issue_deferred_acks
+-        utp_process_udp
+-        utp_read_drained
+-        utp_set_callback
+-        utp_set_userdata
+-        utp_write
+-        utp_writev)
+-
+-    set(_UTP_OLD_CMAKE_REQUIRED_INCLUDES "${CMAKE_REQUIRED_INCLUDES}")
+-    set(_UTP_OLD_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
+-    set(_UTP_OLD_CMAKE_REQUIRED_QUIET "${CMAKE_REQUIRED_QUIET}")
+-
+-    set(CMAKE_REQUIRED_INCLUDES "${UTP_INCLUDE_DIR}")
+-    set(CMAKE_REQUIRED_LIBRARIES "${UTP_LIBRARY}")
+-    set(CMAKE_REQUIRED_QUIET ON)
+-
+-    foreach(_UTP_FUNC IN LISTS _UTP_FUNCS)
+-        string(MAKE_C_IDENTIFIER "HAVE_${_UTP_FUNC}" _UTP_FUNC_VAR)
+-        string(TOUPPER "${_UTP_FUNC_VAR}" _UTP_FUNC_VAR)
+-        check_cxx_symbol_exists(${_UTP_FUNC} libutp/utp.h ${_UTP_FUNC_VAR})
+-        if(NOT ${_UTP_FUNC_VAR})
+-            unset(UTP_INCLUDE_DIR CACHE)
+-            unset(UTP_LIBRARY CACHE)
+-            break()
+-        endif()
+-    endforeach()
+-
+-    set(CMAKE_REQUIRED_INCLUDES "${_UTP_OLD_CMAKE_REQUIRED_INCLUDES}")
+-    set(CMAKE_REQUIRED_LIBRARIES "${_UTP_OLD_CMAKE_REQUIRED_LIBRARIES}")
+-    set(CMAKE_REQUIRED_QUIET "${_UTP_OLD_CMAKE_REQUIRED_QUIET}")
+-endif()
+-
+-set(UTP_INCLUDE_DIRS ${UTP_INCLUDE_DIR})
+-set(UTP_LIBRARIES ${UTP_LIBRARY})
+-
+-include(FindPackageHandleStandardArgs)
+-
+-find_package_handle_standard_args(UTP
+-    REQUIRED_VARS
+-        UTP_LIBRARY
+-        UTP_INCLUDE_DIR)
+-
+-mark_as_advanced(UTP_INCLUDE_DIR UTP_LIBRARY)
+-
+-if(UTP_PREFER_STATIC_LIB)
+-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${UTP_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+-    unset(UTP_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
+-endif()
+diff --git a/cmake/FindUtfCpp.cmake b/cmake/FindUtfCpp.cmake
+deleted file mode 100644
+index f79085a..0000000
+--- a/cmake/FindUtfCpp.cmake
++++ /dev/null
+@@ -1,5 +0,0 @@
+-add_library(utf8::cpp INTERFACE IMPORTED)
+-
+-target_include_directories(utf8::cpp
+-    INTERFACE
+-        ${TR_THIRD_PARTY_SOURCE_DIR}/utfcpp/source)
+diff --git a/cmake/FindWideInteger.cmake b/cmake/FindWideInteger.cmake
+deleted file mode 100644
+index 87494b0..0000000
+--- a/cmake/FindWideInteger.cmake
++++ /dev/null
+@@ -1,21 +0,0 @@
+-add_library(WideInteger::WideInteger INTERFACE IMPORTED)
+-
+-target_include_directories(WideInteger::WideInteger
+-    INTERFACE
+-        ${TR_THIRD_PARTY_SOURCE_DIR}/wide-integer)
+-
+-set(_INT128_TEST_FILE ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/CheckInt128.c)
+-file(WRITE ${_INT128_TEST_FILE}
+-    "int main()
+-    {
+-        unsigned __int128 u;
+-        signed __int128 i;
+-        return 0;
+-    }")
+-try_compile(_HAVE_INT128
+-    ${CMAKE_BINARY_DIR}
+-    ${_INT128_TEST_FILE})
+-target_compile_definitions(WideInteger::WideInteger
+-    INTERFACE
+-        $<$<BOOL:${_HAVE_INT128}>:WIDE_INTEGER_HAS_LIMB_TYPE_UINT64>
+-)
+diff --git a/cmake/Finddht.cmake b/cmake/Finddht.cmake
+new file mode 100644
+index 0000000..c22802f
+--- /dev/null
++++ b/cmake/Finddht.cmake
+@@ -0,0 +1,39 @@
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    pkg_check_modules(_DHT QUIET libdht)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES dht/dht.h
++    HINTS ${_DHT_INCLUDEDIR})
++find_library(${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++    NAMES dht
++    HINTS ${_DHT_LIBDIR})
++
++include(FindPackageHandleStandardArgs)
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    set(${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/Findfmt.cmake b/cmake/Findfmt.cmake
+new file mode 100644
+index 0000000..c748086
+--- /dev/null
++++ b/cmake/Findfmt.cmake
+@@ -0,0 +1,71 @@
++find_package(${CMAKE_FIND_PACKAGE_NAME} QUIET NO_MODULE)
++
++include(FindPackageHandleStandardArgs)
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME} CONFIG_MODE)
++    return()
++endif()
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    pkg_check_modules(_FMT QUIET fmt)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES fmt/core.h
++    HINTS ${_FMT_INCLUDEDIR})
++
++if(_FMT_VERSION)
++    set(${CMAKE_FIND_PACKAGE_NAME}_VERSION ${_FMT_VERSION})
++elseif(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++    set(_FMT_VERSION_H_PATH "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}/fmt/base.h")
++    if(NOT EXISTS "${_FMT_VERSION_H_PATH}")
++        # fmt < 11
++        set(_FMT_VERSION_H_PATH "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}/fmt/core.h")
++    endif()
++    file(READ "${_FMT_VERSION_H_PATH}" _FMT_VERSION_H)
++    if(_FMT_VERSION_H MATCHES "FMT_VERSION ([0-9]+)([0-9][0-9])([0-9][0-9])")
++        # Use math to skip leading zeros if any.
++        math(EXPR _FMT_VERSION_MAJOR ${CMAKE_MATCH_1})
++        math(EXPR _FMT_VERSION_MINOR ${CMAKE_MATCH_2})
++        math(EXPR _FMT_VERSION_PATCH ${CMAKE_MATCH_3})
++        set(${CMAKE_FIND_PACKAGE_NAME}_VERSION "${_FMT_VERSION_MAJOR}.${_FMT_VERSION_MINOR}.${_FMT_VERSION_PATCH}")
++    endif()
++endif()
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    VERSION_VAR ${CMAKE_FIND_PACKAGE_NAME}_VERSION)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++
++    if(NOT TARGET fmt::fmt-header-only)
++        add_library(fmt::fmt-header-only INTERFACE IMPORTED)
++        target_compile_definitions(fmt::fmt-header-only-only INTERFACE FMT_HEADER_ONLY=1)
++        target_compile_features(fmt::fmt-header-only-only INTERFACE cxx_std_11)
++        target_include_directories(fmt::fmt-header-only
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++        if(MSVC)
++            target_compile_options(fmt::fmt-header-only INTERFACE $<$<COMPILE_LANGUAGE:CXX>:/utf-8>)
++        endif()
++    endif()
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/Findlibb64.cmake b/cmake/Findlibb64.cmake
+new file mode 100644
+index 0000000..1c2a267
+--- /dev/null
++++ b/cmake/Findlibb64.cmake
+@@ -0,0 +1,51 @@
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    pkg_check_modules(_B64 QUIET libb64)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES
++        b64/cdecode.h
++        b64/cencode.h
++    HINTS ${_B64_INCLUDEDIR})
++find_library(${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++    NAMES b64
++    HINTS ${_B64_LIBDIR})
++
++include(FindPackageHandleStandardArgs)
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    set(${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++
++    if(NOT TARGET libb64::libb64)
++        add_library(libb64::libb64 INTERFACE IMPORTED)
++        target_include_directories(libb64::libb64
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++        target_link_libraries(libb64::libb64
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++    endif()
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/Findlibdeflate.cmake b/cmake/Findlibdeflate.cmake
+new file mode 100644
+index 0000000..1cce4da
+--- /dev/null
++++ b/cmake/Findlibdeflate.cmake
+@@ -0,0 +1,73 @@
++find_package(${CMAKE_FIND_PACKAGE_NAME} QUIET NO_MODULE)
++
++include(FindPackageHandleStandardArgs)
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    if(TARGET libdeflate::libdeflate_static AND (${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB OR NOT TARGET libdeflate::libdeflate_shared))
++        add_library(libdeflate::libdeflate ALIAS libdeflate::libdeflate_static)
++    else()
++        add_library(libdeflate::libdeflate ALIAS libdeflate::libdeflate_shared)
++    endif()
++
++    find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME} CONFIG_MODE)
++    return()
++endif()
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    # pkg-config support added in libdeflate v1.9
++    pkg_check_modules(_DEFLATE QUIET libdeflate)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES libdeflate.h
++    HINTS ${_DEFLATE_INCLUDEDIR})
++find_library(${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++    NAMES deflate
++    HINTS ${_DEFLATE_LIBDIR})
++
++if(_DEFLATE_VERSION)
++    set(${CMAKE_FIND_PACKAGE_NAME}_VERSION ${_DEFLATE_VERSION})
++elseif(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++    file(STRINGS "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}/libdeflate.h" ${CMAKE_FIND_PACKAGE_NAME}_VERSION_STR
++        REGEX "^#define[\t ]+LIBDEFLATE_VERSION_STRING[\t ]+\"[^\"]+\"")
++    if(${CMAKE_FIND_PACKAGE_NAME}_VERSION_STR MATCHES "\"([^\"]+)\"")
++        set(${CMAKE_FIND_PACKAGE_NAME}_VERSION "${CMAKE_MATCH_1}")
++    endif()
++endif()
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++        ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++    VERSION_VAR ${CMAKE_FIND_PACKAGE_NAME}_VERSION)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    set(${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++
++    if(NOT TARGET libdeflate::libdeflate)
++        add_library(libdeflate::libdeflate INTERFACE IMPORTED)
++        target_include_directories(libdeflate::libdeflate
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++        target_link_libraries(libdeflate::libdeflate
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++    endif()
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/Findlibnatpmp.cmake b/cmake/Findlibnatpmp.cmake
+new file mode 100644
+index 0000000..ea6cc07
+--- /dev/null
++++ b/cmake/Findlibnatpmp.cmake
+@@ -0,0 +1,39 @@
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    pkg_check_modules(_NATPMP QUIET libnatpmp)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES natpmp.h
++    HINTS ${_NATPMP_INCLUDEDIR})
++find_library(${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++    NAMES natpmp
++    HINTS ${_NATPMP_LIBDIR})
++
++include(FindPackageHandleStandardArgs)
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    set(${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/Findlibpsl.cmake b/cmake/Findlibpsl.cmake
+new file mode 100644
+index 0000000..583a525
+--- /dev/null
++++ b/cmake/Findlibpsl.cmake
+@@ -0,0 +1,49 @@
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    pkg_check_modules(_PSL QUIET libpsl)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES libpsl.h
++    HINTS ${_PSL_INCLUDEDIR})
++find_library(${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++    NAMES psl
++    HINTS ${_PSL_LIBDIR})
++
++if(_PSL_VERSION)
++    set(${CMAKE_FIND_PACKAGE_NAME}_VERSION ${_PSL_VERSION})
++elseif(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++    file(STRINGS "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}/libpsl.h" _PSL_VERSION_STR
++        REGEX "^#define[\t ]+PSL_VERSION[\t ]+\"[^\"]+\"")
++    if(_PSL_VERSION_STR MATCHES "\"([^\"]+)\"")
++        set(${CMAKE_FIND_PACKAGE_NAME}_VERSION "${CMAKE_MATCH_1}")
++    endif()
++endif()
++
++include(FindPackageHandleStandardArgs)
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    VERSION_VAR ${CMAKE_FIND_PACKAGE_NAME}_VERSION)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    set(${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/Findlibutp.cmake b/cmake/Findlibutp.cmake
+new file mode 100644
+index 0000000..bb70640
+--- /dev/null
++++ b/cmake/Findlibutp.cmake
+@@ -0,0 +1,94 @@
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    pkg_check_modules(_UTP QUIET libutp)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES libutp/utp.h
++    HINTS ${_UTP_INCLUDEDIR})
++find_library(${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++    NAMES utp
++    HINTS ${_UTP_LIBDIR})
++
++include(CheckCXXSymbolExists)
++
++set(_UTP_FUNCS
++        utp_check_timeouts
++        utp_close
++        utp_connect
++        utp_context_get_userdata
++        utp_context_set_option
++        utp_context_set_userdata
++        utp_create_socket
++        utp_destroy
++        utp_getpeername
++        utp_get_userdata
++        utp_init
++        utp_issue_deferred_acks
++        utp_process_udp
++        utp_read_drained
++        utp_set_callback
++        utp_set_userdata
++        utp_write
++        utp_writev)
++
++set(_UTP_OLD_CMAKE_REQUIRED_INCLUDES "${CMAKE_REQUIRED_INCLUDES}")
++set(_UTP_OLD_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
++set(_UTP_OLD_CMAKE_REQUIRED_QUIET "${CMAKE_REQUIRED_QUIET}")
++
++set(CMAKE_REQUIRED_INCLUDES "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}")
++set(CMAKE_REQUIRED_LIBRARIES "${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY}")
++set(CMAKE_REQUIRED_QUIET ON)
++
++foreach(_UTP_FUNC IN LISTS _UTP_FUNCS)
++    string(MAKE_C_IDENTIFIER "HAVE_${_UTP_FUNC}" _UTP_FUNC_VAR)
++    string(TOUPPER "${_UTP_FUNC_VAR}" _UTP_FUNC_VAR)
++    check_cxx_symbol_exists(${_UTP_FUNC} libutp/utp.h ${_UTP_FUNC_VAR})
++    if(NOT ${_UTP_FUNC_VAR})
++        unset(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR CACHE)
++        unset(${CMAKE_FIND_PACKAGE_NAME}_LIBRARY CACHE)
++        break()
++    endif()
++endforeach()
++
++set(CMAKE_REQUIRED_INCLUDES "${_UTP_OLD_CMAKE_REQUIRED_INCLUDES}")
++set(CMAKE_REQUIRED_LIBRARIES "${_UTP_OLD_CMAKE_REQUIRED_LIBRARIES}")
++set(CMAKE_REQUIRED_QUIET "${_UTP_OLD_CMAKE_REQUIRED_QUIET}")
++
++include(FindPackageHandleStandardArgs)
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    set(${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++
++    if(NOT TARGET libutp::libutp)
++        add_library(libutp::libutp INTERFACE IMPORTED)
++        target_include_directories(libutp::libutp
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++        target_link_libraries(libutp::libutp
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++    endif()
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/Findminiupnpc.cmake b/cmake/Findminiupnpc.cmake
+new file mode 100644
+index 0000000..3f33900
+--- /dev/null
++++ b/cmake/Findminiupnpc.cmake
+@@ -0,0 +1,68 @@
++find_package(${CMAKE_FIND_PACKAGE_NAME} QUIET NO_MODULE)
++
++include(FindPackageHandleStandardArgs)
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME} CONFIG_MODE)
++    return()
++endif()
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    if(WIN32)
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    else()
++        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
++    endif()
++endif()
++
++if(UNIX)
++    find_package(PkgConfig QUIET)
++    pkg_check_modules(_MINIUPNPC QUIET libminiupnpc)
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES miniupnpc/miniupnpc.h
++    HINTS ${_MINIUPNPC_INCLUDEDIR})
++find_library(${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++    NAMES
++        miniupnpc
++        libminiupnpc
++    HINTS ${_MINIUPNPC_LIBDIR})
++
++if(_MINIUPNPC_VERSION)
++    set(${CMAKE_FIND_PACKAGE_NAME}_VERSION ${_MINIUPNPC_VERSION})
++elseif(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++    file(STRINGS "${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR}/miniupnpc/miniupnpc.h" _MINIUPNPC_VERSION_STR
++        REGEX "^#define[\t ]+MINIUPNPC_VERSION[\t ]+\"[^\"]+\"")
++    if(_MINIUPNPC_VERSION_STR MATCHES "\"([^\"]+)\"")
++        set(${CMAKE_FIND_PACKAGE_NAME}_VERSION "${CMAKE_MATCH_1}")
++    endif()
++endif()
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS
++        ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY
++        ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    VERSION_VAR ${CMAKE_FIND_PACKAGE_NAME}_VERSION)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    set(${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++
++    if(NOT TARGET miniupnpc::miniupnpc)
++        add_library(miniupnpc::miniupnpc INTERFACE IMPORTED)
++        target_include_directories(miniupnpc::miniupnpc
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++        target_link_libraries(miniupnpc::miniupnpc
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_LIBRARY})
++    endif()
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR ${CMAKE_FIND_PACKAGE_NAME}_LIBRARY)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_PREFER_STATIC_LIB)
++    set(CMAKE_FIND_LIBRARY_SUFFIXES ${${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
++    unset(${CMAKE_FIND_PACKAGE_NAME}_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
++endif()
+diff --git a/cmake/Findutf8cpp.cmake b/cmake/Findutf8cpp.cmake
+new file mode 100644
+index 0000000..5e6ba54
+--- /dev/null
++++ b/cmake/Findutf8cpp.cmake
+@@ -0,0 +1,34 @@
++find_package(${CMAKE_FIND_PACKAGE_NAME} QUIET NO_MODULE)
++
++include(FindPackageHandleStandardArgs)
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    if(${CMAKE_FIND_PACKAGE_NAME}_VERSION VERSION_LESS 4.0.0)
++        # Before 4.0.0, some compiler options from their tests leaked into the
++        # main target. We workaround by clearing them here.
++        set_property(TARGET utf8cpp PROPERTY INTERFACE_COMPILE_OPTIONS)
++    endif()
++
++    find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME} CONFIG_MODE)
++    return()
++endif()
++
++find_path(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR
++    NAMES utf8.h
++    PATH_SUFFIXES utf8cpp)
++
++find_package_handle_standard_args(${CMAKE_FIND_PACKAGE_NAME}
++    REQUIRED_VARS ${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
++
++if(${CMAKE_FIND_PACKAGE_NAME}_FOUND)
++    set(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIRS ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++
++    if(NOT TARGET utf8::cpp)
++        add_library(utf8::cpp INTERFACE IMPORTED)
++
++        target_include_directories(utf8::cpp
++            INTERFACE
++                ${${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR})
++    endif()
++endif()
++
++mark_as_advanced(${CMAKE_FIND_PACKAGE_NAME}_INCLUDE_DIR)
+diff --git a/cmake/TrGTest.cmake b/cmake/TrGTest.cmake
+new file mode 100644
+index 0000000..edf3d7e
+--- /dev/null
++++ b/cmake/TrGTest.cmake
+@@ -0,0 +1,16 @@
++include(TrMacros)
++
++option(USE_SYSTEM_GTEST "Use system GTest library" OFF)
++
++tr_add_external_auto_library(GTEST GTest
++    SUBPROJECT
++    SOURCE_DIR googletest
++    CMAKE_ARGS
++        -DBUILD_GMOCK=OFF
++        -DINSTALL_GTEST=OFF
++        -DBUILD_SHARED_LIBS=ON)
++
++# The GTest::gtest_main target is new in CMake 3.20
++if(NOT TARGET GTest::gtest_main)
++    add_library(GTest::gtest_main ALIAS GTest::Main)
++endif()
+diff --git a/cmake/TrMacros.cmake b/cmake/TrMacros.cmake
+index 797b655..e56066e 100644
+--- a/cmake/TrMacros.cmake
++++ b/cmake/TrMacros.cmake
+@@ -128,48 +128,78 @@ function(tr_process_list_conditions VAR_PREFIX)
+     set(${VAR_PREFIX}_DISALLOWED "${DISALLOWED_ITEMS}" PARENT_SCOPE)
+ endfunction()
+ 
+-macro(tr_add_external_auto_library ID DIRNAME LIBNAME)
+-    cmake_parse_arguments(_TAEAL_ARG "SUBPROJECT" "TARGET" "CMAKE_ARGS" ${ARGN})
++macro(tr_add_external_auto_library ID PACKAGENAME)
++    cmake_parse_arguments(_TAEAL_ARG
++        "SUBPROJECT;HEADER_ONLY"
++        "LIBNAME;SOURCE_DIR;TARGET"
++        "CMAKE_ARGS;COMPONENTS"
++        ${ARGN})
++
++    set(_TAEAL_SOURCE_DIR "${TR_THIRD_PARTY_SOURCE_DIR}")
++    set(_TAEAL_BINARY_DIR "${TR_THIRD_PARTY_BINARY_DIR}")
++    if (_TAEAL_ARG_SOURCE_DIR)
++        string(APPEND _TAEAL_SOURCE_DIR "/${_TAEAL_ARG_SOURCE_DIR}")
++        string(APPEND _TAEAL_BINARY_DIR "/${_TAEAL_ARG_SOURCE_DIR}.bld")
++    else()
++        string(APPEND _TAEAL_SOURCE_DIR "/${PACKAGENAME}")
++        string(APPEND _TAEAL_BINARY_DIR "/${PACKAGENAME}.bld")
++    endif()
+ 
+     if(USE_SYSTEM_${ID})
+         tr_get_required_flag(USE_SYSTEM_${ID} SYSTEM_${ID}_IS_REQUIRED)
+-        find_package(${ID} ${${ID}_MINIMUM} ${SYSTEM_${ID}_IS_REQUIRED})
+-        tr_fixup_auto_option(USE_SYSTEM_${ID} ${ID}_FOUND SYSTEM_${ID}_IS_REQUIRED)
++        set(_TAEAL_QUIET)
++        if(NOT SYSTEM_${ID}_IS_REQUIRED)
++            set(_TAEAL_QUIET QUIET)
++        endif()
++        find_package(${PACKAGENAME} ${${ID}_MINIMUM} ${SYSTEM_${ID}_IS_REQUIRED} ${_TAEAL_QUIET}
++            COMPONENTS ${_TAEAL_ARG_COMPONENTS})
++        tr_fixup_auto_option(USE_SYSTEM_${ID} ${PACKAGENAME}_FOUND SYSTEM_${ID}_IS_REQUIRED)
+     endif()
+ 
+     if(USE_SYSTEM_${ID})
+-        unset(${ID}_UPSTREAM_TARGET)
++        unset(${PACKAGENAME}_UPSTREAM_TARGET)
+     elseif(_TAEAL_ARG_SUBPROJECT)
+         foreach(ARG IN LISTS _TAEAL_ARG_CMAKE_ARGS)
+             if(ARG MATCHES "^-D([^=: ]+)(:[^= ]+)?=(.*)$")
+                 set(${CMAKE_MATCH_1} ${CMAKE_MATCH_3} CACHE INTERNAL "")
+             endif()
+         endforeach()
+-        add_subdirectory("${TR_THIRD_PARTY_SOURCE_DIR}/${DIRNAME}" "${TR_THIRD_PARTY_BINARY_DIR}/${DIRNAME}.bld")
++
++        set(_TAEAL_SUBDIR_SYSTEM)
++        if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.25)
++            set(_TAEAL_SUBDIR_SYSTEM SYSTEM)
++        endif()
++        add_subdirectory("${_TAEAL_SOURCE_DIR}" "${_TAEAL_BINARY_DIR}" EXCLUDE_FROM_ALL ${_TAEAL_SUBDIR_SYSTEM})
+     else()
+-        set(${ID}_UPSTREAM_TARGET ${LIBNAME})
+-        set(${ID}_PREFIX "${TR_THIRD_PARTY_BINARY_DIR}/${DIRNAME}.bld/pfx")
++        if(NOT _TAEAL_ARG_LIBNAME)
++            message(FATAL_ERROR "LIBNAME must be specified if not SUBPROJECT")
++        endif ()
+ 
+-        set(${ID}_INCLUDE_DIR "${${ID}_PREFIX}/include"
+-            CACHE INTERNAL "")
+-        set(${ID}_LIBRARY "${${ID}_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${LIBNAME}${CMAKE_STATIC_LIBRARY_SUFFIX}"
++        set(${PACKAGENAME}_UPSTREAM_TARGET "_${_TAEAL_ARG_LIBNAME}")
++        set(${PACKAGENAME}_PREFIX "${_TAEAL_BINARY_DIR}/pfx")
++
++        set(${PACKAGENAME}_INCLUDE_DIR "${${PACKAGENAME}_PREFIX}/include"
+             CACHE INTERNAL "")
++        set(${PACKAGENAME}_INCLUDE_DIRS ${${PACKAGENAME}_INCLUDE_DIR})
+ 
+-        set(${ID}_INCLUDE_DIRS ${${ID}_INCLUDE_DIR})
+-        set(${ID}_LIBRARIES ${${ID}_LIBRARY})
++        if(NOT _TAEAL_ARG_HEADER_ONLY)
++            set(${PACKAGENAME}_LIBRARY "${${PACKAGENAME}_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${_TAEAL_ARG_LIBNAME}${CMAKE_STATIC_LIBRARY_SUFFIX}"
++                CACHE INTERNAL "")
++            set(${PACKAGENAME}_LIBRARIES ${${PACKAGENAME}_LIBRARY})
++        endif()
+ 
+-        set(${ID}_EXT_PROJ_CMAKE_ARGS)
++        set(${PACKAGENAME}_EXT_PROJ_CMAKE_ARGS)
+ 
+         if(APPLE)
+-            string(REPLACE ";" "$<SEMICOLON>" ${ID}_CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
+-            list(APPEND ${ID}_EXT_PROJ_CMAKE_ARGS
+-                "-DCMAKE_OSX_ARCHITECTURES:STRING=${${ID}_CMAKE_OSX_ARCHITECTURES}"
++            string(REPLACE ";" "$<SEMICOLON>" ${PACKAGENAME}_CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
++            list(APPEND ${PACKAGENAME}_EXT_PROJ_CMAKE_ARGS
++                "-DCMAKE_OSX_ARCHITECTURES:STRING=${${PACKAGENAME}_CMAKE_OSX_ARCHITECTURES}"
+                 "-DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+                 "-DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT}")
+         endif()
+ 
+         if(ANDROID)
+-            list(APPEND ${ID}_EXT_PROJ_CMAKE_ARGS
++            list(APPEND ${PACKAGENAME}_EXT_PROJ_CMAKE_ARGS
+                 "-DANDROID_PLATFORM=${ANDROID_PLATFORM}"
+                 "-DANDROID_NDK=${ANDROID_NDK}"
+                 "-DANDROID_ABI=${ANDROID_ABI}"
+@@ -179,15 +209,15 @@ macro(tr_add_external_auto_library ID DIRNAME LIBNAME)
+         endif()
+ 
+         if(VCPKG_CHAINLOAD_TOOLCHAIN_FILE)
+-            list(APPEND ${ID}_EXT_PROJ_CMAKE_ARGS
++            list(APPEND ${PACKAGENAME}_EXT_PROJ_CMAKE_ARGS
+                 "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
+         endif()
+ 
+         ExternalProject_Add(
+-            ${${ID}_UPSTREAM_TARGET}
+-            PREFIX "${TR_THIRD_PARTY_BINARY_DIR}/${DIRNAME}.bld"
+-            SOURCE_DIR "${TR_THIRD_PARTY_SOURCE_DIR}/${DIRNAME}"
+-            INSTALL_DIR "${${ID}_PREFIX}"
++            ${${PACKAGENAME}_UPSTREAM_TARGET}
++            PREFIX "${_TAEAL_BINARY_DIR}"
++            SOURCE_DIR "${_TAEAL_SOURCE_DIR}"
++            INSTALL_DIR "${${PACKAGENAME}_PREFIX}"
+             CMAKE_ARGS
+                 -Wno-dev # We don't want to be warned over unused variables
+                 --no-warn-unused-cli
+@@ -200,29 +230,31 @@ macro(tr_add_external_auto_library ID DIRNAME LIBNAME)
+                 "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
+                 "-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>"
+                 "-DCMAKE_INSTALL_LIBDIR:STRING=lib"
+-                ${${ID}_EXT_PROJ_CMAKE_ARGS}
++                ${${PACKAGENAME}_EXT_PROJ_CMAKE_ARGS}
+                 ${_TAEAL_ARG_CMAKE_ARGS}
+-            BUILD_BYPRODUCTS "${${ID}_LIBRARY}")
++            BUILD_BYPRODUCTS "${${PACKAGENAME}_LIBRARY}")
+ 
+-        set_property(TARGET ${${ID}_UPSTREAM_TARGET} PROPERTY FOLDER "${TR_THIRD_PARTY_DIR_NAME}")
++        set_property(TARGET ${${PACKAGENAME}_UPSTREAM_TARGET} PROPERTY FOLDER "${TR_THIRD_PARTY_DIR_NAME}")
+ 
+         # Imported target (below) requires include directories to be present at configuration time
+-        file(MAKE_DIRECTORY ${${ID}_INCLUDE_DIRS})
++        file(MAKE_DIRECTORY ${${PACKAGENAME}_INCLUDE_DIRS})
+     endif()
+ 
+-    if(_TAEAL_ARG_TARGET AND (USE_SYSTEM_${ID} OR NOT _TAEAL_ARG_SUBPROJECT))
++    if(NOT _TAEAL_ARG_SUBPROJECT AND _TAEAL_ARG_TARGET AND NOT TARGET ${_TAEAL_ARG_TARGET})
+         add_library(${_TAEAL_ARG_TARGET} INTERFACE IMPORTED)
+ 
+         target_include_directories(${_TAEAL_ARG_TARGET}
+             INTERFACE
+-                ${${ID}_INCLUDE_DIRS})
++                ${${PACKAGENAME}_INCLUDE_DIRS})
+ 
+-        target_link_libraries(${_TAEAL_ARG_TARGET}
+-            INTERFACE
+-                ${${ID}_LIBRARIES})
++        if(NOT _TAEAL_ARG_HEADER_ONLY)
++            target_link_libraries(${_TAEAL_ARG_TARGET}
++                INTERFACE
++                    ${${PACKAGENAME}_LIBRARIES})
++        endif()
+ 
+-        if(${ID}_UPSTREAM_TARGET)
+-            add_dependencies(${_TAEAL_ARG_TARGET} ${${ID}_UPSTREAM_TARGET})
++        if(${PACKAGENAME}_UPSTREAM_TARGET)
++            add_dependencies(${_TAEAL_ARG_TARGET} ${${PACKAGENAME}_UPSTREAM_TARGET})
+         endif()
+     endif()
+ 
+diff --git a/daemon/CMakeLists.txt b/daemon/CMakeLists.txt
+index 000bc37..0f13855 100644
+--- a/daemon/CMakeLists.txt
++++ b/daemon/CMakeLists.txt
+@@ -33,7 +33,7 @@ target_include_directories(${TR_NAME}-daemon SYSTEM
+ target_link_libraries(${TR_NAME}-daemon
+     PRIVATE
+         ${TR_NAME}
+-        libevent::event
++        libevent::core
+         fmt::fmt-header-only
+         $<$<BOOL:${WITH_SYSTEMD}>:${SYSTEMD_LIBRARIES}>)
+ 
+diff --git a/libtransmission/CMakeLists.txt b/libtransmission/CMakeLists.txt
+index 76b6120..36cdc98 100644
+--- a/libtransmission/CMakeLists.txt
++++ b/libtransmission/CMakeLists.txt
+@@ -218,6 +218,7 @@ tr_allow_compile_if(
+ target_compile_definitions(${TR_NAME}
+     PRIVATE
+         __TRANSMISSION__
++        RAPIDJSON_HAS_STDSTRING=1
+         WIDE_INTEGER_DISABLE_FLOAT_INTEROP
+         WIDE_INTEGER_DISABLE_IOSTREAM
+         PACKAGE_DATA_DIR="${CMAKE_INSTALL_FULL_DATAROOTDIR}"
+@@ -227,6 +228,9 @@ target_compile_definitions(${TR_NAME}
+         $<$<BOOL:${USE_SYSTEM_B64}>:USE_SYSTEM_B64>
+         $<$<BOOL:${HAVE_SO_REUSEPORT}>:HAVE_SO_REUSEPORT=1>
+     PUBLIC
++        FMT_USE_EXCEPTIONS=0 # {fmt} >= 11.2.0
++        FMT_EXCEPTIONS=0 # {fmt} < 11.2.0
++        SMALL_DISABLE_EXCEPTIONS=1 # Workaround, perm fix at https://github.com/alandefreitas/small/pull/52
+         $<$<STREQUAL:${CRYPTO_PKG},ccrypto>:WITH_CCRYPTO>
+         $<$<STREQUAL:${CRYPTO_PKG},mbedtls>:WITH_MBEDTLS>
+         $<$<STREQUAL:${CRYPTO_PKG},openssl>:WITH_OPENSSL>
+@@ -272,12 +276,12 @@ endif()
+ target_link_libraries(${TR_NAME}
+     PRIVATE
+         Threads::Threads
+-        deflate::deflate
++        libdeflate::libdeflate
+         CURL::libcurl
+         FastFloat::fast_float
+         psl::psl
+         natpmp::natpmp
+-        miniupnpc::libminiupnpc
++        miniupnpc::miniupnpc
+         dht::dht
+         libutp::libutp
+         libb64::libb64
+@@ -299,7 +303,8 @@ target_link_libraries(${TR_NAME}
+         transmission::crypto_impl
+         fmt::fmt-header-only
+         small::small
+-        libevent::event)
++        libevent::core
++        libevent::extra)
+ 
+ if(INSTALL_LIB)
+     install(
+diff --git a/libtransmission/port-forwarding-upnp.cc b/libtransmission/port-forwarding-upnp.cc
+index 3151ee4..edd6fe2 100644
+--- a/libtransmission/port-forwarding-upnp.cc
++++ b/libtransmission/port-forwarding-upnp.cc
+@@ -30,7 +30,7 @@
+ #include "libtransmission/utils.h" // for _(), tr_strerror()
+ 
+ #ifndef MINIUPNPC_API_VERSION
+-#error miniupnpc >= 1.7 is required
++#error "MINIUPNPC_API_VERSION macro not defined"
+ #endif
+ 
+ namespace
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 8e6c703..f154f33 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,4 +1,5 @@
+-add_subdirectory(gtest)
++include(TrGTest)
++
+ add_subdirectory(libtransmission)
+ if(ENABLE_UTILS)
+     add_subdirectory(utils)
+diff --git a/tests/gtest/CMakeLists.txt b/tests/gtest/CMakeLists.txt
+deleted file mode 100644
+index 77eef53..0000000
+--- a/tests/gtest/CMakeLists.txt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-set(GTEST_ROOT_DIR ${TR_THIRD_PARTY_SOURCE_DIR}/googletest/googletest)
+-
+-add_library(gtestall STATIC)
+-
+-# GTest 1.12 triggers nullptr warnings in gcc 13
+-set(CACHE_ID "${CMAKE_CXX_COMPILER_ID}_CXX_HAS-Wnull-dereference")
+-string(TOLOWER "${CACHE_ID}" CACHE_ID)
+-check_c_compiler_flag(-Wnull-dereference ${CACHE_ID})
+-if(${CACHE_ID})
+-    target_compile_options(gtestall PRIVATE -Wno-null-dereference)
+-endif()
+-
+-target_sources(gtestall
+-    PRIVATE
+-        ${GTEST_ROOT_DIR}/src/gtest-all.cc
+-        ${GTEST_ROOT_DIR}/src/gtest_main.cc)
+-
+-set_property(
+-    TARGET gtestall
+-    PROPERTY FOLDER "${TR_THIRD_PARTY_DIR_NAME}")
+-
+-target_include_directories(gtestall SYSTEM
+-    PRIVATE
+-        ${GTEST_ROOT_DIR}
+-    PUBLIC
+-        ${GTEST_ROOT_DIR}/include)
+diff --git a/tests/libtransmission/CMakeLists.txt b/tests/libtransmission/CMakeLists.txt
+index 2471063..de648ba 100644
+--- a/tests/libtransmission/CMakeLists.txt
++++ b/tests/libtransmission/CMakeLists.txt
+@@ -75,11 +75,28 @@ target_compile_options(libtransmission-test
+ target_link_libraries(libtransmission-test
+     PRIVATE
+         ${TR_NAME}
+-        gtestall
++        GTest::gtest_main
+         dht::dht
+         fmt::fmt-header-only
+-        libevent::event
+-        WideInteger::WideInteger)
++        libevent::core
++        transmission::WideInteger)
++
++if (WIN32)
++    cmake_policy(PUSH)
++    cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
++
++    add_custom_command(
++        TARGET libtransmission-test POST_BUILD
++        COMMAND
++            ${CMAKE_COMMAND}
++            -E copy_if_different
++            $<TARGET_RUNTIME_DLLS:libtransmission-test>
++            $<TARGET_FILE_DIR:libtransmission-test>
++        COMMAND_EXPAND_LISTS
++    )
++
++    cmake_policy(POP)
++endif ()
+ 
+ if(NOT CMAKE_CROSSCOMPILING OR CMAKE_CROSSCOMPILING_EMULATOR)
+     gtest_discover_tests(libtransmission-test
+diff --git a/tests/libtransmission/announce-list-test.cc b/tests/libtransmission/announce-list-test.cc
+index 624bd2e..7b21daf 100644
+--- a/tests/libtransmission/announce-list-test.cc
++++ b/tests/libtransmission/announce-list-test.cc
+@@ -13,6 +13,8 @@
+ 
+ #include <fmt/format.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/announce-list.h>
+diff --git a/tests/libtransmission/announcer-udp-test.cc b/tests/libtransmission/announcer-udp-test.cc
+index 6fbd8c8..4b2ae86 100644
+--- a/tests/libtransmission/announcer-udp-test.cc
++++ b/tests/libtransmission/announcer-udp-test.cc
+@@ -26,6 +26,8 @@
+ 
+ #include <event2/event.h>
+ 
++#include <gtest/gtest.h>
++
+ #define LIBTRANSMISSION_ANNOUNCER_MODULE
+ 
+ #include <libtransmission/announcer.h>
+diff --git a/tests/libtransmission/api-compat-test.cc b/tests/libtransmission/api-compat-test.cc
+index 0b68050..bf0b4ba 100644
+--- a/tests/libtransmission/api-compat-test.cc
++++ b/tests/libtransmission/api-compat-test.cc
+@@ -5,11 +5,12 @@
+ 
+ #include <string_view>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/api-compat.h>
+ #include <libtransmission/quark.h>
+ #include <libtransmission/variant.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using ApiCompatTest = ::libtransmission::test::TransmissionTest;
+diff --git a/tests/libtransmission/bitfield-test.cc b/tests/libtransmission/bitfield-test.cc
+index 7350fcf..ea51614 100644
+--- a/tests/libtransmission/bitfield-test.cc
++++ b/tests/libtransmission/bitfield-test.cc
+@@ -10,11 +10,11 @@
+ #include <limits>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/crypto-utils.h>
+ #include <libtransmission/bitfield.h>
+ 
+-#include "gtest/gtest.h"
+-
+ TEST(Bitfield, count)
+ {
+     auto constexpr IterCount = size_t{ 10000U };
+diff --git a/tests/libtransmission/blocklist-test.cc b/tests/libtransmission/blocklist-test.cc
+index b67d9a4..ce40d74 100644
+--- a/tests/libtransmission/blocklist-test.cc
++++ b/tests/libtransmission/blocklist-test.cc
+@@ -6,13 +6,14 @@
+ #include <cstddef>
+ #include <string_view>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/net.h>
+ #include <libtransmission/session.h> // tr_session.addressIsBlocked()
+ #include <libtransmission/tr-strbuf.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ namespace libtransmission::test
+diff --git a/tests/libtransmission/clients-test.cc b/tests/libtransmission/clients-test.cc
+index 2ce7659..07a8f38 100644
+--- a/tests/libtransmission/clients-test.cc
++++ b/tests/libtransmission/clients-test.cc
+@@ -8,12 +8,12 @@
+ #include <cstddef> // size_t
+ #include <string_view>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/crypto-utils.h> // tr_rand_obj()
+ #include <libtransmission/clients.h>
+ #include <libtransmission/tr-macros.h>
+ 
+-#include "gtest/gtest.h"
+-
+ using namespace std::literals;
+ 
+ TEST(Client, clientForId)
+diff --git a/tests/libtransmission/copy-test.cc b/tests/libtransmission/copy-test.cc
+index 1dd6d0d..a3ffa72 100644
+--- a/tests/libtransmission/copy-test.cc
++++ b/tests/libtransmission/copy-test.cc
+@@ -9,13 +9,14 @@
+ #include <string_view>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/crypto-utils.h>
+ #include <libtransmission/error.h>
+ #include <libtransmission/file.h>
+ #include <libtransmission/tr-strbuf.h>
+ #include <libtransmission/utils.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ namespace libtransmission::test
+diff --git a/tests/libtransmission/crypto-test.cc b/tests/libtransmission/crypto-test.cc
+index 181c9a2..5f9c3e7 100644
+--- a/tests/libtransmission/crypto-test.cc
++++ b/tests/libtransmission/crypto-test.cc
+@@ -13,13 +13,13 @@
+ #include <string_view>
+ #include <unordered_set>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/peer-mse.h>
+ #include <libtransmission/crypto-utils.h>
+ #include <libtransmission/tr-macros.h>
+ #include <libtransmission/utils.h>
+ 
+-#include "gtest/gtest.h"
+-
+ using namespace std::literals;
+ 
+ namespace
+diff --git a/tests/libtransmission/dht-test.cc b/tests/libtransmission/dht-test.cc
+index 5209b7e..49fd979 100644
+--- a/tests/libtransmission/dht-test.cc
++++ b/tests/libtransmission/dht-test.cc
+@@ -32,6 +32,8 @@
+ 
+ #include <fmt/format.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/crypto-utils.h> // tr_rand_obj
+@@ -48,7 +50,6 @@
+ #include <libtransmission/utils.h>
+ #include <libtransmission/variant.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ #ifdef _WIN32
+diff --git a/tests/libtransmission/error-test.cc b/tests/libtransmission/error-test.cc
+index db32f95..315deb5 100644
+--- a/tests/libtransmission/error-test.cc
++++ b/tests/libtransmission/error-test.cc
+@@ -5,12 +5,12 @@
+ 
+ #include <string_view>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/error.h>
+ 
+ #include "test-fixtures.h"
+ 
+-#include "gtest/gtest.h"
+-
+ using namespace std::literals;
+ 
+ TEST(Error, errorSet)
+diff --git a/tests/libtransmission/file-test.cc b/tests/libtransmission/file-test.cc
+index 509cb20..04773ea 100644
+--- a/tests/libtransmission/file-test.cc
++++ b/tests/libtransmission/file-test.cc
+@@ -25,12 +25,13 @@
+ 
+ #include <fmt/format.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/error.h>
+ #include <libtransmission/file.h>
+ #include <libtransmission/tr-macros.h>
+ #include <libtransmission/tr-strbuf.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ #if !defined(__OpenBSD__)
+diff --git a/tests/libtransmission/handshake-test.cc b/tests/libtransmission/handshake-test.cc
+index 8c9e60c..fe8e8ef 100644
+--- a/tests/libtransmission/handshake-test.cc
++++ b/tests/libtransmission/handshake-test.cc
+@@ -23,6 +23,8 @@
+ 
+ #include <event2/util.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/crypto-utils.h> // tr_sha1_to_string, tr_base...
+@@ -37,7 +39,6 @@
+ #include <libtransmission/tr-macros.h>
+ #include <libtransmission/utils.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/history-test.cc b/tests/libtransmission/history-test.cc
+index 6dc2004..f97af90 100644
+--- a/tests/libtransmission/history-test.cc
++++ b/tests/libtransmission/history-test.cc
+@@ -5,9 +5,9 @@
+ 
+ #include <cstddef> // size_t
+ 
+-#include <libtransmission/history.h>
++#include <gtest/gtest.h>
+ 
+-#include "gtest/gtest.h"
++#include <libtransmission/history.h>
+ 
+ TEST(History, recentHistory)
+ {
+diff --git a/tests/libtransmission/json-test.cc b/tests/libtransmission/json-test.cc
+index 26ca6e7..990b7a9 100644
+--- a/tests/libtransmission/json-test.cc
++++ b/tests/libtransmission/json-test.cc
+@@ -11,13 +11,13 @@
+ #include <string>
+ #include <string_view>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/crypto-utils.h>
+ #include <libtransmission/quark.h>
+ #include <libtransmission/utils.h>
+ #include <libtransmission/variant.h>
+ 
+-#include "gtest/gtest.h"
+-
+ using namespace std::literals;
+ 
+ class JSONTest : public ::testing::TestWithParam<char const*>
+diff --git a/tests/libtransmission/lpd-test.cc b/tests/libtransmission/lpd-test.cc
+index 8eb124d..970e018 100644
+--- a/tests/libtransmission/lpd-test.cc
++++ b/tests/libtransmission/lpd-test.cc
+@@ -11,6 +11,8 @@
+ #include <string_view>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h> // tr_torrent_activity
+ 
+ #include <libtransmission/crypto-utils.h> // tr_rand_obj()
+@@ -20,7 +22,6 @@
+ #include <libtransmission/tr-lpd.h>
+ #include <libtransmission/utils.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/makemeta-test.cc b/tests/libtransmission/makemeta-test.cc
+index ea76452..defa4cc 100644
+--- a/tests/libtransmission/makemeta-test.cc
++++ b/tests/libtransmission/makemeta-test.cc
+@@ -12,6 +12,8 @@
+ #include <utility>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/announce-list.h>
+ #include <libtransmission/crypto-utils.h>
+ #include <libtransmission/file.h>
+@@ -23,7 +25,6 @@
+ #include <libtransmission/utils.h>
+ #include <libtransmission/variant.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/move-test.cc b/tests/libtransmission/move-test.cc
+index 5f93ba6..be0fd5e 100644
+--- a/tests/libtransmission/move-test.cc
++++ b/tests/libtransmission/move-test.cc
+@@ -9,6 +9,8 @@
+ #include <string_view>
+ #include <utility>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/block-info.h>
+@@ -20,7 +22,6 @@
+ #include <libtransmission/tr-strbuf.h>
+ #include <libtransmission/variant.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/open-files-test.cc b/tests/libtransmission/open-files-test.cc
+index 7d4cbae..662d879 100644
+--- a/tests/libtransmission/open-files-test.cc
++++ b/tests/libtransmission/open-files-test.cc
+@@ -12,6 +12,8 @@
+ 
+ #include <fmt/format.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/error.h>
+@@ -19,7 +21,6 @@
+ #include <libtransmission/open-files.h>
+ #include <libtransmission/tr-strbuf.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/peer-msgs-test.cc b/tests/libtransmission/peer-msgs-test.cc
+index 4c45e55..fa73a70 100644
+--- a/tests/libtransmission/peer-msgs-test.cc
++++ b/tests/libtransmission/peer-msgs-test.cc
+@@ -3,7 +3,7 @@
+ // or any future license endorsed by Mnemosyne LLC.
+ // License text can be found in the licenses/ folder.
+ 
+-#include "gtest/gtest.h"
++#include <gtest/gtest.h>
+ 
+ TEST(PeerMsgs, placeholder)
+ {
+diff --git a/tests/libtransmission/platform-test.cc b/tests/libtransmission/platform-test.cc
+index 9b2c492..230a7ba 100644
+--- a/tests/libtransmission/platform-test.cc
++++ b/tests/libtransmission/platform-test.cc
+@@ -8,6 +8,8 @@
+ 
+ #include <fmt/format.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/file.h>
+@@ -15,7 +17,6 @@
+ #include <libtransmission/tr-strbuf.h>
+ #include <libtransmission/utils.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/remove-test.cc b/tests/libtransmission/remove-test.cc
+index 7aee2f7..522d0b3 100644
+--- a/tests/libtransmission/remove-test.cc
++++ b/tests/libtransmission/remove-test.cc
+@@ -10,13 +10,14 @@
+ #include <string_view>
+ #include <utility>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/file.h>
+ #include <libtransmission/torrent-files.h>
+ #include <libtransmission/tr-strbuf.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/rename-test.cc b/tests/libtransmission/rename-test.cc
+index 1175187..2262a2c 100644
+--- a/tests/libtransmission/rename-test.cc
++++ b/tests/libtransmission/rename-test.cc
+@@ -11,6 +11,8 @@
+ #include <string_view>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/crypto-utils.h>
+@@ -21,7 +23,6 @@
+ #include <libtransmission/tr-strbuf.h>
+ #include <libtransmission/utils.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ struct tr_ctor;
+diff --git a/tests/libtransmission/rpc-test.cc b/tests/libtransmission/rpc-test.cc
+index 5050c56..2d0af4a 100644
+--- a/tests/libtransmission/rpc-test.cc
++++ b/tests/libtransmission/rpc-test.cc
+@@ -13,12 +13,13 @@
+ #include <string_view>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
++#include <libtransmission/quark.h>
+ #include <libtransmission/transmission.h>
+ #include <libtransmission/rpcimpl.h>
+ #include <libtransmission/variant.h>
+ 
+-#include "gtest/gtest.h"
+-#include "libtransmission/quark.h"
+ #include "test-fixtures.h"
+ 
+ struct tr_session;
+diff --git a/tests/libtransmission/session-test.cc b/tests/libtransmission/session-test.cc
+index f7ae99d..8baffe4 100644
+--- a/tests/libtransmission/session-test.cc
++++ b/tests/libtransmission/session-test.cc
+@@ -12,6 +12,8 @@
+ #include <string>
+ #include <string_view>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/crypto-utils.h>
+@@ -21,7 +23,6 @@
+ #include <libtransmission/variant.h>
+ #include <libtransmission/version.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/subprocess-test.cc b/tests/libtransmission/subprocess-test.cc
+index e9fca1b..f762440 100644
+--- a/tests/libtransmission/subprocess-test.cc
++++ b/tests/libtransmission/subprocess-test.cc
+@@ -12,6 +12,8 @@
+ #include <string>
+ #include <string_view>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/error.h>
+ #include <libtransmission/file.h>
+ #include <libtransmission/subprocess.h>
+diff --git a/tests/libtransmission/test-fixtures.h b/tests/libtransmission/test-fixtures.h
+index e6321cd..cb8dfe9 100644
+--- a/tests/libtransmission/test-fixtures.h
++++ b/tests/libtransmission/test-fixtures.h
+@@ -18,6 +18,8 @@
+ 
+ #include <event2/event.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/crypto-utils.h> // tr_base64_decode()
+ #include <libtransmission/error.h>
+ #include <libtransmission/file.h> // tr_sys_file_*()
+@@ -27,8 +29,6 @@
+ #include <libtransmission/utils.h>
+ #include <libtransmission/variant.h>
+ 
+-#include "gtest/gtest.h"
+-
+ using namespace std::literals;
+ 
+ inline std::ostream& operator<<(std::ostream& os, tr_error const& err)
+diff --git a/tests/libtransmission/timer-test.cc b/tests/libtransmission/timer-test.cc
+index 8862c92..d2680c3 100644
+--- a/tests/libtransmission/timer-test.cc
++++ b/tests/libtransmission/timer-test.cc
+@@ -8,6 +8,8 @@
+ 
+ #include <event2/event.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/timer.h>
+ #include <libtransmission/timer-ev.h>
+ #include <libtransmission/utils-ev.h>
+diff --git a/tests/libtransmission/torrent-files-test.cc b/tests/libtransmission/torrent-files-test.cc
+index ef20ea5..2c53bca 100644
+--- a/tests/libtransmission/torrent-files-test.cc
++++ b/tests/libtransmission/torrent-files-test.cc
+@@ -11,6 +11,8 @@
+ #include <utility>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/file.h>
+@@ -19,7 +21,6 @@
+ #include "libtransmission/tr-macros.h"
+ #include <libtransmission/tr-strbuf.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/torrent-magnet-test.cc b/tests/libtransmission/torrent-magnet-test.cc
+index 7c4f49c..d6250b8 100644
+--- a/tests/libtransmission/torrent-magnet-test.cc
++++ b/tests/libtransmission/torrent-magnet-test.cc
+@@ -7,11 +7,12 @@
+ #include <future>
+ #include <string>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/error.h>
+ #include <libtransmission/torrent-magnet.h>
+ #include <libtransmission/torrent-metainfo.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ namespace libtransmission::test
+diff --git a/tests/libtransmission/torrent-metainfo-test.cc b/tests/libtransmission/torrent-metainfo-test.cc
+index 982f91a..168b92e 100644
+--- a/tests/libtransmission/torrent-metainfo-test.cc
++++ b/tests/libtransmission/torrent-metainfo-test.cc
+@@ -9,6 +9,8 @@
+ #include <string_view>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/crypto-utils.h>
+@@ -20,7 +22,6 @@
+ #include <libtransmission/tr-strbuf.h>
+ #include <libtransmission/utils.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/torrent-queue-test.cc b/tests/libtransmission/torrent-queue-test.cc
+index f59532b..cd6d0f2 100644
+--- a/tests/libtransmission/torrent-queue-test.cc
++++ b/tests/libtransmission/torrent-queue-test.cc
+@@ -9,10 +9,11 @@
+ #include <string_view>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/torrent-queue.h>
+ #include <libtransmission/torrent.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using namespace std::literals;
+diff --git a/tests/libtransmission/torrents-test.cc b/tests/libtransmission/torrents-test.cc
+index 20f669d..6ac7f2b 100644
+--- a/tests/libtransmission/torrents-test.cc
++++ b/tests/libtransmission/torrents-test.cc
+@@ -11,6 +11,8 @@
+ #include <utility>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/torrent.h>
+diff --git a/tests/libtransmission/utils-test.cc b/tests/libtransmission/utils-test.cc
+index 5db1b59..ccaac4b 100644
+--- a/tests/libtransmission/utils-test.cc
++++ b/tests/libtransmission/utils-test.cc
+@@ -21,6 +21,8 @@
+ 
+ #include <fmt/format.h>
+ 
++#include <gtest/gtest.h>
++
+ #include <libtransmission/transmission.h>
+ 
+ #include <libtransmission/crypto-utils.h> // tr_rand_int()
+@@ -29,7 +31,6 @@
+ #include <libtransmission/tr-strbuf.h>
+ #include <libtransmission/utils.h>
+ 
+-#include "gtest/gtest.h"
+ #include "test-fixtures.h"
+ 
+ using UtilsTest = ::libtransmission::test::TransmissionTest;
+diff --git a/tests/libtransmission/variant-test.cc b/tests/libtransmission/variant-test.cc
+index 329e8c5..43b17cd 100644
+--- a/tests/libtransmission/variant-test.cc
++++ b/tests/libtransmission/variant-test.cc
+@@ -14,6 +14,8 @@
+ #include <utility>
+ #include <vector>
+ 
++#include <gtest/gtest.h>
++
+ #define LIBTRANSMISSION_VARIANT_MODULE
+ 
+ #include <libtransmission/benc.h>
+diff --git a/tests/libtransmission/watchdir-test.cc b/tests/libtransmission/watchdir-test.cc
+index 746ab74..7d67ea6 100644
+--- a/tests/libtransmission/watchdir-test.cc
++++ b/tests/libtransmission/watchdir-test.cc
+@@ -20,6 +20,8 @@
+ 
+ #include <event2/event.h>
+ 
++#include <gtest/gtest.h>
++
+ #define LIBTRANSMISSION_WATCHDIR_MODULE
+ 
+ #include <libtransmission/file.h>
+diff --git a/third-party/small/cmake/small/variables.cmake b/third-party/small/cmake/small/variables.cmake
+index 7abc7d4..5d7e87e 100644
+--- a/third-party/small/cmake/small/variables.cmake
++++ b/third-party/small/cmake/small/variables.cmake
+@@ -50,4 +50,4 @@ if (NOT SMALL_MASTER_PROJECT)
+     if (SMALL_INCLUDES_WITH_SYSTEM)
+         set(warning_guard SYSTEM)
+     endif ()
+-endif ()
+\ No newline at end of file
++endif ()
+diff --git a/third-party/wide-integer/CMakeLists.txt b/third-party/wide-integer/CMakeLists.txt
+index 43897ae..e983ec1 100644
+--- a/third-party/wide-integer/CMakeLists.txt
++++ b/third-party/wide-integer/CMakeLists.txt
+@@ -10,6 +10,14 @@ endif()
+ 
+ option(WIDE_INTEGER_ENABLE_TESTS "Enable/disable tests" ${WIDE_INTEGER_MASTER_PROJECT})
+ 
++if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
++  set(WIDE_INTEGER_MASTER_PROJECT ON)
++else()
++  set(WIDE_INTEGER_MASTER_PROJECT OFF)
++endif()
++
++option(WIDE_INTEGER_ENABLE_TESTS "Enable/disable tests" ${WIDE_INTEGER_MASTER_PROJECT})
++
+ if (WIDE_INTEGER_ENABLE_TESTS)
+   find_package(Boost)
+   if (Boost_FOUND)
+@@ -30,6 +38,8 @@ target_include_directories(
+ 
+ add_library(WideInteger::WideInteger ALIAS WideInteger)
+ 
++add_library(WideInteger::WideInteger ALIAS WideInteger)
++
+ install(TARGETS WideInteger EXPORT WideIntegerTargets)
+ install(
+   FILES math/wide_integer/uintwide_t.h
+diff --git a/utils/CMakeLists.txt b/utils/CMakeLists.txt
+index 35abbe5..9492432 100644
+--- a/utils/CMakeLists.txt
++++ b/utils/CMakeLists.txt
+@@ -10,7 +10,7 @@ foreach(P create edit remote show)
+             ${TR_NAME}
+             CURL::libcurl
+             fmt::fmt-header-only
+-            libevent::event)
++            libevent::core)
+ 
+     tr_win32_app_info(${TR_NAME}-${P}
+         "Transmission Utility ('${P}')"

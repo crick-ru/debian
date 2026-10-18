@@ -1,0 +1,27 @@
+From: Alexandre Rossi <niol@zincube.net>
+Date: Mon, 16 Jun 2025 14:33:18 +0100
+Subject: do not mess-up with upstream REVISION file
+
+Forwarded: not-needed
+---
+ CMakeLists.txt | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8e3db44..d2cb3d8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -215,13 +215,6 @@ endif()
+ 
+ string(STRIP "${TR_VCS_REVISION}" TR_VCS_REVISION)
+ 
+-if(NOT "${TR_VCS_REVISION}" STREQUAL "")
+-    file(WRITE "${TR_VCS_REVISION_FILE}" "${TR_VCS_REVISION}\n")
+-else()
+-    set(TR_VCS_REVISION 0)
+-    file(REMOVE "${TR_VCS_REVISION_FILE}")
+-endif()
+-
+ string(SUBSTRING "${TR_VCS_REVISION}" 0 10 TR_VCS_REVISION)
+ 
+ set_property(GLOBAL PROPERTY USE_FOLDERS ON)

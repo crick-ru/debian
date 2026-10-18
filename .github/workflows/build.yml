@@ -58,7 +58,7 @@ jobs:
   build_libglvnd:
     name: libglvnd (stage 1)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libglvnd' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libglvnd' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -100,7 +100,7 @@ jobs:
   build_wayland:
     name: wayland (stage 1)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'ffmpeg' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libva' || inputs.package == 'libva-utils' || inputs.package == 'libxkbcommon' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayland' || inputs.package == 'wayland-protocols' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'ffmpeg' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libva' || inputs.package == 'libva-utils' || inputs.package == 'libxkbcommon' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wayland' || inputs.package == 'wayland-protocols' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -142,7 +142,7 @@ jobs:
   build_libdrm:
     name: libdrm (stage 1)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'ffmpeg' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libdrm' || inputs.package == 'libva' || inputs.package == 'libva-utils' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'ffmpeg' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libdrm' || inputs.package == 'libva' || inputs.package == 'libva-utils' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -184,7 +184,7 @@ jobs:
   build_pixman:
     name: pixman (stage 1)
     if: >-
-      ${{ !inputs.package || inputs.package == 'cairo' || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'labwc' || inputs.package == 'neatvnc' || inputs.package == 'pixman' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'cairo' || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'labwc' || inputs.package == 'neatvnc' || inputs.package == 'pixman' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wayvnc' || inputs.package == 'wlroots' }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -352,7 +352,7 @@ jobs:
   build_gstreamer1_0:
     name: gstreamer1.0 (stage 1)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wireplumber' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wireplumber' }}
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -592,7 +592,7 @@ jobs:
   build_libva:
     name: libva (stage 2)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'ffmpeg' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libva' || inputs.package == 'libva-utils' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'ffmpeg' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libva' || inputs.package == 'libva-utils' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     needs: [build_libdrm, build_wayland]
     runs-on: ubuntu-latest
     container:
@@ -670,7 +670,7 @@ jobs:
   build_wayland-protocols:
     name: wayland-protocols (stage 2)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libxkbcommon' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayland-protocols' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libxkbcommon' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wayland-protocols' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     needs: [build_wayland]
     runs-on: ubuntu-latest
     container:
@@ -739,7 +739,7 @@ jobs:
   build_cairo:
     name: cairo (stage 2)
     if: >-
-      ${{ !inputs.package || inputs.package == 'cairo' || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'labwc' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'cairo' || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'labwc' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wlroots' }}
     needs: [build_pixman]
     runs-on: ubuntu-latest
     container:
@@ -965,7 +965,7 @@ jobs:
   build_libxkbcommon:
     name: libxkbcommon (stage 3)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libxkbcommon' || inputs.package == 'mpv' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'libtsm' || inputs.package == 'libxkbcommon' || inputs.package == 'mpv' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wayvnc' || inputs.package == 'wlroots' }}
     needs: [build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
@@ -1043,7 +1043,7 @@ jobs:
   build_mesa:
     name: mesa (stage 3)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'kmscon' || inputs.package == 'labwc' || inputs.package == 'mesa' || inputs.package == 'mpv' || inputs.package == 'neatvnc' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wayvnc' || inputs.package == 'wireplumber' || inputs.package == 'wlroots' }}
     needs: [build_libdrm, build_libglvnd, build_libva, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
@@ -1244,7 +1244,7 @@ jobs:
   build_gstreamer1_0-plugins-base:
     name: gstreamer1.0-plugins-base (stage 4)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'wireplumber' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gstreamer1.0-plugins-base' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'mpv' || inputs.package == 'pipewire' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' || inputs.package == 'wireplumber' }}
     needs: [build_gstreamer1_0, build_libdrm, build_libglvnd, build_mesa, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
@@ -1727,7 +1727,7 @@ jobs:
   build_gstreamer1_0-plugins-good:
     name: gstreamer1.0-plugins-good (stage 5)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-libav' || inputs.package == 'gstreamer1.0-plugins-good' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm]
     runs-on: ubuntu-latest
     container:
@@ -1869,7 +1869,7 @@ jobs:
   build_gstreamer1_0-plugins-bad:
     name: gstreamer1.0-plugins-bad (stage 5)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gstreamer1.0-plugins-bad' || inputs.package == 'gtk+3.0' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'sfwbar' || inputs.package == 'transmission' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-base, build_libdrm, build_libglvnd, build_libva, build_pixman, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
@@ -2901,7 +2901,7 @@ jobs:
   build_gtk4:
     name: gtk4 (stage 6)
     if: >-
-      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' }}
+      ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'gtk4' || inputs.package == 'pwvucontrol' || inputs.package == 'transmission' }}
     needs: [build_cairo, build_gstreamer1_0, build_gstreamer1_0-plugins-bad, build_gstreamer1_0-plugins-base, build_libxkbcommon, build_wayland, build_wayland-protocols]
     runs-on: ubuntu-latest
     container:
@@ -3919,9 +3919,183 @@ jobs:
         with:
           package: pwvucontrol
           stage: 7
+  build_transmission:
+    name: transmission (stage 7)
+    if: >-
+      ${{ !inputs.package || inputs.package == 'transmission' }}
+    needs: [build_gtk4]
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure APT sources and install build toolchain
+        run: |
+          # Ensure Debian trixie repositories are configured
+          # Remove deb822 format if present (it can be problematic to modify)
+          rm -f /etc/apt/sources.list.d/debian.sources
+          # Create proper sources.list for trixie with all components
+          cat > /etc/apt/sources.list <<'EOF'
+          deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+          deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            debhelper \
+            devscripts \
+            dpkg-dev \
+            curl \
+            ca-certificates \
+            rsync \
+            git \
+            python3 \
+
+      - name: Download stage 1 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage1-*
+          path: stage1-pool
+          merge-multiple: true
+
+      - name: Download stage 2 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage2-*
+          path: stage2-pool
+          merge-multiple: true
+
+      - name: Download stage 3 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage3-*
+          path: stage3-pool
+          merge-multiple: true
+
+      - name: Download stage 4 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage4-*
+          path: stage4-pool
+          merge-multiple: true
+
+      - name: Download stage 5 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage5-*
+          path: stage5-pool
+          merge-multiple: true
+
+      - name: Download stage 6 packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: deb-stage6-*
+          path: stage6-pool
+          merge-multiple: true
+
+      - name: Install required packages of earlier stages
+        run: |
+          shopt -s nullglob
+          # apt-get трактует аргументы без разделителя пути как
+          # имена пакетов, поэтому скачанные .deb передаются как
+          # ./stageN-pool/<файл>.deb
+          # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0-plugins-bad собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: gtk4 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libva собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: libxkbcommon собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: mesa собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: pixman собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          # ci-closure: wayland-protocols собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
+          debs=(
+                ./stage1-pool/gir1.2-gstreamer-1.0_*.deb
+                ./stage1-pool/libdrm-amdgpu1_*.deb
+                ./stage1-pool/libdrm-common_*.deb
+                ./stage1-pool/libdrm-dev_*.deb
+                ./stage1-pool/libdrm-freedreno1_*.deb
+                ./stage1-pool/libdrm-intel1_*.deb
+                ./stage1-pool/libdrm-nouveau2_*.deb
+                ./stage1-pool/libdrm-radeon1_*.deb
+                ./stage1-pool/libdrm2_*.deb
+                ./stage1-pool/libegl-dev_*.deb
+                ./stage1-pool/libegl1_*.deb
+                ./stage1-pool/libgl-dev_*.deb
+                ./stage1-pool/libgles-dev_*.deb
+                ./stage1-pool/libgles1_*.deb
+                ./stage1-pool/libgles2_*.deb
+                ./stage1-pool/libglvnd-core-dev_*.deb
+                ./stage1-pool/libglvnd0_*.deb
+                ./stage1-pool/libgstreamer1.0-0_*.deb
+                ./stage1-pool/libgstreamer1.0-dev_*.deb
+                ./stage1-pool/libopengl-dev_*.deb
+                ./stage1-pool/libopengl0_*.deb
+                ./stage1-pool/libpixman-1-0_*.deb
+                ./stage1-pool/libpixman-1-dev_*.deb
+                ./stage1-pool/libwayland-bin_*.deb
+                ./stage1-pool/libwayland-client0_*.deb
+                ./stage1-pool/libwayland-cursor0_*.deb
+                ./stage1-pool/libwayland-dev_*.deb
+                ./stage1-pool/libwayland-egl-backend-dev_*.deb
+                ./stage1-pool/libwayland-egl1_*.deb
+                ./stage1-pool/libwayland-server0_*.deb
+                ./stage2-pool/libcairo-gobject2_*.deb
+                ./stage2-pool/libcairo-script-interpreter2_*.deb
+                ./stage2-pool/libcairo2_*.deb
+                ./stage2-pool/libcairo2-dev_*.deb
+                ./stage2-pool/libva-dev_*.deb
+                ./stage2-pool/libva-drm2_*.deb
+                ./stage2-pool/libva-wayland2_*.deb
+                ./stage2-pool/libva2_*.deb
+                ./stage2-pool/wayland-protocols_*.deb
+                ./stage3-pool/libegl-mesa0_*.deb
+                ./stage3-pool/libgbm-dev_*.deb
+                ./stage3-pool/libgbm1_*.deb
+                ./stage3-pool/libxkbcommon-dev_*.deb
+                ./stage3-pool/libxkbcommon0_*.deb
+                ./stage3-pool/libxkbregistry-dev_*.deb
+                ./stage3-pool/libxkbregistry0_*.deb
+                ./stage3-pool/mesa-common-dev_*.deb
+                ./stage3-pool/mesa-libgallium_*.deb
+                ./stage4-pool/gir1.2-gst-plugins-base-1.0_*.deb
+                ./stage4-pool/gstreamer1.0-gl_*.deb
+                ./stage4-pool/gstreamer1.0-plugins-base_*.deb
+                ./stage4-pool/libgstreamer-gl1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-0_*.deb
+                ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
+                ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
+                ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
+                ./stage6-pool/gir1.2-gtk-4.0_*.deb
+                ./stage6-pool/gtk-update-icon-cache_*.deb
+                ./stage6-pool/libgtk-4-1_*.deb
+                ./stage6-pool/libgtk-4-bin_*.deb
+                ./stage6-pool/libgtk-4-common_*.deb
+                ./stage6-pool/libgtk-4-dev_*.deb
+          )
+          echo "Installing: ${debs[*]}"
+          apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Build package (cached, reuses unchanged results)
+        uses: ./.github/actions/build-deb
+        with:
+          package: transmission
+          stage: 7
   publish:
     name: Generate APT repository
-    needs: [build_libglvnd, build_wayland, build_libdrm, build_pixman, build_at-spi2-core, build_dummy-x11, build_fdk-aac, build_gstreamer1_0, build_pulseaudio, build_aml, build_libheif, build_libgd2, build_libva, build_wayland-protocols, build_cairo, build_imagemagick, build_ffmpeg, build_libxkbcommon, build_mesa, build_libva-utils, build_gstreamer1_0-plugins-base, build_neatvnc, build_libtsm, build_wlroots, build_gstreamer1_0-plugins-good, build_gstreamer1_0-plugins-bad, build_pipewire, build_wayvnc, build_kmscon, build_labwc, build_mpv, build_gtk_3_0, build_gtk4, build_gstreamer1_0-libav, build_wireplumber, build_celluloid, build_sfwbar, build_pwvucontrol]
+    needs: [build_libglvnd, build_wayland, build_libdrm, build_pixman, build_at-spi2-core, build_dummy-x11, build_fdk-aac, build_gstreamer1_0, build_pulseaudio, build_aml, build_libheif, build_libgd2, build_libva, build_wayland-protocols, build_cairo, build_imagemagick, build_ffmpeg, build_libxkbcommon, build_mesa, build_libva-utils, build_gstreamer1_0-plugins-base, build_neatvnc, build_libtsm, build_wlroots, build_gstreamer1_0-plugins-good, build_gstreamer1_0-plugins-bad, build_pipewire, build_wayvnc, build_kmscon, build_labwc, build_mpv, build_gtk_3_0, build_gtk4, build_gstreamer1_0-libav, build_wireplumber, build_celluloid, build_sfwbar, build_pwvucontrol, build_transmission]
     if: github.event_name != 'pull_request' && !inputs.package
     runs-on: ubuntu-latest
     container:

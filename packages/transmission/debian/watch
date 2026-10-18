@@ -1,0 +1,35 @@
+Version: 5
+
+# transmission-<VERSION>.tar.xz , exactly this format with this extension,
+# contains the upstream tarball with all the additional third-party software
+# necessary to build transmission
+Source: https://api.github.com/repos/@PACKAGE@/@PACKAGE@/releases
+Searchmode: plain
+Matching-Pattern: https://github\.com/@PACKAGE@/@PACKAGE@/releases/download/@ANY_VERSION@/@PACKAGE@\-(?:\d[\.\-\w%]+)\.tar\.xz
+Dversionmangle: s/\+dfsg$//
+Uversionmangle: auto
+Filenamemangle: s%(?:.*?)?v?(\d[\d.]*)\.tar\.gz%@PACKAGE@-$1.tar.xz%
+Repacksuffix: +dfsg
+
+## Git Mode, includes submodules and .gitignore .github/* files therein.
+# Version: 5
+# Mode: git
+# Git-Mode: shallow
+# Git-Modules: all
+# Source: https://github.com/@PACKAGE@/@PACKAGE@
+# Matching-Pattern: refs/tags/@ANY_VERSION@
+# Dversion-Mangle: s/\+dfsg$//
+# Uversion-Mangle: auto
+# Repacksuffix: +dfsg
+
+## This should work but doesn't due to
+## (a) bug.debian.org/1115546, and
+## (b) github template does not yet have option for submodules.
+# Version: 5
+# Template: GitHub
+# Owner: @PACKAGE@
+# Project: @PACKAGE@
+# Matching-Pattern: @ANY_VERSION@/@PACKAGE@\-@ANY_VERSION@\.tar\.xz
+# Dversion-Mangle: s/\+dfsg$//
+# Uversion-Mangle: auto
+# Repacksuffix: +dfsg

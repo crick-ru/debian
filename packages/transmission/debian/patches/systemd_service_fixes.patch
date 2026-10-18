@@ -1,0 +1,33 @@
+From: Sandro Tosi <morph@debian.org>
+Date: Sun, 6 May 2018 15:35:38 -0400
+Subject: fix segfaults due to wrong systemd service file
+
+The service file has the following line:
+User=transmission
+
+It should be replaced with:
+User=debian-transmission
+
+This is Debian specific.
+
+Bug-Debian: https://bugs.debian.org/718624
+Origin: other, https://bugs.debian.org/718624
+Forwarded: not-needed
+Last-Update: 2025-11-06
+---
+ daemon/transmission-daemon.service.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/daemon/transmission-daemon.service.in b/daemon/transmission-daemon.service.in
+index 1180256..f9d7e8e 100644
+--- a/daemon/transmission-daemon.service.in
++++ b/daemon/transmission-daemon.service.in
+@@ -5,7 +5,7 @@ After=network-online.target
+ Documentation=man:@TR_NAME@-daemon(1)
+ 
+ [Service]
+-User=transmission
++User=debian-transmission
+ Type=notify-reload
+ ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/@TR_NAME@-daemon -f --log-level=error
+ 

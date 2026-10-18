@@ -1,0 +1,6 @@
+d /var/lib/transmission-daemon 0755 debian-transmission debian-transmission - -
+d /var/lib/transmission-daemon/downloads 4775 debian-transmission debian-transmission - -
+d /var/lib/transmission-daemon/.config 0755 debian-transmission debian-transmission - -
+d /var/lib/transmission-daemon/.config/transmission-daemon 4750 debian-transmission debian-transmission - -
+z /etc/transmission-daemon 2775 root debian-transmission - -
+z /etc/transmission-daemon/settings.json 0660 debian-transmission debian-transmission - -

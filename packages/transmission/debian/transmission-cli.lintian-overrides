@@ -1,0 +1,3 @@
+# Folx is a Mac bittorrent client
+transmission-cli binary: spelling-error-in-binary Folx *
+transmission-cli binary: spelling-in-override-comment * Folx *

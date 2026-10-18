@@ -1,0 +1,22 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Sat, 6 Apr 2024 13:17:08 +0100
+Subject: disable git hook installation
+
+Forwarded: not-needed
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 83062ad..8e3db44 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -961,7 +961,7 @@ list(APPEND CPACK_SOURCE_IGNORE_FILES
+ 
+ ## Code Formatting
+ 
+-if(GIT_FOUND)
++if(FALSE) # (GIT_FOUND)
+     execute_process(
+         COMMAND "${GIT_EXECUTABLE}" rev-parse --show-toplevel
+         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}

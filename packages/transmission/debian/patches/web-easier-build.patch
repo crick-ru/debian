@@ -1,0 +1,24 @@
+From: Alexandre Rossi <niol@zincube.net>
+Date: Mon, 29 Apr 2024 15:56:35 +0100
+Subject: Avoid extra node modules dependencies
+
+Forwarded: not-needed
+
+   - pack precompiled css instead of relying on sass compiler API
+---
+ web/src/main.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/web/src/main.js b/web/src/main.js
+index 8c4b7af..a70ff72 100644
+--- a/web/src/main.js
++++ b/web/src/main.js
+@@ -9,7 +9,7 @@ import { Prefs } from './prefs.js';
+ import { Transmission } from './transmission.js';
+ import { debounce } from './utils.js';
+ 
+-import '../assets/css/transmission-app.scss';
++import '../assets/css/transmission-app.css';
+ 
+ function main() {
+   const action_manager = new ActionManager();

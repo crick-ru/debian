@@ -1,0 +1,6 @@
+fix-gnome-icon.patch
+use-system-libs.patch
+systemd_service_fixes.patch
+web-easier-build.patch
+0003-disable-git-hook-installation.patch
+0004-do-not-mess-revision.patch
