@@ -19,6 +19,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		-Dbuild-documentation=false \
 		-Dbuild-demos=false \
+		-Dbuild-tests=false \
 		-Dmaintainer-mode=true \
 		-Dwarnings=max
 

@@ -36,7 +36,9 @@ gmmproc).
 - **Демки:** `-Dbuild-demos=false`; `libcairomm-1.16` из trixie тянет
   X11-символы `cairo_xlib_*`, которые недоступны при сборке без X11.
 - **Тесты/X11:** `xauth` и `xvfb` (`<!nocheck>`) удалены из `Build-Depends`;
-  `override_dh_auto_test` пустой (тесты не запускаются).
+  `-Dbuild-tests=false` (тесты не собираются, а не только не запускаются —
+  `libcairomm-1.16` из trixie тянет X11-символы `cairo_xlib_*`);
+  `override_dh_auto_test` пустой.
 - **debhelper-compat** понижен с 14 на 13 (соответствует общему правилу репозитория).
 - **dbgsym-пакеты** не собираются (общее правило `scripts/build-package.sh`).
 
