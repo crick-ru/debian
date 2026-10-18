@@ -1,3 +1,0 @@
-version=4
-https://download.gnome.org/sources/gtkmm/(4\.[\d]+)/ \
-	gtkmm@ANY_VERSION@@ARCHIVE_EXT@
