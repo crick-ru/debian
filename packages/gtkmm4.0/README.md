@@ -33,6 +33,8 @@ gmmproc).
 - **Документация:** `-Dbuild-documentation=false`; удалены `doxygen`, `graphviz`,
   `xsltproc` из `Build-Depends`; удалена stanza `libgtkmm-4.0-doc` и файлы
   `libgtkmm-4.0-doc.*`/`.docs`; удалён `libgtkmm-4.0-0.docs`.
+- **Демки:** `-Dbuild-demos=false`; `libcairomm-1.16` из trixie тянет
+  X11-символы `cairo_xlib_*`, которые недоступны при сборке без X11.
 - **Тесты/X11:** `xauth` и `xvfb` (`<!nocheck>`) удалены из `Build-Depends`;
   `override_dh_auto_test` пустой (тесты не запускаются).
 - **debhelper-compat** понижен с 14 на 13 (соответствует общему правилу репозитория).
