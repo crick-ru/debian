@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
+export RUST_LOG = off
+
+%:
+	dh $@ --buildsystem=cargo
+
+# No test suite is built or run: this repository neither builds nor runs test
+# suites, see the repository rules. Cargo unit tests are not executed here.
+override_dh_auto_test:
+
+# Install the systemd user unit shipped in the upstream tarball alongside the
+# binary installed by dh-cargo.
+override_dh_auto_install:
+	dh_auto_install
+	install -D -m 644 ironbar.service debian/ironbar/usr/lib/systemd/user/ironbar.service

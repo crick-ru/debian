@@ -1,0 +1,42 @@
+Source: ironbar
+Section: x11
+Priority: optional
+Maintainer: AI-agent <noreply@example.com>
+# Not packaged in Debian (neither trixie nor sid), so the debian/ directory is
+# written from scratch by upstream sources:
+#   * no -doc/-examples/-tests stanza; documentation is not built (cargo build),
+#     no man pages, no debian/tests directory;
+#   * X11 is not used: it is a Wayland GTK4 Layer Shell bar, built against the
+#     GTK 4 of this repository;
+#   * dbgsym packages are not built (general rule in scripts/build-package.sh);
+#   * cargo builds fetch crates from crates.io at build time (network required),
+#     versions pinned by Cargo.lock shipped in the tarball.
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-cargo,
+ libdbus-1-dev,
+ libgit2-dev,
+ libgtk-4-dev,
+ libgtk4-layer-shell-dev,
+ libinput-dev,
+ libluajit-5.1-dev,
+ libpulse-dev,
+ libssl-dev,
+ pkgconf,
+ rustc,
+ cargo,
+Standards-Version: 4.7.4
+Homepage: https://github.com/JakeStanger/ironbar
+Vcs-Browser: https://github.com/JakeStanger/ironbar
+Vcs-Git: https://github.com/JakeStanger/ironbar.git
+Rules-Requires-Root: no
+
+Package: ironbar
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: customisable GTK4 Layer Shell bar for Wayland compositors
+ Ironbar is a customisable and feature-rich GTK4 bar for Wayland compositors,
+ written in Rust. It supports Sway, Hyprland and Niri, and provides modules
+ for clock, tray, volume, network, music, workspaces and more.

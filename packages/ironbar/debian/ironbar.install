@@ -1,0 +1,2 @@
+usr/bin/ironbar
+usr/lib/systemd/user/ironbar.service
