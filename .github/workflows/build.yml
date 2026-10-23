@@ -4121,6 +4121,7 @@ jobs:
                 ./stage4-pool/libgstreamer-plugins-base1.0-dev_*.deb
                 ./stage5-pool/gir1.2-gst-plugins-bad-1.0_*.deb
                 ./stage5-pool/gstreamer1.0-plugins-bad_*.deb
+                ./stage5-pool/gstreamer1.0-plugins-good_*.deb
                 ./stage5-pool/libgstreamer-plugins-bad1.0-0_*.deb
                 ./stage5-pool/libgstreamer-plugins-bad1.0-dev_*.deb
                 ./stage6-pool/gir1.2-gtk-4.0_*.deb
