@@ -3,16 +3,19 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs
 export RUST_LOG = off
+export CARGO_NET_OFFLINE = false
 
 %:
-	dh $@ --buildsystem=cargo
+	dh $@
 
-# No test suite is built or run: this repository neither builds nor runs test
-# suites, see the repository rules. Cargo unit tests are not executed here.
+override_dh_auto_configure:
+
 override_dh_auto_test:
 
-# Install the systemd user unit shipped in the upstream tarball alongside the
-# binary installed by dh-cargo.
+override_dh_auto_build:
+	cargo fetch --locked
+	cargo build --release --locked --offline
+
 override_dh_auto_install:
-	dh_auto_install
+	install -D -m 755 target/release/ironbar debian/ironbar/usr/bin/ironbar
 	install -D -m 644 ironbar.service debian/ironbar/usr/lib/systemd/user/ironbar.service
