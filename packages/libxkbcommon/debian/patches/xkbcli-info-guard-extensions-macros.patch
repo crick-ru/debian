@@ -1,0 +1,30 @@
+From: AI-agent <noreply@example.com>
+Subject: Guard DFLT_XKB_CONFIG_*_EXTENSIONS_PATH macros in xkbcli info
+
+The xkbcli info tool (tools/info.c) references the
+DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH and
+DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH macros unconditionally, but these
+are only defined in the generated config.h when xkeyboard-config provides
+pkg-config variables (xkb_unversioned_extensions_path and
+xkb_versioned_extensions_path). On systems where xkeyboard-config pkg-config
+is unavailable the macros are absent and compilation fails. The
+corresponding code in src/context.c and src/registry.c already uses
+#ifdef guards.
+
+This is an upstream build issue fixed in xkbcommon git after 1.13.2.
+
+--- a/tools/info.c
++++ b/tools/info.c
+@@ -86,8 +86,12 @@
+         { "XKB_CONFIG_ROOT", DFLT_XKB_CONFIG_ROOT },
+         { "XKB_CONFIG_LEGACY_ROOT", DFLT_XKB_CONFIG_LEGACY_ROOT },
+         { "XKB_CONFIG_EXTRA_PATH", DFLT_XKB_CONFIG_EXTRA_PATH },
++#ifdef DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH
+         { "XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH", DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH },
++#endif
++#ifdef DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH
+         { "XKB_CONFIG_VERSIONED_EXTENSIONS_PATH", DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH },
++#endif
+         { "XKB_DEFAULT_RULES", DEFAULT_XKB_RULES },
+         { "XKB_DEFAULT_MODEL", DEFAULT_XKB_MODEL },
+         { "XKB_DEFAULT_LAYOUT", DEFAULT_XKB_LAYOUT },

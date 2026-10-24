@@ -21,7 +21,7 @@ Tarball взят из GitHub release v0.19.1 (git tag). Исходный код 
 
 | Пакет | Содержимое |
 |---|---|
-| `ironbar` | `usr/bin/ironbar`, systemd user unit `usr/lib/systemd/user/ironbar.service` |
+| `ironbar` | `usr/bin/ironbar`, systemd user unit `usr/lib/systemd/user/ironbar.service`, примеры конфигураций `usr/share/doc/ironbar/examples/` (desktop, menu, minimal) |
 
 Один бинарный пакет.
 
@@ -50,6 +50,11 @@ Tarball взят из GitHub release v0.19.1 (git tag). Исходный код 
 - systemd user unit `ironbar.service` — устанавливается из исходников
   апстрима.
 - Release-сборка (`cargo build --release --locked`).
+- **Примеры конфигураций** (`examples/desktop/`, `examples/menu/`,
+  `examples/minimal/`) установлены в `usr/share/doc/ironbar/examples/`.
+  Ironbar не имеет конфигурации по умолчанию — пользователю нужен стартовый
+  файл в `~/.config/ironbar/`. Upstream поставляет примеры в tarball, поэтому
+  они включены в пакет согласно исключению правил для конфиг-примеров.
 
 ## Патчи
 

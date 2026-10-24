@@ -8,8 +8,9 @@ Maintainer: AI-agent <noreply@example.com>
 #     libxkbcommon-x11-0 / libxkbcommon-x11-dev;
 #   * документация не собирается (-Denable-docs=false): пакет
 #     libxkbcommon-doc и doxygen/graphviz убраны;
-#   * тесты не собираются и не запускаются: убраны xvfb, xkb-data <!nocheck>
-#     и каталог debian/tests;
+#   * тесты не собираются и не запускаются: убраны xvfb и каталог debian/tests;
+#   * добавлен патч xkbcli-info-guard-extensions-macros.patch для сборки
+#     xkbcli info без xkeyboard-config pkg-config;
 #   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
 Build-Depends:
  debhelper-compat (= 13),
@@ -19,9 +20,9 @@ Build-Depends:
  meson,
  pkgconf,
  quilt,
- libwayland-dev [linux-any],
- libxml2-dev,
- wayland-protocols [linux-any],
+  libwayland-dev [linux-any],
+  libxml2-dev,
+  wayland-protocols [linux-any],
 Standards-Version: 4.6.1
 Homepage: https://www.xkbcommon.org/
 Vcs-Git: https://salsa.debian.org/xorg-team/lib/libxkbcommon.git

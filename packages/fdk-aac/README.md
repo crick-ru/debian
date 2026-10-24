@@ -11,14 +11,16 @@ Tarball берётся с того же GitHub-тега, что и Debian.
 
 - **В trixie:** 2.0.3-1
 - **В исходной упаковке:** 3.0.0-1
-- **В нашем репозитории:** 3.0.0-1+crick (ревизия 1)
+- **В нашем репозитории:** 3.0.0-3+crick (ревизия 3)
 
 ## Содержимое
 
 | Пакет | Содержимое |
 |---|---|
 | `libfdk-aac2t64` | `libfdk-aac.so.2` (SONAME не изменился — ABI совместим с 2.0.x) |
+| `libfdk-xhe-aac0` | `libfdk-xhe-aac.so.0` (новая библиотека xHE-AAC encoder в 3.0.0) |
 | `libfdk-aac-dev` | заголовки, `libfdk-aac.so`, `fdk-aac.pc`-файл |
+| `libfdk-xhe-aac-dev` | заголовки `fdk-xhe-aac/`, `libfdk-xhe-aac.so`, `fdk-xhe-aac.pc`-файл |
 
 Пара закрыта: `libfdk-aac-dev` требует `libfdk-aac2t64 (= ${binary:Version})`.
 
@@ -38,8 +40,8 @@ Tarball берётся с того же GitHub-тега, что и Debian.
 
 ## Патчи
 
-Один патч: `add_more_arch` — расширяет список поддерживаемых архитектур в
-`libFDK/include/FDK_archdef.h` (в апструпе список минимален).
+В 3.0.0 патч `add_more_arch` больше не нужен: поддержка sparc и s390x
+уже включена в апстрим (`cpp/libFDK/include/FDK_archdef.h`).
 
 ## Важные нюансы
 

@@ -1,2 +1,3 @@
 usr/bin/ironbar
 usr/lib/systemd/user/ironbar.service
+usr/share/doc/ironbar/examples

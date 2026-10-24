@@ -1,1 +1,2 @@
-add_more_arch
+# fdk-aac 3.0.0 includes sparc and s390x support from upstream,
+# the add_more_arch patch is no longer needed.

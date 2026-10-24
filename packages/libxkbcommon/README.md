@@ -18,9 +18,9 @@
 
 | Пакет | Содержимое |
 |---|---|
-| `libxkbcommon0` | `libxcbcommon.so.0` |
+| `libxkbcommon0` | `libxkbcommon.so.0` |
 | `libxkbcommon-dev` | заголовки, `xkbcommon.pc`, `libxcbcommon.so` |
-| `libxkbcommon-tools` | `xkbcli` (Wayland-подкоманды) |
+|   `libxkbcommon-tools` | `xkbcli` (Wayland-подкоманды) — включает `xkbcli info`, который требует `xkeyboard-config` для определения макросов путей расширений XKB (в 1.13.2 `tools/info.c` использует `DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH` без `#ifdef`). |
 | `libxkbregistry0` | `libxkbregistry.so.0` — запрос RMLVO |
 | `libxkbregistry-dev` | заголовки, `xkbregistry.pc` |
 

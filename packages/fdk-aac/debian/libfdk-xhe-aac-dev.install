@@ -1,0 +1,4 @@
+debian/tmp/usr/include/fdk-xhe-aac
+debian/tmp/usr/lib/*/libfdk-xhe-aac.so
+debian/tmp/usr/lib/*/libfdk-xhe-aac.a
+debian/tmp/usr/lib/*/pkgconfig/fdk-xhe-aac.pc

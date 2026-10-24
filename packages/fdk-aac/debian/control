@@ -26,12 +26,26 @@ Description: Fraunhofer FDK AAC Codec Library - runtime files
  This package contains the files needed to run a program compiled using
  The Fraunhofer FDK AAC Codec Library.
 
+Package: libfdk-xhe-aac0
+Architecture: any
+Multi-Arch: same
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends}
+Description: Fraunhofer FDK xHE-AAC Codec Library - runtime files
+ Extended HE-AAC v3 encoder library (xHE-AAC). Part of the FDK AAC Codec
+ Library since version 3.0.0.
+ .
+ This package contains the shared library needed to run applications
+ using the xHE-AAC encoder.
+
 Package: libfdk-aac-dev
 Architecture: any
 Multi-Arch: same
 Section: non-free/libdevel
 Depends:
  libfdk-aac2t64 (= ${binary:Version}),
+ libfdk-xhe-aac0 (= ${binary:Version}),
  pkg-config,
  ${misc:Depends}
 Description: Fraunhofer FDK AAC Codec Library - development files
