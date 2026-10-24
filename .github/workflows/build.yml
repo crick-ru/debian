@@ -4130,9 +4130,17 @@ jobs:
                 ./stage6-pool/libgtk-4-bin_*.deb
                 ./stage6-pool/libgtk-4-common_*.deb
                 ./stage6-pool/libgtk-4-dev_*.deb
-          )
-          echo "Installing: ${debs[*]}"
-          apt-get install -y --no-install-recommends "${debs[@]}"
+              )
+              echo "Installing: ${debs[*]}"
+              apt-get install -y --no-install-recommends "${debs[@]}"
+
+      - name: Install Rust toolchain (newer than trixie's rustc 1.85.1)
+        run: |
+          # ironbar v0.19.1 depends on crates requiring rustc >= 1.87
+          # (zbus 1.87, mlua/time/vergen 1.88, sysinfo 1.95). Trixie ships
+          # rustc 1.85.1, so install a newer toolchain via rustup.
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.95.0 --profile minimal
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Build package (cached, reuses unchanged results)
         uses: ./.github/actions/build-deb
