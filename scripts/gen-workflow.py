@@ -22,6 +22,7 @@ import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(SCRIPT_DIR)
+PACKAGES_DIR = os.path.join(REPO, 'packages')
 WORKFLOW = os.path.join(REPO, '.github', 'workflows', 'build.yml')
 
 JOB_RE = re.compile(r'^  (stage[0-9]+):$')
@@ -151,6 +152,10 @@ DEB_SETS = {
     # publishes it. Without this entry, packages like gtk4 that need
     # libgl-dev (via libepoxy-dev) cannot resolve it from our repo.
     'libglvnd': ((1, 'libgl-dev'),),
+    # libadwaita-1 is a new package in stage 7; celluloid needs it at 1.8.0+
+    # (trixie only has 1.7.6). Without this entry the closure for celluloid
+    # cannot find libadwaita-1-dev from our repository.
+    'libadwaita-1': ((7, 'libadwaita-1-0'), (7, 'libadwaita-1-dev'), (7, 'gir1.2-adw-1')),
 }
 
 
@@ -289,8 +294,20 @@ def parse_generated():
                 comments.append(text)
             elif in_debs and not stripped.startswith('#'):
                 in_debs = False
-        packages[name] = {'stage': stage, 'debs': debs, 'comments': comments}
+            packages[name] = {'stage': stage, 'debs': debs, 'comments': comments}
         order.append(name)
+    # Добавляем пакеты, присутствующие в packages/ но отсутствующие в workflow.
+    # Их job-ы создаются при первом запуске gen-workflow.py; затем parse_generated()
+    # читает их из workflow на последующих запусках.
+    existing = set(packages)
+    for pkg_dir in sorted(os.listdir(PACKAGES_DIR)):
+        pkg_path = os.path.join(PACKAGES_DIR, pkg_dir)
+        if not os.path.isdir(pkg_path):
+            continue
+        if pkg_dir in existing:
+            continue
+        packages[pkg_dir] = {'stage': 1, 'debs': [], 'comments': []}
+        order.append(pkg_dir)
     return packages, order
 
 
@@ -582,4 +599,9 @@ if __name__ == '__main__':
             sys.exit(0)
         print('РАСХОЖДЕНИЕ: workflow отличается от сгенерированного')
         sys.exit(1)
+    if '--diff' in sys.argv:
+        current = re.sub(r'\n+\Z', '\n', open(WORKFLOW).read())
+        sys.stdout.write(text)
+    else:
+        open(WORKFLOW, 'w').write(text)
     sys.stdout.write(text)
