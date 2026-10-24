@@ -1,3 +1,14 @@
+dummy-x11 (1.0-5) unstable; urgency=medium
+
+  * Override xcb_connect, xcb_connect_to_display_with_auth_info,
+    xcb_generate_id, xcb_flush, xcb_disconnect to return hardcoded values
+    instead of delegating to real libxcb. Browser calls has_error 200+
+    times but doesn't switch to Wayland when only has_error is overridden.
+    Now all called functions return stub values without touching real libxcb.
+  * STUB_OVERRIDES expanded from 1 to 6 entries.
+
+  -- crick Debian Backports <backports@users.noreply.github.com>  Fri, 24 Oct 2026 00:00:00 +0000
+
 dummy-x11 (1.0-4) unstable; urgency=medium
 
   * xcb_connection_has_error overridden to return XCB_CONN_SERVER_UNAVAILABLE

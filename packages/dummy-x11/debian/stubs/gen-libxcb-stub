@@ -47,10 +47,20 @@ SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
 # Функции, для которых возвращаем жёсткое значение вместо делегирования
 # реальной libxcb. Ключ — имя функции, значение — C-выражение для возврата.
 # Подробности в докстринге выше.
+#
+# Значения из лога делегированной заглушки (1-е октября 2026, Яндекс Браузер):
+#   xcb_connect → non-NULL указатель (браузер не проверяет)
+#   xcb_connection_has_error → 0x3 (SERVER_UNAVAILABLE, а не 0x5 WAITING_FOR_SETUP)
+#   xcb_generate_id → 0xffffffff (валидный XID)
+#   xcb_flush → 0 (нечего сбрасывать)
+#   xcb_disconnect → void (значение не важно)
 STUB_OVERRIDES = {
-    # XCB_CONN_SERVER_UNAVAILABLE (3) вместо XCB_CONN_WAITING_FOR_SETUP (5):
-    # принудительный fallback браузера на Wayland.
+    'xcb_connect': '(void*)0x1',
+    'xcb_connect_to_display_with_auth_info': '(void*)0x1',
     'xcb_connection_has_error': '(void*)0x3',
+    'xcb_generate_id': '(void*)0xffffffff',
+    'xcb_flush': '(void*)0',
+    'xcb_disconnect': '(void*)0',
 }
 
 
