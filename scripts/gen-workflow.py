@@ -121,6 +121,26 @@ def deb_sets(text):
 # следующих случаев: молчаливый обход правила опаснее явного.
 CLOSURE_EXCEPT = {}
 
+# Runtime dependencies not captured by Build-Depends: when a source package is
+# added via closure, these extra binary packages must also be installed.
+# {source_package: set of binary_package_names}
+# Stage is taken from the package's own level (not added to LEVEL graph).
+CLOSURE_EXTRA = {
+    # gstreamer1.0-plugins-bad depends on gstreamer1.0-plugins-good at runtime.
+    # Packages that pull in plugins-bad via Build-Depends closure must also get
+    # plugins-good, otherwise apt fails with "held broken packages".
+    'gstreamer1.0-plugins-bad': {'gstreamer1.0-plugins-good'},
+}
+
+# Packages that must be at the same level despite a runtime dependency.
+# Without this, levels() would put plugins-good at level N and plugins-bad
+# at level N+1, unnecessarily delaying builds. Both depend on plugins-base
+# (same level), so they build in parallel.
+LEVEL_ALIASES = {
+    'gstreamer1.0-plugins-bad': {'gstreamer1.0-plugins-good'},
+    'gstreamer1.0-plugins-good': {'gstreamer1.0-plugins-bad'},
+}
+
 # Пакеты, требующие нестандартного раннера, задавались здесь таблицей
 # RUNNER_OVERRIDE: chromium требовал self-hosted с бо́льшим диском и памятью,
 # и его нельзя было убрать без continue-on-error (иначе publish ждал бы job
@@ -245,6 +265,24 @@ def close(packages, order, transitive_wanted):
                     '%s%s собирается против пакетов этого репозитория, а не '
                     'trixie (добавлено замыканием по Build-Depends)'
                     % (MARK, provider))
+        # Add runtime dependencies not captured by Build-Depends.
+        # CLOSURE_EXTRA[provider] lists binary packages that must be installed
+        # alongside the provider (e.g. gstreamer1.0-plugins-good must be
+        # installed with gstreamer1.0-plugins-bad, even though it's only a
+        # runtime Depends, not a Build-Depends).
+        for provider in list(need_source) + [name]:
+            for extra_bin in CLOSURE_EXTRA.get(provider, ()):
+                if extra_bin not in have:
+                    extra_stage = 1
+                    deb_sets_data = deb_sets(FULL)
+                    for src, deb_set in deb_sets_data.items():
+                        for es, ed in deb_set:
+                            if ed == extra_bin:
+                                extra_stage = es
+                                break
+                    data['debs'].append((extra_stage, extra_bin))
+                    have.add(extra_bin)
+                    added += 1
     return added
 
 
@@ -367,8 +405,14 @@ def levels(packages):
     """Номер уровня по фактическим спискам .deb: 1 + максимум поставщиков."""
     providers = {}
     for name, data in packages.items():
+        # CLOSURE_EXTRA deps are runtime-only; they must not affect the level
+        # graph, so they are excluded from PROVIDERS. LEVEL_ALIASES groups
+        # packages that must be at the same level (e.g. plugins-good and
+        # plugins-bad) despite a runtime dependency.
+        aliases = LEVEL_ALIASES.get(name, set())
         providers[name] = sorted({OWNER[deb] for _, deb in data['debs']
-                                  if deb in OWNER and OWNER[deb] != name})
+                                  if deb in OWNER and OWNER[deb] != name
+                                  and OWNER[deb] not in aliases})
     level = {}
 
     def compute(name, stack):
@@ -564,9 +608,11 @@ for pkg, deps in BUILD_DEPS.items():
 
 TRANSITIVE_DEPS = transitive_closure(SOURCE_DEPS)
 PACKAGES, ORDER = parse()
-close(PACKAGES, ORDER, TRANSITIVE_DEPS)
 LEVEL, PROVIDERS = levels(PACKAGES)
+# close() may add CLOSURE_EXTRA deps (runtime only, not Build-Depends).
+# These must NOT affect level computation, so renumber runs first.
 renumber(PACKAGES, LEVEL, PROVIDERS)
+close(PACKAGES, ORDER, TRANSITIVE_DEPS)
 if __name__ == '__main__':
     body = render(PACKAGES, ORDER, LEVEL, BUILD_DEPS)
     # Публикация ждёт всех пакетов, а не несуществующую стадию: needs
