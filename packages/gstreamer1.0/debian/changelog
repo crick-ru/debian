@@ -1,3 +1,10 @@
+gstreamer1.0 (1.28.8-1) unstable; urgency=medium
+
+  * New upstream version 1.28.8 (11 security advisories sa-2026-0078..0092,
+    ~35 bugfixes including wayland, d3d12, v4l2, RTP bounds checks).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 gstreamer1.0 (1.28.7-1) unstable; urgency=medium
 
   * New upstream version 1.28.7 (Closes: #1144521)

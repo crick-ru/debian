@@ -1,3 +1,10 @@
+kmscon (10.0.4-2) unstable; urgency=medium
+
+  * New upstream version 10.0.4 (font refactor, default font size now 0,
+    scaled multi-monitor option, DRM fixes, cursor blinking rate).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 kmscon (10.0.3-1) unstable; urgency=medium
 
   * New upstream release.

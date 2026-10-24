@@ -1,3 +1,10 @@
+pipewire (1.6.10-3) unstable; urgency=medium
+
+  * New upstream version 1.6.10 (security fixes, jack stability, bluez5 fixes,
+    pulse-server refactoring).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 pipewire (1.6.9-2) unstable; urgency=medium
 
   [ Agathe Porte ]

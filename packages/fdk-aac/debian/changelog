@@ -1,3 +1,11 @@
+fdk-aac (3.0.0-1) unstable; urgency=medium
+
+  * New upstream version 3.0.0 (major bump: new separate library
+    fdk-xhe-aac with xHE-AAC encoder; existing fdk-aac library remains
+    ABI-compatible with 2.0.x).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 fdk-aac (2.0.3-1) unstable; urgency=medium
 
   [ Jeremy Bicha ]

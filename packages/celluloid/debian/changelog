@@ -1,3 +1,10 @@
+celluloid (0.30-2) unstable; urgency=medium
+
+  * New upstream version 0.30 (file chooser fix, RTL layout fix, libadwaita
+    shortcuts dialog, Blu-ray detection fix, new translations).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 celluloid (0.29-3) unstable; urgency=medium
 
   * Team upload.

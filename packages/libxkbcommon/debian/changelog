@@ -1,3 +1,10 @@
+libxkbcommon (1.13.2-2) unstable; urgency=medium
+
+  * New upstream version 1.13.2 (updated keysyms from xorgproto, new
+    xkbcli info tool, include statement fix).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 libxkbcommon (1.13.1-1) unstable; urgency=medium
 
   * New upstream release.

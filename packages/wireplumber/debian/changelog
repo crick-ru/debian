@@ -1,3 +1,10 @@
+wireplumber (0.5.18-1) unstable; urgency=medium
+
+  * New upstream version 0.5.18 (HDMI profile selection fix, ALSA error
+    recovery limits, 15+ bugfixes).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 wireplumber (0.5.17-1) unstable; urgency=medium
 
   * New upstream version.

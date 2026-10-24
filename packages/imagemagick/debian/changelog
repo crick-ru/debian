@@ -1,3 +1,9 @@
+imagemagick (8:7.1.2-34-4) unstable; urgency=medium
+
+  * New upstream version 7.1.2-34 (security fixes, bugfixes).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 imagemagick (8:7.1.1.43+dfsg1-1+deb13u12) trixie; urgency=medium
 
   * Fix CVE-2026-56362:

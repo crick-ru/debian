@@ -1,3 +1,11 @@
+libheif (1.23.6-1) unstable; urgency=high
+
+  * New upstream version 1.23.6 (security release: 4 high-severity CVEs
+    including memory exhaustion in OpenJPEG and unci decoders, CPU
+    exhaustion, heap out-of-bounds read in libsharpyuv).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 libheif (1.23.4-1~deb13u1) trixie-security; urgency=high
 
   * Non-maintainer upload by the Security Team.

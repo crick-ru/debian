@@ -1,3 +1,9 @@
+gst-plugins-bad1.0 (1.28.8-3) unstable; urgency=medium
+
+  * New upstream version 1.28.8 (security fixes, bugfixes).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
 gst-plugins-bad1.0 (1.28.7-2) unstable; urgency=medium
 
   * d/control: disable wpewebkit for big endian architectures
