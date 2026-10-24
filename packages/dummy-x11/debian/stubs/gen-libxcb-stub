@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """Сгенерировать libxcb.so.1 — логирующую заглушку, которая перехватывает
-все вызовы xcb_* функций Яндекс.Браузера, логгирует их, а затем делегирует
+все вызовы xcb_* функций Яндекс.Браузера, логирует их, а затем делегирует
 вызов настоящей libxcb (из скрытого пути) для сохранения работоспособности.
 
 Зачем. Настоящий libxcb.so.1 из trixie в пакете был заменён на эту заглушку,
 чтобы выяснить, какие именно функции и ответы нужны браузеру. Сгенерированная
 заглушка логгирует все вызовы и делегирует их настоящей библиотеке, которая
 стоит по скрытому пути и загружается через dlopen.
+
+Специальные переопределения (STUB_OVERRIDES). Некоторые функции не делегируются
+на реальную libxcb — вместо этого возвращают заранее известное значение.
+Это нужно для принудительного переключения браузера с X11 на Wayland:
+  - xcb_connection_has_error возвращает XCB_CONN_SERVER_UNAVAILABLE (0x3)
+    вместо XCB_CONN_WAITING_FOR_SETUP (0x5), который возвращает реальная libxcb.
+    0x5 заставляет браузер продолжать попытки X11; 0x3 — немедленно сдаться
+    и перейти на Wayland.
 
 Устройство. Для каждого из 676 символов xcb_* генерируется функция-обёртка:
   1. Сохраняет аргументы из регистров (rdi, rsi, rdx, rcx, r8, r9) в локальные
@@ -35,6 +43,15 @@ REAL_LIB_PATH = "/usr/share/dummy-x11/hidden/libxcb-real.so.1"
 
 # Путь к списку символов.
 SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
+
+# Функции, для которых возвращаем жёсткое значение вместо делегирования
+# реальной libxcb. Ключ — имя функции, значение — C-выражение для возврата.
+# Подробности в докстринге выше.
+STUB_OVERRIDES = {
+    # XCB_CONN_SERVER_UNAVAILABLE (3) вместо XCB_CONN_WAITING_FOR_SETUP (5):
+    # принудительный fallback браузера на Wayland.
+    'xcb_connection_has_error': '(void*)0x3',
+}
 
 
 def read_symbols():
@@ -73,7 +90,7 @@ static const char *get_log_path(void) {{
 
 __attribute__((constructor))
 static void xcb_stub_init(void) {{
-    g_log = fopen(get_log_path(), "w");
+    g_log = fopen(get_log_path(), "a");
     if (!g_log) {{
         g_log = stderr;
     }}
@@ -165,6 +182,30 @@ void *{name}(void) {{
 """
 
 
+# Шаблон для функций с переопределённым возвращаемым значением (STUB_OVERRIDES).
+# Логирует вызов, но вместо делегирования реальной libxcb возвращает
+# заранавливаемое значение.
+OVERRIDE_TEMPLATE = """\
+void *{name}(void) {{
+    /* Захват аргументов из регистров до любых вызовов */
+    register void *a0 asm("rdi");
+    register void *a1 asm("rsi");
+    register void *a2 asm("rdx");
+    register void *a3 asm("rcx");
+    register void *a4 asm("r8");
+    register void *a5 asm("r9");
+    void *sv0 = a0, *sv1 = a1, *sv2 = a2, *sv3 = a3, *sv4 = a4, *sv5 = a5;
+
+    log_entry("{name}", sv0, sv1, sv2, sv3, sv4, sv5);
+
+    void *ret = {override};
+    log_exit("{name}", ret);
+    return ret;
+}}
+
+"""
+
+
 def main():
     outdir = sys.argv[1] if len(sys.argv) > 1 else '.'
     srcdir = os.path.join(outdir, '.src')
@@ -179,7 +220,11 @@ def main():
     with open(csrc, 'w', encoding='utf-8') as fh:
         fh.write(LOG_HEADER)
         for sym in symbols:
-            fh.write(WRAPPER_TEMPLATE.format(name=sym))
+            if sym in STUB_OVERRIDES:
+                fh.write(OVERRIDE_TEMPLATE.format(
+                    name=sym, override=STUB_OVERRIDES[sym]))
+            else:
+                fh.write(WRAPPER_TEMPLATE.format(name=sym))
 
     print('==> compiling %s (%d wrappers)' % (so, len(symbols)))
     subprocess.run(

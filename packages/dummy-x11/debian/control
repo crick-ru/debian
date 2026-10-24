@@ -76,12 +76,15 @@ Description: X11 dependency stubs for Wayland-only systems
  dummy-x11.so; the real SONAMEs are symbolic links to it, so the dynamic
  linker resolves the binary's imports to it and the program starts without
  an X server. Every stubbed function returns NULL.
- .
- libxcb.so.1 is a logging wrapper: it logs all xcb_* calls to
- /tmp/dummy-x11-libxcb.log (or $YABROWSER_XCB_LOG) and delegates them
- to the real libxcb (stored at
- /usr/share/dummy-x11/hidden/libxcb-real.so.1) via dlopen/dlsym. This
- allows diagnosing which xcb functions the browser actually needs.
+  .
+  libxcb.so.1 is a logging wrapper: it logs all xcb_* calls to
+  /tmp/dummy-x11-libxcb.log (or $YABROWSER_XCB_LOG, opened in append mode)
+  and delegates them to the real libxcb (stored at
+  /usr/share/dummy-x11/hidden/libxcb-real.so.1) via dlopen/dlsym. The
+  key exception is xcb_connection_has_error, which returns
+  XCB_CONN_SERVER_UNAVAILABLE (0x3) instead of the real value
+  (XCB_CONN_WAITING_FOR_SETUP, 0x5) — this forces the browser to
+  fall back from X11 to Wayland.
  .
  This package contains no X11 code whatsoever: nothing here talks the X11
  protocol, and there is nothing to switch off. Do not install it on a

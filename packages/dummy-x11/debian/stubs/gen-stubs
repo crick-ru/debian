@@ -120,7 +120,9 @@ def main():
     print('==> Симлинков: %d' % len(STUB_SONAMES))
     # Сгенерировать логирующую заглушку libxcb.so.1 (gen-libxcb-stub):
     # экспортирует все 676 символов xcb_*, логгирует вызовы и делегирует
-    # их настоящей libxcb по скрытому пути через dlopen/dlsym.
+    # их настоящей libxcb по скрытому пути через dlopen/dlsym. Одна функция
+    # (xcb_connection_has_error) переопределена — возвращает 0x3 вместо делегирования,
+    # чтобы браузер переключился с X11 на Wayland.
     gen_xcb = os.path.join(HERE, 'gen-libxcb-stub')
     subprocess.run(['python3', gen_xcb, outdir], check=True)
 

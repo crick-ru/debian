@@ -55,7 +55,7 @@ STUB_SONAMES = (
     'libXdmcp.so.6',
     # Логирующая заглушка libxcb.so.1 (настоящая libxcb скрыта по пути
     # /usr/share/dummy-x11/hidden/libxcb-real.so.1 и делегируется через
-    # dlopen):
+    # dlopen; xcb_connection_has_error переопределена для Wayland fallback):
     'libxcb.so.1',
 )
 

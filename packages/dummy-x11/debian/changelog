@@ -1,3 +1,15 @@
+dummy-x11 (1.0-4) unstable; urgency=medium
+
+  * xcb_connection_has_error overridden to return XCB_CONN_SERVER_UNAVAILABLE
+    (0x3) instead of delegating to real libxcb (which returns
+    XCB_CONN_WAITING_FOR_SETUP, 0x5). This forces Yandex Browser to fall back
+    from X11 to Wayland.
+  * Log file opened in append mode ("a") instead of truncate ("w") to prevent
+    log entries from being lost when multiple processes use the stub.
+  * README.md and dummy-x11-report updated with override documentation.
+
+  -- crick Debian Backports <backports@users.noreply.github.com>  Fri, 24 Oct 2026 00:00:00 +0000
+
 dummy-x11 (1.0-3) unstable; urgency=low
 
   * libxcb.so.1 replaced with a logging wrapper that delegates to the real
@@ -7,4 +19,4 @@ dummy-x11 (1.0-3) unstable; urgency=low
   * dummy-x11-report updated: libxcb treated as stub, not real.
   * README.md updated with logging details.
 
- -- crick Debian Backports <backports@users.noreply.github.com>  Fri, 24 Oct 2026 00:00:00 +0000
+  -- crick Debian Backports <backports@users.noreply.github.com>  Fri, 24 Oct 2026 00:00:00 +0000
