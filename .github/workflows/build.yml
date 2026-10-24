@@ -3754,7 +3754,7 @@ jobs:
     name: libadwaita-1 (stage 7)
     if: >-
       ${{ !inputs.package || inputs.package == 'celluloid' || inputs.package == 'libadwaita-1' || inputs.package == 'pwvucontrol' }}
-    needs: [build_gtk_3_0, build_gtk4, build_mesa]
+    needs: [build_gtk4]
     runs-on: ubuntu-latest
     container:
       image: debian:trixie
@@ -3836,12 +3836,10 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
-          # ci-closure: at-spi2-core собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-bad собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
-          # ci-closure: gtk+3.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gtk4 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libglvnd собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
@@ -3917,22 +3915,6 @@ jobs:
                 ./stage6-pool/libgtk-4-bin_*.deb
                 ./stage6-pool/libgtk-4-common_*.deb
                 ./stage6-pool/libgtk-4-dev_*.deb
-                ./stage1-pool/at-spi2-common_*.deb
-                ./stage1-pool/gir1.2-atk-1.0_*.deb
-                ./stage1-pool/gir1.2-atspi-2.0_*.deb
-                ./stage1-pool/libatk-bridge2.0-0t64_*.deb
-                ./stage1-pool/libatk-bridge2.0-dev_*.deb
-                ./stage1-pool/libatk1.0-0t64_*.deb
-                ./stage1-pool/libatk1.0-dev_*.deb
-                ./stage1-pool/libatspi2.0-0t64_*.deb
-                ./stage1-pool/libatspi2.0-dev_*.deb
-                ./stage6-pool/gir1.2-gtk-3.0_*.deb
-                ./stage6-pool/libgail-3-0t64_*.deb
-                ./stage6-pool/libgail-3-dev_*.deb
-                ./stage6-pool/libgtk-3-0t64_*.deb
-                ./stage6-pool/libgtk-3-bin_*.deb
-                ./stage6-pool/libgtk-3-common_*.deb
-                ./stage6-pool/libgtk-3-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -4043,14 +4025,12 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
-          # ci-closure: at-spi2-core собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: fdk-aac собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: ffmpeg собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-bad собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
-          # ci-closure: gtk+3.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gtk4 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libadwaita-1 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
@@ -4160,22 +4140,6 @@ jobs:
                 ./stage7-pool/gir1.2-adw-1_*.deb
                 ./stage7-pool/libadwaita-1-0_*.deb
                 ./stage7-pool/libadwaita-1-dev_*.deb
-                ./stage1-pool/at-spi2-common_*.deb
-                ./stage1-pool/gir1.2-atk-1.0_*.deb
-                ./stage1-pool/gir1.2-atspi-2.0_*.deb
-                ./stage1-pool/libatk-bridge2.0-0t64_*.deb
-                ./stage1-pool/libatk-bridge2.0-dev_*.deb
-                ./stage1-pool/libatk1.0-0t64_*.deb
-                ./stage1-pool/libatk1.0-dev_*.deb
-                ./stage1-pool/libatspi2.0-0t64_*.deb
-                ./stage1-pool/libatspi2.0-dev_*.deb
-                ./stage6-pool/gir1.2-gtk-3.0_*.deb
-                ./stage6-pool/libgail-3-0t64_*.deb
-                ./stage6-pool/libgail-3-dev_*.deb
-                ./stage6-pool/libgtk-3-0t64_*.deb
-                ./stage6-pool/libgtk-3-bin_*.deb
-                ./stage6-pool/libgtk-3-common_*.deb
-                ./stage6-pool/libgtk-3-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"
@@ -4278,13 +4242,11 @@ jobs:
           # apt-get трактует аргументы без разделителя пути как
           # имена пакетов, поэтому скачанные .deb передаются как
           # ./stageN-pool/<файл>.deb
-          # ci-closure: at-spi2-core собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: cairo собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: fdk-aac собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-bad собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gstreamer1.0-plugins-base собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
-          # ci-closure: gtk+3.0 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: gtk4 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libadwaita-1 собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
           # ci-closure: libdrm собирается против пакетов этого репозитория, а не trixie (добавлено замыканием по Build-Depends)
@@ -4380,22 +4342,6 @@ jobs:
                 ./stage7-pool/gir1.2-adw-1_*.deb
                 ./stage7-pool/libadwaita-1-0_*.deb
                 ./stage7-pool/libadwaita-1-dev_*.deb
-                ./stage1-pool/at-spi2-common_*.deb
-                ./stage1-pool/gir1.2-atk-1.0_*.deb
-                ./stage1-pool/gir1.2-atspi-2.0_*.deb
-                ./stage1-pool/libatk-bridge2.0-0t64_*.deb
-                ./stage1-pool/libatk-bridge2.0-dev_*.deb
-                ./stage1-pool/libatk1.0-0t64_*.deb
-                ./stage1-pool/libatk1.0-dev_*.deb
-                ./stage1-pool/libatspi2.0-0t64_*.deb
-                ./stage1-pool/libatspi2.0-dev_*.deb
-                ./stage6-pool/gir1.2-gtk-3.0_*.deb
-                ./stage6-pool/libgail-3-0t64_*.deb
-                ./stage6-pool/libgail-3-dev_*.deb
-                ./stage6-pool/libgtk-3-0t64_*.deb
-                ./stage6-pool/libgtk-3-bin_*.deb
-                ./stage6-pool/libgtk-3-common_*.deb
-                ./stage6-pool/libgtk-3-dev_*.deb
           )
           echo "Installing: ${debs[*]}"
           apt-get install -y --no-install-recommends "${debs[@]}"

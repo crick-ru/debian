@@ -87,7 +87,15 @@ def build_deps():
         path = os.path.join(REPO, 'packages', control, 'debian', 'control')
         if not os.path.exists(path):
             continue
-        for stanza in re.split(r'\n\n', open(path).read()):
+        raw = open(path).read()
+        # Drop Debian control comment lines (# at line start) so that tokens
+        # named inside comments — e.g. "libgtk-3-dev" or "mesa-vulkan-drivers"
+        # in notes about *removed* build-dependencies — are not tokenized as
+        # real build-dependencies below. Such false positives created spurious
+        # source edges (gtk+3.0 / mesa) in the stage graph, which in turn made
+        # `package=libadwaita-1` dispatch skip the job (it needed build_gtk_3_0).
+        raw = re.sub(r'(?m)^[ \t]*#.*\n?', '', raw)
+        for stanza in re.split(r'\n\n', raw):
             source = re.search(r'^Source:\s*(\S+)', stanza, re.M)
             package = re.search(r'^Package:\s*(\S+)', stanza, re.M)
             name = source.group(1) if source else (package.group(1) if package else None)
