@@ -1,163 +1,5 @@
-libadwaita-1 (1.10.0-2) unstable; urgency=medium
+libadwaita-1 (1.7.6-1~deb13u1) trixie; urgency=medium
 
-  * Release to unstable
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Sat, 03 Oct 2026 10:52:16 +0200
-
-libadwaita-1 (1.10.0-1) experimental; urgency=medium
-
-  [ Daniel van Vugt ]
-  * New upstream release
-  * Bump minimum required glib version to 2.89.3 per upstream 1.10.0 release
-
-  [ Jeremy Bícha ]
-  * Add versioned Provides: libadwaita-dev
-  * Update debian/upstream/metadata
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 16 Sep 2026 16:53:28 +0200
-
-libadwaita-1 (1.10~beta.1-1) experimental; urgency=medium
-
-  [ Daniel van Vugt ]
-  * New upstream release 1.10.alpha.1
-  * Drop deprecated dependency 'appstream', now inline with 'ministream'.
-  * Bump gtk dependency to 4.23.1
-  * Refresh stylesheet-common-Use-disabled-opacity-for-disabled-pictu.patch
-  * debian/libadwaita-1.0.symbols: Add new symbols
-  * Lintian:
-    - debian/copyright: Update for subprojects/ministream/tests/fixtures/*xml
-
-  [ Jeremy Bícha ]
-  * New upstream release
-  * debian/libadwaita-1.0.symbols: Add new symbols
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Tue, 04 Aug 2026 14:58:18 +0200
-
-libadwaita-1 (1.9.2-1) unstable; urgency=medium
-
-  * New upstream release
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Sun, 28 Jun 2026 11:50:56 -0400
-
-libadwaita-1 (1.9.1-1) unstable; urgency=medium
-
-  * New upstream release
-  * Update debhelper compat to 14
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 15 Jun 2026 16:46:43 -0400
-
-libadwaita-1 (1.9.0-1) unstable; urgency=medium
-
-  [ Daniel van Vugt ]
-  * New upstream release 1.9.0
-  * Refresh patch:
-    stylesheet-common-Use-disabled-opacity-for-disabled-pictu.patch
-
-  [ Jeremy Bícha ]
-  * debian/libadwaita-1-0.bug-control: Add libgtk-nocsd0 to package status list
-  * Update Standards Version to 4.7.4
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Thu, 02 Apr 2026 10:19:41 -0400
-
-libadwaita-1 (1.9~beta-2) unstable; urgency=medium
-
-  * Remove patch that avoided use of gtk4 4.21
-  * Update minimum gtk4
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Tue, 17 Feb 2026 17:16:34 -0500
-
-libadwaita-1 (1.9~beta-1) unstable; urgency=medium
-
-  [ Daniel van Vugt ]
-  * New upstream release 1.9.beta
-  * Remove upstreamed patch: demo-Remove-NoDisplay-from-desktop-file.patch
-  * Update debian/patches/stylesheet-common* to use the disabled-opacity
-    variable instead of $disabled_opacity which no longer exists.
-  * Add Make-GtkReducedMotion-optional.patch so we're not blocked waiting
-    for a new GTK version. The change is so simple and unimportant that
-    it should not prevent builds against older GTK versions. Although we
-    fully expect a new GTK version soon and this patch can be dropped.
-  * Update debian/libadwaita-1-0.symbols with new symbols in 1.9.beta
-
-  [ Jeremy Bícha ]
-  * Disable stylesheet-common-Use-opacity-for-all-disabled-gtk-images.patch:
-    It emits a lot of warnings
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 13 Feb 2026 08:41:17 -0500
-
-libadwaita-1 (1.8.4-1) unstable; urgency=medium
-
-  * New upstream release
-  * Cherry-pick patch to stop hiding launcher for libadwaita demo
-    (Closes: #1123563)
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 02 Feb 2026 10:33:04 -0500
-
-libadwaita-1 (1.8.3-1) unstable; urgency=medium
-
-  * New upstream release
-  * autopkgtest: Set allow-stderr restriction to work around new xkb errors
-  * Bump Standards Version to 4.7.3
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Sat, 03 Jan 2026 17:35:22 -0500
-
-libadwaita-1 (1.8.2-1) unstable; urgency=medium
-
-  * New upstream release
-  * Bump minimum gtk4
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Sun, 23 Nov 2025 14:27:17 -0500
-
-libadwaita-1 (1.8.1-1) unstable; urgency=medium
-
-  * New upstream release
-  * Add Build-Depends: appstream for build tests
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 13 Oct 2025 19:29:08 -0400
-
-libadwaita-1 (1.8.0-1) unstable; urgency=medium
-
-  * New upstream release
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 12 Sep 2025 15:54:39 -0400
-
-libadwaita-1 (1.8~rc-2) unstable; urgency=medium
-
-  [ Simon McVittie ]
-  * d/control: Standards-Version: 4.7.2 (no changes required)
-  * d/control: Remove Rules-Requires-Root, unnecessary since trixie
-  * d/control: Replace libgirepository1.0-dev B-D with gobject-introspection
-  * d/libadwaita-1-doc.links: Make the API documentation more discoverable
-  * d/libadwaita-1-doc.doc-base: Register API documentation with doc-base
-
-  [ Jeremy Bícha ]
-  * Release to unstable
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 12 Sep 2025 06:10:19 -0400
-
-libadwaita-1 (1.8~rc-1) experimental; urgency=medium
-
-  [ Jeremy Bícha ]
-  * New upstream release
-  * Bump minimum gtk4 to 4.19.4
-
-  [ Simon McVittie ]
-  * Merge 1.7.x updates from unstable (no functional change)
-
- -- Jeremy Bícha <jbicha@ubuntu.com>  Sun, 31 Aug 2025 08:59:24 -0400
-
-libadwaita-1 (1.8~beta-1) experimental; urgency=medium
-
-  * New upstream release
-  * debian/control: Add libfribidi build dependency
-  * debian/libadwaita-1-0.symbols: Update
-
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 06 Aug 2025 00:18:36 +0200
-
-libadwaita-1 (1.7.6-1) unstable; urgency=medium
-
-  * Team upload
-  * d/control, d/gbp.conf, d/watch: Track 1.7.x
   * New upstream bugfix release 1.7.5
     - Explicitly set the size of a custom avatar image, avoiding a
       regression with GTK 4.19.x
@@ -173,7 +15,7 @@ libadwaita-1 (1.7.6-1) unstable; urgency=medium
       (libadwaita#997 upstream)
     - Fix some memory leaks
     - CI updates, not relevant to how this package is built in Debian
-  * New upstream bugfix release 1.7.6
+  * New upstream bugfix release 1.7.6 (Closes: #1111847)
     - Make cancelling an alert dialog go through the same code path as
       the user interacting with it
       (libadwaita!1511 upstream)
@@ -196,8 +38,9 @@ libadwaita-1 (1.7.6-1) unstable; urgency=medium
       (libadwaita!1517 upstream)
     - Remove some dead code
       (libadwaita!1521 upstream)
+  * debian/gbp.conf: branch for trixie
 
- -- Simon McVittie <smcv@debian.org>  Fri, 08 Aug 2025 11:06:22 +0100
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 22 Aug 2025 17:49:38 -0400
 
 libadwaita-1 (1.7.4-2) unstable; urgency=medium
 

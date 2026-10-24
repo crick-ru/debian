@@ -23,12 +23,7 @@ License: GPL-3+
 Files:
  demo/data/org.gnome.Adwaita1.Demo.metainfo.xml*
  tests/org.gnome.Adwaita1.Test.metainfo.xml*
- subprojects/ministream/tests/fixtures/misc.metainfo.xml
- subprojects/ministream/tests/fixtures/noid.metainfo.xml
- subprojects/ministream/tests/fixtures/valid.metainfo.xml
-Copyright:
- The GNOME Project
- 2026, Florian Leander Singer <sp1rit@disroot.org>
+Copyright: The GNOME Project
 License: CC0-1.0
 
 Files:

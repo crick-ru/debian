@@ -2,34 +2,39 @@ Source: libadwaita-1
 Section: libs
 Priority: optional
 Maintainer: AI-agent <noreply@example.com>
-# Упаковка взята из Debian (libadwaita-1_1.10.0-2) и переработана:
-#   * документация и примеры не собираются;
-#   * dbgsym-пакеты не собираются (общее правило scripts/build-package.sh).
-Build-Depends:
- debhelper-compat (= 14),
- dh-sequence-gir,
- dh-sequence-gnome,
- gir1.2-gio-2.0-dev,
- gir1.2-gtk-4.0-dev,
- gobject-introspection (>= 1.80),
- libfribidi-dev,
- libglib2.0-dev (>= 2.89.3),
- libgtk-4-dev (>= 4.23.1),
- meson,
- pkgconf,
- sassc,
- valac,
+Uploaders: Guido Günther <agx@sigxcpu.org>, Jeremy Bícha <jbicha@ubuntu.com>, Marco Trevisan (Treviño) <marco@ubuntu.com>
+Build-Depends: debhelper-compat (= 13),
+               gir1.2-gio-2.0-dev,
+               gir1.2-gtk-4.0-dev,
+               libappstream-dev,
+               libgirepository1.0-dev,
+               libglib2.0-dev (>= 2.80.0),
+               libgtk-4-dev (>= 4.19.4),
+               libxml2-utils,
+               meson (>= 0.59.0),
+               pkgconf,
+               sassc,
+               valac (>= 0.20)
+# dh-sequence-gnome removed: package not available in Debian trixie main;
+# dh_gnome_compile_schemas is reproduced manually in override_dh_install.
+# dh-sequence-gir removed: the gir sequence is built into debhelper-compat (= 13);
+# meson generates GIR itself via g-ir-scanner (libgirepository1.0-dev).
+# libgnome-desktop-3-dev removed: pulls libgtk-3-dev and X11 (libxkbcommon-x11-dev),
+# not referenced by upstream 1.8 meson.build.
+# xauth, xvfb, mesa-vulkan-drivers, python3-gi removed: only needed for tests.
+# Build-Depends-Indep: gi-docgen removed: documentation disabled (-Ddocumentation=false).
+Standards-Version: 4.7.0
+Homepage: https://gnome.pages.gitlab.gnome.org/libadwaita/
 Vcs-Browser: https://salsa.debian.org/gnome-team/libadwaita
 Vcs-Git: https://salsa.debian.org/gnome-team/libadwaita.git
-Homepage: https://gnome.pages.gitlab.gnome.org/libadwaita/
+Rules-Requires-Root: no
 
 Package: libadwaita-1-0
 Architecture: any
 Multi-Arch: same
-Depends:
- ${misc:Depends},
- ${shlibs:Depends}
-Description: Library with GTK widgets for mobile phones (libadwaita)
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: Library with GTK widgets for mobile phones
  libadwaita provides GTK widgets and GObjects to ease developing
  applications for mobile phones.
  .
@@ -39,15 +44,29 @@ Package: libadwaita-1-dev
 Architecture: any
 Multi-Arch: same
 Section: libdevel
-Depends:
- gir1.2-adw-1 (= ${binary:Version}),
- libadwaita-1-0 (= ${binary:Version}),
- libgtk-4-dev (>= 4.23.1),
- pkg-config,
- ${misc:Depends},
- ${shlibs:Depends}
+Depends: gir1.2-adw-1 (= ${binary:Version}),
+         libadwaita-1-0 (= ${binary:Version}),
+         libappstream-dev,
+         libgtk-4-dev (>= 4.19.4),
+         ${gir:Depends},
+         ${misc:Depends},
+         ${shlibs:Depends}
+Recommends: pkgconf
+Provides: ${gir:Provides}
 Description: Development files for libadwaita
  libadwaita provides GTK widgets and GObjects to ease developing
  applications for mobile phones.
  .
  This package contains the development files.
+
+Package: gir1.2-adw-1
+Architecture: any
+Multi-Arch: same
+Section: introspection
+Depends: ${gir:Depends},
+         ${misc:Depends}
+Description: GObject introspection files for libadwaita
+ libadwaita provides GTK widgets and GObjects to ease developing
+ applications for mobile phones.
+ .
+ This package contains the GObject-introspection data in binary typelib format.

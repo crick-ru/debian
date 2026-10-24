@@ -4,13 +4,18 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,-z,defs
 export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
+conf_flags = \
+	-Ddocumentation=false \
+	-Dexamples=false \
+	-Dgtk_doc=false \
+	-Dtests=false
+
 %:
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- \
-		-Ddocumentation=false \
-		-Dexamples=false \
-		-Dtests=false
+	dh_auto_configure -- $(conf_flags)
 
-override_dh_auto_test:
+override_dh_install:
+	dh_install
+	glib-compile-schemas debian/libadwaita-1-0/usr/share/libadwaita-1.0/schemas/ || true

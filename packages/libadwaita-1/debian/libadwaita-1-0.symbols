@@ -6,7 +6,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_about_dialog_add_legal_section@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_add_link@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_add_other_app@LIBADWAITA_1_0 1.7~alpha
- adw_about_dialog_get_appdata_resource_path@LIBADWAITA_1_0 1.9~beta
  adw_about_dialog_get_application_icon@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_get_application_name@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_get_artists@LIBADWAITA_1_0 1.5~beta
@@ -21,7 +20,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_about_dialog_get_issue_url@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_get_license@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_get_license_type@LIBADWAITA_1_0 1.5~beta
- adw_about_dialog_get_other_apps_title@LIBADWAITA_1_0 1.10~alpha.1
  adw_about_dialog_get_release_notes@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_get_release_notes_version@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_get_support_url@LIBADWAITA_1_0 1.5~beta
@@ -45,7 +43,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_about_dialog_set_issue_url@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_set_license@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_set_license_type@LIBADWAITA_1_0 1.5~beta
- adw_about_dialog_set_other_apps_title@LIBADWAITA_1_0 1.10~alpha.1
  adw_about_dialog_set_release_notes@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_set_release_notes_version@LIBADWAITA_1_0 1.5~beta
  adw_about_dialog_set_support_url@LIBADWAITA_1_0 1.5~beta
@@ -212,9 +209,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_bin_get_type@LIBADWAITA_1_0 1.0.0
  adw_bin_new@LIBADWAITA_1_0 1.0.0
  adw_bin_set_child@LIBADWAITA_1_0 1.0.0
- adw_bind_property_to_css_class@LIBADWAITA_1_0 1.10~alpha.1
- adw_bind_property_to_css_class_full@LIBADWAITA_1_0 1.10~alpha.1
- adw_bind_property_to_css_class_with_closures@LIBADWAITA_1_0 1.10~alpha.1
  adw_bottom_sheet_get_align@LIBADWAITA_1_0 1.6~beta
  adw_bottom_sheet_get_bottom_bar@LIBADWAITA_1_0 1.6~beta
  adw_bottom_sheet_get_bottom_bar_height@LIBADWAITA_1_0 1.6~beta
@@ -369,13 +363,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_combo_row_set_search_match_mode@LIBADWAITA_1_0 1.6~beta
  adw_combo_row_set_selected@LIBADWAITA_1_0 1.0.0
  adw_combo_row_set_use_subtitle@LIBADWAITA_1_0 1.0.0
- adw_css_class_binding_get_flags@LIBADWAITA_1_0 1.10~alpha.1
- adw_css_class_binding_get_source@LIBADWAITA_1_0 1.10~alpha.1
- adw_css_class_binding_get_source_property@LIBADWAITA_1_0 1.10~alpha.1
- adw_css_class_binding_get_target@LIBADWAITA_1_0 1.10~alpha.1
- adw_css_class_binding_get_target_css_class@LIBADWAITA_1_0 1.10~alpha.1
- adw_css_class_binding_get_type@LIBADWAITA_1_0 1.10~alpha.1
- adw_css_class_binding_unbind@LIBADWAITA_1_0 1.10~alpha.1
  adw_dialog_add_breakpoint@LIBADWAITA_1_0 1.5~beta
  adw_dialog_close@LIBADWAITA_1_0 1.5~beta
  adw_dialog_force_close@LIBADWAITA_1_0 1.5~beta
@@ -679,8 +666,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_navigation_view_set_hhomogeneous@LIBADWAITA_1_0 1.7~alpha
  adw_navigation_view_set_pop_on_escape@LIBADWAITA_1_0 1.4~beta
  adw_navigation_view_set_vhomogeneous@LIBADWAITA_1_0 1.7~alpha
- adw_none_animation_target_get_type@LIBADWAITA_1_0 1.9~beta
- adw_none_animation_target_new@LIBADWAITA_1_0 1.9~beta
  adw_overlay_split_view_get_collapsed@LIBADWAITA_1_0 1.4~beta
  adw_overlay_split_view_get_content@LIBADWAITA_1_0 1.4~beta
  adw_overlay_split_view_get_enable_hide_gesture@LIBADWAITA_1_0 1.4~beta
@@ -836,80 +821,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_show_about_dialog_from_appdata@LIBADWAITA_1_0 1.5~beta
  adw_show_about_window@LIBADWAITA_1_0 1.2~alpha
  adw_show_about_window_from_appdata@LIBADWAITA_1_0 1.4~beta
- adw_sidebar_append@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_drop_preload@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_filter@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_item@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_items@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_menu_model@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_mode@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_placeholder@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_prefix@LIBADWAITA_1_0 1.10~alpha.1
- adw_sidebar_get_section@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_sections@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_selected@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_selected_item@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_get_suffix@LIBADWAITA_1_0 1.10~alpha.1
- adw_sidebar_get_type@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_insert@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_drag_motion_activate@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_enabled@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_icon_name@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_icon_paintable@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_index@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_prefix@LIBADWAITA_1_0 1.10~beta.1
- adw_sidebar_item_get_section@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_section_index@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_subtitle@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_suffix@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_title@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_tooltip@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_type@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_use_underline@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_get_visible@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_new@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_drag_motion_activate@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_enabled@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_icon_name@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_icon_paintable@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_prefix@LIBADWAITA_1_0 1.10~beta.1
- adw_sidebar_item_set_subtitle@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_suffix@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_title@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_tooltip@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_use_underline@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_item_set_visible@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_mode_get_type@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_new@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_prepend@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_remove@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_remove_all@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_append@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_bind_model@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_get_item@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_get_items@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_get_menu_model@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_get_sidebar@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_get_suffix@LIBADWAITA_1_0 1.10~beta.1
- adw_sidebar_section_get_title@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_get_type@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_insert@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_new@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_prepend@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_remove@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_remove_all@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_set_menu_model@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_section_set_suffix@LIBADWAITA_1_0 1.10~beta.1
- adw_sidebar_section_set_title@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_set_drop_preload@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_set_filter@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_set_menu_model@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_set_mode@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_set_placeholder@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_set_prefix@LIBADWAITA_1_0 1.10~alpha.1
- adw_sidebar_set_selected@LIBADWAITA_1_0 1.9~beta
- adw_sidebar_set_suffix@LIBADWAITA_1_0 1.10~alpha.1
- adw_sidebar_setup_drop_target@LIBADWAITA_1_0 1.9~beta
  adw_spin_row_configure@LIBADWAITA_1_0 1.4~beta
  adw_spin_row_get_adjustment@LIBADWAITA_1_0 1.4~beta
  adw_spin_row_get_climb_rate@LIBADWAITA_1_0 1.4~beta
@@ -1237,7 +1148,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_toast_set_title@LIBADWAITA_1_0 1.0.1
  adw_toast_set_use_markup@LIBADWAITA_1_0 1.4~beta
  adw_toggle_get_child@LIBADWAITA_1_0 1.7~alpha
- adw_toggle_get_description@LIBADWAITA_1_0 1.9~beta
  adw_toggle_get_enabled@LIBADWAITA_1_0 1.7~alpha
  adw_toggle_get_icon_name@LIBADWAITA_1_0 1.7~alpha
  adw_toggle_get_index@LIBADWAITA_1_0 1.7~alpha
@@ -1265,7 +1175,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_toggle_group_set_homogeneous@LIBADWAITA_1_0 1.7~alpha
  adw_toggle_new@LIBADWAITA_1_0 1.7~alpha
  adw_toggle_set_child@LIBADWAITA_1_0 1.7~alpha
- adw_toggle_set_description@LIBADWAITA_1_0 1.9~beta
  adw_toggle_set_enabled@LIBADWAITA_1_0 1.7~alpha
  adw_toggle_set_icon_name@LIBADWAITA_1_0 1.7~alpha
  adw_toggle_set_label@LIBADWAITA_1_0 1.7~alpha
@@ -1315,8 +1224,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_view_stack_page_get_icon_name@LIBADWAITA_1_0 1.0.0
  adw_view_stack_page_get_name@LIBADWAITA_1_0 1.0.0
  adw_view_stack_page_get_needs_attention@LIBADWAITA_1_0 1.0.0
- adw_view_stack_page_get_section_title@LIBADWAITA_1_0 1.9~beta
- adw_view_stack_page_get_starts_section@LIBADWAITA_1_0 1.9~beta
  adw_view_stack_page_get_title@LIBADWAITA_1_0 1.0.0
  adw_view_stack_page_get_type@LIBADWAITA_1_0 1.0.0
  adw_view_stack_page_get_use_underline@LIBADWAITA_1_0 1.0.0
@@ -1325,8 +1232,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_view_stack_page_set_icon_name@LIBADWAITA_1_0 1.0.0
  adw_view_stack_page_set_name@LIBADWAITA_1_0 1.0.0
  adw_view_stack_page_set_needs_attention@LIBADWAITA_1_0 1.0.0
- adw_view_stack_page_set_section_title@LIBADWAITA_1_0 1.9~beta
- adw_view_stack_page_set_starts_section@LIBADWAITA_1_0 1.9~beta
  adw_view_stack_page_set_title@LIBADWAITA_1_0 1.0.0
  adw_view_stack_page_set_use_underline@LIBADWAITA_1_0 1.0.0
  adw_view_stack_page_set_visible@LIBADWAITA_1_0 1.0.0
@@ -1353,20 +1258,6 @@ libadwaita-1.so.0 libadwaita-1-0 #MINVER#
  adw_view_switcher_policy_get_type@LIBADWAITA_1_0 1.0.0
  adw_view_switcher_set_policy@LIBADWAITA_1_0 1.0.0
  adw_view_switcher_set_stack@LIBADWAITA_1_0 1.0.0
- adw_view_switcher_sidebar_get_filter@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_get_mode@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_get_placeholder@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_get_prefix@LIBADWAITA_1_0 1.10~alpha.1
- adw_view_switcher_sidebar_get_stack@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_get_suffix@LIBADWAITA_1_0 1.10~alpha.1
- adw_view_switcher_sidebar_get_type@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_new@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_set_filter@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_set_mode@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_set_placeholder@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_set_prefix@LIBADWAITA_1_0 1.10~alpha.1
- adw_view_switcher_sidebar_set_stack@LIBADWAITA_1_0 1.9~beta
- adw_view_switcher_sidebar_set_suffix@LIBADWAITA_1_0 1.10~alpha.1
  adw_view_switcher_title_get_stack@LIBADWAITA_1_0 1.0.0
  adw_view_switcher_title_get_subtitle@LIBADWAITA_1_0 1.0.0
  adw_view_switcher_title_get_title@LIBADWAITA_1_0 1.0.0

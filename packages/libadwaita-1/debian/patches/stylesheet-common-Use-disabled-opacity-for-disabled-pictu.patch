@@ -10,15 +10,15 @@ Origin: https://gitlab.gnome.org/GNOME/libadwaita/-/merge_requests/814
  1 file changed, 4 insertions(+)
 
 diff --git a/src/stylesheet/_common.scss b/src/stylesheet/_common.scss
-index 7b9e3bc..02241d0 100644
+index cebd8bf..fd939f9 100644
 --- a/src/stylesheet/_common.scss
 +++ b/src/stylesheet/_common.scss
-@@ -40,6 +40,10 @@ dnd {
-   -gtk-icon-weight: 134;
+@@ -34,6 +34,10 @@ dnd {
+   -gtk-icon-size: 32px;
  }
  
 +picture:disabled {
-+  opacity: var(--disabled-opacity);
++  opacity: $disabled_opacity;
 +}
 +
  %osd,
