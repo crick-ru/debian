@@ -1,0 +1,3 @@
+usr/lib/*/pkgconfig/ministream.pc
+usr/lib/*/libministream.*
+usr/include/ministream
