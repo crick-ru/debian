@@ -47,10 +47,11 @@
   `/usr/share/dummy-x11/hidden/libxcb-real.so.1` через `dlopen`/`dlsym`. Это
   позволяет диагностировать вызовы и возвращаемые значения.
   **`xcb_connection_has_error` переопределена:** вместо делегирования
-  возвращает `0x3` (`XCB_CONN_SERVER_UNAVAILABLE`) вместо `0x5`
-  (`XCB_CONN_WAITING_FOR_SETUP`), который возвращает реальная libxcb.
-  `0x5` заставляет браузер продолжать попытки X11; `0x3` — немедленно
-  сдаться и переключиться на Wayland.
+  возвращает `0x5` (`XCB_CONN_CLOSED_PARSE_ERR`) вместо `0x3`
+  (`XCB_CONN_CLOSED_MEM_INSUFFICIENT`), который возвращает реальная libxcb.
+  `0x3` означает «не хватило памяти» (transient) — браузер 200+ раз проверяет
+  статус, но не переходит на Wayland. `0x5` — permanent fatal error, браузер
+  немедленно сдаётся с X11 и переключается на Wayland.
 
 ## Логгирование и переопределение libxcb
 
@@ -63,7 +64,7 @@
    - захватывает аргументы из регистров (rdi, rsi, rdx, rcx, r8, r9);
    - логгирует вызов (название + аргументы);
     - **для функций из `STUB_OVERRIDES`** возвращает зарановаемое значение
-      (`0x3` для `has_error`, `0x1` для `connect*`, `0xffffffff` для `generate_id`,
+       (`0x5` для `has_error`, `0x1` для `connect*`, `0xffffffff` для `generate_id`,
       `0` для `flush`/`disconnect`) — без делегирования;
     - **для остальных** функций делегирует вызов настоящей функции через
      `dlsym` с восстановлением аргументов в регистры (inline-asm);
@@ -80,12 +81,12 @@
 |---|---|---|
 | `xcb_connect` | `0x1` | non-NULL, браузер не проверяет |
 | `xcb_connect_to_display_with_auth_info` | `0x1` | non-NULL |
-| `xcb_connection_has_error` | **`0x3`** | SERVER_UNAVAILABLE → Wayland |
+| `xcb_connection_has_error` | **`0x5`** | CLOSED_PARSE_ERR → Wayland |
 | `xcb_generate_id` | `0xffffffff` | валидный XID |
 | `xcb_flush` | `0` | пусто |
 | `xcb_disconnect` | `0` | void, значение не важно |
 
-Одной `has_error=0x3` недостаточно: браузер 200+ раз проверяет статус, но не
+Одной `has_error=0x5` недостаточно: браузер 200+ раз проверяет статус, но не
 переходит на Wayland. Поэтому переопределены все 6 функции.
 
 ## Важные нюансы
@@ -98,9 +99,9 @@
   и делегируется через `dlopen`/`dlsym`. Экспорт всех 676 символов `xcb_*` гарантирует,
   что браузер не получит `undefined symbol`. **6 функций браузера переопределены**
   (`STUB_OVERRIDES`): `xcb_connect`, `xcb_connect_to_display_with_auth_info`,
-  `xcb_connection_has_error` (→ `0x3` SERVER_UNAVAILABLE), `xcb_generate_id`
+  `xcb_connection_has_error` (→ `0x5` CLOSED_PARSE_ERR), `xcb_generate_id`
   (→ `0xffffffff`), `xcb_flush` (→ `0`), `xcb_disconnect` (→ `0`). Остальные
-  670 функций продолжают логироваться и делегироваться. Одной `has_error=0x3`
+  670 функций продолжают логироваться и делегироваться. Одной `has_error=0x5`
   недостаточно — браузер 200+ раз проверяет статус, но не переходит на Wayland;
   поэтому переопределены все функции из лога.
 - **Полный список символов:** заглушка экспортирует все символы настоящей

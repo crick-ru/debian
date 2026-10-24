@@ -1,3 +1,15 @@
+dummy-x11 (1.0-6) unstable; urgency=medium
+
+  * Fix xcb_connection_has_error override: changed return value from 0x3
+    (XCB_CONN_CLOSED_MEM_INSUFFICIENT — transient, browser retries 200+ times)
+    to 0x5 (XCB_CONN_CLOSED_PARSE_ERR — permanent fatal). With 0x3 the browser
+    never switched to Wayland despite 6 overridden functions. 0x5 is the same
+    value real libxcb returns when no X server is available — forces immediate
+    fallback to Wayland.
+  * README.md and debian/control updated with corrected XCB enum names.
+
+  -- crick Debian Backports <backports@users.none.github.com>  Fri, 24 Oct 2026 19:00:00 +0000
+
 dummy-x11 (1.0-5) unstable; urgency=medium
 
   * Override xcb_connect, xcb_connect_to_display_with_auth_info,

@@ -11,10 +11,12 @@
 Специальные переопределения (STUB_OVERRIDES). Некоторые функции не делегируются
 на реальную libxcb — вместо этого возвращают заранее известное значение.
 Это нужно для принудительного переключения браузера с X11 на Wayland:
-  - xcb_connection_has_error возвращает XCB_CONN_SERVER_UNAVAILABLE (0x3)
-    вместо XCB_CONN_WAITING_FOR_SETUP (0x5), который возвращает реальная libxcb.
-    0x5 заставляет браузер продолжать попытки X11; 0x3 — немедленно сдаться
-    и перейти на Wayland.
+  - xcb_connection_has_error возвращает XCB_CONN_CLOSED_PARSE_ERR (0x5)
+    вместо XCB_CONN_CLOSED_MEM_INSUFFICIENT (0x3), который возвращает реальная
+    libxcb при недоступности X-сервера. 0x5 — критическая ошибка парсинга
+    отображения (permanent fatal): браузер немедленно сдаётся с X11 и переходит
+    на Wayland. 0x3 означает «не хватило памяти» (transient), что породило 200+
+    повторных вызовов has_error без переключения.
 
 Устройство. Для каждого из 676 символов xcb_* генерируется функция-обёртка:
   1. Сохраняет аргументы из регистров (rdi, rsi, rdx, rcx, r8, r9) в локальные
@@ -50,14 +52,15 @@ SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
 #
 # Значения из лога делегированной заглушки (1-е октября 2026, Яндекс Браузер):
 #   xcb_connect → non-NULL указатель (браузер не проверяет)
-#   xcb_connection_has_error → 0x3 (SERVER_UNAVAILABLE, а не 0x5 WAITING_FOR_SETUP)
+#   xcb_connection_has_error → 0x5 (XCB_CONN_CLOSED_PARSE_ERR, permanent fatal)
+#     вместо 0x3 (XCB_CONN_CLOSED_MEM_INSUFFICIENT, transient — браузер повторял calls 200+ раз)
 #   xcb_generate_id → 0xffffffff (валидный XID)
 #   xcb_flush → 0 (нечего сбрасывать)
 #   xcb_disconnect → void (значение не важно)
 STUB_OVERRIDES = {
     'xcb_connect': '(void*)0x1',
     'xcb_connect_to_display_with_auth_info': '(void*)0x1',
-    'xcb_connection_has_error': '(void*)0x3',
+    'xcb_connection_has_error': '(void*)0x5',
     'xcb_generate_id': '(void*)0xffffffff',
     'xcb_flush': '(void*)0',
     'xcb_disconnect': '(void*)0',
