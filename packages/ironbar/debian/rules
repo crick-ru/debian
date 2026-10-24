@@ -17,5 +17,5 @@ override_dh_auto_build:
 	cargo build --release --locked --offline
 
 override_dh_auto_install:
-	install -D -m 755 target/release/ironbar debian/ironbar/usr/bin/ironbar
-	install -D -m 644 ironbar.service debian/ironbar/usr/lib/systemd/user/ironbar.service
+	install -D -m 755 target/release/ironbar debian/tmp/usr/bin/ironbar
+	install -D -m 644 ironbar.service debian/tmp/usr/lib/systemd/user/ironbar.service
