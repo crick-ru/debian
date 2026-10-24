@@ -1,6 +1,6 @@
 # ironbar
 
-Customisable GTK4 Layer Shell bar for Wayland compositors, written in Rust.
+Настраиваемая GTK4 Layer Shell панель для композиторов Wayland, написанная на Rust.
 
 ## Источник упаковки
 
