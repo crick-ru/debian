@@ -1,17 +1,18 @@
-From: AI-agent <noreply@example.com>
-Subject: Guard DFLT_XKB_CONFIG_*_EXTENSIONS_PATH macros in xkbcli info
+Description: Guard DFLT_XKB_CONFIG_*_EXTENSIONS_PATH macros in xkbcli info
+ Author: AI-agent <noreply@example.com>
+Forwarded: no
 
-The xkbcli info tool (tools/info.c) references the
-DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH and
-DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH macros unconditionally, but these
-are only defined in the generated config.h when xkeyboard-config provides
-pkg-config variables (xkb_unversioned_extensions_path and
-xkb_versioned_extensions_path). On systems where xkeyboard-config pkg-config
-is unavailable the macros are absent and compilation fails. The
-corresponding code in src/context.c and src/registry.c already uses
-#ifdef guards.
+ The xkbcli info tool (tools/info.c) references the
+ DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH and
+ DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH macros unconditionally, but these
+ are only defined in the generated config.h when xkeyboard-config provides
+ pkg-config variables (xkb_unversioned_extensions_path and
+ xkb_versioned_extensions_path). On systems where xkeyboard-config
+ pkg-config is unavailable the macros are absent and compilation fails.
+ The corresponding code in src/context.c and src/registry.c already uses
+ #ifdef guards.
 
-This is an upstream build issue fixed in xkbcommon git after 1.13.2.
+---
 
 --- a/tools/info.c
 +++ b/tools/info.c
