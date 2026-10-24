@@ -1,10 +1,20 @@
-fdk-aac (3.0.0-3) unstable; urgency=medium
+fdk-aac (3.0.0-4) unstable; urgency=medium
 
-  * Add libfdk-xhe-aac0 and libfdk-xhe-aac-dev packages for the new
-    xHE-AAC encoder library (libfdk-xhe-aac.so.0, SONAME unchanged for
-    libfdk-aac.so.2 — ABI-compatible with 2.0.x).
+  * Add libfdk-xhe-aac-dev package (was missing from control).
+  * libfdk-aac-dev no longer depends on libfdk-xhe-aac0 (separate libraries).
 
   -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
+fdk-aac (3.0.0-3) unstable; urgency=medium
+
+  * Add libfdk-xhe-aac0 package for the new xHE-AAC encoder library
+    (libfdk-xhe-aac.so.0, SONAME unchanged for libfdk-aac.so.2 —
+    ABI-compatible with 2.0.x).
+  * Removed patch add_more_arch (sparc/s390x now in upstream 3.0.0).
+
+  -- AI-agent <noreply@example.com>  Sat, 24 Oct 2026 00:00:00 +0000
+
+fdk-aac (3.0.0-1) unstable; urgency=medium
 
   * New upstream version 3.0.0 (major bump: new separate library
     fdk-xhe-aac with xHE-AAC encoder; existing fdk-aac library remains
