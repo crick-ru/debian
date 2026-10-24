@@ -19,4 +19,9 @@ usr/share/man/man1/xkbcli-compile-compose.1
 usr/share/man/man1/xkbcli-compile-keymap.1
 usr/share/man/man1/xkbcli-dump-keymap.1
 usr/share/man/man1/xkbcli-info.1
+[linux-any] usr/share/man/man1/xkbcli-dump-keymap-wayland.1
+usr/share/man/man1/xkbcli-how-to-type.1
+[linux-any] usr/share/man/man1/xkbcli-interactive-evdev.1
+[linux-any] usr/share/man/man1/xkbcli-interactive-wayland.1
+usr/share/man/man1/xkbcli-list.1
 
