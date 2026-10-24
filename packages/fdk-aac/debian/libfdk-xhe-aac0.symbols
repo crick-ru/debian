@@ -1,2 +1,2 @@
 libfdk-xhe-aac.so.0 libfdk-xhe-aac0 #MINVER#
- * Build-Depends-Package: libfdk-xhe-aac-dev
+ Build-Depends-Package: libfdk-xhe-aac-dev

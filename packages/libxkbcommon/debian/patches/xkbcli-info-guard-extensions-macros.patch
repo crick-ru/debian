@@ -7,9 +7,9 @@ Forwarded: no
  DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH macros unconditionally, but these
  are only defined in the generated config.h when xkeyboard-config provides
  pkg-config variables (xkb_unversioned_extensions_path and
- xkb_versioned_extensions_path). On systems where xkeyboard-config
- pkg-config is unavailable the macros are absent and compilation fails.
- The corresponding code in src/context.c and src/registry.c already uses
+ xkb_versioned_extensions_path). On systems where xkeyboard-config pkg-config
+ is unavailable the macros are absent and compilation fails. The
+ corresponding code in src/context.c and src/registry.c already uses
  #ifdef guards.
 
 ---
