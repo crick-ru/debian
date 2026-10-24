@@ -141,27 +141,19 @@ void *{name}(void) {{
 
     void *ret;
     if (real) {{
-        /* Восстановление аргументов в регистры и вызов через asm:
-           movq из локальных переменных в регистры, call *real,
-           затем movq rax в ret. Stack выравнивается sub $8/add $8.
-           Аргументы 7+ на стеке не пересылаются (см. заголовок файла). */
-        asm volatile(
-            "sub $8, %%rsp\\n\\t"
-            "movq %1, %%rdi\\n\\t"
-            "movq %2, %%rsi\\n\\t"
-            "movq %3, %%rdx\\n\\t"
-            "movq %4, %%rcx\\n\\t"
-            "movq %5, %%r8\\n\\t"
-            "movq %6, %%r9\\n\\t"
-            "call *%7\\n\\t"
-            "add $8, %%rsp\\n\\t"
-            "movq %%rax, %0\\n\\t"
-            : "=m" (ret)
-            : "m" (sv0), "m" (sv1), "m" (sv2), "m" (sv3),
-              "m" (sv4), "m" (sv5), "r" (real)
-            : "rdi", "rsi", "rdx", "rcx", "r8", "r9",
-              "rax", "memory", "cc"
-        );
+        /* Restore arguments to argument registers using register variables,
+           then use a compiler barrier to force the writes before the call.
+           This correctly forwards up to 6 register arguments on x86-64 SysV.
+           Stack-passed arguments (>6) are not forwarded (see file header). */
+        register void *ra0 asm("rdi") = sv0;
+        register void *ra1 asm("rsi") = sv1;
+        register void *ra2 asm("rdx") = sv2;
+        register void *ra3 asm("rcx") = sv3;
+        register void *ra4 asm("r8") = sv4;
+        register void *ra5 asm("r9") = sv5;
+        asm volatile("" : : "r"(ra0), "r"(ra1), "r"(ra2), "r"(ra3),
+                         "r"(ra4), "r"(ra5) : "memory");
+        ret = real();
     }} else {{
         ret = NULL;
     }}

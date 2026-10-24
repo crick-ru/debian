@@ -1,5 +1,10 @@
-dummy-x11 (1.0-1) unstable; urgency=low
+dummy-x11 (1.0-3) unstable; urgency=low
 
-  * Initial release: X11 stub libraries for Wayland-only systems.
+  * libxcb.so.1 replaced with a logging wrapper that delegates to the real
+    libxcb via dlopen/dlysm. Logs all xcb_* calls to
+    /tmp/dummy-x11-libxcb.log (override: $YABROWSER_XCB_LOG).
+  * Real libxcb installed at hidden path for delegation.
+  * dummy-x11-report updated: libxcb treated as stub, not real.
+  * README.md updated with logging details.
 
- -- crick Debian Backports <backports@users.noreply.github.com>  Thu, 01 Oct 2026 00:00:00 +0000
+ -- crick Debian Backports <backports@users.noreply.github.com>  Fri, 24 Oct 2026 00:00:00 +0000
