@@ -12,7 +12,7 @@
 
 - **В trixie:** 1.7.0-2
 - **В исходной упаковке:** 1.13.2-2
-- **В нашем репозитории:** 1.13.2-2+crick (ревизия 2)
+- **В нашем репозитории:** 1.13.2-3+crick (ревизия 3)
 
 ## Содержимое
 
@@ -46,7 +46,14 @@
 
 ## Патчи
 
-Нет: `debian/patches/series` отсутствует.
+## Патчы
+
+- `xkbcli-info-guard-extensions-macros.patch` — оборачивает макросы
+  `DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH` и
+  `DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH` в `#ifdef` в `tools/info.c`.
+  На системах без `xkeyboard-config` pkg-config эти макросы не определяются,
+  и компиляция падает — аналогичные `#ifdef` guards уже есть в `src/context.c`
+  и `src/registry.c`.
 
 ## Изменения ABI
 

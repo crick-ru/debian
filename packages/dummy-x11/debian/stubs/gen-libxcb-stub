@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""Сгенерировать libxcb.so.1 — логирующую заглушку, которая перехватывает
+все вызовы xcb_* функций Яндекс.Браузера, логгирует их, а затем делегирует
+вызов настоящей libxcb (из скрытого пути) для сохранения работоспособности.
+
+Зачем. Настоящий libxcb.so.1 из trixie в пакете был заменён на эту заглушку,
+чтобы выяснить, какие именно функции и ответы нужны браузеру. Сгенерированная
+заглушка логгирует все вызовы и делегирует их настоящей библиотеке, которая
+стоит по скрытому пути и загружается через dlopen.
+
+Устройство. Для каждого из 676 символов xcb_* генерируется функция-обёртка:
+  1. Сохраняет аргументы из регистров (rdi, rsi, rdx, rcx, r8, r9) в локальные
+     переменные — до любых вызовов, которые могут их испортить.
+  2. Логгирует вызов (название + аргументы) в /tmp/dummy-x11-libxcb.log
+     (или путь из env YABROWSER_XCB_LOG).
+  3. Через dlsym получает указатель на реальную функцию (кеширует в static).
+  4. Через inline-asm восстанавливает аргументы в регистры и вызывает реальную
+     функцию. Stack-аргументы (>6) не пересылаются — для xcb_* большинство
+     функций имеют <=6 аргументов.
+  5. Логгирует возвращаемое значение.
+  6. Возвращает результат.
+
+Вход:  symbols-libxcb.so.1.txt (список символов).
+Выход: libxcb.so.1 (логирующая заглушка, SONAME libxcb.so.1).
+"""
+
+import os
+import subprocess
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+# Путь, где будет установлена настоящая libxcb для делегирования.
+REAL_LIB_PATH = "/usr/share/dummy-x11/hidden/libxcb-real.so.1"
+
+# Путь к списку символов.
+SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
+
+
+def read_symbols():
+    lst = os.path.join(HERE, SYMBOLS_FILE)
+    with open(lst, encoding='utf-8') as fh:
+        return [line.strip() for line in fh if line.strip()]
+
+
+LOG_HEADER = """\
+/* Логирующая заглушка libxcb. Сгенерировано gen-libxcb-stub.
+ * Не редактируйте этот файл — редактируйте symbols-libxcb.so.1.txt и
+ * перегенерируйте через gen-stubs. */
+
+#define _GNU_SOURCE
+#include <dlfcn.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#define LOG_PATH_ENV "YABROWSER_XCB_LOG"
+#define LOG_PATH_DEFAULT "/tmp/dummy-x11-libxcb.log"
+#define REAL_LIB_PATH "{real_path}"
+
+static FILE *g_log = NULL;
+static void *g_real_lib = NULL;
+static pthread_mutex_t g_log_lock = PTHREAD_MUTEX_INITIALIZER;
+static unsigned long g_call_counter = 0;
+
+static const char *get_log_path(void) {{
+    const char *p = getenv(LOG_PATH_ENV);
+    return p ? p : LOG_PATH_DEFAULT;
+}}
+
+__attribute__((constructor))
+static void xcb_stub_init(void) {{
+    g_log = fopen(get_log_path(), "w");
+    if (!g_log) {{
+        g_log = stderr;
+    }}
+    setvbuf(g_log, NULL, _IONBF, 0);
+    fprintf(g_log, "[init] libxcb logging wrapper loaded\\n");
+    fprintf(g_log, "[init] log path: %s\\n", get_log_path());
+    fprintf(g_log, "[init] real library: %s\\n", REAL_LIB_PATH);
+    g_real_lib = dlopen(REAL_LIB_PATH, RTLD_NOW | RTLD_LOCAL);
+    if (!g_real_lib) {{
+        fprintf(g_log, "[init] WARNING: cannot dlopen real libxcb: %s\\n", dlerror());
+        fprintf(g_log, "[init] Calls will return NULL — logging still works\\n");
+    }} else {{
+        fprintf(g_log, "[init] real libxcb loaded, calls forwarded\\n");
+    }}
+}}
+
+static void log_entry(const char *name,
+                      void *a0, void *a1, void *a2, void *a3,
+                      void *a4, void *a5) {{
+    pthread_mutex_lock(&g_log_lock);
+    if (g_log) {{
+        fprintf(g_log, "[call #%lu] %s(a0=%p a1=%p a2=%p a3=%p a4=%p a5=%p)\\n",
+                g_call_counter++, name, a0, a1, a2, a3, a4, a5);
+    }}
+    pthread_mutex_unlock(&g_log_lock);
+}}
+
+static void log_exit(const char *name, void *ret) {{
+    pthread_mutex_lock(&g_log_lock);
+    if (g_log) {{
+        fprintf(g_log, "[ret  #%lu] %s -> %p\\n", g_call_counter, name, ret);
+    }}
+    pthread_mutex_unlock(&g_log_lock);
+}}
+
+static void log_warn(const char *name, const char *msg) {{
+    pthread_mutex_lock(&g_log_lock);
+    if (g_log) {{
+        fprintf(g_log, "[warn] %s: %s\\n", name, msg);
+    }}
+    pthread_mutex_unlock(&g_log_lock);
+}}
+""".format(real_path=REAL_LIB_PATH)
+
+
+WRAPPER_TEMPLATE = """\
+void *{name}(void) {{
+    /* Захват аргументов из регистров до любых вызовов */
+    register void *a0 asm("rdi");
+    register void *a1 asm("rsi");
+    register void *a2 asm("rdx");
+    register void *a3 asm("rcx");
+    register void *a4 asm("r8");
+    register void *a5 asm("r9");
+    void *sv0 = a0, *sv1 = a1, *sv2 = a2, *sv3 = a3, *sv4 = a4, *sv5 = a5;
+
+    log_entry("{name}", sv0, sv1, sv2, sv3, sv4, sv5);
+
+    static void *(*real)(void) = NULL;
+    if (!real) {{
+        real = g_real_lib ? (void *(*)(void))dlsym(g_real_lib, "{name}") : NULL;
+        if (!real)
+            log_warn("{name}", "not found in real libxcb");
+    }}
+
+    void *ret;
+    if (real) {{
+        /* Восстановление аргументов в регистры и вызов через asm:
+           movq из локальных переменных в регистры, call *real,
+           затем movq rax в ret. Stack выравнивается sub $8/add $8.
+           Аргументы 7+ на стеке не пересылаются (см. заголовок файла). */
+        asm volatile(
+            "sub $8, %%rsp\\n\\t"
+            "movq %1, %%rdi\\n\\t"
+            "movq %2, %%rsi\\n\\t"
+            "movq %3, %%rdx\\n\\t"
+            "movq %4, %%rcx\\n\\t"
+            "movq %5, %%r8\\n\\t"
+            "movq %6, %%r9\\n\\t"
+            "call *%7\\n\\t"
+            "add $8, %%rsp\\n\\t"
+            "movq %%rax, %0\\n\\t"
+            : "=m" (ret)
+            : "m" (sv0), "m" (sv1), "m" (sv2), "m" (sv3),
+              "m" (sv4), "m" (sv5), "r" (real)
+            : "rdi", "rsi", "rdx", "rcx", "r8", "r9",
+              "rax", "memory", "cc"
+        );
+    }} else {{
+        ret = NULL;
+    }}
+
+    log_exit("{name}", ret);
+    return ret;
+}}
+
+"""
+
+
+def main():
+    outdir = sys.argv[1] if len(sys.argv) > 1 else '.'
+    srcdir = os.path.join(outdir, '.src')
+    os.makedirs(srcdir, exist_ok=True)
+
+    symbols = read_symbols()
+    print('==> symbols-libxcb.so.1.txt: %d символов' % len(symbols))
+
+    csrc = os.path.join(srcdir, 'libxcb-stub.c')
+    so = os.path.join(outdir, 'libxcb.so.1')
+
+    with open(csrc, 'w', encoding='utf-8') as fh:
+        fh.write(LOG_HEADER)
+        for sym in symbols:
+            fh.write(WRAPPER_TEMPLATE.format(name=sym))
+
+    print('==> compiling %s (%d wrappers)' % (so, len(symbols)))
+    subprocess.run(
+        ['gcc', '-shared', '-fPIC', '-O2',
+         '-o', so, csrc,
+         '-ldl',
+         '-Wl,-soname,libxcb.so.1'],
+        check=True)
+
+    print('==> %s: %d символов (логирующая заглушка)' % (so, len(symbols)))
+
+
+if __name__ == '__main__':
+    main()

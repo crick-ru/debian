@@ -1,24 +1,8 @@
-Description: Guard DFLT_XKB_CONFIG_*_EXTENSIONS_PATH macros in xkbcli info
- Author: AI-agent <noreply@example.com>
-Forwarded: no
-
- The xkbcli info tool (tools/info.c) references the
- DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH and
- DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH macros unconditionally, but these
- are only defined in the generated config.h when xkeyboard-config provides
- pkg-config variables (xkb_unversioned_extensions_path and
- xkb_versioned_extensions_path). On systems where xkeyboard-config pkg-config
- is unavailable the macros are absent and compilation fails. The
- corresponding code in src/context.c and src/registry.c already uses
- #ifdef guards.
-
----
-
---- a/tools/info.c
-+++ b/tools/info.c
+--- a/tools/info.c	2026-10-24 16:14:31.610076879 +0300
++++ b/tools/info.c	2026-10-24 16:27:06.296149898 +0300
 @@ -86,8 +86,12 @@
          { "XKB_CONFIG_ROOT", DFLT_XKB_CONFIG_ROOT },
-         { "XKB_CONFIG_LEGACY_ROOT", DFLT_XKB_CONFIG_LEGACY_ROOT },
+         { "XKB_CONFIG_LEGACY_ROOT", DFLT_XKB_LEGACY_ROOT },
          { "XKB_CONFIG_EXTRA_PATH", DFLT_XKB_CONFIG_EXTRA_PATH },
 +#ifdef DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH
          { "XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH", DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH },
