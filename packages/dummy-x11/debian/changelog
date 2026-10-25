@@ -1,3 +1,22 @@
+dummy-x11 (1.0-7) unstable; urgency=medium
+
+  * Fix: xcb_connection_has_error, xcb_connect, and
+    xcb_connect_to_display_with_auth_info are now DELEGATED to real libxcb
+    instead of being overridden with fake values. Root cause of the 200+ has_error
+    loop: overriding xcb_connection_has_error with a hardcoded return value breaks
+    Chromium's error detection. Chromium's Connection::XcbConnection() checks
+    io_error_handler_ && has_error — io_error_handler_ is a OnceCallback that fires
+    once (_exit), then becomes null, leaving 200+ subsequent has_error calls
+    unchecked. By delegating to real libxcb, the browser gets a REAL connection
+    object with real internal error state; Ready() returns false once, browser
+    immediately switches to Wayland (rev 3 behavior: 5 calls total).
+  * Remaining overrides: xcb_generate_id (0xffffffff), xcb_flush (0),
+    xcb_disconnect (0) — safe values for broken-connection cleanup.
+  * Reverted: 0x3 override (was XCB_CONN_CLOSED_MEM_INSUFFICIENT, transient)
+    and 0x5 override (was XCB_CONN_CLOSED_PARSE_ERR, but overriding breaks detection).
+
+  -- crick Debian Backports <backports@users.noreply.github.com>  Fri, 25 Oct 2026 07:50:00 +0000
+
 dummy-x11 (1.0-6) unstable; urgency=medium
 
   * Fix xcb_connection_has_error override: changed return value from 0x3

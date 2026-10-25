@@ -46,12 +46,18 @@
   режиме append), и делегирует их настоящей libxcb из trixie по скрытому пути
   `/usr/share/dummy-x11/hidden/libxcb-real.so.1` через `dlopen`/`dlsym`. Это
   позволяет диагностировать вызовы и возвращаемые значения.
-  **`xcb_connection_has_error` переопределена:** вместо делегирования
-  возвращает `0x5` (`XCB_CONN_CLOSED_PARSE_ERR`) вместо `0x3`
-  (`XCB_CONN_CLOSED_MEM_INSUFFICIENT`), который возвращает реальная libxcb.
-  `0x3` означает «не хватило памяти» (transient) — браузер 200+ раз проверяет
-  статус, но не переходит на Wayland. `0x5` — permanent fatal error, браузер
-  немедленно сдаётся с X11 и переключается на Wayland.
+  **`xcb_connect`, `xcb_connection_has_error` и
+  `xcb_connect_to_display_with_auth_info` ДЕЛЕГИРУЮТСЯ реальной libxcb.**
+  Реальная libxcb при отсутствии X-сервера возвращает
+  `XCB_CONN_CLOSED_PARSE_ERR` (0x5) — permanent fatal error. Chromium видит
+  реальный connection object с реальной внутренней ошибкой и доверяет ей:
+  `Ready()` возвращает false один раз, браузер сразу переходит на Wayland.
+  Переопределение этих функций на фейк-значения ломает механизм:
+  `io_error_handler_` (OnceCallback) срабатывает один раз, потом
+  остаётся null, и `has_error` вызывается 200+ раз.
+  **`generate_id`, `flush`, `disconnect` переопределены** на безопасные
+  значения (`0xffffffff`, `0`, `0`) для случая, когда браузер вызывает их
+  на сломанном соединении.
 
 ## Логгирование и переопределение libxcb
 
@@ -64,8 +70,12 @@
    - захватывает аргументы из регистров (rdi, rsi, rdx, rcx, r8, r9);
    - логгирует вызов (название + аргументы);
     - **для функций из `STUB_OVERRIDES`** возвращает зарановаемое значение
-       (`0x5` для `has_error`, `0x1` для `connect*`, `0xffffffff` для `generate_id`,
-      `0` для `flush`/`disconnect`) — без делегирования;
+       (`0xffffffff` для `generate_id`, `0` для `flush`/`disconnect`) — без
+       делегирования;
+      - **для `xcb_connect`, `xcb_connection_has_error`, `xcb_connect_to_display_with_auth_info`**
+        делегирует вызов настоящей функции через `dlsym` — эти функции работают
+        с реальным connection object, чтобы Chromium доверял ошибке и
+        переключался на Wayland;
     - **для остальных** функций делегирует вызов настоящей функции через
      `dlsym` с восстановлением аргументов в регистры (inline-asm);
    - логгирует возвращаемое значение;
@@ -79,15 +89,14 @@
 
 | функция | возвращает (заглушка) | примечание |
 |---|---|---|
-| `xcb_connect` | `0x1` | non-NULL, браузер не проверяет |
-| `xcb_connect_to_display_with_auth_info` | `0x1` | non-NULL |
-| `xcb_connection_has_error` | **`0x5`** | CLOSED_PARSE_ERR → Wayland |
+| `xcb_connect` | делегируется | real libxcb → non-NULL + error |
+| `xcb_connect_to_display_with_auth_info` | делегируется | real libxcb → non-NULL + error |
+| `xcb_connection_has_error` | делегируется | real libxcb → 0x5 → Wayland |
 | `xcb_generate_id` | `0xffffffff` | валидный XID |
 | `xcb_flush` | `0` | пусто |
 | `xcb_disconnect` | `0` | void, значение не важно |
 
-Одной `has_error=0x5` недостаточно: браузер 200+ раз проверяет статус, но не
-переходит на Wayland. Поэтому переопределены все 6 функции.
+Браузер вызывает 5 функций xcb (в порядке):
 
 ## Важные нюансы
 
@@ -97,13 +106,12 @@
   дважды (сверка `dev/inode`).
 -   **`libxcb` — логирующая заглушка с переопределением:** настоящая libxcb скрыта
   и делегируется через `dlopen`/`dlsym`. Экспорт всех 676 символов `xcb_*` гарантирует,
-  что браузер не получит `undefined symbol`. **6 функций браузера переопределены**
-  (`STUB_OVERRIDES`): `xcb_connect`, `xcb_connect_to_display_with_auth_info`,
-  `xcb_connection_has_error` (→ `0x5` CLOSED_PARSE_ERR), `xcb_generate_id`
-  (→ `0xffffffff`), `xcb_flush` (→ `0`), `xcb_disconnect` (→ `0`). Остальные
-  670 функций продолжают логироваться и делегироваться. Одной `has_error=0x5`
-  недостаточно — браузер 200+ раз проверяет статус, но не переходит на Wayland;
-  поэтому переопределены все функции из лога.
+  что браузер не получит `undefined symbol`. **3 функции переопределены**
+  (`STUB_OVERRIDES`): `xcb_generate_id` (→ `0xffffffff`), `xcb_flush` (→ `0`),
+  `xcb_disconnect` (→ `0`). `xcb_connect`, `xcb_connection_has_error` и
+  `xcb_connect_to_display_with_auth_info` ДЕЛЕГИРУЮТСЯ реальной libxcb — эти
+  функции должны работать с реальным connection object, чтобы Chromium доверял
+  ошибке и переключался на Wayland. Остальные 673 функции логируются и делегируются.
 - **Полный список символов:** заглушка экспортирует все символы настоящей
   библиотеки (не только те, что зовёт браузер), потому что транзитивные
   X11-библиотеки ссылаются на внутренние символы друг друга

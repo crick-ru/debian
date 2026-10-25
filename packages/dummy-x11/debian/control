@@ -81,12 +81,15 @@ Description: X11 dependency stubs for Wayland-only systems
   /tmp/dummy-x11-libxcb.log (or $YABROWSER_XCB_LOG, opened in append mode)
   and delegates them to the real libxcb (stored at
   /usr/share/dummy-x11/hidden/libxcb-real.so.1) via dlopen/dlsym. The
-  key exception is xcb_connection_has_error, which returns
-  XCB_CONN_CLOSED_PARSE_ERR (0x5) instead of the real value
-  (XCB_CONN_CLOSED_MEM_INSUFFICIENT, 0x3) — XCB_CONN_CLOSED_PARSE_ERR
-  is a permanent fatal error that forces the browser to switch from X11 to
-  Wayland. The value 0x3 (MEM_INSUFFICIENT) is transient: the browser retries
-  200+ times without switching.
+  key exception is that xcb_connection_has_error, xcb_connect, and
+  xcb_connect_to_display_with_auth_info are DELEGATED to the real libxcb.
+  Real libxcb returns XCB_CONN_CLOSED_PARSE_ERR (0x5) when no X server is
+  available — Chromium trusts this error from the real connection object
+  and immediately switches to Wayland. Overriding these functions on a
+  fake pointer breaks the error detection: io_error_handler_ fires once,
+  then has_error is called 200+ times without effect. The remaining stubs
+  (xcb_generate_id, xcb_flush, xcb_disconnect) return hardcoded safe
+  values for the broken-connection cleanup path.
  .
  This package contains no X11 code whatsoever: nothing here talks the X11
  protocol, and there is nothing to switch off. Do not install it on a
