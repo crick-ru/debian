@@ -1,28 +1,27 @@
 #!/usr/bin/env python3
-"""Сгенерировать libxcb.so.1 — логирующую заглушку, которая перехватывает
-все вызовы xcb_* функций Яндекс.Браузера, логирует их и больше НИЧЕГО не
-делегирует: настоящей libxcb в пакете нет, и вызовы на неё не поступают.
+"""Сгенерировать libxcb.so.1 — заглушку с опциональным логированием.
 
-Зачем. Настоящий libxcb.so.1 из trixie в пакете был заменён на эту заглушку,
-чтобы выяснить, какие именно функции и ответы нужны браузеру. Сгенерированная
-заглушка логгирует все вызовы и (раньше) делегировала их настоящей библиотеке,
-которая стояла по скрытому пути. Теперь делегирования нет: после анализа лога
-стали понятны все вызовы браузера, и они переопределены на жёсткие значения.
-Остальные функции (которые браузер не зовёт) просто логгируются и возвращают NULL.
+Зачем. Настоящая libxcb.so.1 в системе отсутствует: она заменена этой
+заглушкой, которая возвращает hardcode-значения для 6 функций браузера
+(см. STUB_OVERRIDES) и NULL для остальных 676 символов. Никакого dlopen/dlsym
+и никакой реальной libxcb — пакет не содержит и не загружает её.
 
 Устройство. Для каждого из 676 символов xcb_* генерируется функция-обёртка:
   1. Сохраняет аргументы из регистров (rdi, rsi, rdx, rcx, r8, r9) в локальные
      переменные — до любых вызовов, которые могут их испортить.
-  2. Логгирует вызов (название + аргументы) в /tmp/dummy-x11-libxcb.log
-     (или путь из env YABROWSER_XCB_LOG).
+  2. При включённом логировании (env DUMMY_X11_LOG зада) логгирует вызов
+     (название + аргументы) в файл (или путь из env).
   3. Возвращает заранее известное значение:
      - для функций из STUB_OVERRIDES — своё hardcoded-значение;
      - для остальных — NULL.
-  Никакого dlopen/dlsym, никакой реальной libxcb — пакет не содержит и не
-  загружает её. Это требует пользователь: браузер должен работать без X-сервера.
+
+Логирование. По умолчанию выключено. Чтобы включить, установите env
+DUMMY_X11_LOG в путь к файлу — тогда все вызовы логгируются в него (режим
+append). Если DUMMY_X11_LOG пуста или не задана, логирование не выполняется —
+функции работают как обычные заглушки без оверхеда.
 
 Вход:  symbols-libxcb.so.1.txt (список символов).
-Выход: libxcb.so.1 (логирующая заглушка, SONAME libxcb.so.1).
+Выход: libxcb.so.1 (заглушка с опциональным логированием, SONAME libxcb.so.1).
 """
 
 import os
@@ -88,8 +87,9 @@ LOG_HEADER = r"""\
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
-#define LOG_PATH_ENV "YABROWSER_XCB_LOG"
+#define LOG_PATH_ENV "DUMMY_X11_LOG"
 #define LOG_PATH_DEFAULT "/tmp/dummy-x11-libxcb.log"
 
 static FILE *g_log = NULL;
@@ -101,8 +101,18 @@ static const char *get_log_path(void) {
     return p ? p : LOG_PATH_DEFAULT;
 }
 
+static int logging_enabled(void) {
+    const char *p = getenv(LOG_PATH_ENV);
+    if (p && *p) return 1;
+    return 0;
+}
+
 __attribute__((constructor))
 static void xcb_stub_init(void) {
+    if (!logging_enabled()) {
+        g_log = NULL;
+        return;
+    }
     g_log = fopen(get_log_path(), "a");
     if (!g_log) {
         g_log = stderr;
@@ -114,8 +124,9 @@ static void xcb_stub_init(void) {
 }
 
 static void log_entry(const char *name,
-                      void *a0, void *a1, void *a2, void *a3,
-                      void *a4, void *a5) {
+                       void *a0, void *a1, void *a2, void *a3,
+                       void *a4, void *a5) {
+    if (!g_log) return;
     pthread_mutex_lock(&g_log_lock);
     if (g_log) {
         fprintf(g_log, "[call #%lu] %s(a0=%p a1=%p a2=%p a3=%p a4=%p a5=%p)\n",
@@ -125,6 +136,7 @@ static void log_entry(const char *name,
 }
 
 static void log_exit(const char *name, void *ret) {
+    if (!g_log) return;
     pthread_mutex_lock(&g_log_lock);
     if (g_log) {
         fprintf(g_log, "[ret  #%lu] %s -> %p\n", g_call_counter, name, ret);

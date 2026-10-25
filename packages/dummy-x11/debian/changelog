@@ -1,3 +1,16 @@
+dummy-x11 (1.0-8+crick) unstable; urgency=medium
+
+  * Removed libXau/libXdmcp stubs: they were only needed by real libxcb's
+    NEEDED, which is no longer in the package. The six remaining stub
+    SONAMEs cover all browser imports.
+  * gen-libxcb-stub: logging is now opt-in via DUMMY_X11_LOG env var.
+    When the variable is empty or unset, no logging is performed (g_log
+    stays NULL, log_entry/log_exit are no-ops). When set to a path, xcb_*
+    calls are logged in append mode. Renamed from YABROWSER_XCB_LOG.
+  * README.md rewritten to match current package state.
+
+  -- AI-agent <noreply@example.com>  Sun, 25 Oct 2026 15:00:00 +0000
+
 dummy-x11 (1.0-7) unstable; urgency=medium
 
   * Removed delegation to the real libxcb entirely. The logging stub no
