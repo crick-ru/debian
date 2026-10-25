@@ -24,12 +24,10 @@ Rules-Requires-Root: no
 # Версии Provides (как в trixie на 2026-10):
 #   libx11-6 2:1.8.12-1, libxcb1 1.17.0-2+b1, libxcomposite1 1:0.4.6-1,
 #   libxdamage1 1:1.1.6-1+b2, libxext6 2:1.3.4-1+b3, libxfixes3 1:6.0.0-2+b4,
-#   libxrandr2 2:1.5.4-1+b3, libxau6 1:1.0.11-1, libxdmcp6 1:1.1.5-1
+#   libxrandr2 2:1.5.4-1+b3
 #
-# libxau6/libxdmcp6 провайдятся и конфликтуют по той же причине, что и
-# остальные: настоящая libxcb.so.1 ссылается на них по NEEDED, но в пакете
-# лежат их заглушки (тот же путь файла) - apt обязан считать настоящие
-# пакеты непригодными и удовлетворить зависимость нашими Provides.
+# libXau/libXdmcp больше не провайдятся: без real libxcb их не нужно.
+# Все символы X11 находятся в dummy-x11.so и libxcb.so.1-заглушке.
 # ${shlibs:Depends} в Depends намеренно нет: dh_shlibdeps отключён в
 # debian/rules (там же причина) - внешних зависимостей у пакета нет.
 Package: dummy-x11
@@ -42,9 +40,7 @@ Provides: libx11-6 (= 2:1.8.12-1),
           libxdamage1 (= 1:1.1.6-1+b2),
           libxext6 (= 2:1.3.4-1+b3),
           libxfixes3 (= 1:6.0.0-2+b4),
-          libxrandr2 (= 2:1.5.4-1+b3),
-          libxau6 (= 1:1.0.11-1),
-          libxdmcp6 (= 1:1.1.5-1)
+          libxrandr2 (= 2:1.5.4-1+b3)
 # Conflicts/Replaces обязательны в двух местах, и оба нужны.
 #
 # 1. apt: без Conflicts настоящие libx11-6 и libxcb1 есть в архиве trixie,
@@ -54,18 +50,15 @@ Provides: libx11-6 (= 2:1.8.12-1),
 #    поверх чужих файлов, поэтому Replaces обязателен - он разрешает распаковку.
 #    Набор в основном ограничен клиентскими библиотеками X11: утилиты
 #    (xauth, x11-utils), шрифты и протоколы в конфликт не входят, потому что
-#    подмены символов они не требуют. libxau6/libxdmcp6 - исключение из
-#    этого правила: их файлы занимает заглушки настоящей libxcb (см. Provides).
+#    подмены символов они не требуют.
 Conflicts: libx11-6, libx11-xcb1, libxcb1, libxcb-dri2-0, libxcb-dri3-0,
            libxcb-present0, libxcb-randr0, libxcb-render0, libxcb-shm0,
            libxcb-sync1, libxcb-xfixes0, libxcomposite1, libxdamage1,
            libxext6, libxfixes3, libxi6, libxinerama1, libxkbcommon-x11-0,
-           libxrandr2, libxrender1, libxtst6, libxss1, libxpm4,
-           libxau6, libxdmcp6
+           libxrandr2, libxrender1, libxtst6, libxss1, libxpm4
 Replaces: libx11-6, libxcb1, libxcomposite1, libxdamage1, libxext6,
           libxfixes3, libxrandr2, libxkbcommon-x11-0, libxi6,
-          libxinerama1, libxrender1, libxtst6, libxss1, libxpm4,
-          libxau6, libxdmcp6
+          libxinerama1, libxrender1, libxtst6, libxss1, libxpm4
 Description: X11 dependency stubs for Wayland-only systems
  A stub library set that fakes the presence of the X11 client libraries
  (libX11, libXExt, libXcomposite, libXdamage, libXfixes, libXrandr) and
@@ -77,19 +70,14 @@ Description: X11 dependency stubs for Wayland-only systems
  linker resolves the binary's imports to it and the program starts without
  an X server. Every stubbed function returns NULL.
   .
-  libxcb.so.1 is a logging wrapper: it logs all xcb_* calls to
+  libxcb.so.1 is a logging stub: it logs all xcb_* calls to
   /tmp/dummy-x11-libxcb.log (or $YABROWSER_XCB_LOG, opened in append mode)
-  and delegates them to the real libxcb (stored at
-  /usr/share/dummy-x11/hidden/libxcb-real.so.1) via dlopen/dlsym. The
-  key exception is that xcb_connection_has_error, xcb_connect, and
-  xcb_connect_to_display_with_auth_info are DELEGATED to the real libxcb.
-  Real libxcb returns XCB_CONN_CLOSED_PARSE_ERR (0x5) when no X server is
-  available — Chromium trusts this error from the real connection object
-  and immediately switches to Wayland. Overriding these functions on a
-  fake pointer breaks the error detection: io_error_handler_ fires once,
-  then has_error is called 200+ times without effect. The remaining stubs
-  (xcb_generate_id, xcb_flush, xcb_disconnect) return hardcoded safe
-  values for the broken-connection cleanup path.
+  and returns 0/null for all functions — no delegation to real libxcb.
+  xcb_connect and xcb_connect_to_display_with_auth_info return NULL,
+  xcb_connection_has_error returns 0 (int), xcb_generate_id returns
+  0xffffffff, xcb_flush/xcb_disconnect return 0. All other xcb_* functions
+  also return 0/null. In a pure Wayland environment these stubs satisfy all
+  symbol dependencies without an X server.
  .
  This package contains no X11 code whatsoever: nothing here talks the X11
  protocol, and there is nothing to switch off. Do not install it on a

@@ -1,3 +1,21 @@
+dummy-x11 (1.0-9) unstable; urgency=medium
+
+  * rev 9: Убрано делегирование на real libxcb. Все функции xcb_* теперь
+    возвращают 0/null без вызова реальной libxcb. Это упрощает архитектуру:
+    - xcb_connect и xcb_connect_to_display_with_auth_info → NULL
+    - xcb_connection_has_error → 0 (int, через INT_OVERRIDE_TEMPLATE)
+    - xcb_generate_id → 0xffffffff
+    - xcb_flush, xcb_disconnect → 0
+    - Все остальные 672 функции → 0/null (через ZERO_TEMPLATE)
+  * Удалены: g_real_lib, dlopen, dlsym, log_warn, WRAPPER_TEMPLATE
+  * Убрана установка hidden/libxcb-real.so.1 (больше не нужно)
+  * log_exit_int сохраняется для INT_OVERRIDE_TEMPLATE
+  * Removed libXau/libXdmcp stubs: libxcb.so.1 no longer NEEDED them,
+    only depends on libc.so.6. Removed symbols files, gen-stubs entries,
+    and Provides/Conflicts/Replaces for libXau6/libXdmcp6.
+
+  -- crick Debian Backports <backports@users.noreply.github.com>  Sun, 25 Oct 2026 08:55:00 +0000
+
 dummy-x11 (1.0-8) unstable; urgency=medium
 
   * Fix: xcb_connection_has_error now uses STATEFUL override — returns 0x5
