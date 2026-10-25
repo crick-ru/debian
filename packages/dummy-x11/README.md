@@ -17,7 +17,7 @@ X-сервера.
 
 - **В trixie:** `libxcb1 1.17.0-2+b1` (источник для списка символов `xcb_*`)
 - **В исходной упаковке:** (написана с нуля)
-- **В нашем репозитории:** 1.0-7+crick
+- **В нашем репозитории:** 1.0-10+crick
 
 ## Содержимое
 
@@ -49,17 +49,20 @@ X-сервера.
 
 | Функция                          | Возвращает | Примечание                                          |
 | --------------------------------------- | -------------------- | ------------------------------------------------------------- |
-| `xcb_connect`                           | `0x1`                | non-NULL,`has_error=5` сообщает об ошибке     |
+| `xcb_connect`                           | `0x1`                | non-NULL; `has_error=0` не срабатывает            |
 | `xcb_connect_to_display_with_auth_info` | `0x1`                | non-NULL (редкий путь аутентификации) |
-| `xcb_connection_has_error`              | `0x5`                | `XCB_CONN_CLOSED_PARSE_ERR` — permanent fatal → Wayland     |
-| `xcb_generate_id`                       | `0xffffffff`         | валидный XID                                          |
+| `xcb_connection_has_error`              | `0x0`                | `XCB_CONN_SUCCESS` — no error                      |
+| `xcb_generate_id`                       | `0x0`                | `InvalidXID` — signals no real X server    |
+| `xcb_send_request`                      | `0`                  | error sequence — request fails                |
+| `xcb_send_request_with_fds`             | `0`                  | error sequence — request fails                |
 | `xcb_flush`                             | `0`                  | пусто                                                    |
 | `xcb_disconnect`                        | `0`                  | void, значение не важно                        |
 
-Одной `has_error=0x5` недостаточно: браузер 200+ раз проверяет статус, но
-переопределение `xcb_connect` на `0x1` (non-NULL) заставляет его считать
-соединение установленным, что приводит к многочисленным вызовам
-`has_error` в фазе "eagerly initialize extensions".
+Одной `has_error=0x0` недостаточно: браузер всё равно 200+ раз
+проверяет статус, т.к. `send_request=0` (error) приводит к постоянным
+"Cannot send request" ошибкам. Текущие hardcode-значения — `generate_id=0`
+(InvalidXID) и `send_request=0`, которые должны привести к ранней
+терминации цикла инициализации расширений.
 
 ## Важные нюансы
 

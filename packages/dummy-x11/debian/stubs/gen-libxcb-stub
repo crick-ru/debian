@@ -2,8 +2,8 @@
 """Сгенерировать libxcb.so.1 — заглушку с опциональным логированием.
 
 Зачем. Настоящая libxcb.so.1 в системе отсутствует: она заменена этой
-заглушкой, которая возвращает hardcode-значения для 6 функций браузера
-(см. STUB_OVERRIDES) и NULL для остальных 676 символов. Никакого dlopen/dlsym
+заглушкой, которая возвращает hardcode-значения для 7 функций браузера
+(см. STUB_OVERRIDES) и NULL для остальных 675 символов. Никакого dlopen/dlsym
 и никакой реальной libxcb — пакет не содержит и не загружает её.
 
 Устройство. Для каждого из 676 символов xcb_* генерируется функция-обёртка:
@@ -37,23 +37,28 @@ SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
 # Ключ — имя функции, значение — C-выражение для возврата.
 # Подробности в докстринге выше.
 #
-# Значения взяты из лога (1-е октября 2026, Яндекс Браузер): браузер
-# вызывает ровно эти 6 функций, и без них не обойтись — остальные 670
+# Значения взяты из лога (25 октября 2026, Яндекс Браузер): браузер
+# вызывает ровно эти 7 функций, и без них не обойтись — остальные 675
 # функций не зовутся и возвращают NULL.
 #
 STUB_OVERRIDES = {
     'xcb_connect': '(void*)0x1',
     'xcb_connect_to_display_with_auth_info': '(void*)0x1',
-    'xcb_generate_id': '(void*)0xffffffff',
+    'xcb_generate_id': '(void*)0x0',
+    'xcb_send_request': '(void*)0',
+    'xcb_send_request_with_fds': '(void*)0',
     'xcb_flush': '(void*)0',
     'xcb_disconnect': '(void*)0',
 }
 
 # NOTE: xcb_connect returns 0x1 (non-NULL pointer to static error int).
 # Returning NULL (0) causes Chromium to segfault.
-# has_error uses STATEFUL logic (separate template below) — returns 0x1
-# (XCB_CONN_ERROR) only on the FIRST call, then 0x0. This lets Chromium
-# see the error once but prevents 200+ repeated has_error checks.
+# xcb_connection_has_error → always 0x0 (XCB_CONN_SUCCESS, no error).
+# Chromium checks this after every failed send_request; returning 0 means
+# it won't short-circuit, but combined with xcb_generate_id=0 (invalid XID),
+# subsequent operations on InvalidXID may trigger different error paths.
+# The key signal is the InvalidXID, not the connection error code.
+#
 
 # Список функций, которые логгируются, но не делегируются реальной libxcb.
 # Остальные 670 функций (из symbols-libxcb.so.1.txt) логгируются и
@@ -95,7 +100,6 @@ LOG_HEADER = r"""\
 static FILE *g_log = NULL;
 static pthread_mutex_t g_log_lock = PTHREAD_MUTEX_INITIALIZER;
 static unsigned long g_call_counter = 0;
-static int g_has_error_first = 0;
 
 static const char *get_log_path(void) {
     const char *p = getenv(LOG_PATH_ENV);
@@ -119,7 +123,7 @@ static void xcb_stub_init(void) {
         g_log = stderr;
     }
     setvbuf(g_log, NULL, _IONBF, 0);
-    fprintf(g_log, "[init] libxcb stub loaded (v1.0-9)\n");
+    fprintf(g_log, "[init] libxcb stub loaded (v1.0-10)\n");
     fprintf(g_log, "[init] log path: %s\n", get_log_path());
     fprintf(g_log, "[init] DUMMY_X11_LOG is set, logging enabled\n");
 }
@@ -192,10 +196,9 @@ void *{name}(void) {{
 """
 
 
-# Special template for xcb_connection_has_error: STATEFUL.
-# Returns 0x1 (XCB_CONN_ERROR) on the first call only, then 0x0.
-# This lets Chromium see the error once but prevents 200+ repeated has_error
-# checks in the "eagerly initialize extensions" loop.
+# Special template for xcb_connection_has_error: always returns 0x0 (success).
+# Combined with xcb_generate_id returning 0 (InvalidXID), this lets Chromium
+# proceed past connection checks but fail on actual XID operations.
 HAS_ERROR_TEMPLATE = r"""\
 void *xcb_connection_has_error(void) {
     register void *a0 asm("rdi");
@@ -208,11 +211,7 @@ void *xcb_connection_has_error(void) {
 
     log_entry("xcb_connection_has_error", sv0, sv1, sv2, sv3, sv4, sv5);
 
-    void *ret = (void*)0x1;
-    if (g_has_error_first) {
-        ret = (void*)0x0;
-    }
-    g_has_error_first = 1;
+    void *ret = (void*)0x0;
     log_exit("xcb_connection_has_error", ret);
     return ret;
 }

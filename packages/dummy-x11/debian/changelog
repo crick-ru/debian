@@ -1,4 +1,4 @@
-dummy-x11 (1.0-9+crick) unstable; urgency=medium
+dummy-x11 (1.0-10+crick) unstable; urgency=medium
 
   * Removed libXau/libXdmcp stubs: they were only needed by real libxcb's
     NEEDED, which is no longer in the package. The six remaining stub
@@ -7,13 +7,22 @@ dummy-x11 (1.0-9+crick) unstable; urgency=medium
     When the variable is empty or unset, no logging is performed (g_log
     stays NULL, log_entry/log_exit are no-ops). When set to a path, xcb_*
     calls are logged in append mode. Renamed from YABROWSER_XCB_LOG.
-  * gen-libxcb-stub: has_error returns 0x1 (XCB_CONN_ERROR) instead of
-    0x5 — testing if Chromium treats it as a true fatal error and reduces
-    the 200+ has_error calls seen during "eagerly initialize extensions".
+  * gen-libxcb-stub: has_error returns 0x0 (XCB_CONN_SUCCESS, no error)
+    instead of using STATEFUL logic (0x1 once then 0x0). STATEFUL approach
+    still resulted in 208 calls. New approach: always success +
+    generate_id=0 (InvalidXID) + send_request=0 (error) — signals broken
+    connection via invalid resources rather than connection-level errors.
+  * gen-libxcb-stub: xcb_generate_id now returns 0 (InvalidXID) instead
+    of 0xffffffff. Combined with has_error=0, this signals "no real X server"
+    via invalid resource IDs rather than connection-level errors.
+  * gen-libxcb-stub: xcb_send_request and xcb_send_request_with_fds now
+    return 0 (error sequence). This makes failed X11 requests detectable
+    by Chromium's ui/gfx/x code, potentially terminating the extension
+    init loop early.
   * README.md completely rewritten to match current package state.
   * dummy-x11-report: removed libXau/libXdmcp from STUB_SONAMES.
 
-  -- AI-agent <noreply@example.com>  Sun, 25 Oct 2026 15:10:00 +0000
+  -- AI-agent <noreply@example.com>  Sun, 25 Oct 2026 16:30:00 +0000
 
 dummy-x11 (1.0-7) unstable; urgency=medium
 
