@@ -50,6 +50,12 @@ STUB_OVERRIDES = {
     'xcb_disconnect': '(void*)0',
 }
 
+# NOTE: xcb_connect returns 0x1 (non-NULL pointer to static error int).
+# Returning NULL (0) causes Chromium's ui/gfx/x Connection to segfault —
+# the browser still tries to dereference the connection for setup/data.
+# 0x1 + has_error=0x5 is the working combination: has_error=5 tells
+# Chromium X server is unavailable, forcing Wayland fallback.
+
 # Список функций, которые логгируются, но не делегируются реальной libxcb.
 # Остальные 670 функций (из symbols-libxcb.so.1.txt) логгируются и
 # возвращают NULL — это корректно для системы без X-сервера: функции, которые
