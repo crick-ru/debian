@@ -41,24 +41,19 @@ SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
 # вызывает ровно эти 6 функций, и без них не обойтись — остальные 670
 # функций не зовутся и возвращают NULL.
 #
-# NOTE: xcb_connect returns 0x1 (non-NULL pointer to static error int).
-# Returning NULL (0) causes Chromium to segfault.
-# 0x1 + has_error=0x5 is the working combination: has_error=5 tells
-# Chromium X server is unavailable, forcing Wayland fallback.
 STUB_OVERRIDES = {
     'xcb_connect': '(void*)0x1',
     'xcb_connect_to_display_with_auth_info': '(void*)0x1',
-    'xcb_connection_has_error': '(void*)0x1',
     'xcb_generate_id': '(void*)0xffffffff',
     'xcb_flush': '(void*)0',
     'xcb_disconnect': '(void*)0',
 }
 
 # NOTE: xcb_connect returns 0x1 (non-NULL pointer to static error int).
-# Returning NULL (0) causes Chromium's ui/gfx/x Connection to segfault —
-# the browser still tries to dereference the connection for setup/data.
-# 0x1 + has_error=0x5 is the working combination: has_error=5 tells
-# Chromium X server is unavailable, forcing Wayland fallback.
+# Returning NULL (0) causes Chromium to segfault.
+# has_error uses STATEFUL logic (separate template below) — returns 0x1
+# (XCB_CONN_ERROR) only on the FIRST call, then 0x0. This lets Chromium
+# see the error once but prevents 200+ repeated has_error checks.
 
 # Список функций, которые логгируются, но не делегируются реальной libxcb.
 # Остальные 670 функций (из symbols-libxcb.so.1.txt) логгируются и
@@ -100,6 +95,7 @@ LOG_HEADER = r"""\
 static FILE *g_log = NULL;
 static pthread_mutex_t g_log_lock = PTHREAD_MUTEX_INITIALIZER;
 static unsigned long g_call_counter = 0;
+static int g_has_error_first = 0;
 
 static const char *get_log_path(void) {
     const char *p = getenv(LOG_PATH_ENV);
@@ -123,9 +119,9 @@ static void xcb_stub_init(void) {
         g_log = stderr;
     }
     setvbuf(g_log, NULL, _IONBF, 0);
-    fprintf(g_log, "[init] libxcb logging wrapper loaded\n");
+    fprintf(g_log, "[init] libxcb stub loaded (v1.0-9)\n");
     fprintf(g_log, "[init] log path: %s\n", get_log_path());
-    fprintf(g_log, "[init] real library: none (delegation removed)\n");
+    fprintf(g_log, "[init] DUMMY_X11_LOG is set, logging enabled\n");
 }
 
 static void log_entry(const char *name,
@@ -196,6 +192,33 @@ void *{name}(void) {{
 """
 
 
+# Special template for xcb_connection_has_error: STATEFUL.
+# Returns 0x1 (XCB_CONN_ERROR) on the first call only, then 0x0.
+# This lets Chromium see the error once but prevents 200+ repeated has_error
+# checks in the "eagerly initialize extensions" loop.
+HAS_ERROR_TEMPLATE = r"""\
+void *xcb_connection_has_error(void) {
+    register void *a0 asm("rdi");
+    register void *a1 asm("rsi");
+    register void *a2 asm("rdx");
+    register void *a3 asm("rcx");
+    register void *a4 asm("r8");
+    register void *a5 asm("r9");
+    void *sv0 = a0, *sv1 = a1, *sv2 = a2, *sv3 = a3, *sv4 = a4, *sv5 = a5;
+
+    log_entry("xcb_connection_has_error", sv0, sv1, sv2, sv3, sv4, sv5);
+
+    void *ret = (void*)0x1;
+    if (g_has_error_first) {
+        ret = (void*)0x0;
+    }
+    g_has_error_first = 1;
+    log_exit("xcb_connection_has_error", ret);
+    return ret;
+}
+"""
+
+
 def main():
     outdir = sys.argv[1] if len(sys.argv) > 1 else '.'
     srcdir = os.path.join(outdir, '.src')
@@ -209,8 +232,12 @@ def main():
 
     with open(csrc, 'w', encoding='utf-8') as fh:
         fh.write(LOG_HEADER)
+        # Emit STATEFUL has_error template first (special handling)
+        fh.write(HAS_ERROR_TEMPLATE)
         for sym in symbols:
-            if sym in STUB_OVERRIDES:
+            if sym == 'xcb_connection_has_error':
+                pass  # already emitted via HAS_ERROR_TEMPLATE
+            elif sym in STUB_OVERRIDES:
                 fh.write(OVERRIDE_TEMPLATE.format(
                     name=sym, override=STUB_OVERRIDES[sym]))
             else:

@@ -1,4 +1,4 @@
-dummy-x11 (1.0-8+crick) unstable; urgency=medium
+dummy-x11 (1.0-9+crick) unstable; urgency=medium
 
   * Removed libXau/libXdmcp stubs: they were only needed by real libxcb's
     NEEDED, which is no longer in the package. The six remaining stub
