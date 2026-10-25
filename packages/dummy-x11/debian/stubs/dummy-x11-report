@@ -51,9 +51,6 @@ STUB_SONAMES = (
     'libXdamage.so.1',
     'libXfixes.so.3',
     'libXrandr.so.2',
-    # Заглушки внутри dummy-x11.so, нужные настоящей libxcb по NEEDED:
-    'libXau.so.6',
-    'libXdmcp.so.6',
     # Логирующая заглушка libxcb.so.1 (настоящей libxcb в пакете нет,
     # делегирования нет — все функции возвращают NULL или hardcode).
     'libxcb.so.1',

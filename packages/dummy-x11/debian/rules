@@ -30,9 +30,8 @@ override_dh_auto_build:
 override_dh_auto_install:
 	install -d $(LIBDIR)
 	install -m 0644 $(BUILDDIR)/dummy-x11.so $(LIBDIR)/
-	# Симлинки libX*.so.* и заглушки libXau/libXdmcp: cp -P сохраняет их
-	# симлинками, install скопировал бы цель под каждым именем (лишние
-	# копии файла вместо ссылок на одну заглушку).
+	# Симлинки libX*.so.*: cp -P сохраняет их симлинками, install скопировал бы
+	# цель под каждым именем (лишние копии файла вместо ссылок на одну заглушку).
 	cp -P $(BUILDDIR)/lib*.so.* $(LIBDIR)/
 	# Диагностический скрипт - то, чем пользователь проверяет браузер
 	# после обновления. Ставится в /usr/bin, чтобы вызывался просто
@@ -48,8 +47,9 @@ override_dh_auto_install:
 	# (см. known_symbols() в dummy-x11-report).
 	install -m 0644 $(STUBDIR)/symbols-*.txt debian/tmp/usr/share/dummy-x11/
 
-# dpkg-shlibdeps отключён намеренно. Заглушки libXau/libXdmcp поставляет сам
-# dummy-x11, внешних зависимостей у пакета нет по замыслу (см. README).
+# dpkg-shlibdeps отключён намеренно. dummy-x11 имеет фиктивный SONAME и не
+# может участвовать в dependency generation. Внешних зависимостей у пакета
+# нет по замыслу (см. README).
 # Без отключения dpkg-shlibdeps потребовал бы в Build-Depends настоящие
-# libxau6/libxdmcp6 из trixie только ради метаданных для своей проверки.
+# X11-библиотеки из trixie только ради метаданных для своей проверки.
 override_dh_shlibdeps:

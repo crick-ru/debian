@@ -7,9 +7,13 @@ dummy-x11 (1.0-8+crick) unstable; urgency=medium
     When the variable is empty or unset, no logging is performed (g_log
     stays NULL, log_entry/log_exit are no-ops). When set to a path, xcb_*
     calls are logged in append mode. Renamed from YABROWSER_XCB_LOG.
-  * README.md rewritten to match current package state.
+  * gen-libxcb-stub: has_error returns 0x1 (XCB_CONN_ERROR) instead of
+    0x5 — testing if Chromium treats it as a true fatal error and reduces
+    the 200+ has_error calls seen during "eagerly initialize extensions".
+  * README.md completely rewritten to match current package state.
+  * dummy-x11-report: removed libXau/libXdmcp from STUB_SONAMES.
 
-  -- AI-agent <noreply@example.com>  Sun, 25 Oct 2026 15:00:00 +0000
+  -- AI-agent <noreply@example.com>  Sun, 25 Oct 2026 15:10:00 +0000
 
 dummy-x11 (1.0-7) unstable; urgency=medium
 

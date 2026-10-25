@@ -40,10 +40,15 @@ SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
 # Значения взяты из лога (1-е октября 2026, Яндекс Браузер): браузер
 # вызывает ровно эти 6 функций, и без них не обойтись — остальные 670
 # функций не зовутся и возвращают NULL.
+#
+# NOTE: xcb_connect returns 0x1 (non-NULL pointer to static error int).
+# Returning NULL (0) causes Chromium to segfault.
+# 0x1 + has_error=0x5 is the working combination: has_error=5 tells
+# Chromium X server is unavailable, forcing Wayland fallback.
 STUB_OVERRIDES = {
     'xcb_connect': '(void*)0x1',
     'xcb_connect_to_display_with_auth_info': '(void*)0x1',
-    'xcb_connection_has_error': '(void*)0x5',
+    'xcb_connection_has_error': '(void*)0x1',
     'xcb_generate_id': '(void*)0xffffffff',
     'xcb_flush': '(void*)0',
     'xcb_disconnect': '(void*)0',
@@ -146,6 +151,7 @@ static void log_exit(const char *name, void *ret) {
 """
 
 
+# Шаблон для остальных функций: логгирует и возвращает NULL.
 WRAPPER_TEMPLATE = """\
 void *{name}(void) {{
     /* Захват аргументов из регистров до любых вызовов */
@@ -159,10 +165,6 @@ void *{name}(void) {{
 
     log_entry("{name}", sv0, sv1, sv2, sv3, sv4, sv5);
 
-    /* Никакой делегации на реальную libxcb: пакет её не содержит. Возвращаем
-     * NULL — для функций, которые браузер не зовёт, это допустимо (X-сервера
-     * в системе нет), а если какая-то функция понадобится — она попадёт в лог
-     * и её добавят в STUB_OVERRIDES. */
     void *ret = NULL;
     log_exit("{name}", ret);
     return ret;

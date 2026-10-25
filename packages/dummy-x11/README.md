@@ -1,6 +1,6 @@
 # dummy-x11
 
-## Заглушки X11-клиентских библиотек для систем без X11.
+Заглушки X11-клиентских библиотек для систем без X11.
 
 Пакет заменяет восемь X11-библиотек (`libx11-6`, `libxcb1`, `libxext6`,
 `libxcomposite1`, `libxdamage1`, `libxfixes3`, `libxrandr2`, `libxrandr2`)
@@ -21,15 +21,16 @@ X-сервера.
 
 ## Содержимое
 
-| Файл | Назначение |
-|---|---|
-| `/usr/lib/x86_64-linux-gnu/dummy-x11.so` | единая библиотека-заглушка со всеми символами X11 |
-| `…/libX11.so.6`, `…/libXext.so.6`, `…/libXcomposite.so.1`, `…/libXdamage.so.1`, `…/libXfixes.so.3`, `…/libXrandr.so.2` | симлинки → `dummy-x11.so` |
-| `/usr/lib/x86_64-linux-gnu/libxcb.so.1` | заглушка libxcb с hardcode-значениями для 6 функций, остальные — NULL |
-| `/usr/bin/dummy-x11-report` | diagnosticный скрипт для поиска вызовов |
-| `/usr/share/dummy-x11/gen-stubs` | генератор `dummy-x11.so` |
-| `/usr/share/dummy-x11/gen-libxcb-stub` | генератор `libxcb.so.1` |
-| `/usr/share/dummy-x11/symbols-*.txt` | списки символов реальных библиотек |
+
+| Файл                                                                                                                     | Назначение                                                                                         |
+| ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `/usr/lib/x86_64-linux-gnu/dummy-x11.so`                                                                                     | единая библиотека-заглушка со всеми символами X11                    |
+| `…/libX11.so.6`, `…/libXext.so.6`, `…/libXcomposite.so.1`, `…/libXdamage.so.1`, `…/libXfixes.so.3`, `…/libXrandr.so.2` | симлинки →`dummy-x11.so`                                                                            |
+| `/usr/lib/x86_64-linux-gnu/libxcb.so.1`                                                                                      | заглушка libxcb с hardcode-значениями для 6 функций, остальные — NULL |
+| `/usr/bin/dummy-x11-report`                                                                                                  | diagnosticный скрипт для поиска вызовов                                             |
+| `/usr/share/dummy-x11/gen-stubs`                                                                                             | генератор`dummy-x11.so`                                                                             |
+| `/usr/share/dummy-x11/gen-libxcb-stub`                                                                                       | генератор`libxcb.so.1`                                                                              |
+| `/usr/share/dummy-x11/symbols-*.txt`                                                                                         | списки символов реальных библиотек                                            |
 
 ## Что изменено
 
@@ -37,9 +38,6 @@ X-сервера.
   `libxcomposite1`, `libxdamage1`, `libxext6`, `libxfixes3`, `libxrandr2`.
 - **Conflicts/Replaces:** для всех 8 пакетов — без этого apt установил бы
   настоящие X11-библиотеки из trixie, и подмены не произошло бы.
-- **Отсутствие libXau/libXdmcp:** раньше эти заглушки входили в
-  `dummy-x11.so` "на всякий случай", т.к. настоящая libxcb ссылалась на них
-  по NEEDED. Теперь настоящей libxcb нет — заглушки удалены.
 - **libxcb — заглушка с hardcode-значениями:** 6 функций браузера
   возвращают предопределённые значения (`STUB_OVERRIDES`), остальные 676 — NULL.
   Делегирование реальной libxcb удалено.
@@ -48,14 +46,15 @@ X-сервера.
 
 ## Переопределённые функции libxcb
 
-| Функция | Возвращает | Примечание |
-|---|---|---|
-| `xcb_connect` | `0x1` | non-NULL, `has_error=5` сообщает об ошибке |
-| `xcb_connect_to_display_with_auth_info` | `0x1` | non-NULL (редкий путь аутентификации) |
-| `xcb_connection_has_error` | `0x5` | `XCB_CONN_CLOSED_PARSE_ERR` — permanent fatal → Wayland |
-| `xcb_generate_id` | `0xffffffff` | валидный XID |
-| `xcb_flush` | `0` | пусто |
-| `xcb_disconnect` | `0` | void, значение не важно |
+
+| Функция                          | Возвращает | Примечание                                          |
+| --------------------------------------- | -------------------- | ------------------------------------------------------------- |
+| `xcb_connect`                           | `0x1`                | non-NULL,`has_error=5` сообщает об ошибке     |
+| `xcb_connect_to_display_with_auth_info` | `0x1`                | non-NULL (редкий путь аутентификации) |
+| `xcb_connection_has_error`              | `0x5`                | `XCB_CONN_CLOSED_PARSE_ERR` — permanent fatal → Wayland     |
+| `xcb_generate_id`                       | `0xffffffff`         | валидный XID                                          |
+| `xcb_flush`                             | `0`                  | пусто                                                    |
+| `xcb_disconnect`                        | `0`                  | void, значение не важно                        |
 
 Одной `has_error=0x5` недостаточно: браузер 200+ раз проверяет статус, но
 переопределение `xcb_connect` на `0x1` (non-NULL) заставляет его считать
