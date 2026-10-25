@@ -74,7 +74,7 @@ Description: X11 dependency stubs for Wayland-only systems
  satisfies the X11 dependencies of packages that cannot be rebuilt without
  X11 - currently the official Yandex Browser deb.
  .
-All stubs for libX11/libXext/etc. live in one combined library
+ All stubs for libX11/libXext/etc. live in one combined library
   dummy-x11.so; the real SONAMEs are symbolic links to it, so the dynamic
   linker resolves the binary's imports to it and the program starts without
   an X server. Every stubbed function returns NULL.
