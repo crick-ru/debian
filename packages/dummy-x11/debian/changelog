@@ -1,3 +1,17 @@
+dummy-x11 (1.0-8) unstable; urgency=medium
+
+  * Fix: xcb_connection_has_error now uses STATEFUL override — returns 0x5
+    (XCB_CONN_CLOSED_PARSE_ERR) on first call only, then returns 0.
+    Previous approach (delegating to real libxcb) returned 0x5 on ALL calls,
+    causing Chromium to loop 200+ times across 3 processes without switching
+    to Wayland. Stateful override ensures Ready() returns false once → browser
+    switches to Wayland immediately.
+  * New log function: log_exit_int for int-returning functions.
+  * New override template: HAS_ERROR_OVERRIDE_TEMPLATE (separate from
+    OVERRIDE_TEMPLATE which returns void*).
+
+  -- crick Debian Backports <backports@users.noreply.github.com>  Sun, 25 Oct 2026 08:30:00 +0000
+
 dummy-x11 (1.0-7) unstable; urgency=medium
 
   * Fix: xcb_connection_has_error, xcb_connect, and
