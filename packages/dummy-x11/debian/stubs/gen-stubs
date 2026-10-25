@@ -23,11 +23,15 @@
 Почему libxcb — отдельная заглушка, а не в объединении. `libxcb.so.1`
 не входит в dummy-x11.so: вместо заглушки, возвращающей NULL, он теперь
 логирующая обёртка (gen-libxcb-stub), которая логгирует все вызовы xcb_* и
-возвращает 0/null без делегирования реальной libxcb. Это упрощённый подход
-для чистого Wayland окружения, где X11 не используется.
+делегирует их настоящей libxcb из trixie по скрытому пути
+/usr/share/dummy-x11/hidden/libxcb-real.so.1 через dlopen/dlsym. Это
+позволяет диагностировать, какие функции и возвращаемые значения нужны
+браузеру, чтобы затем реализовать их заглушки без реальной libxcb.
 
-Зачем libXau/libXdmcp. Убраны из rev 9: без real libxcb их больше не нужно.
-Все остальное без изменений.
+Зачем libXau/libXdmcp. Настоящая libxcb.so.1 ссылается по NEEDED на
+libXau.so.6 и libXdmcp.so.6, и без них браузер не загрузится. Свои заглушки
+для них входят в то же объединение: эти функции вызываются только при
+аутентификации подключения к X-серверу, которого в системе нет.
 
 Вход:  symbols-<имя>.txt - по одному имени символа в строке.
 Выход: dummy-x11.so плюс симлинки lib*.so.* -> dummy-x11.so,
@@ -48,6 +52,9 @@ STUB_SONAMES = [
     'libXdamage.so.1',
     'libXfixes.so.3',
     'libXrandr.so.2',
+    # Нужны настоящой libxcb по NEEDED, входят в объединение (см. докстринг):
+    'libXau.so.6',
+    'libXdmcp.so.6',
 ]
 
 # Единый файл и его SONAME. Имя не начинается с "lib", чтобы dh_makeshlibs
@@ -113,14 +120,10 @@ def main():
     print('==> Симлинков: %d' % len(STUB_SONAMES))
     # Сгенерировать логирующую заглушку libxcb.so.1 (gen-libxcb-stub):
     # экспортирует все 676 символов xcb_*, логгирует вызовы и делегирует
-    # их настоящей libxcb по скрытому пути через dlopen/dlsym.
-    # xcb_connect, xcb_connect_to_display_with_auth_info и
-    # xcb_connection_has_error ДЕЛЕГИРУЮТСЯ (не переопределяются):
-    # реальная libxcb возвращает XCB_CONN_CLOSED_PARSE_ERR (0x5) для
-    # недоступного X-сервера, и Chromium доверяет этой ошибке — переключается
-    # на Wayland после одного вызова. Переопределение на фейк-значения
-    # ломает механизм: io_error_handler_ срабатывает один раз, потом
-    # has_error вызывается 200+ раз без реакции.
+    # их настоящей libxcb по скрытому пути через dlopen/dlsym. Одна функция
+    # (xcb_connection_has_error) переопределена — возвращает 0x5 (XCB_CONN_CLOSED_PARSE_ERR)
+    # вместо делегирования, чтобы браузер переключился с X11 на Wayland.
+    # 0x5 — permanent fatal: браузер немедленно сдаётся с X11 и переходит на Wayland.
     gen_xcb = os.path.join(HERE, 'gen-libxcb-stub')
     subprocess.run(['python3', gen_xcb, outdir], check=True)
 

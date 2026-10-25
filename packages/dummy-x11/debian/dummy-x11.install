@@ -2,5 +2,6 @@ usr/bin/dummy-x11-report
 usr/share/dummy-x11/gen-stubs
 usr/share/dummy-x11/gen-libxcb-stub
 usr/share/dummy-x11/symbols-*.txt
+usr/share/dummy-x11/hidden/libxcb-real.so.1
 usr/lib/*/dummy-x11.so
 usr/lib/*/lib*.so.*

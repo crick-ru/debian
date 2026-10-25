@@ -45,18 +45,23 @@ BROWSER_DIRS = ['/opt/yandex/browser']
 
 STUB_SONAMES = (
     'libX11.so.6',
-    'libXext.so.6',
+    'libXExt.so.6',
     'libXcomposite.so.1',
     'libXdamage.so.1',
     'libXfixes.so.3',
     'libXrandr.so.2',
-    # rev 9: libXau/libXdmcp убраны — без real libxcb их не нужно.
-    # Логирующая заглушка libxcb.so.1 (все функции возвращают 0/null):
+    # Заглушки внутри dummy-x11.so, нужные настоящей libxcb по NEEDED:
+    'libXau.so.6',
+    'libXdmcp.so.6',
+    # Логирующая заглушка libxcb.so.1 (настоящая libxcb скрыта по пути
+    # /usr/share/dummy-x11/hidden/libxcb-real.so.1 и делегируется через
+    # dlopen; xcb_connection_has_error переопределена для Wayland fallback):
     'libxcb.so.1',
 )
 
 # libxcb больше не является «настоящей» библиотекой в пакете — он теперь
-# логирующая заглушка, возвращающая 0/null для всех функций.
+# логирующая заглушка. Реальная libxcb скрыта и не участвует в проверке
+# покрытия импортов браузера напрямую (она вызывается через неё).
 REAL_SONAMES = ()
 
 # Признак имени X11-символа. `XML_*` исключены явно: это libxml2, а не X11.

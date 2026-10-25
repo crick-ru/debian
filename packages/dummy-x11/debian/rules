@@ -32,6 +32,10 @@ override_dh_auto_install:
 	# симлинками, install скопировал бы цель под каждым именем (лишние
 	# копии файла вместо ссылок на одну заглушку).
 	cp -P $(BUILDDIR)/lib*.so.* $(LIBDIR)/
+	# Настоящая libxcb — для делегирования из заглушки по скрытому пути.
+	install -d debian/tmp/usr/share/dummy-x11/hidden
+	install -m 0644 $(STUBDIR)/real/libxcb.so.1 \
+		debian/tmp/usr/share/dummy-x11/hidden/libxcb-real.so.1
 	# Диагностический скрипт - то, чем пользователь проверяет браузер
 	# после обновления. Ставится в /usr/bin, чтобы вызывался просто
 	# `dummy-x11-report`.

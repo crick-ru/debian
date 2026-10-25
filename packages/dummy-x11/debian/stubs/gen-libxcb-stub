@@ -1,31 +1,34 @@
 #!/usr/bin/env python3
 """Сгенерировать libxcb.so.1 — логирующую заглушку, которая перехватывает
-все вызовы xcb_* функций Яндекс.Браузера, логирует их, и возвращает 0/null.
+все вызовы xcb_* функций Яндекс.Браузера, логирует их, а затем делегирует
+вызов настоящей libxcb (из скрытого пути) для сохранения работоспособности.
 
-rev 9: НЕ делегируем реальной libxcb. Все функции xcb_* возвращают 0 или NULL.
-Это упрощённый подход — браузер не получает real X11 connection, но в
-чистом Wayland окружении это достаточно: X11-код в браузере не используется
-для рендеринга, а заглушка удовлетворяет все ссылки на символы.
+Зачем. Настоящий libxcb.so.1 из trixie в пакете был заменён на эту заглушку,
+чтобы выяснить, какие именно функции и ответы нужны браузеру. Сгенерированная
+заглушка логгирует все вызовы и делегирует их настоящей библиотеке, которая
+стоит по скрытому пути и загружается через dlopen.
 
-Специальные переопределения (STUB_OVERRIDES + INT_OVERRIDE_TEMPLATE).
-Основные функции переопределяются на безопасные значения:
-- xcb_connect, xcb_connect_to_display_with_auth_info → NULL (0x0)
-- xcb_connection_has_error → 0 (int, использует INT_OVERRIDE_TEMPLATE)
-- xcb_generate_id → 0xffffffff
-- xcb_flush, xcb_disconnect → 0
+Специальные переопределения (STUB_OVERRIDES). Некоторые функции не делегируются
+на реальную libxcb — вместо этого возвращают заранее известное значение.
+Это нужно для принудительного переключения браузера с X11 на Wayland:
+  - xcb_connection_has_error возвращает XCB_CONN_CLOSED_PARSE_ERR (0x5)
+    вместо XCB_CONN_CLOSED_MEM_INSUFFICIENT (0x3), который возвращает реальная
+    libxcb при недоступности X-сервера. 0x5 — критическая ошибка парсинга
+    отображения (permanent fatal): браузер немедленно сдаётся с X11 и переходит
+    на Wayland. 0x3 означает «не хватило памяти» (transient), что породило 200+
+    повторных вызовов has_error без переключения.
 
-Логирующая заглушка НЕ использует реальную libxcb (dlopen больше не вызывается).
-Это упрощает архитектуру: не нужно скрывать real libxcb, не нужно переключать
-делегирование на заглушку.
-
-Устройство. Для каждого из 676 символов xcb_* генерируется функция-обёртка,
-которая:
+Устройство. Для каждого из 676 символов xcb_* генерируется функция-обёртка:
   1. Сохраняет аргументы из регистров (rdi, rsi, rdx, rcx, r8, r9) в локальные
      переменные — до любых вызовов, которые могут их испортить.
   2. Логгирует вызов (название + аргументы) в /tmp/dummy-x11-libxcb.log
      (или путь из env YABROWSER_XCB_LOG).
-  3. Возвращает заранее определённое значение из STUB_OVERRIDES или
-     INT_OVERRIDE_TEMPLATE (для int-функций).
+  3. Через dlsym получает указатель на реальную функцию (кеширует в static).
+  4. Через inline-asm восстанавливает аргументы в регистры и вызывает реальную
+     функцию. Stack-аргументы (>6) не пересылаются — для xcb_* большинство
+     функций имеют <=6 аргументов.
+  5. Логгирует возвращаемое значение.
+  6. Возвращает результат.
 
 Вход:  symbols-libxcb.so.1.txt (список символов).
 Выход: libxcb.so.1 (логирующая заглушка, SONAME libxcb.so.1).
@@ -37,34 +40,30 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+# Путь, где будет установлена настоящая libxcb для делегирования.
+REAL_LIB_PATH = "/usr/share/dummy-x11/hidden/libxcb-real.so.1"
+
 # Путь к списку символов.
 SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
 
 # Функции, для которых возвращаем жёсткое значение вместо делегирования
 # реальной libxcb. Ключ — имя функции, значение — C-выражение для возврата.
+# Подробности в докстринге выше.
 #
-# Подход rev 9: НЕ делегируем ни одну функцию. Все функции xcb_* возвращают
-# 0 или NULL. xcb_connect и xcb_connect_to_display_with_auth_info возвращают
-# NULL (не real connection pointer). xcb_connection_has_error возвращает 0
-# (no error) — для этого нужен INT_OVERRIDE_TEMPLATE (int, не void*).
-#
-# Реальная libxcb не используется — полностью заменена заглушкой. Это
-# упрощённый подход: браузер не получает real X11 connection, но X11-код
-# в нём отключён через #ifdef при сборке, либо загружается как null-заглушка.
-# В чистом Wayland окружении X11 connection не используется для рендеринга.
-#
-# generate_id переопределяется на 0xffffffff (валидный XID), flush/disconnect
-# на 0 — safe values для неиспользуемого соединения.
+# Значения из лога делегированной заглушки (1-е октября 2026, Яндекс Браузер):
+#   xcb_connect → non-NULL указатель (браузер не проверяет)
+#   xcb_connection_has_error → 0x5 (XCB_CONN_CLOSED_PARSE_ERR, permanent fatal)
+#     вместо 0x3 (XCB_CONN_CLOSED_MEM_INSUFFICIENT, transient — браузер повторял calls 200+ раз)
+#   xcb_generate_id → 0xffffffff (валидный XID)
+#   xcb_flush → 0 (нечего сбрасывать)
+#   xcb_disconnect → void (значение не важно)
 STUB_OVERRIDES = {
+    'xcb_connect': '(void*)0x1',
+    'xcb_connect_to_display_with_auth_info': '(void*)0x1',
+    'xcb_connection_has_error': '(void*)0x5',
     'xcb_generate_id': '(void*)0xffffffff',
     'xcb_flush': '(void*)0',
     'xcb_disconnect': '(void*)0',
-    'xcb_connect': '(void*)0',
-    'xcb_connect_to_display_with_auth_info': '(void*)0',
-
-    # xcb_connection_has_error возвращает int, не void*.
-    # Использует INT_OVERRIDE_TEMPLATE (отдельный шаблон ниже).
-    'xcb_connection_has_error': None,
 }
 
 
@@ -74,37 +73,13 @@ def read_symbols():
         return [line.strip() for line in fh if line.strip()]
 
 
-
-# Шаблон для функций, возвращающих int (не void*).
-# В отличие от OVERRIDE_TEMPLATE (void*), этот используется для
-# xcb_connection_has_error, который возвращает int.
-INT_OVERRIDE_TEMPLATE = """
-int {name}(void) {{
-    /* Захват аргументов из регистров до любых вызовов */
-    register void *a0 asm("rdi");
-    register void *a1 asm("rsi");
-    register void *a2 asm("rdx");
-    register void *a3 asm("rcx");
-    register void *a4 asm("r8");
-    register void *a5 asm("r9");
-    void *sv0 = a0, *sv1 = a1, *sv2 = a2, *sv3 = a3, *sv4 = a4, *sv5 = a5;
-
-    log_entry("{name}", sv0, sv1, sv2, sv3, sv4, sv5);
-
-    int ret = 0;
-    log_exit_int("{name}", ret);
-    return ret;
-}}
-
-"""
-
-
 LOG_HEADER = """\
 /* Логирующая заглушка libxcb. Сгенерировано gen-libxcb-stub.
  * Не редактируйте этот файл — редактируйте symbols-libxcb.so.1.txt и
  * перегенерируйте через gen-stubs. */
 
 #define _GNU_SOURCE
+#include <dlfcn.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
@@ -114,8 +89,10 @@ LOG_HEADER = """\
 
 #define LOG_PATH_ENV "YABROWSER_XCB_LOG"
 #define LOG_PATH_DEFAULT "/tmp/dummy-x11-libxcb.log"
+#define REAL_LIB_PATH "{real_path}"
 
 static FILE *g_log = NULL;
+static void *g_real_lib = NULL;
 static pthread_mutex_t g_log_lock = PTHREAD_MUTEX_INITIALIZER;
 static unsigned long g_call_counter = 0;
 
@@ -131,9 +108,16 @@ static void xcb_stub_init(void) {{
         g_log = stderr;
     }}
     setvbuf(g_log, NULL, _IONBF, 0);
-    fprintf(g_log, "[init] libxcb logging stub loaded (no delegation)\\n");
+    fprintf(g_log, "[init] libxcb logging wrapper loaded\\n");
     fprintf(g_log, "[init] log path: %s\\n", get_log_path());
-    fprintf(g_log, "[init] all xcb_* calls return 0/null\\n");
+    fprintf(g_log, "[init] real library: %s\\n", REAL_LIB_PATH);
+    g_real_lib = dlopen(REAL_LIB_PATH, RTLD_NOW | RTLD_LOCAL);
+    if (!g_real_lib) {{
+        fprintf(g_log, "[init] WARNING: cannot dlopen real libxcb: %s\\n", dlerror());
+        fprintf(g_log, "[init] Calls will return NULL — logging still works\\n");
+    }} else {{
+        fprintf(g_log, "[init] real libxcb loaded, calls forwarded\\n");
+    }}
 }}
 
 static void log_entry(const char *name,
@@ -155,25 +139,19 @@ static void log_exit(const char *name, void *ret) {{
     pthread_mutex_unlock(&g_log_lock);
 }}
 
-static void log_exit_int(const char *name, int ret) {{
+static void log_warn(const char *name, const char *msg) {{
     pthread_mutex_lock(&g_log_lock);
     if (g_log) {{
-        fprintf(g_log, "[ret  #%lu] %s -> %d\\n", g_call_counter, name, ret);
+        fprintf(g_log, "[warn] %s: %s\\n", name, msg);
     }}
     pthread_mutex_unlock(&g_log_lock);
 }}
+""".format(real_path=REAL_LIB_PATH)
 
-"""
 
-
-# Шаблон для функций с возвращаемым значением по умолчанию (0/null).
-# Логирует вызов, но вместо делегирования реальной libxcb возвращает
-# нулевое значение. Используется для всех функций xcb_*, которые не
-# перечислены в STUB_OVERRIDES (основная часть — 670+ символов).
-# Возвращаемый тип void* — для xcb функций, возвращающих int/size_t/uint32_t,
-# нулевой void* даёт 0 нужного типа на x86-64 ABI.
-ZERO_TEMPLATE = """
+WRAPPER_TEMPLATE = """\
 void *{name}(void) {{
+    /* Захват аргументов из регистров до любых вызовов */
     register void *a0 asm("rdi");
     register void *a1 asm("rsi");
     register void *a2 asm("rdx");
@@ -184,7 +162,32 @@ void *{name}(void) {{
 
     log_entry("{name}", sv0, sv1, sv2, sv3, sv4, sv5);
 
-    void *ret = (void*)0;
+    static void *(*real)(void) = NULL;
+    if (!real) {{
+        real = g_real_lib ? (void *(*)(void))dlsym(g_real_lib, "{name}") : NULL;
+        if (!real)
+            log_warn("{name}", "not found in real libxcb");
+    }}
+
+    void *ret;
+    if (real) {{
+        /* Restore arguments to argument registers using register variables,
+           then use a compiler barrier to force the writes before the call.
+           This correctly forwards up to 6 register arguments on x86-64 SysV.
+           Stack-passed arguments (>6) are not forwarded (see file header). */
+        register void *ra0 asm("rdi") = sv0;
+        register void *ra1 asm("rsi") = sv1;
+        register void *ra2 asm("rdx") = sv2;
+        register void *ra3 asm("rcx") = sv3;
+        register void *ra4 asm("r8") = sv4;
+        register void *ra5 asm("r9") = sv5;
+        asm volatile("" : : "r"(ra0), "r"(ra1), "r"(ra2), "r"(ra3),
+                         "r"(ra4), "r"(ra5) : "memory");
+        ret = real();
+    }} else {{
+        ret = NULL;
+    }}
+
     log_exit("{name}", ret);
     return ret;
 }}
@@ -230,13 +233,11 @@ def main():
     with open(csrc, 'w', encoding='utf-8') as fh:
         fh.write(LOG_HEADER)
         for sym in symbols:
-            if sym == 'xcb_connection_has_error':
-                fh.write(INT_OVERRIDE_TEMPLATE.format(name=sym))
-            elif sym in STUB_OVERRIDES and STUB_OVERRIDES[sym] is not None:
+            if sym in STUB_OVERRIDES:
                 fh.write(OVERRIDE_TEMPLATE.format(
                     name=sym, override=STUB_OVERRIDES[sym]))
             else:
-                fh.write(ZERO_TEMPLATE.format(name=sym))
+                fh.write(WRAPPER_TEMPLATE.format(name=sym))
 
     print('==> compiling %s (%d wrappers)' % (so, len(symbols)))
     subprocess.run(
