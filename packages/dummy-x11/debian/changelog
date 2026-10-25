@@ -1,3 +1,23 @@
+dummy-x11 (1.0-7) unstable; urgency=medium
+
+  * Removed delegation to the real libxcb entirely. The logging stub no
+    longer dlopen/dlsym the hidden libxcb-real.so.1 — it now returns a
+    hardcoded value for the six functions the browser calls
+    (xcb_connect, xcb_connect_to_display_with_auth_info,
+    xcb_connection_has_error → 0x5, xcb_generate_id, xcb_flush,
+    xcb_disconnect) and NULL for everything else. The real libxcb is
+    removed from the package.
+  * Removed the hidden real libxcb (debian/stubs/real/, installed to
+    /usr/share/dummy-x11/hidden/) and the include-binaries entry that
+    shipped it in the source package.
+  * gen-libxcb-stub: deleted dlopen/dlsym, dlfcn.h, g_real_lib and the
+    delegation wrapper; every non-overridden function now logs the call
+    and returns NULL. Compiled without -ldl.
+  * README.md, debian/control, dummy-x11-report and dummy-x11.conf
+    updated to reflect that there is no real libxcb and no delegation.
+
+  -- crick Debian Backports <backports@users.noreply.github.com>  Fri, 25 Oct 2026 12:00:00 +0000
+
 dummy-x11 (1.0-6) unstable; urgency=medium
 
   * Fix xcb_connection_has_error override: changed return value from 0x3
@@ -13,10 +33,11 @@ dummy-x11 (1.0-6) unstable; urgency=medium
 dummy-x11 (1.0-5) unstable; urgency=medium
 
   * Override xcb_connect, xcb_connect_to_display_with_auth_info,
-    xcb_generate_id, xcb_flush, xcb_disconnect to return hardcoded values
-    instead of delegating to real libxcb. Browser calls has_error 200+
-    times but doesn't switch to Wayland when only has_error is overridden.
-    Now all called functions return stub values without touching real libxcb.
+    xcb_connection_has_error, xcb_generate_id, xcb_flush, xcb_disconnect to
+    return hardcoded values instead of delegating to real libxcb. Browser
+    calls has_error 200+ times but doesn't switch to Wayland when only
+    has_error is overridden. Now all called functions return stub values
+    without touching real libxcb.
   * STUB_OVERRIDES expanded from 1 to 6 entries.
 
   -- crick Debian Backports <backports@users.noreply.github.com>  Fri, 24 Oct 2026 00:00:00 +0000

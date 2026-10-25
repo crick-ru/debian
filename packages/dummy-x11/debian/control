@@ -27,9 +27,11 @@ Rules-Requires-Root: no
 #   libxrandr2 2:1.5.4-1+b3, libxau6 1:1.0.11-1, libxdmcp6 1:1.1.5-1
 #
 # libxau6/libxdmcp6 провайдятся и конфликтуют по той же причине, что и
-# остальные: настоящая libxcb.so.1 ссылается на них по NEEDED, но в пакете
-# лежат их заглушки (тот же путь файла) - apt обязан считать настоящие
-# пакеты непригодными и удовлетворить зависимость нашими Provides.
+# остальные: без Conflicts apt установил бы настоящие пакеты из trixie
+# вместе с dummy-x11, и подмены не произошло бы. Раньше они были нужны
+# настоящей libxcb по NEEDED, но настоящей libxcb в пакете больше нет —
+# заглушки остаются на всякий случай, если браузер или что-то ещё
+# импортирует их напрямую.
 # ${shlibs:Depends} в Depends намеренно нет: dh_shlibdeps отключён в
 # debian/rules (там же причина) - внешних зависимостей у пакета нет.
 Package: dummy-x11
@@ -72,22 +74,23 @@ Description: X11 dependency stubs for Wayland-only systems
  satisfies the X11 dependencies of packages that cannot be rebuilt without
  X11 - currently the official Yandex Browser deb.
  .
- All stubs for libX11/libXext/etc. live in one combined library
- dummy-x11.so; the real SONAMEs are symbolic links to it, so the dynamic
- linker resolves the binary's imports to it and the program starts without
- an X server. Every stubbed function returns NULL.
+All stubs for libX11/libXext/etc. live in one combined library
+  dummy-x11.so; the real SONAMEs are symbolic links to it, so the dynamic
+  linker resolves the binary's imports to it and the program starts without
+  an X server. Every stubbed function returns NULL.
   .
-  libxcb.so.1 is a logging wrapper: it logs all xcb_* calls to
+  libxcb.so.1 is a logging stub: it logs all xcb_* calls to
   /tmp/dummy-x11-libxcb.log (or $YABROWSER_XCB_LOG, opened in append mode)
-  and delegates them to the real libxcb (stored at
-  /usr/share/dummy-x11/hidden/libxcb-real.so.1) via dlopen/dlsym. The
-  key exception is xcb_connection_has_error, which returns
-  XCB_CONN_CLOSED_PARSE_ERR (0x5) instead of the real value
-  (XCB_CONN_CLOSED_MEM_INSUFFICIENT, 0x3) — XCB_CONN_CLOSED_PARSE_ERR
-  is a permanent fatal error that forces the browser to switch from X11 to
-  Wayland. The value 0x3 (MEM_INSUFFICIENT) is transient: the browser retries
-  200+ times without switching.
- .
- This package contains no X11 code whatsoever: nothing here talks the X11
- protocol, and there is nothing to switch off. Do not install it on a
- system that uses X11 - it will break every X11 program there.
+  and returns a hardcoded value. Six functions (xcb_connect,
+  xcb_connect_to_display_with_auth_info, xcb_connection_has_error,
+  xcb_generate_id, xcb_flush, xcb_disconnect) return the values the
+  browser needs to switch from X11 to Wayland — in particular
+  xcb_connection_has_error returns XCB_CONN_CLOSED_PARSE_ERR (0x5), a
+  permanent fatal error. The remaining 670 functions return NULL: they are
+  never called by the browser, and NULL is acceptable when there is no X
+  server. There is no real libxcb in this package and no delegation — the
+  stub is final.
+  .
+  This package contains no X11 code whatsoever: nothing here talks the X11
+  protocol, and there is nothing to switch off. Do not install it on a
+  system that uses X11 - it will break every X11 program there.
