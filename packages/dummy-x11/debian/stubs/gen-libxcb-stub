@@ -119,7 +119,7 @@ static void xcb_stub_init(void) {
         g_log = stderr;
     }
     setvbuf(g_log, NULL, _IONBF, 0);
-    fprintf(g_log, "[init] libxcb stub loaded (v1.0-10)\n");
+    fprintf(g_log, "[init] libxcb stub loaded (v1.0-11)\n");
     fprintf(g_log, "[init] log path: %s\n", get_log_path());
     fprintf(g_log, "[init] DUMMY_X11_LOG is set, logging enabled\n");
 }
