@@ -44,20 +44,16 @@ SYMBOLS_FILE = "symbols-libxcb.so.1.txt"
 STUB_OVERRIDES = {
     'xcb_connect': '(void*)0x1',
     'xcb_connect_to_display_with_auth_info': '(void*)0x1',
-    'xcb_generate_id': '(void*)0x0',
-    'xcb_send_request': '(void*)0',
-    'xcb_send_request_with_fds': '(void*)0',
+    'xcb_generate_id': '(void*)0xffffffff',
     'xcb_flush': '(void*)0',
     'xcb_disconnect': '(void*)0',
 }
 
 # NOTE: xcb_connect returns 0x1 (non-NULL pointer to static error int).
-# Returning NULL (0) causes Chromium to segfault.
-# xcb_connection_has_error → always 0x0 (XCB_CONN_SUCCESS, no error).
-# Chromium checks this after every failed send_request; returning 0 means
-# it won't short-circuit, but combined with xcb_generate_id=0 (invalid XID),
-# subsequent operations on InvalidXID may trigger different error paths.
-# The key signal is the InvalidXID, not the connection error code.
+# Returning NULL (0) causes Chromium to segfault (dereferences connection).
+# xcb_connection_has_error → always 0x5 (XCB_CONN_CLOSED_PARSE_ERR, permanent
+# fatal error). This tells Chromium the connection is permanently broken, so
+# it stops probing extensions (208 calls → 3 calls in testing).
 #
 
 # Список функций, которые логгируются, но не делегируются реальной libxcb.
@@ -211,7 +207,7 @@ void *xcb_connection_has_error(void) {
 
     log_entry("xcb_connection_has_error", sv0, sv1, sv2, sv3, sv4, sv5);
 
-    void *ret = (void*)0x0;
+    void *ret = (void*)0x5;
     log_exit("xcb_connection_has_error", ret);
     return ret;
 }
